@@ -2307,16 +2307,26 @@ std::string CChatOpsCtrl::_BuildCliDisplayContent(const std::string& cmd,
                                                     const std::string& output,
                                                     const std::string& shellType) const
 {
-	// JSON 格式：{"cmd":"...", "output":"...", "shellType":"..."}
-	json j;
-	j["cmd"] = cmd;
-	j["output"] = output;
-	if (!shellType.empty())
+	try
 	{
-		j["shellType"] = shellType;
+		// JSON 格式：{"cmd":"...", "output":"...", "shellType":"..."}
+		json j;
+		j["cmd"] = cmd;
+		j["output"] = output;
+		if (!shellType.empty())
+		{
+			j["shellType"] = shellType;
+		}
+		
+		return j.dump();
 	}
-	
-	return j.dump();
+	catch (const json::exception&)
+	{
+		// JSON 构建失败，回退到旧格式：用换行分隔 cmd 和 output
+		if (!output.empty())
+			return cmd + "\n" + output;
+		return cmd;
+	}
 }
 
 std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc, bool isPending, const std::string& shellType)

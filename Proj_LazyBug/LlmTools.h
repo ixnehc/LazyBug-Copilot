@@ -128,6 +128,9 @@ public:
 	const char* GetToolTypeName(LlmToolType tp);
 	const ToolDefinition* GetToolDefinition(LlmToolType tp);
 
+	// 从 ToolCallResult 字符串解析 LlmToolType
+	static LlmToolType ParseToolTypeFromToolCallResultString(const std::string& content);
+
 private:
 	std::map<LlmToolType, ToolDefinition> _tools;
 	ToolDefinition* _pCurrentToolDef = nullptr;

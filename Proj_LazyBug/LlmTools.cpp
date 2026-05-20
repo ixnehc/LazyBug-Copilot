@@ -572,6 +572,34 @@ void CLlmTools::FillToolsJson(const std::vector<LlmToolType>& toolTypes, json& r
 		requestJson["tools"] = tools_array;
 }
 
+LlmToolType CLlmTools::ParseToolTypeFromToolCallResultString(const std::string& content)
+{
+	// 尝试解析 JSON 获取 tool name
+	try
+	{
+		nlohmann::json parsed = nlohmann::json::parse(content);
+
+		if (parsed.is_array() && parsed.size() > 0)
+		{
+			auto& firstMsg = parsed[0];
+			if (firstMsg.contains("tool_calls") && firstMsg["tool_calls"].is_array())
+			{
+				auto& toolCalls = firstMsg["tool_calls"];
+				if (toolCalls.size() > 0 && toolCalls[0].contains("function"))
+				{
+					std::string toolName = toolCalls[0]["function"]["name"].get<std::string>();
+					return g_llmTools.GetToolTypeByName(toolName);
+				}
+			}
+		}
+	}
+	catch (...)
+	{
+	}
+
+	return LlmToolType::None;
+}
+
 LlmToolType CLlmTools::GetToolTypeByName(const std::string& name)
 {
 	for (const auto& pair : _tools)

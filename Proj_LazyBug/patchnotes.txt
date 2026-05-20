@@ -34,3 +34,6 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - Remove dependency on mfc dll
 - Support 中文字符的 file path
 - Fix an issue of connecting LM Studio api
+
+0.17
+- Fix a CLI tool output crash issue

@@ -739,31 +739,34 @@ void CChatTask_CLI::Update()
 	// 处理增量输出
 	if (_context && _context->chatOpsCtrl && _context->chatAgent)
 	{
-		std::vector<std::string> chunksToProcess;
+		std::string chunksToProcess;
 		
-		// 从队列中取出所有待处理的输出块
+		// 从队列中取出所有待处理的输出块并合并
 		{
 			std::lock_guard<std::mutex> lock(_outputMutex);
 			if (!_outputChunks.empty())
 			{
-				chunksToProcess = std::move(_outputChunks);
+				for (const auto& s : _outputChunks) chunksToProcess += s;
 				_outputChunks.clear();
+			}
+
+			// 完整性处理：将不完整的尾部移到_outputChunks保留
+			if (!chunksToProcess.empty())
+			{
+				std::string tail;
+				Utils::make_complete_utf8(chunksToProcess, tail);
+				if (!tail.empty())
+					_outputChunks.push_back(std::move(tail));
 			}
 		}
 		
-		// 处理增量输出
+		
+		// 处理增量输出（现在chunksToProcess为完整的UTF-8字符串或为空）
 		if (!chunksToProcess.empty())
 		{
 			std::wstring messageId = _context->chatAgent->GetCurrentAIMessageId();
-			
-			for (const auto& chunk : chunksToProcess)
-			{
-				if (!chunk.empty())
-				{
-					_context->chatOpsCtrl->AppendOutputToLastCliDisplay(messageId, chunk);
-				}
-			}
-			
+			_context->chatOpsCtrl->AppendOutputToLastCliDisplay(messageId, chunksToProcess);
+
 			// 收到新输出，如果输入框已显示，则隐藏它
 			if (_inputAreaShown)
 			{

@@ -277,6 +277,55 @@ time_t GetCurFileTimeT()
 }
 
 
+void make_complete_utf8(std::string& s, std::string& tail)
+{
+	tail.clear();
+	if (s.empty())
+		return;
+
+	size_t len = s.size();
+	size_t seqStart = len;  // 最后一个 UTF-8 字符序列的起始位置
+	int expectedLen = 0;    // 该序列期望的字节数
+
+	// 从末尾向前扫描，确定最后一个 UTF-8 字符序列
+	for (size_t i = len; i > 0; --i)
+	{
+		unsigned char c = static_cast<unsigned char>(s[i - 1]);
+		if ((c & 0xC0) != 0x80)  // 不是 continuation byte
+		{
+			seqStart = i - 1;
+			if (c <= 0x7F)
+				expectedLen = 1;       // 单字节 ASCII
+			else if ((c & 0xE0) == 0xC0)
+				expectedLen = 2;       // 2 字节序列
+			else if ((c & 0xF0) == 0xE0)
+				expectedLen = 3;       // 3 字节序列
+			else if ((c & 0xF8) == 0xF0)
+				expectedLen = 4;       // 4 字节序列
+			else
+				return;  // 非法字节，不做处理
+			break;
+		}
+	}
+
+	// 如果整个字符串都是 continuation bytes，全部移到 tail
+	if (seqStart == len)
+	{
+		tail = s;
+		s.clear();
+		return;
+	}
+
+	// 检查最后一个序列是否完整
+	size_t seqLen = len - seqStart;
+	if (seqLen < (size_t)expectedLen)
+	{
+		// 不完整，将不完整部分移到 tail
+		tail = s.substr(seqStart);
+		s.resize(seqStart);
+	}
+}
+
 bool is_valid_utf8(const std::string& s) 
 {
 	size_t i = 0;

@@ -307,7 +307,8 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	
 	// 保存结果
 	std::lock_guard<std::mutex> lock(_resultMutex);
-	_threadResult = resultJson.dump();
+	Utils::DumpFindInFileResultsFromJson(resultJson, _threadResult);
+//	 _threadResult= resultJson.dump();
 	_threadSuccess = true;
 	_threadFinished = true;
 }

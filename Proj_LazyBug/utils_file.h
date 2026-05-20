@@ -30,6 +30,7 @@ extern FILETIME GetZeroFileTime();
 extern bool IsFileExist(const char* path);
 extern bool IsFileReadOnly(const char* path);
 extern bool is_valid_utf8(const std::string& s);
+extern void make_complete_utf8(std::string& s, std::string& tail);
 extern void EnsureFolder(const char* path);
 extern void EnsureFileFolder(const char* filePath);
 extern FILETIME GetFileTime(const char* path);

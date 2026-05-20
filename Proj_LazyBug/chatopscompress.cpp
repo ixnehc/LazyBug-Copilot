@@ -237,39 +237,11 @@ void CChatOpsCompress::_BuildWorkingOps()
 			// 从 content 中解析 tool type
 			// ToolCallResult 格式: [assistant_msg, tool_result_msg]
 			// 需要解析出 tool name 然后映射到 LlmToolType
-			workOp.toolType = _ParseToolTypeFromContent(srcOp.contentUtf8);
+			workOp.toolType = CLlmTools::ParseToolTypeFromToolCallResultString(srcOp.contentUtf8);
 		}
 
 		_workingOps.push_back(workOp);
 	}
-}
-
-LlmToolType CChatOpsCompress::_ParseToolTypeFromContent(const std::string& utf8Content)
-{
-	// 尝试解析 JSON 获取 tool name
-	try
-	{
-		nlohmann::json parsed = nlohmann::json::parse(utf8Content);
-
-		if (parsed.is_array() && parsed.size() > 0)
-		{
-			auto& firstMsg = parsed[0];
-			if (firstMsg.contains("tool_calls") && firstMsg["tool_calls"].is_array())
-			{
-				auto& toolCalls = firstMsg["tool_calls"];
-				if (toolCalls.size() > 0 && toolCalls[0].contains("function"))
-				{
-					std::string toolName = toolCalls[0]["function"]["name"].get<std::string>();
-					return g_llmTools.GetToolTypeByName(toolName);
-				}
-			}
-		}
-	}
-	catch (...)
-	{
-	}
-
-	return LlmToolType::None;
 }
 
 void CChatOpsCompress::_ExecutePass(int pass)
@@ -620,8 +592,11 @@ void CChatOpsCompress::_Pass_TruncateCmdResults(int startSessionAge, int endSess
 	// TODO: 截断命令结果
 }
 
-void CChatOpsCompress::_Pass_ClearSearchOps(int startSessionAge, int endSessionAge)
+void CChatOpsCompress::_Pass_ClearToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes)
 {
+	if (toolTypes.empty())
+		return;
+
 	for (auto& op : _workingOps)
 	{
 		if (_reducedTokens >= _reduceTokenCount)
@@ -633,8 +608,17 @@ void CChatOpsCompress::_Pass_ClearSearchOps(int startSessionAge, int endSessionA
 		if (op.type != ChatOp::Op_AddToolCallResult)
 			continue;
 
-		if (op.toolType != LlmToolType::FindInFiles &&
-		    op.toolType != LlmToolType::SearchFile)
+		// 检查 toolType 是否在指定列表中
+		bool matched = false;
+		for (const auto& toolType : toolTypes)
+		{
+			if (op.toolType == toolType)
+			{
+				matched = true;
+				break;
+			}
+		}
+		if (!matched)
 			continue;
 
 		if (op.currentLevel != Level_None)
@@ -644,9 +628,38 @@ void CChatOpsCompress::_Pass_ClearSearchOps(int startSessionAge, int endSessionA
 	}
 }
 
+void CChatOpsCompress::_Pass_ClearSearchOps(int startSessionAge, int endSessionAge)
+{
+	std::vector<LlmToolType> toolTypes = { LlmToolType::FindInFiles, LlmToolType::SearchFile };
+	_Pass_ClearToolCallResult(startSessionAge, endSessionAge, toolTypes);
+}
+
+void CChatOpsCompress::_Pass_ClearFindSymbol(int startSessionAge, int endSessionAge)
+{
+	std::vector<LlmToolType> toolTypes = { LlmToolType::FindSymbolDefine };
+	_Pass_ClearToolCallResult(startSessionAge, endSessionAge, toolTypes);
+}
+
+
 void CChatOpsCompress::_Pass_ClearToolCalls(int startSessionAge, int endSessionAge)
 {
-	// TODO: 清除工具调用
+	// 清除所有 Op_AddToolCallResult 类型（不限 toolType）
+	for (auto& op : _workingOps)
+	{
+		if (_reducedTokens >= _reduceTokenCount)
+			return;
+
+		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
+			continue;
+
+		if (op.type != ChatOp::Op_AddToolCallResult)
+			continue;
+
+		if (op.currentLevel != Level_None)
+			continue;
+
+		_ApplyCompressToOp(op, Level_Full, "");
+	}
 }
 
 void CChatOpsCompress::_Pass_ClearMessages(int startSessionAge, int endSessionAge)

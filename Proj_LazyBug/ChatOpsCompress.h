@@ -115,6 +115,8 @@ private:
 	void _Pass_TruncateSearchResults(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateCmdResults(int startSessionAge, int endSessionAge);
 	void _Pass_ClearSearchOps(int startSessionAge, int endSessionAge);
+	void _Pass_ClearFindSymbol(int startSessionAge, int endSessionAge);
+	void _Pass_ClearToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
 	void _Pass_ClearToolCalls(int startSessionAge, int endSessionAge);
 	void _Pass_ClearMessages(int startSessionAge, int endSessionAge);
 
@@ -124,9 +126,6 @@ private:
 	// 截断工具
 	std::wstring _TruncateSearchResult(const std::wstring& content, int maxLines);
 	std::wstring _TruncateCmdResult(const std::wstring& content, int maxLines);
-
-	// 从 ToolCallResult 内容解析 LlmToolType
-	LlmToolType _ParseToolTypeFromContent(const std::string& content);
 
 private:
 	CChatOpsCtrl* _opsCtrl = nullptr;

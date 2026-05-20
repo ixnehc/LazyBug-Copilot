@@ -323,14 +323,14 @@ void DumpFindInFileResult(const char* key, const FindInFileResults& results, std
 
 	if (results.fileInfos.empty())
 	{
-		resultString += "========================================\n";
+		resultString += "=====================\n";
 		resultString += "Search Result Summary\n";
-		resultString += "========================================\n";
+		resultString += "=====================\n";
 		resultString += "Search Keyword: " + std::string(key ? key : "") + "\n";
 		resultString += "Matched Files: 0\n";
 		resultString += "Matched Lines: 0\n";
 		resultString += "No results found.\n";
-		resultString += "========================================\n";
+		resultString += "=====================\n";
 		return;
 	}
 
@@ -346,9 +346,9 @@ void DumpFindInFileResult(const char* key, const FindInFileResults& results, std
 		hasMore = true;
 	}
 
-	resultString += "========================================\n";
+	resultString += "=====================\n";
 	resultString += "Search Result Summary\n";
-	resultString += "========================================\n";
+	resultString += "=====================\n";
 	resultString += "Search Keyword: " + std::string(key ? key : "") + "\n";
 	resultString += "Matched Files: " + std::to_string(totalFiles) + "\n";
 	resultString += "Matched Lines: " + std::to_string(totalLines) + "\n";
@@ -357,7 +357,7 @@ void DumpFindInFileResult(const char* key, const FindInFileResults& results, std
 		resultString += "\n";
 		resultString += "Note: Only first " + std::to_string(maxResult) + " results are shown due to the return result limit.\n";
 	}
-	resultString += "========================================\n\n";
+	resultString += "=====================\n\n";
 
 	// Iterate through each file result
 	size_t displayedCount = 0;
@@ -369,10 +369,10 @@ void DumpFindInFileResult(const char* key, const FindInFileResults& results, std
 		if (limitReached)
 			break;
 
-		resultString += "----------------------------------------\n";
+		resultString += "--------------------\n";
 		resultString += "File: " + fileInfo.filePath + "\n";
 		resultString += "Matched Lines: " + std::to_string(fileInfo.lineInfos.size()) + "\n";
-		resultString += "----------------------------------------\n";
+		resultString += "--------------------\n";
 
 		// Iterate through each matched line
 		for (const auto& lineInfo : fileInfo.lineInfos)
@@ -407,14 +407,14 @@ void DumpFindInFileResult(const char* key, const FindInFileResults& results, std
 		resultString += "\n";
 	}
 
-	resultString += "========================================\n";
+	resultString += "=====================\n";
 	resultString += "Search completed";
 	if (hasMore)
 	{
 		resultString += " (showing first " + std::to_string(maxResult) + " lines)";
 	}
 	resultString += "\n";
-	resultString += "========================================\n";
+	resultString += "=====================\n";
 }
 
 void BuildFindInFilesResultJson(nlohmann::json& j, const std::unordered_map<std::string, FindInFileResults>& resultsList, int maxResult)
@@ -509,16 +509,12 @@ void DumpFindInFileResultsFromJson(nlohmann::json& j, std::string& outText)
 		if (i > 0)
 		{
 			outText += "\n";
-			outText += "========================================\n";
-			outText += "\n";
+// 			outText += "=====================\n";
+// 			outText += "\n";
 		}
 
 		// Add keyword header
 		std::string keyword = resultItem.value("keyword", "");
-		outText += "[Search Keyword: \"";
-		outText += keyword;
-		outText += "\"]\n";
-		outText += "----------------------------------------\n";
 
 		// Check if there are files
 		if (!resultItem.contains("files") || !resultItem["files"].is_array() || resultItem["files"].empty())
