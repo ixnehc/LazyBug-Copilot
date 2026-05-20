@@ -1,0 +1,1278 @@
+// ScriptParser.cpp: implementation of the CScriptParser class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "stdh.h"
+#pragma warning (disable:4786)
+#pragma warning (disable:4311)
+#pragma warning (disable:4244)
+
+#include "../math/pos2d.h"
+#include "ScriptParser.h"
+
+#include <assert.h>
+
+#include "ScriptProcesser.h"
+
+//#include "../Log/LogFile.h"
+
+
+/////////////////////////////////////////////////////////////////////////
+//Action Functions
+extern int AF_AcceptVarCategory(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptNoneVarCategory(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptEPVarCategory(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptStateVarCategory(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptVarType(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptVar(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptVarArraySize(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptInitExpr(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptVarSementic(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AccumExprCode(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptExpr(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptDefaultPriority(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptPriority(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptFeature(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptVarAssign(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptVarState(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptGlobal(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptVsVer(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptPsVer(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptFeatureGroupName(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptGroupFeature(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptCap(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptCapValue(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_SetDefaultCapPriority(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_SetCapPriority(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+extern int AF_AcceptFeatureFlag(CScriptParser *pParser,CScriptProcesser*pProcesser,CWordCode &wcRecent);
+
+
+#define B_ALPHA 1
+#define B_NUM 2
+#define B_ALL 3
+#define B_SEPERATOR 4
+
+CScriptParser g_ScriptParser;
+CScriptParser *g_pScriptParser=&g_ScriptParser;
+
+extern CScriptProcesser* g_pScriptProcesser;
+
+
+
+///////////////////////////////////////////////////////////
+//Tables
+int g_szCodeTranslationTable=2;
+int g_CodeTranslationTable[][2]=
+{
+	{'n',0x0a},
+	{'\\','\\'}
+};
+
+struct CodeStatusConvInfo g_CodeStatusConvertorTable[]=
+{    
+	{C_Start,'{',C_LBrace},
+	{C_Start,'}',C_RBrace},
+	{C_Start,'[',C_LSqBrace},
+	{C_Start,']',C_RSqBrace},
+	{C_Start,',',C_Comma},
+	{C_Start,';',C_Semicolon},
+	{C_Start,':',C_Colon},
+	{C_Start,'.',C_Dot},
+	{C_Start,'#',C_Sharp},
+	{C_Start,'$',C_Dollar},
+
+	{C_Start,'(',C_LCurve},
+	{C_Start,')',C_RCurve},
+	{C_Start,'~',C_Tilde},
+	{C_Start,'!',C_Excla},
+	{C_Start,'-',C_Neg},
+	{C_Start,'+',C_Pos},
+	{C_Start,'&',C_And},
+	{C_Start,'*',C_Asterisk},
+	{C_Start,'/',C_Slant},
+	{C_Start,'%',C_Per},
+	{C_Start,'^',C_Caret},
+	{C_Start,'|',C_Or},
+	{C_Start,'=',C_Equ},
+	{C_Start,'<',C_LT},
+	{C_Start,'>',C_GT},
+	{C_Start,'>',C_GT},
+	{C_Start,'?',C_Quest},
+	{C_GT,'=',C_GE},
+	{C_LT,'=',C_LE},
+	{C_Excla,'=',C_NE},
+	{C_And,'&',C_AndAnd},
+	{C_Or,'|',C_OrOr},
+	{C_Equ,'=',C_EQ},
+
+
+
+	{C_Pos,'+',C_PosPos},
+	{C_Neg,'-',C_NegNeg},
+	{C_Pos,'=',CAddAss},
+	{C_Neg,'=',C_MnsAss},
+	{C_Asterisk,'=',C_MulAss},
+	{C_Slant,'=',C_DivAss},
+	{C_Per,'=',C_ModAss},
+
+	{C_Start,B_ALPHA,C_ID},
+	{C_Start,B_NUM,C_Number},
+	{C_Start,'"',C_PStr},
+	{C_ID,B_ALPHA,C_ID},
+	{C_ID,B_NUM,C_ID},
+
+	{C_Number,B_NUM,C_Number},
+	{C_Number,'.',CFloatID},
+	{C_Number,'f',CFloatID},
+	{CFloatID,B_NUM,CFloatID},
+	{CFloatID,'f',CFloatID},
+	{C_PStr,'\"',C_Str},
+	{C_PStr,B_ALL,C_PStr},
+
+	{C_Start,B_SEPERATOR,C_Start}
+		
+};
+
+int g_szCodeStatusConvertorTable=sizeof(g_CodeStatusConvertorTable)/sizeof(g_CodeStatusConvertorTable[0]);
+
+struct RWtype g_ReservedWordTable[]=
+{
+	{"end", C_Rend},
+	{"VertexIn",C_RVertexIn},
+	{"VertexShader",C_RVertexShader},
+	{"PixelIn",C_RPixelIn},
+	{"PixelShader",C_RPixelShader},
+	{"PixelOut",C_RPixelOut},
+	{"EffectParam",C_REffectParam},
+	{"FeatureGroup",C_RFeatureGroup},
+	{"state",C_Rstate},
+	{"declare",C_Rdeclare},
+	{"assign",C_Rassign},
+	{"feature",C_Rfeature},
+	{"priority",C_Rpriority},
+	{"global",C_Rglobal},
+	{"vs_ver",C_Rvs_ver},
+	{"ps_ver",C_Rps_ver},
+	{"cap",C_Rcap},
+	{"float",C_Rtype},
+	{"float2",C_Rtype},	 
+	{"float3",C_Rtype},	 
+	{"float4",C_Rtype},	 
+	{"float1x1",C_Rtype}, 
+	{"float1x2",C_Rtype}, 
+	{"float1x3",C_Rtype}, 
+	{"float1x4",C_Rtype}, 
+	{"float2x1",C_Rtype}, 
+	{"float2x2",C_Rtype}, 
+	{"float2x3",C_Rtype}, 
+	{"float2x4",C_Rtype}, 
+	{"float3x1",C_Rtype}, 
+	{"float3x2",C_Rtype}, 
+	{"float3x3",C_Rtype}, 
+	{"float2x4",C_Rtype}, 
+	{"float4x1",C_Rtype}, 
+	{"float4x2",C_Rtype}, 
+	{"float4x3",C_Rtype}, 
+	{"float4x4",C_Rtype}, 
+	{"int",C_Rtype},		 
+	{"int2",C_Rtype},	 
+	{"int3",C_Rtype},	 
+	{"int4",C_Rtype},	 
+	{"int1x1",C_Rtype},	 
+	{"int1x2",C_Rtype},	 
+	{"int1x3",C_Rtype},	 
+	{"int1x4",C_Rtype},	 
+	{"int2x1",C_Rtype},	 
+	{"int2x2",C_Rtype}, 
+	{"int2x3",C_Rtype}, 
+	{"int2x4",C_Rtype}, 
+	{"int3x1",C_Rtype},	 
+	{"int3x2",C_Rtype}, 
+	{"int3x3",C_Rtype}, 
+	{"int2x4",C_Rtype}, 
+	{"int4x1",C_Rtype},	 
+	{"int4x2",C_Rtype}, 
+	{"int4x3",C_Rtype}, 
+	{"int4x4",C_Rtype}, 
+	{"texture",C_Rtype}, 
+
+	{"bool",C_Rtype},
+	{"bvec2",C_Rtype},
+	{"bvec3",C_Rtype},
+	{"bvec4",C_Rtype},
+	{"ivec2",C_Rtype},
+	{"ivec3",C_Rtype},
+	{"ivec4",C_Rtype},
+	{"vec2",C_Rtype},
+	{"vec3",C_Rtype},
+	{"vec4",C_Rtype},
+	{"mat2",C_Rtype},
+	{"mat3",C_Rtype},
+	{"mat4",C_Rtype},
+	{"mat2x2",C_Rtype},
+	{"mat2x3",C_Rtype},
+	{"mat2x4",C_Rtype},
+	{"mat3x2",C_Rtype},
+	{"mat3x3",C_Rtype},
+	{"mat3x4",C_Rtype},
+	{"mat4x2",C_Rtype},
+	{"mat4x3",C_Rtype},
+	{"mat4x4",C_Rtype},
+};
+
+int g_szReservedWordTable=sizeof(g_ReservedWordTable)/sizeof(g_ReservedWordTable[0]);
+
+
+//Code-->Operator Convertor table
+int g_CodeOperatorMapTable[]=
+{
+	O_COMMA,//C_Comma,//","
+	O_LEFT_BRACE,//C_LCurve,//"("
+	O_RIGHT_BRACE,//C_RCurve,//")"
+	O_BITWISE_NOT,//C_Tilde,//"~"
+	O_LOGIC_NOT,//C_Excla,//"!"
+	O_SUBTRACT,//C_Neg,//"-"
+	O_ADD,//C_Pos,//"+"
+	O_BITWISE_AND,//C_And,//"&"
+	O_MULTIPLY,//C_Asterisk,//"*"
+	O_DIVIDE,//C_Slant,//"/"
+	O_REMAINDER,//C_Per,//"%"
+	O_BITWISE_XOR,//C_Caret,//"^"
+	O_BITWISE_OR,//C_Or,//"|"
+	O_ASSIGN,//C_Equ,//"="
+	O_LESS_THAN,//C_LT,//"<"
+	O_GREATER_THAN,//C_GT,//">"
+};
+
+
+//Empty 
+CGrammerItemInfo g_rule00[]={ {GIT_NULL,} };
+
+//N_Start->BlockType { N_BlockStart } N_Start
+CGrammerItemInfo g_rule01[]={
+	{GIT_CODE,C_ALL},
+	{GIT_AF,(__int64)AF_AcceptVarCategory},
+	{GIT_CODE,C_LBrace},
+	{GIT_NODE,N_BlockStart},
+	{GIT_CODE,C_RBrace},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//	N_BlockStart->C_Rtype C_ID N_ArraySize N_Sementic N_Annotation N_InitValue; N_BlockStart
+CGrammerItemInfo g_rule02[]={
+	{GIT_CODE,C_Rtype},
+	{GIT_AF,(__int64)AF_AcceptVarType},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptVar},
+	{GIT_NODE,N_ArraySize},
+	{GIT_NODE,N_Sementic},
+	{GIT_NODE,N_Annotation},
+	{GIT_NODE,N_InitValue},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_BlockStart},
+	{GIT_NULL,}
+};
+
+//	N_BlockStart-->N_Expression;N_BlockStart
+CGrammerItemInfo g_rule03[]={
+	{GIT_NODE,N_Expression},
+	{GIT_AF,(__int64)AF_AcceptExpr},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_BlockStart},
+	{GIT_NULL,}
+};
+
+//N_BlockStart->[NULL]
+CGrammerItemInfo g_rule04[]={ {GIT_NULL,} };
+
+//N_Expression-->C_ALL N_Expression
+CGrammerItemInfo g_rule05[]={
+	{GIT_CODE,C_ALL},
+	{GIT_AF,(__int64)AF_AccumExprCode},
+	{GIT_NODE,N_Expression},
+	{GIT_NULL,}
+};
+
+//N_Expression-->[NULL]
+CGrammerItemInfo g_rule06[]={ 
+	{GIT_NULL,} 
+};
+
+// N_ArraySize-->[ C_Number ]
+CGrammerItemInfo g_rule07[]={
+	{GIT_CODE,C_LSqBrace},
+	{GIT_CODE,C_Number},
+	{GIT_AF,(__int64)AF_AcceptVarArraySize},
+	{GIT_CODE,C_RSqBrace},
+	{GIT_NULL,}
+};
+
+// N_ArraySize-->[NULL]
+CGrammerItemInfo g_rule08[]={ {GIT_NULL,} };
+
+// N_InitValue-> = N_Expression
+CGrammerItemInfo g_rule09[]={
+	{GIT_CODE,C_Equ},
+	{GIT_NODE,N_Expression},
+	{GIT_AF,(__int64)AF_AcceptInitExpr},
+	{GIT_NULL,}
+};
+
+// N_InitValue-> [NULL]
+CGrammerItemInfo g_rule10[]={ {GIT_NULL,} };
+
+//N_Sementic-> C_Colon C_ID
+CGrammerItemInfo g_rule13[]={
+	{GIT_CODE,C_Colon},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptVarSementic},
+	{GIT_NULL,}
+};
+
+//N_Annotation-> C_LT N_AnnotationContent
+CGrammerItemInfo g_rule14[]={
+	{GIT_CODE,C_LT},
+	{GIT_NODE,N_AnnotationContent},
+	{GIT_NULL,}
+};
+
+//N_AnnotationContent->C_ALL N_AnnotationContent
+CGrammerItemInfo g_rule15[]={
+	{GIT_CODE,C_ALL},
+	{GIT_NODE,N_AnnotationContent},
+	{GIT_NULL,}
+};
+
+//N_Start -> declare C_ID N_ArraySize N_Annotation; N_Start
+CGrammerItemInfo g_rule16[]={
+	{GIT_CODE,C_Rdeclare},
+	{GIT_AF,(__int64)AF_AcceptEPVarCategory},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptVar},
+	{GIT_NODE,N_ArraySize},
+	{GIT_NODE,N_Annotation},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_Start -> assign C_ID N_Priority N_InitValue N_Assign; N_Start
+CGrammerItemInfo g_rule17[]={
+	{GIT_CODE,C_Rassign},
+	{GIT_AF,(__int64)AF_AcceptNoneVarCategory},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptVar},
+	{GIT_AF,(__int64)AF_AcceptDefaultPriority},
+	{GIT_NODE,N_Priority},
+	{GIT_NODE,N_InitValue},
+	{GIT_NODE,N_Assign},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_Assign -> # N_AssignContent #
+CGrammerItemInfo g_rule18[]={
+	{GIT_CODE,C_Dollar},
+	{GIT_NODE,N_AssignContent},
+	{GIT_CODE,C_Dollar},
+	{GIT_NULL,}
+};
+
+//N_AssignContent ->C_All N_AssignContent
+CGrammerItemInfo g_rule19[]={
+	{GIT_CODE,C_ALL},
+	{GIT_AF,(__int64)AF_AcceptVarAssign},
+	{GIT_NODE,N_AssignContent},
+	{GIT_NULL,}
+};
+
+//N_Priority -> : priority( C_Number )
+CGrammerItemInfo g_rule20[]={
+	{GIT_CODE,C_Colon},
+	{GIT_CODE,C_Rpriority},
+	{GIT_CODE,C_LCurve},
+	{GIT_CODE,C_Number},
+	{GIT_AF,(__int64)AF_AcceptPriority},
+	{GIT_CODE,C_RCurve},
+	{GIT_NULL,}
+};
+
+//N_Start -> feature = C_ID N_FeatureFlagBlock ; N_Start
+CGrammerItemInfo g_rule21[]={
+	{GIT_CODE,C_Rfeature},
+	{GIT_CODE,C_Equ},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptFeature},
+	{GIT_NODE,N_FeatureFlagBlock},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_Start -> global # N_Global # ; N_Start
+CGrammerItemInfo g_rule22[]={
+	{GIT_CODE,C_Rglobal},
+	{GIT_CODE,C_Dollar},
+	{GIT_NODE,N_Global},
+	{GIT_CODE,C_Dollar},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_Global -> C_ALL N_Global
+CGrammerItemInfo g_rule23[]={
+	{GIT_CODE,C_ALL},
+	{GIT_AF,(__int64)AF_AcceptGlobal},
+	{GIT_NODE,N_Global},
+	{GIT_NULL,}
+};
+
+//N_Start -> state C_ID N_ArraySize N_Priority = N_StateValue ; N_Start
+CGrammerItemInfo g_rule24[]={
+	{GIT_CODE,C_Rstate},
+	{GIT_AF,(__int64)AF_AcceptStateVarCategory},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptVar},
+	{GIT_AF,(__int64)AF_AcceptDefaultPriority},
+	{GIT_NODE,N_ArraySize},
+	{GIT_NODE,N_Priority},
+	{GIT_CODE,C_Equ},
+	{GIT_NODE,N_StateValue},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_StateValue -> C_ALL N_StateValue
+CGrammerItemInfo g_rule25[]={
+	{GIT_CODE,C_ALL},
+	{GIT_AF,(__int64)AF_AcceptVarState},
+	{GIT_NODE,N_StateValue},
+	{GIT_NULL,}
+};
+
+//N_Start -> vs_ver = C_ID ; N_Start
+CGrammerItemInfo g_rule26[]={
+	{GIT_CODE,C_Rvs_ver},
+	{GIT_CODE,C_Equ},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptVsVer},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_Start -> ps_ver = C_ID ; N_Start
+CGrammerItemInfo g_rule27[]={
+	{GIT_CODE,C_Rps_ver},
+	{GIT_CODE,C_Equ},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptPsVer},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_Start -> FeatureGroup { N_FeatureGroupBlock } N_Start
+CGrammerItemInfo g_rule28[]={
+	{GIT_CODE,C_RFeatureGroup},
+	{GIT_CODE,C_LBrace},
+	{GIT_NODE,N_FeatureGroupBlock},
+	{GIT_CODE,C_RBrace},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_FeatureGroupBlock -> C_ID : C_ID N_GroupFeature ; N_FeatureGroupBlock
+CGrammerItemInfo g_rule29[]={
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptFeatureGroupName},
+	{GIT_CODE,C_Colon},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptGroupFeature},
+	{GIT_NODE,N_GroupFeature},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_FeatureGroupBlock},
+	{GIT_NULL,}
+};
+
+//N_GroupFeature -> , C_ID N_GroupFeature
+CGrammerItemInfo g_rule30[]={
+	{GIT_CODE,C_Comma},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptGroupFeature},
+	{GIT_NODE,N_GroupFeature},
+	{GIT_NULL,}
+};
+
+//N_Start -> cap C_ID = C_Number N_CapPriority ;
+CGrammerItemInfo g_rule32[]={
+	{GIT_CODE,C_Rcap},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptCap},
+	{GIT_CODE,C_Equ},
+	{GIT_CODE,C_Number},
+	{GIT_AF,(__int64)AF_AcceptCapValue},
+	{GIT_AF,(__int64)AF_SetDefaultCapPriority},
+	{GIT_NODE,N_CapPriority},
+	{GIT_CODE,C_Semicolon},
+	{GIT_NODE,N_Start},
+	{GIT_NULL,}
+};
+
+//N_CapPriority -> : priority( C_Number )
+CGrammerItemInfo g_rule33[]={
+	{GIT_CODE,C_Colon},
+	{GIT_CODE,C_Rpriority},
+	{GIT_CODE,C_LCurve},
+	{GIT_CODE,C_Number},
+	{GIT_AF,(__int64)AF_SetCapPriority},
+	{GIT_CODE,C_RCurve},
+	{GIT_NULL,}
+};
+
+//N_FeatureFlagGroup -> : C_ID N_FeatureFlag
+CGrammerItemInfo g_rule34[]={
+	{GIT_CODE,C_Colon},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptFeatureFlag},
+	{GIT_NODE,N_FeatureFlag},
+	{GIT_NULL,}
+};
+
+//N_FeatureFlag -> , C_ID N_FeatureFlag
+CGrammerItemInfo g_rule35[]={
+	{GIT_CODE,C_Comma},
+	{GIT_CODE,C_ID},
+	{GIT_AF,(__int64)AF_AcceptFeatureFlag},
+	{GIT_NODE,N_FeatureFlag},
+	{GIT_NULL,}
+};
+
+
+RuleExtendType g_RuleExtendTable[]=
+{
+	{N_Start,C_RVertexIn,g_rule01},
+	{N_Start,C_RPixelIn,g_rule01},
+	{N_Start,C_RPixelOut,g_rule01},
+	{N_Start,C_RVertexShader,g_rule01},
+	{N_Start,C_RPixelShader,g_rule01},
+	{N_Start,C_REffectParam,g_rule01},
+	{N_Start,C_Rdeclare,g_rule16},
+	{N_Start,C_Rassign,g_rule17},
+	{N_Start,C_Rfeature,g_rule21},
+	{N_Start,C_Rglobal,g_rule22},
+	{N_Start,C_Rstate,g_rule24},
+	{N_Start,C_Rvs_ver,g_rule26},
+	{N_Start,C_Rps_ver,g_rule27},
+	{N_Start,C_RFeatureGroup,g_rule28},
+	{N_Start,C_Rcap,g_rule32},
+	{N_Start,C_End,g_rule00},
+
+	{N_BlockStart,C_Rtype,g_rule02},
+	{N_BlockStart,C_RBrace,g_rule00},
+	{N_BlockStart,C_ALL,g_rule03},
+
+	{N_Expression,C_Semicolon,g_rule06},
+	{N_Expression,C_ALL,g_rule05},
+
+	{N_ArraySize,C_LSqBrace,g_rule07},
+	{N_ArraySize,C_ALL,g_rule00},
+
+	{N_InitValue,C_Equ,g_rule09},
+	{N_InitValue,C_ALL,g_rule00},
+
+	{N_Sementic,C_Colon,g_rule13},
+	{N_Sementic,C_ALL,g_rule00},
+
+	{N_Annotation,C_LT,g_rule14},
+	{N_Annotation,C_ALL,g_rule00},
+
+	{N_AnnotationContent,C_GT,g_rule00},
+	{N_AnnotationContent,C_ALL,g_rule15},
+
+	{N_Assign,C_Dollar,g_rule18},
+	{N_Assign,C_ALL,g_rule00},
+
+	{N_AssignContent,C_Dollar,g_rule00},
+	{N_AssignContent,C_ALL,g_rule19},
+
+	{N_Priority,C_Colon,g_rule20},
+	{N_Priority,C_ALL,g_rule00},
+
+	{N_Global,C_Dollar,g_rule00},
+	{N_Global,C_ALL,g_rule23},
+
+	{N_StateValue,C_Semicolon,g_rule00},
+	{N_StateValue,C_ALL,g_rule25},
+
+	{N_FeatureGroupBlock,C_ID,g_rule29},
+	{N_FeatureGroupBlock,C_RBrace,g_rule00},
+
+	{N_GroupFeature,C_Comma,g_rule30},
+	{N_GroupFeature,C_Semicolon,g_rule00},
+
+	{N_CapPriority,C_Colon,g_rule33},
+	{N_CapPriority,C_Semicolon,g_rule00},
+
+	{N_FeatureFlagBlock,C_Colon,g_rule34},
+	{N_FeatureFlagBlock,C_Semicolon,g_rule00},
+
+	{N_FeatureFlag,C_Comma,g_rule35},
+	{N_FeatureFlag,C_Semicolon,g_rule00},
+
+};
+
+int g_szRuleExtendTable=sizeof(g_RuleExtendTable)/sizeof(g_RuleExtendTable[0]);
+
+
+/////////////////////////////////////////////////////////////////////////
+//CScriptParser
+CScriptParser::CScriptParser()
+{
+	m_pWordCodes=NULL;
+	m_UniqueSerial=0;
+
+	m_bTranslateFlag=FALSE;
+
+}
+
+CScriptParser::~CScriptParser()
+{
+	Clear();
+}
+
+
+void CScriptParser::Clear()
+{
+	if (m_pWordCodes)
+		delete[] m_pWordCodes;
+	m_pWordCodes=NULL;
+	m_UniqueSerial=0;
+	m_bTranslateFlag=FALSE;
+}
+
+void CScriptParser::ClearError()
+{
+	m_aErrors.clear();
+}
+
+BOOL CScriptParser::HasError()
+{
+	return m_aErrors.size()>0;
+}
+
+
+
+const char *CScriptParser::GetErrorString(ErrorType et)
+{
+	static std::string s;
+	switch (et)
+	{
+		case Err_FailToOpenFile:
+			s="Failed to open file";
+			break;
+		case Err_Unknown:
+			s="Unknown Error";
+			break;
+		case Err_UnknownSymbol:
+			s="Unknown Symbol Error";
+			break;
+		case Err_UnsupportedVarType:
+			s="Unsupported Var Type Error";
+			break;
+		case Err_InvalidVariableName:
+			s="Invalid Variable Name Error";
+			break;
+		case Err_VariableRedefined:
+			s="Variable Redefined Error";
+			break;
+		case Err_ExpressionSyntaxError:
+			s="Expression Syntax Error";
+			break;
+		case Err_UnknownIdentifier:
+			s="Unknown Identifier Error";
+			break;
+		case Err_UnsupportedOperator:
+			s="Unsupported Operator Error";
+			break;
+		case Err_LeftCurveNeeded:
+			s="\"(\" needed";
+			break;
+		case Err_RightCurveMissed:
+			s="\")\" needed";
+			break;
+		case Err_RightBraceMissed:
+			s="\"}\" needed";
+			break;
+		case Err_UnexpectedEndOfFile:
+			s="Unexpected End Of File";
+			break;
+		case Err_CalculateExpression:
+			s="Expression Calculation Error";
+			break;
+		case Err_WrongGrammer:
+			s="Grammer Mistake";
+			break;
+		case Err_GrammerStackOverFlow:
+			s="Grammer Stack Overflow";
+			break;
+		case Err_InvalidJumpTarget:
+			s="Invalid Jump Target";
+			break;
+		case Err_CannotEvalJudgement:
+			s="Cannot Eval Judgement Expression";
+			break;
+		case Err_CannotContinue:
+			s="Cannot Continue";
+			break;
+		case Err_CannotBreak:
+			s="Cannot Break";
+			break;
+		case Err_InvalidArraySize:
+			s="Invalid Array Size";
+			break;
+		case Err_InvalidInitExpression:
+			s="Invalid init expression";
+			break;
+		case Err_InvalidPriority:
+			s="Invalid var priority";
+			break;
+		case Err_InvalidCapName:
+			s="Invalid cap name";
+			break;
+		case Err_InvalidFeatureFlagName:
+			s="Invalid feature flag name";
+			break;
+		default:
+			s="Undefined Error";
+			break;
+	}
+	return s.c_str();
+}
+
+void CScriptParser::AddError(ErrorType et,CWordCodePos &pos)
+{
+	CErrorInfo ei;
+	ei.m_et=et;
+	ei.m_ErrorPos=pos;
+	m_aErrors.push_back(ei);
+
+//	if (FALSE)
+//	{
+//		std::string s1,s2;
+//		FormatString(s1,"Error In Line %d :",pos.m_iLine+1);
+//		s2=GetErrorString(et);
+//		s1+=s2;
+//		s1+="!\n";
+//		s1+="\n--\""+m_fnScriptFile+"\"";
+////		AfxMessageBox(s1);
+//	}
+	
+}
+
+DWORD CScriptParser::GetErrorCount()
+{
+	return m_aErrors.size();
+}
+
+CErrorInfo *CScriptParser::GetError(DWORD idx)
+{
+	if (idx>=m_aErrors.size())
+		return NULL;
+	return &m_aErrors[idx];
+}
+
+//Return value indicates whether we found a conversion rule,and made the conversion.
+BOOL CScriptParser::ConvertWordCodeStatus(CWordCode &wc,char c)
+{
+	int i;
+	WordCodeType OldCode;
+	OldCode=wc.m_WordCode;
+	static char widecodes[3]="aa";
+	static BOOL bWideCodes=FALSE;
+	for (i=0;i<g_szCodeStatusConvertorTable;i++)
+	{
+		BOOL bFound;
+		bFound=FALSE;
+		if (g_CodeStatusConvertorTable[i].m_InStatus==wc.m_WordCode)
+		{
+			if (g_CodeStatusConvertorTable[i].m_InCode==B_ALL)
+			{
+				wc.m_WordCode=g_CodeStatusConvertorTable[i].m_OutStatus;
+				bFound=TRUE;
+			}
+			else
+			{
+				if (g_CodeStatusConvertorTable[i].m_InCode==B_ALPHA)
+				{
+					if (((c>='a')&&(c<='z'))||((c>='A')&&(c<='Z'))||(c=='_'))
+					{
+						wc.m_WordCode=g_CodeStatusConvertorTable[i].m_OutStatus;
+						bFound=TRUE;
+					}
+				}
+				else
+				{
+					if (g_CodeStatusConvertorTable[i].m_InCode==B_NUM)
+					{
+						if ((c>='0')&&(c<='9'))
+						{
+							wc.m_WordCode=g_CodeStatusConvertorTable[i].m_OutStatus;
+							bFound=TRUE;
+						}
+					}
+					else
+					{
+						if (g_CodeStatusConvertorTable[i].m_InCode==B_SEPERATOR)
+						{
+							if (c<=' ')
+							{
+								wc.m_WordCode=g_CodeStatusConvertorTable[i].m_OutStatus;
+								bFound=TRUE;
+							}
+						}
+						if(g_CodeStatusConvertorTable[i].m_InCode==c)
+						{
+							wc.m_WordCode=g_CodeStatusConvertorTable[i].m_OutStatus;
+							bFound=TRUE;
+						}
+					}
+				}
+			}
+		}
+		if(bFound)
+		{
+			if ((OldCode==C_PStr)&&(wc.m_WordCode==C_PStr))
+			{
+				if (m_bTranslateFlag)
+				{
+					m_bTranslateFlag=FALSE;
+					int k;
+					for (k=0;k<g_szCodeTranslationTable;k++)
+					{
+						if (c==g_CodeTranslationTable[k][0])
+						{
+							c=g_CodeTranslationTable[k][1];
+							break;
+						}
+					}
+					wc.m_String+=c;
+				}
+				else
+				{
+					if (bWideCodes)
+					{
+						widecodes[1]=c;
+						wc.m_String+=widecodes;
+						bWideCodes=FALSE;
+					}
+					else
+					{
+						if (((BYTE )c)>=128)
+						{
+							bWideCodes=TRUE;
+							widecodes[0]=c;
+						}
+						else
+						{
+							if (c=='\\')
+								m_bTranslateFlag=TRUE;
+							else
+								wc.m_String+=c;
+						}
+					}
+				}
+				return TRUE;
+			}
+//			if ((OldCode==C_PStr)&&(wc.m_WordCode==C_Str))
+//				wc.m_String+=CString(c);
+			if ((OldCode==C_PChar)&&(wc.m_WordCode==C_PChar))
+			{
+				if (m_bTranslateFlag)
+				{
+					m_bTranslateFlag=FALSE;
+					int k;
+					for (k=0;k<g_szCodeTranslationTable;k++)
+					{
+						if (c==g_CodeTranslationTable[k][0])
+						{
+							c=g_CodeTranslationTable[k][1];
+							break;
+						}
+					}
+					wc.m_String+=c;
+				}
+				else
+				{
+					if (c=='\\')
+						m_bTranslateFlag=TRUE;
+					else
+						wc.m_String+=c;
+				}
+				return TRUE;
+			}
+
+			if (wc.m_WordCode!=C_Start)
+				wc.m_String+=c;
+			return TRUE;
+
+//			if (wc.m_WordCode==C_Number)
+//				wc.m_String+=CString(c);
+//			if (wc.m_WordCode==C_ID)
+//				wc.m_String+=CString(c);
+			return TRUE;
+		}
+	}
+	//Cannot convert any more
+	return FALSE;
+}
+
+
+
+BOOL CScriptParser::LoadRawScript(std::vector<std::string>&lines)
+{
+	std::vector<std::string> aVariableNames;
+
+	std::string sScript;
+	std::vector<i_math::pos2di>aCharPos;
+
+	//first read all the char
+	if (TRUE)
+	{
+		for (int iLine=0;iLine<lines.size();iLine++)
+		{
+			std::string s=lines[iLine];
+
+			sScript+=s;
+			for (int i=0;i<s.length();i++)
+			{
+				i_math::pos2di pt;
+				pt.x=i;
+				pt.y=iLine;
+				aCharPos.push_back(pt);
+			}
+		}
+	}
+
+	std::vector<CWordCode>aWordCodes;
+	//Now parse them into word codes.
+	if (TRUE)
+	{
+		CWordCode wcCur;	
+		wcCur.m_WordCode=C_Start;
+		wcCur.m_pos.m_iLine=0;
+		wcCur.m_pos.m_iPosInLine=0;
+		
+		char *p,*pStart;
+		int iCharPos;
+		p=pStart=(char*)sScript.c_str();
+		iCharPos=0;
+		
+		char c;
+		while(c=*p)
+		{
+			if (!ConvertWordCodeStatus(wcCur,c))
+			{
+				if (wcCur.m_WordCode==C_Start)
+				{
+					AddError(Err_UnknownSymbol,wcCur.m_pos);
+					return FALSE;
+				}
+				else
+				{
+					wcCur.m_pos.m_iLine=aCharPos[iCharPos-1].y;
+					wcCur.m_pos.m_iPosInLine=aCharPos[iCharPos-1].x;
+					aWordCodes.push_back(wcCur);
+					wcCur.m_WordCode=C_Start;
+					wcCur.m_String="";
+					wcCur.m_Value=0;
+					continue;
+				}
+			}
+			p++;
+			iCharPos++;
+		}
+
+		if (wcCur.m_WordCode!=C_Start)
+		{
+			wcCur.m_pos.m_iLine=aCharPos[iCharPos-1].y;
+			wcCur.m_pos.m_iPosInLine=aCharPos[iCharPos-1].x;
+			aWordCodes.push_back(wcCur);
+			wcCur.m_WordCode=C_Start;
+			wcCur.m_String="";
+			wcCur.m_Value=0;
+		}
+
+		//The end flag
+		wcCur.m_WordCode=C_End;
+		wcCur.m_String="";
+		wcCur.m_Value=0;
+		if (aCharPos.size()>0)
+		{
+			wcCur.m_pos.m_iLine=aCharPos[aCharPos.size()-1].y;
+			wcCur.m_pos.m_iPosInLine=aCharPos[aCharPos.size()-1].x;
+		}
+		else
+		{
+			CWordCodePos pos;
+			g_pScriptParser->AddError(Err_EmptyFile,pos);
+			wcCur.m_pos.m_iLine=0;
+			wcCur.m_pos.m_iPosInLine=0;
+		}
+		wcCur.m_pos.m_iLine++;
+		wcCur.m_pos.m_iPosInLine=0;
+		aWordCodes.push_back(wcCur);
+	}
+
+	//Now check the reserved words & the numbers & the functions
+	if (TRUE)
+	{
+		int i,j;
+		int sz;
+		sz=aWordCodes.size();
+		for (i=0;i<sz;i++)
+		{
+			if (aWordCodes[i].m_WordCode==C_ID)
+			{
+				for (j=0;j<g_szReservedWordTable;j++)
+				{
+					if (aWordCodes[i].m_String==g_ReservedWordTable[j].s)
+					{
+						aWordCodes[i].m_WordCode=g_ReservedWordTable[j].Code;
+						break;
+					}
+				}
+			}
+
+			if (aWordCodes[i].m_WordCode==C_Number)
+				aWordCodes[i].m_Value=(int)atol(aWordCodes[i].m_String.c_str());
+		}
+
+	}
+
+	//Copy them to the result buffer
+	if (TRUE)
+	{
+		int sz;
+		sz=aWordCodes.size();
+		assert(!m_pWordCodes);
+		m_pWordCodes=new CWordCode[sz];
+		int i;
+		for (i=0;i<sz;i++)
+			m_pWordCodes[i]=aWordCodes[i];
+		m_nWordCodes=sz;
+		aWordCodes.clear();
+	}
+
+	return TRUE;
+}
+
+
+BOOL CScriptParser::GetRecentWordCode(CWordCode &wc)
+{
+	if (m_wcRecent.m_WordCode==C_Start)
+		return FALSE;
+	wc=m_wcRecent;
+	return TRUE;
+}
+
+
+
+void CScriptParser::ClearGrammerItemStack()
+{
+	m_topGrammerItemStack=0;
+}
+
+BOOL CScriptParser::IsGrammerItemStackEmpty()
+{
+	return m_topGrammerItemStack==0;
+}
+
+
+BOOL CScriptParser::PushGrammerItem(CGrammerItemInfo &gi)
+{
+	if (m_topGrammerItemStack>=GRAMMER_ITEM_STACK_SIZE)//Overflow
+	{
+		AddError(Err_GrammerStackOverFlow,m_wcRecent.m_pos);
+		return FALSE;
+	}
+	memcpy(&m_stackGrammerItem[m_topGrammerItemStack],&gi,sizeof(CGrammerItemInfo));
+	m_topGrammerItemStack++;
+	return TRUE;
+}
+BOOL CScriptParser::PopGrammerItem(CGrammerItemInfo &gi)
+{
+	if (IsGrammerItemStackEmpty())
+		return FALSE;
+	m_topGrammerItemStack--;
+	memcpy(&gi,&m_stackGrammerItem[m_topGrammerItemStack],sizeof(CGrammerItemInfo));
+	return TRUE;
+}
+
+CGrammerItemInfo *CScriptParser::SearchRule(GrammerNodeType node,WordCodeType wc)
+{
+	int i;
+	for (i=0;i<g_szRuleExtendTable;i++)
+	{
+		if (g_RuleExtendTable[i].InGn==node)
+		{
+			if (g_RuleExtendTable[i].InCode==C_ALL)
+			{
+				if (wc!=C_End)
+					return g_RuleExtendTable[i].OutRl;
+			}
+			else
+			{
+				if (g_RuleExtendTable[i].InCode==wc)
+					return g_RuleExtendTable[i].OutRl;
+			}
+		}
+	}
+	return NULL;
+}
+
+BOOL CScriptParser::ExtendRule(CGrammerItemInfo * rule)
+{
+	int i;
+	i=0;
+	while(rule[i].m_type!=GIT_NULL)//Reach the tail
+		i++;
+
+	i--;
+	for (;i>=0;i--)
+		PushGrammerItem(rule[i]);
+
+	return TRUE;
+}
+
+BOOL CScriptParser::BeginExecute()
+{
+	ClearError();
+	m_iExecutePos=0;
+	ClearGrammerItemStack();
+
+	if (TRUE)//The beginning status
+	{
+		CGrammerItemInfo gi;
+		gi.m_type=GIT_NODE;
+		gi.m_GrammerNode=N_Start;
+
+		PushGrammerItem(gi);
+	}
+
+	if (TRUE)
+	{
+		m_wcRecent.m_WordCode=C_Start;
+		m_wcRecent.m_pos.m_iLine=0;
+		m_wcRecent.m_pos.m_iPosInLine=0;
+	}
+
+
+	m_bFinished=FALSE;
+
+	g_pScriptProcesser->Clean();
+
+	return TRUE;
+}
+
+
+int CScriptParser::Execute()
+{
+	if (m_bFinished)
+		return SCRIPT_EXECUTE_FINISHED;
+
+	while(!HasError())
+	{
+		CGrammerItemInfo gi;
+		if (FALSE==PopGrammerItem(gi))
+		{
+			if (m_pWordCodes[m_iExecutePos].m_WordCode!=C_End)
+			{
+				AddError(Err_WrongGrammer,m_pWordCodes[m_iExecutePos].m_pos);
+
+				gi.m_type=GIT_NODE;
+				gi.m_GrammerNode=N_Start;
+				PushGrammerItem(gi);
+
+				m_iExecutePos++;
+				
+				continue;
+			}
+			m_bFinished=TRUE;
+			return SCRIPT_EXECUTE_FINISHED;
+		}
+		switch (gi.m_type)
+		{
+			case GIT_CODE://The grammer needs some certain code here,try to match it
+			{
+				if (gi.m_Code!=C_ALL)
+				{
+					if (gi.m_Code!=m_pWordCodes[m_iExecutePos].m_WordCode)
+					{
+						AddError(Err_WrongGrammer,m_pWordCodes[m_iExecutePos].m_pos);
+						PushGrammerItem(gi);
+					}
+				}
+				else
+				{
+					if (m_pWordCodes[m_iExecutePos].m_WordCode==C_End)
+					{
+						AddError(Err_WrongGrammer,m_pWordCodes[m_iExecutePos].m_pos);
+						PushGrammerItem(gi);
+					}
+				}
+				break;
+			}
+			case GIT_NODE:
+			{
+				CGrammerItemInfo *rule;
+				//search the rule based on the current state-node and the coming code
+				rule=SearchRule((GrammerNodeType)gi.m_GrammerNode,m_pWordCodes[m_iExecutePos].m_WordCode);
+				if (!rule)
+				{
+					AddError(Err_WrongGrammer,m_pWordCodes[m_iExecutePos].m_pos);
+					PushGrammerItem(gi);
+				}
+				else
+				{
+					ExtendRule(rule);//extend the rule,and push its content to stack
+					continue;
+				}
+				break;
+			}
+			case GIT_AF:
+			{
+				//Action function,just execute it.
+				gi.m_ActionFunction(this,g_pScriptProcesser,m_wcRecent);
+				continue;
+			}
+		}
+ 
+		m_wcRecent=m_pWordCodes[m_iExecutePos];
+		m_iExecutePos++;
+		
+		//Some processing on m_wcRecent
+		switch (m_wcRecent.m_WordCode)
+		{
+			case C_End:
+			{
+				if (!IsGrammerItemStackEmpty())
+					AddError(Err_UnexpectedEndOfFile,m_wcRecent.m_pos);
+				m_bFinished=TRUE;
+				return SCRIPT_EXECUTE_FINISHED;
+			}
+		}
+	}
+	if (HasError())
+		return SCRIPT_EXECUTE_TOOMANYERROR;
+	return SCRIPT_EXECUTE_FINISHED;
+}
+
+void CScriptParser::EndExecute()
+{
+}
+

@@ -1,0 +1,781 @@
+/********************************************************************
+	created:	2006/10/8   10:36
+	filename: 	e:\IxEngine\Common\shaderlib\SLDefines.cpp
+	author:		cxi
+	
+	purpose:	member functions for SL base type
+*********************************************************************/
+
+#include "stdh.h"
+
+#include "SLDefines.h"
+#include "SLFeature.h"
+#include "SLEffectParam.h"
+
+#include "../gds/GVar.h"
+
+#include "datapacket/DataPacket.h"
+#include "stringparser/stringparser.h"
+
+#include "../anim/KeySet.h"
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+//ExprCode
+void ExprCode::Save(CDataPacket &dp)
+{
+	dp.Data_NextInt()=type;
+	switch(type)
+	{
+		case Operator:
+			dp.Data_NextInt()=op;
+			break;
+		case Operand_Var:
+			dp.Data_WriteString(varname);
+			break;
+		case Operand_Number:
+			dp.Data_NextInt()=varvalue;
+			break;
+		case Node:
+			if (node)
+			{
+				dp.Data_NextInt()=1;
+				node->Save(dp);
+			}
+			else
+				dp.Data_NextInt()=0;
+			break;
+	}
+}
+
+void ExprCode::Load(CDataPacket &dp)
+{
+	type=(Type)dp.Data_NextInt();
+	switch(type)
+	{
+	case Operator:
+		op=dp.Data_NextInt();
+		break;
+	case Operand_Var:
+		dp.Data_ReadString(varname);
+		break;
+	case Operand_Number:
+		varvalue=dp.Data_NextInt();
+		break;
+	case Node:
+		{
+			if (dp.Data_NextInt())
+			{
+				node=new ExprNode;
+				node->Load(dp);
+			}
+			break;
+		}
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//ExprNode
+void ExprNode::Save(CDataPacket &dp)
+{
+	ExprCode::Save(dp);
+
+	if (left)
+	{
+		dp.Data_NextInt()=1;
+		left->Save(dp);
+	}
+	else
+		dp.Data_NextInt()=0;
+
+	if (right)
+	{
+		dp.Data_NextInt()=1;
+		right->Save(dp);
+	}
+	else
+		dp.Data_NextInt()=0;
+
+}
+
+void ExprNode::Load(CDataPacket &dp)
+{
+	ExprCode::Load(dp);
+	if (dp.Data_NextInt())
+	{
+		left=new ExprNode;
+		left->Load(dp);
+	}
+	if (dp.Data_NextInt())
+	{
+		right=new ExprNode;
+		right->Load(dp);
+	}
+
+}
+
+
+void ShaderVar::Save(CDataPacket &dp)
+{
+	dp.Data_NextInt()=category;
+	dp.Data_WriteString(type);
+	dp.Data_WriteString(name);
+	dp.Data_WriteString(sementic);
+	dp.Data_WriteString(annotation);
+	dp.Data_WriteString(assign);
+	dp.Data_WriteString(statevalue);
+
+	dp.Data_NextInt()=szArray;
+	dp.Data_NextInt()=priority;
+
+	if (vInit)
+	{
+		dp.Data_NextInt()=1;
+		vInit->Save(dp);
+	}
+	else
+		dp.Data_NextInt()=0;
+}
+
+void ShaderVar::Load(CDataPacket &dp)
+{
+	Clean();
+
+	category=(ShaderVarCategory)dp.Data_NextInt();
+	dp.Data_ReadString(type);
+	dp.Data_ReadString(name);
+	dp.Data_ReadString(sementic);
+	dp.Data_ReadString(annotation);
+	dp.Data_ReadString(assign);
+	dp.Data_ReadString(statevalue);
+
+	szArray=dp.Data_NextInt();
+	priority=dp.Data_NextInt();
+
+	if (dp.Data_NextInt())
+	{
+		vInit=new ExprNode;
+		vInit->Load(dp);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+//Effect Param info
+struct EPInfo
+{
+	EffectParam ep;
+	char *epname;//the name existing in the effect file
+	char *name;//standard name
+	char *showname;//show name for edit
+	char *desc;//description for edit
+	GVarType vartype;//if bind to a editable GVar,what the var type should be
+	GSem varsem;//if bind to a editable GVar,what the var sementic should be
+	DWORD arraysize;//the max array size of this effect param
+	DWORD flag;//EPF_XXXX
+	KeyType kt;//如果这个ep可以使用动画的话,指定一个KeyType,如果为KT_None,则表示这个ep不能使用动画
+	GVar def;
+};
+
+
+#define EP_Entry(name,showname,desc,vartype,sem,arraysize,flag,kt) \
+{EP_##name,"ep_"#name,#name,showname,desc,vartype,sem,arraysize,flag,kt,GVar(vartype,GSem(sem))}
+#define EP_EntryDef(name,showname,desc,vartype,sem,arraysize,flag,kt,def) \
+{EP_##name,"ep_"#name,#name,showname,desc,vartype,sem,arraysize,flag,kt,def}
+
+#define EPG_Entry(name,showname,desc,vartype,sem,arraysize,flag,kt) \
+{EPG_##name,"epg_"#name,#name,showname,desc,vartype,sem,arraysize,flag,kt,GVar(vartype,GSem(sem))}
+
+//注意:这个数组的顺序要和EffectParam里的各个entry一一对应(顺序上保持一致)
+EPInfo g_EPInfo[]=
+{
+	EP_EntryDef(colDif,"Diffuse Color/Alpha","",GVT_Fx4,GSem_ColorAlpha,1,EPF_MtrlEdit,KT_Color,GVar(1.0f,1.0f,1.0f,1.0f)),
+	EP_EntryDef(colSpec,"Specular Color","",GVT_Fx4,GSem_ColorAlpha,1,EPF_MtrlEdit,KT_Color,GVar(0.0f,0.0f,0.0f,0.0f)),
+	EP_EntryDef(colIllum,"Self-Illumination Color","",GVT_Fx4,GSem_ColorAlpha,1,EPF_MtrlEdit,KT_Color,GVar(0.0f,0.0f,0.0f,0.0f)),
+	EP_Entry(fogparam,"Fog Parameter","",GVT_Fx4,GSem_Unknown,1,0,KT_None),
+	EP_Entry(fogparam_w,"Water Fog Parameter","",GVT_Fx4,GSem_Unknown,1,0,KT_None),
+	EP_Entry(fogcolor,"Fog Color","",GVT_Fx3,GSem_Unknown,1,0,KT_None),
+	EP_EntryDef(shiness,"Specular Shiness","",GVT_F,GSem_Shiness,1,EPF_MtrlEdit,KT_Float,GVar(100.0f)),
+	EP_EntryDef(shinestr,"Specular Shining Strength","",GVT_F,GSem_ShineStr,1,EPF_MtrlEdit,KT_Float,GVar(1.0f)),
+	EP_Entry(diffusemap,"Diffuse Map","",GVT_String,GSem_TexturePath,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(specmap,"Specular Map","",GVT_String,GSem_TexturePath,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(illummap,"Illumination Map","",GVT_String,GSem_TexturePath,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(world,"World Matrix","",GVT_Fx12,GSem_World,256,0,KT_None),
+	EP_Entry(view,"View Matrix","",GVT_Fx16,GSem_View,1,0,KT_None),
+	EP_Entry(proj,"Projection Matrix","",GVT_Fx16,GSem_Proj,1,0,KT_None),
+	EP_Entry(viewproj,"ViewProjection Matrix","",GVT_Fx16,GSem_ViewProj,1,0,KT_None),
+	EP_Entry(proj2D,"Projection Matrix for 2D Drawing","",GVT_Fx16,GSem_Proj,1,0,KT_None),
+	EP_Entry(nearfardist,"Near Far ClipPlane Distance","",GVT_Fx4,GSem_Unknown,1,0,KT_None),
+	EP_Entry(camerapos,"Camera Position","",GVT_Fx3,GSem_Pos,1,0,KT_None),
+	EP_Entry(dirDL,"Directional Light\'s direction","",GVT_Fx3,GSem_Normal,4,0,KT_None),
+	EP_Entry(ambDL,"Directional Light\'s ambient ","",GVT_Fx3,GSem_Unknown,4,0,KT_None),
+	EP_Entry(difDL,"Directional Light\'s diffuse ","",GVT_Fx3,GSem_Unknown,4,0,KT_None),
+	EP_Entry(specDL,"Directional Light\'s specular","",GVT_Fx3,GSem_Unknown,4,0,KT_None),
+	EP_Entry(alphatestref,"Alpha Test Reference Value","",GVT_F,GSem_Alpha,1,0,KT_None),
+	EP_Entry(uvBaseXform,"Base UV Xform","",GVT_Fx12,GSem_UVXform,1,EPF_MtrlEdit,KT_MapCoord),
+	EP_Entry(uvExtXform,"Extended UV Xform","",GVT_Fx12,GSem_UVXform,1,EPF_MtrlEdit,KT_MapCoord),
+	EP_Entry(uvBaseAddr,"Base UV Address Mode","",GVT_Sx4,GSem_UVAddr,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(uvExtAddr,"Extended UV Address Mode","",GVT_Sx4,GSem_UVAddr,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(normalmap,"Normal Map","",GVT_String,GSem_TexturePath,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(shadowmap,"Shadow Map","",GVT_String,GSem_TexturePath,1,EPF_MtrlView,KT_None),
+	EP_Entry(tlShadowMap,"Length of Shadow Map Pixel","",GVT_Fx2,GSem_TexelLength,1,EPF_MtrlView,KT_None),
+	EP_Entry(shadowdist,"ShadowMap影响的最远距离","",GVT_F,GSem_Unknown,1,0,KT_None),
+	EP_Entry(alphamap,"Alpha Map","",GVT_String,GSem_TexturePath,1,EPF_MtrlEdit,KT_None),
+
+	EP_Entry(difmul,"Diffuse Color/Alpha scale","",GVT_Fx4,GSem_ColorAlpha,1,0,KT_None),
+	EP_Entry(difadd,"Diffuse Color plus","",GVT_Fx4,GSem_ColorAlpha,1,0,KT_None),
+
+	EP_Entry(lm_0,"1st Light Map","",GVT_String,GSem_TexturePath,1,0,KT_None), 
+	EP_Entry(lm_1,"2nd Light Map","",GVT_String,GSem_TexturePath,1,0,KT_None), 
+	EP_Entry(lm_2,"3rd Light Map","",GVT_String,GSem_TexturePath,1,0,KT_None), 
+	EP_Entry(lm_shdw,"Shadow Light Map","",GVT_String,GSem_TexturePath,1,0,KT_None), 
+	EP_Entry(lm_color_global,"Global Light Map Color","",GVT_Fx3,GSem_Unknown,1,0,KT_None),
+	EP_Entry(lm_color_local,"Local Light Map Color","",GVT_Fx3,GSem_Unknown,1,0,KT_None),
+	EP_Entry(lm_scale,"Scale For Light Map Value","",GVT_Fx2,GSem_Unknown,1,0,KT_None),
+
+	EP_Entry(envlightmap,"Environment Light Map","",GVT_String,GSem_TexturePath,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(lisproj,"Light Space Projection Matrix","",GVT_Fx16,GSem_ViewProj,1,0,KT_None),
+	EP_Entry(clipplane,"Clip Plane","",GVT_Fx4,GSem_Plane,1,0,KT_None),
+
+	EP_Entry(ambcube,"Ambient Cube","",GVT_Fx3,GSem_Unknown,1,0,KT_None),
+
+	EP_Entry(scrnmap,"Screen Space Color Map","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(scrndepth,"Screen Space Depth Map","",GVT_String,GSem_TexturePath,1,0,KT_None),
+
+	EP_Entry(warpmap,"Warp Map","扭曲贴图",GVT_String,GSem_TexturePath,1,EPF_MtrlEdit,KT_None),
+	EP_Entry(warpblend,"Warp Mode","扭曲混合模式(opaque,alphablend,additive,modulate)",GVT_S,GSem_Unknown,1,0,KT_None),
+	EP_Entry(warpstr,"Warp Strength","扭曲强度",GVT_F,GSem(GSem_Float,"0,1,0.01"),1,EPF_MtrlEdit,KT_None),
+
+	EP_Entry(sight,"Sight Information","",GVT_Fx4,GSem_Unknown,1,0,KT_None),
+	EP_Entry(sightmap,"Sight Map","",GVT_String,GSem_TexturePath,1,0,KT_None),
+
+	EP_Entry(rngDepthOpacity,"Depth Opacity Range","",GVT_F,GSem(GSem_Float,"0,1,0.01"),1,EPF_MtrlEdit,KT_None),
+
+	EP_Entry(time,"Time","",GVT_F,GSem_Float,1,0,KT_None),
+
+	EP_Entry(rtsize,"RenderTarget Size","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmap01,"Map01 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(ppmap02,"Map02 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(ppmap03,"Map03 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(ppmap04,"Map04 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(ppmap05,"Map05 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(ppmap06,"Map06 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(ppmap07,"Map07 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EP_Entry(ppmap08,"Map08 for PostProcess","",GVT_String,GSem_TexturePath,1,0,KT_None),
+
+	EP_Entry(ppmapsize01,"Size of PostProcess Map01","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmapsize02,"Size of PostProcess Map02","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmapsize03,"Size of PostProcess Map03","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmapsize04,"Size of PostProcess Map04","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmapsize05,"Size of PostProcess Map05","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmapsize06,"Size of PostProcess Map06","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmapsize07,"Size of PostProcess Map07","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+	EP_Entry(ppmapsize08,"Size of PostProcess Map08","",GVT_Fx2,GSem_TextureSize,1,0,KT_None),
+
+	EP_Entry(paramsPL,"Point Light Params","",GVT_Fx4,GSem_Unknown,64,0,KT_None),
+	EP_Entry(countPL,"Point Light Count","",GVT_S,GSem_Interger,1,0,KT_None),
+
+	EPG_Entry(f_01,"float#01(general param)","",GVT_F,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(f_02,"float#02(general param)","",GVT_F,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx3_01,"floatx3#01(general param)","",GVT_Fx3,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx3_02,"floatx3#02(general param)","",GVT_Fx3,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx3_03,"floatx3#03(general param)","",GVT_Fx3,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx4_01,"floatx4#01(general param)","",GVT_Fx4,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx4_02,"floatx4#02(general param)","",GVT_Fx4,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx16_01,"floatx16#01(general param)","",GVT_Fx16,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx16_02,"floatx16#02(general param)","",GVT_Fx16,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(map_01,"map#01(general param)","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EPG_Entry(map_02,"map#02(general param)","",GVT_String,GSem_TexturePath,1,0,KT_None),
+	EPG_Entry(s_01,"int#01(general param)","",GVT_S,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(s_02,"int#02(general param)","",GVT_S,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx2_01,"floatx2#01(general param)","",GVT_Fx2,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(fx2_02,"floatx2#02(general param)","",GVT_Fx2,GSem_Unknown,1,0,KT_None),
+	EPG_Entry(f_array_01,"float array#01(general param)","",GVT_F,GSem_Unknown,64,0,KT_None),
+	EPG_Entry(f_array_02,"float array#02(general param)","",GVT_F,GSem_Unknown,64,0,KT_None),
+//XXXXX more effect params
+
+};
+
+
+DWORD SizeOfEPInfo()
+{
+	return ARRAY_SIZE(g_EPInfo);
+}
+
+EffectParam EPfromName(const char *name)
+{
+	for (int i=0;i<SizeOfEPInfo();i++)
+	{
+		if (strcmp(g_EPInfo[i].name,name)==0)
+			return g_EPInfo[i].ep;
+	}
+	return EP_None;
+}
+
+
+int EPInfo_IndexFromEP(EffectParam ep)
+{
+	return (int)ep;
+}
+
+const char *EPInfo_GetEPName(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return "";
+	return g_EPInfo[idx].epname;
+}
+
+
+const char *EPInfo_GetName(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return "";
+	return g_EPInfo[idx].name;
+}
+
+const char *EPInfo_GetShowName(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return "";
+	return g_EPInfo[idx].showname;
+}
+
+const char *EPInfo_GetDesc(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return "";
+	return g_EPInfo[idx].desc;
+}
+
+EffectParam EPInfo_GetEP(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return EP_None;
+	return g_EPInfo[idx].ep;
+}
+
+int EPInfo_GetArraySize(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return -1;
+	return g_EPInfo[idx].arraysize;
+}
+
+GVarType EPInfo_GetVarType(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return GVT_None;
+	return g_EPInfo[idx].vartype;
+}
+
+GSem &EPInfo_GetVarSem(DWORD idx)
+{
+	static GSem unknown=GSem_Unknown;
+	if (idx>=SizeOfEPInfo())
+		return unknown;
+	return g_EPInfo[idx].varsem;
+}
+
+DWORD EPInfo_GetFlag(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return 0;
+	return g_EPInfo[idx].flag;
+}
+
+KeyType EPInfo_GetKT(DWORD idx)
+{
+	if (idx>=SizeOfEPInfo())
+		return KT_None;
+	return g_EPInfo[idx].kt;
+}
+
+BYTE *EPInfo_GetDefData(DWORD idx,DWORD &szData)
+{
+	return g_EPInfo[idx].def.GetData(szData);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//Feature Flag
+//note:should be synchronized with FF_xxxx
+const char *g_FeatureFlagNames[]=
+{
+	"Base",
+	"MtrlEdit",
+	"MtrlRepair",
+
+	"",
+};
+
+FeatureFlag FeatureFlagFromName(const char * name)
+{
+	int idx=0;
+	while(1)
+	{
+		if (g_FeatureFlagNames[idx][0]==0)
+			break;
+		if (strcmp(g_FeatureFlagNames[idx],name)==0)
+			return (FeatureFlag)(1<<idx);
+		idx++;
+	}
+	return FF_None;
+}
+
+//////////////////////////////////////////////////////////////////////////
+//FeatureCode
+struct FeatureEntry
+{
+	const char *name;
+	FeatureCode fc;
+};
+
+#define FEATURE_ENTRY(feature) {#feature,FC_##feature}
+FeatureEntry g_FeatureNames[]=
+{
+	FEATURE_ENTRY(base),
+	FEATURE_ENTRY(col),
+	FEATURE_ENTRY(colmod),
+	FEATURE_ENTRY(vtxcol),
+	FEATURE_ENTRY(bones1),
+	FEATURE_ENTRY(bones2),
+	FEATURE_ENTRY(bones3),
+	FEATURE_ENTRY(bones4),
+	FEATURE_ENTRY(spec),
+	FEATURE_ENTRY(envspec),
+	FEATURE_ENTRY(illum),
+	FEATURE_ENTRY(diffusemap),
+	FEATURE_ENTRY(specularmap),
+	FEATURE_ENTRY(illummap),
+	FEATURE_ENTRY(dirlight_p),
+	FEATURE_ENTRY(pointlight),
+	FEATURE_ENTRY(uvBaseXform),
+	FEATURE_ENTRY(uvExtXform),
+	FEATURE_ENTRY(normalmap),
+	FEATURE_ENTRY(alphamap),
+	FEATURE_ENTRY(shadowmap),
+	FEATURE_ENTRY(shdwmap_hw),
+	FEATURE_ENTRY(lightmap),
+	FEATURE_ENTRY(dirlight_ac),
+
+	FEATURE_ENTRY(clipplane),
+	FEATURE_ENTRY(fog),
+	FEATURE_ENTRY(fog_ground),
+	FEATURE_ENTRY(clipfog),
+
+	FEATURE_ENTRY(alphatest),
+
+	FEATURE_ENTRY(lm_g),
+	FEATURE_ENTRY(lm_l),
+	FEATURE_ENTRY(lm_ul),
+	FEATURE_ENTRY(lm_dot3),
+	FEATURE_ENTRY(lm_shdw),
+	FEATURE_ENTRY(lm_fullshdw),
+
+	FEATURE_ENTRY(gbuf_x2),
+	FEATURE_ENTRY(gbuf_x4),
+	FEATURE_ENTRY(wbuffer),
+	FEATURE_ENTRY(smmake),
+	FEATURE_ENTRY(vsmmake),
+	FEATURE_ENTRY(wobuffer),
+
+	FEATURE_ENTRY(warp),
+
+	FEATURE_ENTRY(pointlight_x2),
+	FEATURE_ENTRY(pointlight_xN),
+
+	FEATURE_ENTRY(sight),
+
+	FEATURE_ENTRY(depthopacity),
+
+	FEATURE_ENTRY(common01),
+	FEATURE_ENTRY(common02),
+	FEATURE_ENTRY(common03),
+	FEATURE_ENTRY(common04),
+	FEATURE_ENTRY(common05),
+	FEATURE_ENTRY(common06),
+	FEATURE_ENTRY(common07),
+	FEATURE_ENTRY(common08),
+	FEATURE_ENTRY(common09),
+
+	FEATURE_ENTRY(trrnlm),
+
+	FEATURE_ENTRY(trrnnmlmap),
+	FEATURE_ENTRY(trrn2layor),
+	FEATURE_ENTRY(trrn3layor),
+	FEATURE_ENTRY(trrn4layor),
+	FEATURE_ENTRY(trrn1ns),
+	FEATURE_ENTRY(trrn2ns),
+	FEATURE_ENTRY(trrn3ns),
+	FEATURE_ENTRY(trrn4ns),
+	FEATURE_ENTRY(trrndraft),
+
+	FEATURE_ENTRY(spt_wind),
+	FEATURE_ENTRY(spt_trunk),
+	FEATURE_ENTRY(spt_vbillboard),
+	FEATURE_ENTRY(spt_hbillboard),
+	FEATURE_ENTRY(spt_leafCard),
+	FEATURE_ENTRY(spt_leafMesh),
+
+	FEATURE_ENTRY(parBB),
+	FEATURE_ENTRY(parFacing),
+	FEATURE_ENTRY(parSpdAlign),
+	FEATURE_ENTRY(parFree),
+	FEATURE_ENTRY(parTexAnim),
+	FEATURE_ENTRY(parTexAnimS),
+	FEATURE_ENTRY(parWarpMap),
+	FEATURE_ENTRY(parMesh),
+
+	FEATURE_ENTRY(water_depth),
+	FEATURE_ENTRY(water_rtreflect),
+	FEATURE_ENTRY(water_vtxwave),
+	FEATURE_ENTRY(water_in),
+
+//	FEATURE_ENTRY(test),
+	//XXXXX more features
+
+};
+
+FeatureCode FeatureFromName(const char *name)
+{
+	int idx=0;
+
+	for(int i=0;i<ARRAY_SIZE(g_FeatureNames);i++)
+	{
+		if (strcmp(g_FeatureNames[i].name,name)==0)
+			return g_FeatureNames[i].fc;
+	}
+	return FC_none;
+}
+
+BOOL FeatureCode::FromName(const char *name)
+{
+	Clear();
+	std::vector<std::string>vecTemp;
+	SplitStringBy(",",std::string(name),&vecTemp);
+
+	BOOL bRet=TRUE;
+	for (int i=0;i<vecTemp.size();i++)
+	{
+		FeatureCode fc=FeatureFromName(vecTemp[i].c_str());
+		if (fc==FC_none)
+			bRet=FALSE;	
+
+		c|=fc.c;
+	}
+
+	return bRet;
+}
+
+const char *FeatureCode::ToName()
+{
+	static std::string s;
+	s="";
+
+	int idx=0;
+	BOOL bFirst=TRUE;
+	for(int i=0;i<ARRAY_SIZE(g_FeatureNames);i++)
+	{
+		if (Test(g_FeatureNames[i].fc))
+		{
+			if (bFirst)
+			{
+				s=g_FeatureNames[i].name;
+				bFirst=FALSE;
+			}
+			else
+				s=s+","+g_FeatureNames[i].name;
+		}
+	}
+
+	return s.c_str();
+}
+
+
+
+BOOL FeatureCode::CheckValidName(const char *name,std::string *firsterrname)
+{
+	std::vector<std::string>vecTemp;
+	SplitStringBy(",",std::string(name),&vecTemp);
+
+	for (int i=0;i<vecTemp.size();i++)
+	{
+		if (FC_none==FeatureFromName(vecTemp[i].c_str()))
+		{
+			if (firsterrname)
+				(*firsterrname)=vecTemp[i];
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+//copy from iMath.h
+static __forceinline unsigned int fastlog2( unsigned int x)
+{
+	unsigned int slRet;
+	__asm {
+		bsr   eax,dword ptr [x]
+		mov   dword ptr [slRet],eax
+	}
+	return slRet;
+}
+
+static __forceinline bool ispower2( unsigned int x)
+{
+	unsigned int p=::fastlog2(x);
+	return ((1<<p)==x);
+}
+
+
+//check whether this fc is conflicting based on the fcConflictGroup
+BOOL FeatureCode::JudgeConflict(FeatureCode &fcConflictGroup)
+{
+	unsigned __int64 t;
+	t=fcConflictGroup.c&c;
+
+	DWORD l,h;
+	l=(DWORD)t;
+	h=(DWORD)(t>>32);
+
+	BOOL b1,b2;
+	b1=::ispower2(l);
+	b2=::ispower2(h);
+
+	if ((l!=0)&&(!b1))
+		return TRUE;
+
+	if ((h!=0)&&(!b2))
+		return TRUE;
+
+	if ((l!=0)&&(h!=0)&&b1&&b2)//high&low both have 1 bit
+		return TRUE;
+
+	return FALSE;
+}
+
+int GetNextBit(unsigned __int64 v,int i)
+{
+	i++;
+	while(i<64)
+	{
+		if (v&(((unsigned __int64)1)<<i))
+			return i;
+		i++;
+	}
+	return -1;
+}
+
+
+BOOL FeatureCode::IncWithMask(FeatureCode &fcMask)
+{
+	unsigned __int64 cBack=c;
+	int iBit;
+	iBit=GetNextBit(fcMask.c,-1);
+
+	unsigned __int64 bit;
+
+	while(iBit!=-1)
+	{
+		bit=((unsigned __int64)1)<<iBit;
+		if (!(c&bit))
+		{
+			c|=bit;
+			return TRUE;
+		}
+		else
+		{
+			c&=(~bit);
+			iBit=GetNextBit(fcMask.c,iBit);
+		}
+	}
+
+	c=cBack;
+	return FALSE;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//ShaderCap
+//NOTE:Should be synchronized with SCC_xxxx
+const char *g_SCCNames[]=
+{
+	"maxbones",
+	"weightcount",
+
+	//XXXXX:more ShaderCap
+	""
+};
+BOOL ShaderCap::SetCode(const char *sCode)
+{
+	int idx=0;
+	while(1)
+	{
+		if (g_SCCNames[idx][0]==0)
+			break;
+		if (strcmp(g_SCCNames[idx],sCode)==0)
+		{
+			code=(ShaderCapCode)idx;
+			return TRUE;
+		}
+		idx++;
+	}
+	code=SCC_none;
+
+	return FALSE;
+}
+
+
+BOOL ParseHLSLErrLine(const char *err0,int &nLine)
+{
+	nLine=-1;
+	char *p;
+	p=(char *)err0;
+
+	if (*p!='(')
+		return FALSE;
+
+	p++;
+	std::string sLine;
+	while(1)
+	{
+		if (*p==0)
+			return FALSE;
+		if (*p==')')
+			break;
+		sLine+=*p;
+		p++;
+	}
+
+
+	nLine=IntFromString(sLine.c_str());
+
+	return TRUE;
+}
+
+BOOL ParseCgErrLine(const char *err0,int &nLine)
+{
+	nLine=-1;
+	char *p;
+	p=(char *)err0;
+	if (strlen(p)<=strlen("ERROR: 0:"))
+		return FALSE;
+	p+=strlen("ERROR: 0:");
+	std::string sLine;
+	while(1)
+	{
+		if (*p==0)
+			return FALSE;
+		if (*p==':')
+			break;
+		sLine+=*p;
+		p++;
+	}
+
+	nLine=IntFromString(sLine.c_str());
+
+	return TRUE;
+}

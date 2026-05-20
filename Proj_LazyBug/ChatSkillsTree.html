@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills Tree</title>
+    <style>
+        :root {
+            --body-bg: #121212;
+            --text-color: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --primary-color: #004d40;
+            --primary-hover: #00796b;
+            --secondary-bg: #1e1e1e;
+            --border-color: #404040;
+            --hover-bg: #2a2a2a;
+            --leaf-color: #4caf50;
+            --leaf-hover: #66bb6a;
+            --folder-color: #ffc107;
+            --folder-hover: #ffcd38;
+            --root-icon-color: #ff9800; /* 橘黄色 */
+            --builtin-color: #42a5f5;
+            --global-color: #ab47bc;
+            --project-color: #ef5350;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.4;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 标题栏 */
+        .skills-header {
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3px 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .skills-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .skills-subtitle {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        /* 树状列表区域 */
+        .tree-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+            min-height: 0;
+        }
+
+        /* 树节点 */
+        .tree-node {
+            cursor: pointer;
+        }
+
+        .tree-row:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .tree-row {
+            display: flex;
+            align-items: center;
+            padding: 3px 6px;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        /* 展开/折叠按钮 */
+        .tree-arrow {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            border-radius: 3px;
+        }
+
+        .tree-arrow:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .tree-arrow.no-children {
+            visibility: hidden;
+        }
+
+        /* 图标颜色变量 */
+        .tree-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .tree-icon.root-builtin { color: var(--root-icon-color); }
+        .tree-icon.root-global { color: var(--root-icon-color); }
+        .tree-icon.root-project { color: var(--root-icon-color); }
+        .tree-icon.folder { color: var(--folder-color); }
+        .tree-icon.leaf { color: var(--leaf-color); font-size: 10px; }
+
+        /* 叶子节点checkbox */
+        .tree-checkbox {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            border: 1px solid var(--text-secondary);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 2px;
+        }
+
+        .tree-checkbox:hover {
+            border-color: var(--leaf-color);
+        }
+
+        .tree-checkbox.checked {
+            background-color: var(--leaf-color);
+            border-color: var(--leaf-color);
+        }
+
+        .tree-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* 半选中状态（部分子节点选中） */
+        .tree-checkbox.indeterminate {
+            background-color: var(--leaf-color);
+            border-color: var(--leaf-color);
+        }
+
+        .tree-checkbox.indeterminate::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 1px;
+        }
+
+        .tree-label {
+            font-size: 0.85em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+            .tree-label.root {
+                font-weight: 800;
+                font-size: 0.9em;
+            }
+
+        .tree-label.folder {
+            color: var(--text-color);
+            font-weight: 800;
+        }
+
+        .tree-label.leaf {
+            color: var(--text-color);
+        }
+
+        /* 编辑状态下的输入框 */
+        .tree-label-input {
+            font-size: 0.85em;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--leaf-color);
+            border-radius: 3px;
+            padding: 2px 4px;
+            outline: none;
+            min-width: 80px;
+            max-width: 200px;
+        }
+
+        /* 按钮容器 - 靠右放置 */
+        .button-group {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        /* 复制路径按钮 */
+        .copy-path-btn {
+            padding: 2px 4px;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-path-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--leaf-color);
+        }
+
+        .tree-row:hover .copy-path-btn {
+            opacity: 1;
+        }
+
+        /* 打开目录按钮 */
+        .open-folder-btn {
+            padding: 2px 6px;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .open-folder-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--folder-color);
+        }
+
+        .tree-row:hover .open-folder-btn {
+            opacity: 1;
+        }
+
+        /* 新建目录按钮 */
+        .new-folder-btn {
+            padding: 2px 6px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-folder-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--folder-color);
+        }
+
+        .tree-row:hover .new-folder-btn {
+            opacity: 1;
+        }
+
+        /* 新建Skill按钮 */
+        .new-skill-btn {
+            padding: 2px 6px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-skill-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--folder-color);
+        }
+
+        .tree-row:hover .new-skill-btn {
+            opacity: 1;
+        }
+
+        /* 子节点容器 */
+        .tree-children {
+            overflow: hidden;
+        }
+
+        .tree-children.collapsed {
+            max-height: 0 !important;
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #202020;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="skills-container">
+        <div class="skills-header">
+            <div>
+                <span class="skills-title">Skills</span>
+                <span class="skills-subtitle" id="skills-count">Loading...</span>
+            </div>
+        </div>
+
+        <div class="tree-area" id="tree-area">
+            <!-- 树节点将通过JS动态渲染 -->
+        </div>
+
+    </div>
+
+    <script>
+        // ============ 全局状态 ============
+        let skillTreeData = [];
+        let expandedNodes = new Set(); // 存储展开节点的路径
+        let clickTimer = null; // 用于区分单击和双击的计时器（标签用）
+        let rowClickTimer = null; // 用于区分单击和双击的计时器（行用）
+
+        // ============ DOM引用 ============
+        const treeArea = document.getElementById('tree-area');
+        const skillsCount = document.getElementById('skills-count');
+
+        // ============ 共用函数 ============
+        // 统计叶子节点数量和激活数量
+        function countLeaves(nodes) {
+            let leafCount = 0;
+            let activeCount = 0;
+            function countRecursive(nodes) {
+                for (const node of nodes) {
+                    if (node.isLeaf) {
+                        leafCount++;
+                        if (node.enable) activeCount++;
+                    }
+                    if (node.children && node.children.length > 0) {
+                        countRecursive(node.children);
+                    }
+                }
+            }
+            countRecursive(nodes);
+            return { leafCount, activeCount };
+        }
+
+        // ============ 构建树UI ============
+        function buildTree(data) {
+            skillTreeData = data || [];
+            treeArea.innerHTML = '';
+
+            // 统计叶子节点数量和激活数量
+            const { leafCount, activeCount } = countLeaves(skillTreeData);
+            skillsCount.textContent = `(${activeCount}/${leafCount} skills)`;
+
+            // 渲染根节点
+            for (const rootNode of skillTreeData) {
+                const rootEl = createNodeElement(rootNode, 0, getRootIconClass(rootNode.name));
+                treeArea.appendChild(rootEl);
+            }
+
+            // 初始化所有文件夹checkbox状态
+            setTimeout(() => {
+                updateAllFolderCheckboxes();
+            }, 0);
+        }
+
+        function getRootIconClass(name) {
+            switch (name) {
+                case 'BuiltIn': return 'root-builtin';
+                case 'Global':  return 'root-global';
+                case 'Project': return 'root-project';
+                default: return 'folder';
+            }
+        }
+
+        function getRootIcon(name) {
+            return '&#8857;'; // ⊙ 统一根节点图标
+        }
+
+        function getFolderIcon() {
+            return '&#128193;'; // 📁
+        }
+
+        function getLeafIcon() {
+            return '&#10024;'; // ✨ 叶子节点图标
+        }
+
+        // 获取节点的唯一标识（用于存储展开状态）
+        // 根节点用 name，其他节点用 fullPath
+        function getNodeKey(node, depth) {
+            if (depth === 0) {
+                return node.name; // 根节点：BuiltIn, Global, Project
+            }
+            return node.fullPath || node.name; // 非根节点用 fullPath
+        }
+
+        // 创建节点DOM元素的递归函数
+        function createNodeElement(node, depth, iconClass) {
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node';
+            nodeDiv.setAttribute('data-depth', depth);
+
+            // 行
+            const row = document.createElement('div');
+            row.className = 'tree-row';
+            row.style.paddingLeft = (8 + depth * 18) + 'px';
+
+            // 箭头
+            const arrow = document.createElement('span');
+            arrow.className = 'tree-arrow';
+            const hasChildren = node.children && node.children.length > 0;
+            if (hasChildren) {
+                arrow.textContent = '-'; // 默认展开显示 -
+                // 箭头单击事件 - 展开/折叠（保持单击功能）
+                arrow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleNodeClick(node, row, arrow, hasChildren, depth);
+                });
+            } else {
+                arrow.classList.add('no-children');
+            }
+            row.appendChild(arrow);
+
+            // 所有节点都添加checkbox
+            const checkbox = document.createElement('span');
+            checkbox.className = 'tree-checkbox';
+            if (node.isLeaf) {
+                // 叶子节点使用enable属性
+                if (node.enable) {
+                    checkbox.classList.add('checked');
+                }
+            }
+            checkbox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleCheckboxClick(node, checkbox);
+            });
+            row.appendChild(checkbox);
+
+            // 图标
+            const icon = document.createElement('span');
+            icon.className = 'tree-icon ' + iconClass;
+
+            if (node.isLeaf) {
+                icon.innerHTML = getLeafIcon();
+                icon.className = 'tree-icon leaf';
+            } else if (depth === 0) {
+                icon.innerHTML = getRootIcon(node.name);
+            } else {
+                icon.innerHTML = getFolderIcon();
+                icon.className = 'tree-icon folder';
+            }
+            row.appendChild(icon);
+
+            // 标签
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            if (depth === 0) {
+                label.classList.add('root');
+            } else if (node.isLeaf) {
+                label.classList.add('leaf');
+            } else {
+                label.classList.add('folder');
+            }
+            label.textContent = node.name;
+            row.appendChild(label);
+
+
+            // 创建按钮容器（靠右放置）
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'button-group';
+
+            // 叶子节点添加复制路径按钮
+            if (node.isLeaf && node.fullPath) {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-path-btn';
+                copyBtn.title = 'Copy path';
+                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleCopyPath(node, copyBtn);
+                });
+                buttonGroup.appendChild(copyBtn);
+            }
+
+            // 非叶子节点（根节点和目录节点）添加新建目录和新建Skill按钮
+            if (!node.isLeaf && node.fullPath) {
+                // 新建目录按钮 - 图标更大，加号更明显
+                const newFolderBtn = document.createElement('button');
+                newFolderBtn.className = 'new-folder-btn';
+                newFolderBtn.title = 'New folder';
+                // 文件夹图标 18px，加号更明显 (14px + 粗体)
+                newFolderBtn.innerHTML = '<svg width="20" height="18" viewBox="0 0 24 24"><text x="2" y="18" font-size="18">&#128193;</text><text x="1" y="11" font-size="14" fill="#4caf50" font-weight="900">+</text></svg>';
+                newFolderBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleNewFolder(node);
+                });
+                buttonGroup.appendChild(newFolderBtn);
+
+                // 新建Skill按钮 - 图标更大，加号更明显
+                const newSkillBtn = document.createElement('button');
+                newSkillBtn.className = 'new-skill-btn';
+                newSkillBtn.title = 'New skill';
+                // Skill图标 16px，加号更明显 (14px + 粗体)
+                newSkillBtn.innerHTML = '<svg width="20" height="18" viewBox="0 0 24 24"><text x="3" y="18" font-size="16">&#10024;</text><text x="1" y="11" font-size="14" fill="#4caf50" font-weight="900">+</text></svg>';
+                newSkillBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleNewSkill(node);
+                });
+                buttonGroup.appendChild(newSkillBtn);
+            }
+
+            // 所有有fullPath的节点添加打开目录按钮
+            if (node.fullPath) {
+                const openBtn = document.createElement('span');
+                openBtn.className = 'open-folder-btn';
+                openBtn.textContent = '📁';
+                openBtn.title = 'Open folder';
+                openBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleOpenFolder(node);
+                });
+                buttonGroup.appendChild(openBtn);
+            }
+
+            // 将按钮容器添加到行
+            if (buttonGroup.children.length > 0) {
+                row.appendChild(buttonGroup);
+            }
+
+            // 行单击事件 - 仅叶子节点延迟执行（用于区分单击/双击），非叶子节点不响应单击
+            row.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (node.isLeaf) {
+                    // 叶子节点：延迟执行，可能是双击的一部分
+                    if (rowClickTimer) {
+                        clearTimeout(rowClickTimer);
+                        rowClickTimer = null;
+                    }
+                    rowClickTimer = setTimeout(() => {
+                        rowClickTimer = null;
+                        // 单击叶子节点行不做任何事（编辑功能在标签上）
+                    }, 250);
+                }
+                // 非叶子节点（root和folder）：单击不做任何事（展开/折叠改为双击）
+            });
+
+            // 行双击事件
+            row.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (node.isLeaf) {
+                    // 叶子节点：打开skill
+                    if (rowClickTimer) {
+                        clearTimeout(rowClickTimer);
+                        rowClickTimer = null;
+                    }
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage({
+                            action: 'nodeDoubleClicked',
+                            data: {
+                                name: node.name,
+                                fullPath: node.fullPath || '',
+                                description: node.description || ''
+                            }
+                        });
+                    }
+                } else {
+                    // 非叶子节点（root和folder）：展开/折叠
+                    handleNodeClick(node, row, arrow, hasChildren, depth);
+                }
+            });
+
+            // 标签点击事件 - 单击进入编辑模式（叶子节点或目录，但根节点除外）
+            label.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 根节点(depth===0)不能编辑，且单击不触发操作（展开/折叠改为双击）
+                if (depth === 0) {
+                    return;
+                }
+                // 使用延迟来区分单击和双击
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                    clickTimer = null;
+                }
+                clickTimer = setTimeout(() => {
+                    clickTimer = null;
+                    handleLabelClick(node, label, row);
+                }, 250);
+            });
+
+            // 标签双击事件
+            label.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (node.isLeaf) {
+                    // 叶子节点：打开skill
+                    if (clickTimer) {
+                        clearTimeout(clickTimer);
+                        clickTimer = null;
+                    }
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage({
+                            action: 'nodeDoubleClicked',
+                            data: {
+                                name: node.name,
+                                fullPath: node.fullPath || '',
+                                description: node.description || ''
+                            }
+                        });
+                    }
+                } else {
+                    // 非叶子节点（root和folder）：展开/折叠
+                    // 取消单击编辑的延迟
+                    if (clickTimer) {
+                        clearTimeout(clickTimer);
+                        clickTimer = null;
+                    }
+                    handleNodeClick(node, row, arrow, hasChildren, depth);
+                }
+            });
+
+            nodeDiv.appendChild(row);
+
+            // 子节点容器
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+                // 默认展开（max-height通过JS设置）
+                for (const child of node.children) {
+                    const childIconClass = child.isLeaf ? 'leaf' : 'folder';
+                    const childEl = createNodeElement(child, depth + 1, childIconClass);
+                    childrenDiv.appendChild(childEl);
+                }
+
+                // 获取节点唯一标识
+                const nodeKey = getNodeKey(node, depth);
+
+                // 根据 expandedNodes 决定初始展开状态
+                const shouldExpand = expandedNodes.has(nodeKey);
+                if (shouldExpand) {
+                    childrenDiv.style.maxHeight = 'none';
+                    arrow.textContent = '-';
+                } else {
+                    childrenDiv.classList.add('collapsed');
+                    childrenDiv.style.maxHeight = '0px';
+                    arrow.textContent = '+';
+                }
+                nodeDiv.appendChild(childrenDiv);
+
+                // 存储引用用于折叠/展开
+                nodeDiv._childrenDiv = childrenDiv;
+            }
+
+            // 存储节点数据
+            nodeDiv._nodeData = node;
+            nodeDiv._row = row;
+            nodeDiv._arrow = arrow;
+
+            return nodeDiv;
+        }
+
+        function handleNodeClick(node, row, arrow, hasChildren, depth) {
+            // 切换折叠/展开
+            if (hasChildren) {
+                const nodeDiv = row.parentElement;
+                const childrenDiv = nodeDiv._childrenDiv;
+                if (childrenDiv) {
+                    const isCollapsed = childrenDiv.classList.contains('collapsed');
+                    const nodeKey = getNodeKey(node, depth);
+                    if (isCollapsed) {
+                        // 展开：移除collapsed类，移除高度限制让内容完全显示
+                        childrenDiv.classList.remove('collapsed');
+                        childrenDiv.style.maxHeight = 'none';
+                        arrow.textContent = '-';
+                        expandedNodes.add(nodeKey); // 记录展开状态
+                    } else {
+                        // 折叠
+                        childrenDiv.classList.add('collapsed');
+                        childrenDiv.style.maxHeight = '0px';
+                        arrow.textContent = '+';
+                        expandedNodes.delete(nodeKey); // 移除展开状态
+                    }
+                }
+            }
+
+        }
+
+        // 处理标签单击 - 进入编辑模式
+        function handleLabelClick(node, label, row) {
+            // 如果已经在编辑中，不处理
+            if (row._isEditing) return;
+
+            // 标记正在编辑
+            row._isEditing = true;
+
+            // 创建输入框
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'tree-label-input';
+            input.value = node.name;
+
+            // 为了让输入框在遮罩层上方，设置相对定位和高的 z-index
+            input.style.position = 'relative';
+            input.style.zIndex = '10000';
+
+            // 创建全屏透明遮罩层拦截所有点击
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.zIndex = '9999';
+            overlay.style.backgroundColor = 'transparent';
+            document.body.appendChild(overlay);
+
+            // 替换标签为输入框
+            label.style.display = 'none';
+            row.insertBefore(input, label.nextSibling);
+            input.focus();
+            input.select();
+
+            // 完成编辑的函数
+            const finishEdit = (save) => {
+                if (!row._isEditing) return;
+                row._isEditing = false;
+
+                // 移除遮罩层
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+
+                const newName = input.value.trim();
+
+                // 移除输入框，恢复标签
+                input.remove();
+                label.style.display = '';
+
+                if (save && newName && newName !== node.name) {
+                    // 发送重命名请求到C++
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage({
+                            action: 'renameSkill',
+                            data: {
+                                oldName: node.name,
+                                newName: newName,
+                                fullPath: node.fullPath || '',
+                                isLeaf: node.isLeaf
+                            }
+                        });
+                    }
+                }
+            };
+
+            // 点击遮罩层（即点击输入框外部）结束编辑，不触发其他操作
+            overlay.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                finishEdit(true);
+            });
+
+            // 阻止点击事件冒泡，防止触发行的展开/折叠
+            input.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            });
+            input.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // 按Enter保存，按Escape取消
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    finishEdit(true);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    finishEdit(false);
+                }
+            });
+        }
+
+        // 获取节点下的所有叶子节点
+        function getAllLeafNodes(node, result = []) {
+            if (node.isLeaf) {
+                result.push(node);
+            } else if (node.children) {
+                for (const child of node.children) {
+                    getAllLeafNodes(child, result);
+                }
+            }
+            return result;
+        }
+
+        // 更新节点及其所有子节点的checkbox状态
+        function updateCheckboxState(node, checked, parentNodeDiv) {
+            // 更新当前节点的enable状态
+            node.enable = checked;
+
+            // 更新当前节点的checkbox视觉状态
+            if (parentNodeDiv) {
+                const checkbox = parentNodeDiv.querySelector('.tree-checkbox');
+                if (checkbox) {
+                    if (checked) {
+                        checkbox.classList.add('checked');
+                        checkbox.classList.remove('indeterminate');
+                    } else {
+                        checkbox.classList.remove('checked');
+                        checkbox.classList.remove('indeterminate');
+                    }
+                }
+            }
+
+            // 如果是叶子节点，通知C++
+            if (node.isLeaf) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'skillChecked',
+                        data: {
+                            name: node.name,
+                            fullPath: node.fullPath || '',
+                            checked: checked
+                        }
+                    });
+                }
+            }
+
+            // 递归更新子节点
+            if (node.children) {
+                for (const child of node.children) {
+                    // 查找子节点的DOM元素
+                    let childNodeDiv = null;
+                    if (parentNodeDiv) {
+                        const childrenContainer = parentNodeDiv.querySelector('.tree-children');
+                        if (childrenContainer) {
+                            // 在子节点容器中查找匹配的节点
+                            const childDivs = childrenContainer.querySelectorAll(':scope > .tree-node');
+                            for (const div of childDivs) {
+                                if (div._nodeData === child) {
+                                    childNodeDiv = div;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    updateCheckboxState(child, checked, childNodeDiv);
+                }
+            }
+        }
+
+        // 根据子节点状态更新文件夹节点的checkbox视觉状态
+        function updateFolderCheckboxVisual(nodeDiv, node) {
+            const checkbox = nodeDiv.querySelector('.tree-checkbox');
+            if (!checkbox) return;
+
+            const leafNodes = getAllLeafNodes(node);
+            if (leafNodes.length === 0) return;
+
+            const checkedCount = leafNodes.filter(n => n.enable).length;
+
+            if (checkedCount === 0) {
+                // 全部未选中
+                checkbox.classList.remove('checked');
+                checkbox.classList.remove('indeterminate');
+            } else if (checkedCount === leafNodes.length) {
+                // 全部选中
+                checkbox.classList.add('checked');
+                checkbox.classList.remove('indeterminate');
+            } else {
+                // 部分选中 - 显示半选中状态
+                checkbox.classList.remove('checked');
+                checkbox.classList.add('indeterminate');
+            }
+        }
+
+        // 更新DOM中所有文件夹节点的checkbox状态
+        function updateAllFolderCheckboxes() {
+            document.querySelectorAll('.tree-node').forEach(nodeDiv => {
+                const node = nodeDiv._nodeData;
+                if (node && !node.isLeaf) {
+                    updateFolderCheckboxVisual(nodeDiv, node);
+                }
+            });
+        }
+
+        // 更新标题栏skill计数显示
+        function updateSkillCount() {
+            const { leafCount, activeCount } = countLeaves(skillTreeData);
+            skillsCount.textContent = `(${activeCount}/${leafCount} skills)`;
+        }
+
+        function handleCheckboxClick(node, checkbox) {
+            // 切换选中状态
+            const isChecked = checkbox.classList.contains('checked');
+            const newChecked = !isChecked;
+
+            // 更新当前checkbox的视觉状态
+            if (newChecked) {
+                checkbox.classList.add('checked');
+                checkbox.classList.remove('indeterminate');
+            } else {
+                checkbox.classList.remove('checked');
+                checkbox.classList.remove('indeterminate');
+            }
+
+            // 获取当前节点的DOM元素
+            const nodeDiv = checkbox.closest('.tree-node');
+
+            // 级联更新所有子节点的状态（包括DOM视觉状态）
+            updateCheckboxState(node, newChecked, nodeDiv);
+
+            // 更新所有文件夹节点的checkbox视觉状态
+            updateAllFolderCheckboxes();
+
+            // 更新标题栏计数
+            updateSkillCount();
+        }
+
+        function handleOpenFolder(node) {
+            // 通知C++打开目录
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'openFolder',
+                    data: {
+                        name: node.name,
+                        fullPath: node.fullPath || ''
+                    }
+                });
+            }
+        }
+
+        // 生成唯一的目录名
+        function generateUniqueFolderName(parentNode) {
+            const baseName = 'New Folder';
+            if (!parentNode.children || parentNode.children.length === 0) {
+                return baseName;
+            }
+            
+            // 获取所有子目录名称
+            const existingNames = new Set();
+            for (const child of parentNode.children) {
+                if (!child.isLeaf) {
+                    existingNames.add(child.name);
+                }
+            }
+            
+            // 检查基础名称是否可用
+            if (!existingNames.has(baseName)) {
+                return baseName;
+            }
+            
+            // 查找可用的编号
+            let counter = 2;
+            while (existingNames.has(`${baseName} (${counter})`)) {
+                counter++;
+            }
+            return `${baseName} (${counter})`;
+        }
+
+        // 生成唯一的Skill名称
+        function generateUniqueSkillName(parentNode) {
+            const baseName = 'New Skill';
+            if (!parentNode.children || parentNode.children.length === 0) {
+                return baseName;
+            }
+            
+            // 获取所有子Skill名称（叶子节点）
+            const existingNames = new Set();
+            for (const child of parentNode.children) {
+                if (child.isLeaf) {
+                    existingNames.add(child.name);
+                }
+            }
+            
+            // 检查基础名称是否可用
+            if (!existingNames.has(baseName)) {
+                return baseName;
+            }
+            
+            // 查找可用的编号
+            let counter = 2;
+            while (existingNames.has(`${baseName} (${counter})`)) {
+                counter++;
+            }
+            return `${baseName} (${counter})`;
+        }
+
+        // 等待节点创建完成并进入编辑状态
+        function waitForNodeAndEdit(parentPath, nodeName, maxAttempts = 50) {
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                // 查找新创建的节点
+                const nodeDivs = document.querySelectorAll('.tree-node');
+                for (const nodeDiv of nodeDivs) {
+                    const node = nodeDiv._nodeData;
+                    if (node && node.name === nodeName && node.fullPath === parentPath + '\\' + nodeName) {
+                        clearInterval(checkInterval);
+                        // 展开父节点
+                        const parentDiv = nodeDiv.parentElement?.parentElement;
+                        if (parentDiv && parentDiv._childrenDiv) {
+                            const arrow = parentDiv._arrow;
+                            if (arrow && arrow.textContent === '+') {
+                                arrow.click();
+                            }
+                        }
+                        // 延迟一点确保DOM更新完成
+                        setTimeout(() => {
+                            const row = nodeDiv._row;
+                            const label = row?.querySelector('.tree-label');
+                            if (row && label) {
+                                handleLabelClick(node, label, row);
+                            }
+                        }, 100);
+                        return;
+                    }
+                }
+                if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    console.log('Timeout waiting for new node to be created');
+                }
+            }, 100);
+        }
+
+        function handleNewFolder(node) {
+            // 生成唯一的目录名
+            const newFolderName = generateUniqueFolderName(node);
+            const newFullPath = node.fullPath ? node.fullPath + '\\' + newFolderName : newFolderName;
+            
+            // 通知C++新建目录
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'newFolder',
+                    data: {
+                        name: node.name,
+                        fullPath: node.fullPath || '',
+                        newFolderName: newFolderName,
+                        newFullPath: newFullPath
+                    }
+                });
+                
+                // 等待节点创建完成后进入编辑状态
+                waitForNodeAndEdit(node.fullPath || '', newFolderName);
+            }
+        }
+
+        function handleNewSkill(node) {
+            // 生成唯一的Skill名称
+            const newSkillName = generateUniqueSkillName(node);
+            const newFullPath = node.fullPath ? node.fullPath + '\\' + newSkillName : newSkillName;
+            
+            // 通知C++新建Skill
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'newSkill',
+                    data: {
+                        name: node.name,
+                        fullPath: node.fullPath || '',
+                        newSkillName: newSkillName,
+                        newFullPath: newFullPath
+                    }
+                });
+                
+                // 等待节点创建完成后进入编辑状态
+                waitForNodeAndEdit(node.fullPath || '', newSkillName);
+            }
+        }
+
+        function handleCopyPath(node, btn) {
+            // 复制路径到剪贴板
+            if (node.fullPath && navigator.clipboard) {
+                // 拼接 skill.md 文件路径
+                const skillFilePath = node.fullPath + '\\skill.md';
+                navigator.clipboard.writeText(skillFilePath).then(() => {
+                    // 显示复制成功提示
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    btn.title = 'Copied!';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.title = 'Copy path';
+                    }, 1000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+            }
+        }
+
+        // ============ 消息处理 ============
+
+        // 接收来自C++的消息
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', event => {
+                try {
+                    const message = event.data;
+
+                    if (typeof message !== 'object' || message === null) {
+                        console.error('Received non-object message:', event.data);
+                        return;
+                    }
+
+                    switch (message.action) {
+                        case 'initializeComplete':
+                            console.log('Skills Tree UI initialized');
+                            break;
+
+                        case 'setSkillTree':
+                            buildTree(message.data);
+                            break;
+
+                        default:
+                            console.warn('Unknown message action:', message.action);
+                            break;
+                    }
+                } catch (e) {
+                    console.error('Error processing message from C++:', e, 'Raw data:', event.data);
+                }
+            });
+
+            // 通知C++ JS初始化完成
+            window.chrome.webview.postMessage({ action: 'jsInitialized' });
+        } else {
+            console.error('window.chrome.webview not available.');
+        }
+
+        // 监听ESC键，通知C++关闭窗口
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({ action: 'escapePressed' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

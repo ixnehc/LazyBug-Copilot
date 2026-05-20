@@ -1,0 +1,4069 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Level">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Level\LevelSkill">
+      <UniqueIdentifier>{19d1c103-0eed-4523-bf3e-1725db5031aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelSkill\Skills">
+      <UniqueIdentifier>{6395dbf5-12d2-42ed-948d-acb97fa6a73a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelSkill\Skills\RavenSummon">
+      <UniqueIdentifier>{24f6a790-b9a1-4eb7-b686-a0bcbd659172}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelSkill\Skills\UtumSummon">
+      <UniqueIdentifier>{3ec513ca-c2b3-4181-9280-95d4dfc6c15b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelSkill\Skills\General">
+      <UniqueIdentifier>{2b05179b-20ff-4c4c-a795-7b60ea41b0c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelSkill\Skills\Skill_PushSlideway">
+      <UniqueIdentifier>{b07138c7-eaca-4004-99da-4a309210df7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelSkill\ComboSkills">
+      <UniqueIdentifier>{67b177b2-06ed-4b8d-b56f-14fb38e36ce3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff">
+      <UniqueIdentifier>{c0e78261-7730-44d0-88f8-33903abf4ac3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs">
+      <UniqueIdentifier>{ba99a072-9f09-4768-9704-afd9d2a84903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Dormant">
+      <UniqueIdentifier>{7174b472-4eb0-4fb3-997a-ccdf53fda1bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Invisible">
+      <UniqueIdentifier>{bb5bfe9b-ebd3-4fc5-ac08-b17a39e3e310}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_General">
+      <UniqueIdentifier>{a27e9ce1-e960-495e-9c0f-49bdc6679777}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Jink">
+      <UniqueIdentifier>{e4057c0d-4c61-4df3-8bf6-8fe875556d62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Flies">
+      <UniqueIdentifier>{130d60e8-025f-4494-a9d0-295366e99482}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_SkillStun">
+      <UniqueIdentifier>{536ef6e9-08b4-4fde-830a-8d8e879f2f9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_NotAttackable">
+      <UniqueIdentifier>{2c502c38-b666-4102-8fbe-61f383331bea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Centipede">
+      <UniqueIdentifier>{4499c5e3-8488-46d6-b05f-0ed6f1184543}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_GhostCollide">
+      <UniqueIdentifier>{54706b04-8048-4628-b550-17b7600beb3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Possess">
+      <UniqueIdentifier>{99406feb-82fe-41c7-bc3a-62b16b408476}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_TongueFly">
+      <UniqueIdentifier>{055d284f-85e9-4699-9377-32fa4241fc56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Banner">
+      <UniqueIdentifier>{284c0f3a-dcdf-495f-8576-058ea89741c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_FireFly">
+      <UniqueIdentifier>{81af1863-a89c-41c3-8ffa-75edd302c15d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_LockSP">
+      <UniqueIdentifier>{224a33f2-3e04-4cf5-a89f-2f316d8f3136}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Area">
+      <UniqueIdentifier>{2e323f09-269e-4c92-98d8-ad399298d539}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Aura">
+      <UniqueIdentifier>{45bed6ff-b61e-4ff0-ba39-6fd1ce379b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_Slime">
+      <UniqueIdentifier>{4fe5a35e-317e-44af-a664-81d1ff383c27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBuff\Buffs\Buff_SacredOrb">
+      <UniqueIdentifier>{0354c001-481c-4156-b0a7-dd3291e647a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\_LevelCore">
+      <UniqueIdentifier>{0f065ede-2bed-43dd-aa8e-84b909772692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\_LevelObjCore">
+      <UniqueIdentifier>{dd08dc18-2df3-4f38-8c3b-b4557efcdb1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\_LevelObjCore\Rtnu">
+      <UniqueIdentifier>{8bacf291-ef11-4dcb-859e-8cf79f48f1cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelGesture">
+      <UniqueIdentifier>{58100fb7-ba3f-4d4d-95c0-6b95e9dcf0f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior">
+      <UniqueIdentifier>{1790b66e-824b-47c8-9c62-02db34f3f332}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns">
+      <UniqueIdentifier>{ee6a7fab-9d07-4bd8-847c-e40fe6a94c25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Actions">
+      <UniqueIdentifier>{6d20dd8a-01fd-4790-97c6-ff896491c4d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Actions\BgnSiege">
+      <UniqueIdentifier>{1347d2d8-5cd8-4fdc-aaba-9c292e5c22c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Conditions">
+      <UniqueIdentifier>{98f890bb-8427-4c60-bf09-0a8afccd7929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Conditions\Detection">
+      <UniqueIdentifier>{47700f7f-554f-4cfb-8288-fb3385481dac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\GA    %28GeneralAgent%29">
+      <UniqueIdentifier>{07bf5cdb-2b6a-41ec-8ba0-be25a8f6dffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll">
+      <UniqueIdentifier>{38ccb3a9-9499-451c-8b36-c399ceb79cbf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award">
+      <UniqueIdentifier>{2c7a9ca1-ace8-4857-87e6-faad71737683}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29">
+      <UniqueIdentifier>{4b407c5e-0505-4c1f-81fb-4c4c50bd6145}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Troop">
+      <UniqueIdentifier>{cb94b65c-d99f-4a27-957b-8a31fb031667}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\AI">
+      <UniqueIdentifier>{838d299b-cd14-4763-a88e-ebca77b266f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Var">
+      <UniqueIdentifier>{3052884f-cf6e-4d99-9f96-9de704b008cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Threat">
+      <UniqueIdentifier>{7af984ee-313f-4e4c-b810-0e6b5b7c4ee1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc">
+      <UniqueIdentifier>{cabe42f9-e6bd-454f-8779-d9761f6beb98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\巨蜗">
+      <UniqueIdentifier>{186db793-0d1b-43d9-b317-cb5ffc32f3d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\地狱触手">
+      <UniqueIdentifier>{c7353fe9-9575-4489-bfc5-1c0369ba1303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\恶魔之眼">
+      <UniqueIdentifier>{68fd4c0f-193f-444e-b5ec-50fb0d7aaee5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\断桥">
+      <UniqueIdentifier>{574b8314-be19-46a9-841d-4b958d324bf8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\FireFly%28火蝇%29">
+      <UniqueIdentifier>{b1d7a4e9-2088-448d-b66c-1539126f7b33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\Disciple%28魔法使徒%29">
+      <UniqueIdentifier>{bada1734-7726-4ea2-bc29-4783e655a112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\MagicStone%28魔法石%29">
+      <UniqueIdentifier>{41e8c478-22e6-4b26-ad90-a08e4bc15215}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\LanternRoute%28灯塔路线%29">
+      <UniqueIdentifier>{f31ad3a7-1092-4af3-b0c2-8511844183bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\索尔">
+      <UniqueIdentifier>{b1dd59f6-9b17-4f7b-817f-d1ee82304663}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\变形怪">
+      <UniqueIdentifier>{12b82b29-a399-4d8d-8c44-618280e47fd4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\Belly">
+      <UniqueIdentifier>{393958af-9ddc-4a08-9e81-aca1ca27c5f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\StarPlate">
+      <UniqueIdentifier>{148a6ef0-ab75-499f-8584-0117f521e2e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Misc\MagicCircuit">
+      <UniqueIdentifier>{96eaafd6-ebeb-4f82-8567-bec3ab965929}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\SlatesA">
+      <UniqueIdentifier>{43e1e60f-9524-426e-9fa4-bb25886ef578}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Rtnu">
+      <UniqueIdentifier>{1263cf74-49bc-4deb-b3bf-65a8ec9b59e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Skill">
+      <UniqueIdentifier>{ae84b7c2-bef8-45b6-b005-0dcb8b8ac714}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\Buff">
+      <UniqueIdentifier>{72f83078-5c21-4700-b03a-cde63993a523}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelBehavior\bgns\SlatesB">
+      <UniqueIdentifier>{e1eea8e1-01e0-4238-ac98-53523748b915}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelNPCs">
+      <UniqueIdentifier>{fdd4cdb9-34a3-4a9d-808a-220f72fb68b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelDropper">
+      <UniqueIdentifier>{d484349c-aace-4548-911c-db531648c795}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelDeal">
+      <UniqueIdentifier>{860fbb77-7809-4d37-9625-94f2abf53fe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelDeal\Deals">
+      <UniqueIdentifier>{f97526b0-20ef-40d7-9e5a-41f52658aa49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelReactor">
+      <UniqueIdentifier>{8ea7479d-b9fc-47f6-b417-5f0b5b4331f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility">
+      <UniqueIdentifier>{45f0c75f-ceb8-4eaa-bc0e-ee3d970ec46d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\_techs">
+      <UniqueIdentifier>{16be3f8e-a0d0-41f8-9617-0d672aba2f32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\weapons">
+      <UniqueIdentifier>{7d27a627-1eda-45dd-9879-3567d7fc315c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\armors">
+      <UniqueIdentifier>{e7f58963-5b08-49a9-b099-cb2d2a465382}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\artifacts">
+      <UniqueIdentifier>{ed6606ec-b2fd-4643-b89b-a34b6e98c48f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\shields">
+      <UniqueIdentifier>{23567490-97fd-47e0-ba13-e4c9ac2e28c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\spells">
+      <UniqueIdentifier>{0f88c466-aeee-43d8-bef4-034a1b0536ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\poem">
+      <UniqueIdentifier>{d4588273-0c80-4692-9fe3-7773c5564beb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\banners">
+      <UniqueIdentifier>{47f43fde-cb6d-473d-8dde-f42f8c204fb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelAbility\special">
+      <UniqueIdentifier>{605cf9ab-0731-4eb8-a455-4658cb57f5fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Level\LevelArtifactUpgrade">
+      <UniqueIdentifier>{8ede8f9c-2c10-4319-9a1e-eab349d19561}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs">
+      <UniqueIdentifier>{3658ee5c-97fa-4878-b7a0-19609bf7fea3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoSpawner">
+      <UniqueIdentifier>{da0e8fc8-02e6-4852-a86e-c383622cc1ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoStartLoc">
+      <UniqueIdentifier>{0e1ccc93-b5f0-4a0e-b4f9-234704f7c520}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\_LoUnit">
+      <UniqueIdentifier>{ef87f4ed-6f29-4e70-b678-72d351e0e745}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoSPStone">
+      <UniqueIdentifier>{3269c674-01ef-4f8b-ac52-3ca33a388271}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoLifeFlies">
+      <UniqueIdentifier>{467bfdef-485d-47c1-82ec-a481e342e3c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\_LoItem">
+      <UniqueIdentifier>{5169ee21-5297-4eab-b724-1d23b5580a6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoHole">
+      <UniqueIdentifier>{b53e9576-e8a5-4ee4-9698-b1bb852c1dd8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoWatchTower">
+      <UniqueIdentifier>{0fa9883c-b877-4f4d-8060-e567e4867ef7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoPerches">
+      <UniqueIdentifier>{bc2925f4-9c20-4ee6-b4d1-656c30fae531}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoNPCLoc">
+      <UniqueIdentifier>{6a0dfb1b-0fef-4676-9e36-e79db6c1ddaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoLoc">
+      <UniqueIdentifier>{29d4f699-b1f0-40a4-b0a9-298cedcc1b6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoRoute">
+      <UniqueIdentifier>{8b81a303-3bd3-4532-b84c-2b302609091d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoTeleportSite">
+      <UniqueIdentifier>{f9ad1a74-889b-4063-a8a7-e72d5ea19a97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoTeleporter">
+      <UniqueIdentifier>{c4e0d746-4fb9-4c13-86b3-cd832b50f111}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoDormantSpawner">
+      <UniqueIdentifier>{6927c1ad-7570-4f1d-b09d-93552af5e135}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\_LoEffectObj">
+      <UniqueIdentifier>{7f57ea6c-3f33-4a83-bf8f-e9532b5c8e17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\_LoAgent">
+      <UniqueIdentifier>{ed902f71-d853-48b8-9c3a-3f7de369b954}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoAreaDmg">
+      <UniqueIdentifier>{94e602ea-1a8e-46e7-a109-d9e180099906}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoGeneralAgent">
+      <UniqueIdentifier>{2cd42c16-cf4b-48c3-abe9-1163f90eb797}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoBomb">
+      <UniqueIdentifier>{101bb962-1060-47cd-9071-ae159ef9dd40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoWave">
+      <UniqueIdentifier>{530b401d-9816-4db2-8ea6-3becffd18286}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoAbsorb">
+      <UniqueIdentifier>{87d5154b-1734-43df-9593-8ea0b30231a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoArea">
+      <UniqueIdentifier>{45af8abc-c929-42da-b4c8-8edcab631ba5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoMagicBoard">
+      <UniqueIdentifier>{790935ec-022f-4701-bf1d-01a2e002fdbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoMagicBoard\ai">
+      <UniqueIdentifier>{d2b36489-3887-48b9-95e6-8ff150148e73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoTrap">
+      <UniqueIdentifier>{66e0b9fd-3314-4272-b8a0-dc92cd55ffa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoStripe">
+      <UniqueIdentifier>{ab63b0cc-2208-4a26-bfda-e7aecca61825}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoSwing">
+      <UniqueIdentifier>{e3c6a0aa-468f-4bad-85b0-59eb39a51c15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoMagnetBall">
+      <UniqueIdentifier>{4d554c33-1f47-4db9-ab2f-bc4ee793e595}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoSwingBullet">
+      <UniqueIdentifier>{7328c10a-72b9-4c8e-8bbd-790d851b6e6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoBulletBomb">
+      <UniqueIdentifier>{acd74e52-2a81-4b73-8b3b-c694b3f15a67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoPush">
+      <UniqueIdentifier>{1332b846-a2b7-42a7-b465-252156ff25cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoBullet">
+      <UniqueIdentifier>{ce2203c2-d65d-48f2-b010-1795bf4f7d25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoShootBullet">
+      <UniqueIdentifier>{e994e9b1-7870-475d-8759-facba953182a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoSignal">
+      <UniqueIdentifier>{45ca76ec-1e00-422d-8b75-7abd6aec992c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoMissile">
+      <UniqueIdentifier>{7652c0dd-fcb3-4236-ace3-a7754aa7608e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoChain">
+      <UniqueIdentifier>{081788fb-0a97-4dfe-8221-0369b3349289}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoObliterater">
+      <UniqueIdentifier>{7655e77d-41be-405f-a5bf-eda975dbf9aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoTornado">
+      <UniqueIdentifier>{c06304e2-4650-4172-a72b-03059d7be92e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoSlate">
+      <UniqueIdentifier>{078aef36-639b-4dfe-8340-9002b32e905b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoSlate\A">
+      <UniqueIdentifier>{ea691836-2cd0-4936-b448-44e166099c96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoSlate\B">
+      <UniqueIdentifier>{fbe161ed-a015-4ab2-b033-5ccb62c0108a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoToeStoneThrusts">
+      <UniqueIdentifier>{adc05c3a-fee2-42fb-aee3-9c360515ee7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoLink">
+      <UniqueIdentifier>{3b3eefab-58ac-49aa-bd74-257f41d4a183}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoLichen">
+      <UniqueIdentifier>{001c057d-aeb9-4631-be9a-3eac29f3b7f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoEnv">
+      <UniqueIdentifier>{335b391b-df06-4dc3-9528-00a358235ddc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoOwnerDeal">
+      <UniqueIdentifier>{5fa19d46-e0a0-43bb-969f-4b92ccf6e3a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoAirBomb">
+      <UniqueIdentifier>{ccf2b62a-0d95-4405-87e2-f111245a80a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoChainedHammer">
+      <UniqueIdentifier>{0831af6a-9b74-4974-a251-93e2e38ea962}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoStep">
+      <UniqueIdentifier>{b0de5e11-b344-4816-b961-15cab3ddb4ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoCentipede">
+      <UniqueIdentifier>{35ee6299-5904-4152-85fc-4545b4b328b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoSnailP1">
+      <UniqueIdentifier>{6dd93abb-131b-4f95-80a6-d788254b97fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoTongue">
+      <UniqueIdentifier>{b72b297e-5ad7-4f5a-9e6b-35610097c711}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoLichenSpread">
+      <UniqueIdentifier>{eff91c62-2777-408e-9055-1aacf7e28798}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoUtum">
+      <UniqueIdentifier>{d591c880-e935-4a53-a1f7-058515599b38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoInvoke">
+      <UniqueIdentifier>{d8d4d983-b836-4054-bf51-7db1dbe2d99a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoLanternRoute">
+      <UniqueIdentifier>{53d4cd6d-d2d7-4712-82c7-6c5e6d7d10e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoHolyOrb">
+      <UniqueIdentifier>{18cf5add-da0b-406c-98e1-10d05f116bc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoSlideway">
+      <UniqueIdentifier>{3300a02c-e7dc-4c30-b1ac-d832037948a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoDemonBlood">
+      <UniqueIdentifier>{35595356-85a5-4f81-840a-11d49e200a12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoPushAdv">
+      <UniqueIdentifier>{4bf0e857-7806-4403-99b8-b43b88ed0ef0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoObjDeal">
+      <UniqueIdentifier>{94768f21-5fc1-4e09-b4a7-250398100bf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoMassSpline">
+      <UniqueIdentifier>{db954469-c611-465f-93da-a56461ebd5af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoRavens">
+      <UniqueIdentifier>{874ce696-7126-4f27-a467-1e93bf51c96b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoShards">
+      <UniqueIdentifier>{f82788e6-da04-4eea-8140-d352cc463b17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoStarPlate">
+      <UniqueIdentifier>{770ab7a6-5697-47fb-99c9-5f222c96d947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoBelly">
+      <UniqueIdentifier>{ae233ba3-731e-4d61-9c37-088e763f71d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoBellyEgg">
+      <UniqueIdentifier>{e78600ae-9283-46de-8611-cc67988531b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\LoMagicCircuit">
+      <UniqueIdentifier>{17143be0-cebd-48f7-8792-ccf78af4b375}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoBellyEelString">
+      <UniqueIdentifier>{9b60491d-2181-44c0-92e9-a0dc7bef43a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Protocals">
+      <UniqueIdentifier>{ac940b1f-b14f-4024-8692-3707eef527cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelRecords">
+      <UniqueIdentifier>{489ab11f-fb37-42c4-b219-ce8ffbf5f444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LevelObjs\EoMagicCircuitRailAbsorb">
+      <UniqueIdentifier>{7acad12d-cb1d-40f4-92b7-529b3eb7ab19}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test.cpp">
+      <Filter>Level</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelSkill.cpp">
+      <Filter>Level\LevelSkill</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelSkillCDs.cpp">
+      <Filter>Level\LevelSkill</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelSkillDriver.cpp">
+      <Filter>Level\LevelSkill</Filter>
+    </ClCompile>
+    <ClCompile Include="BulletBase.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_CastSignal.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_ChainSpurt.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_ChainSummon.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Charge.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Dive.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_FlyUp.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Gesture.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Guard.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_InvokeAgent.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_InvokeItem.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_JumpAttack.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_MeleeAbsorb.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_MeleeAttack.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_PhantomAttack.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Plunge.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_PounceMount.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Reside.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Roll.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_SpitAttack.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Spray.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Summon.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Sweep.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_TeleportAttack.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_ThrowEo.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_Zeal.cpp">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_RavenBullet.cpp">
+      <Filter>Level\LevelSkill\Skills\RavenSummon</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_RavenSummon.cpp">
+      <Filter>Level\LevelSkill\Skills\RavenSummon</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_UtumBirth.cpp">
+      <Filter>Level\LevelSkill\Skills\UtumSummon</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_UtumSummon.cpp">
+      <Filter>Level\LevelSkill\Skills\UtumSummon</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_General.cpp">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_GeneralAdvS.cpp">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_GeneralC.cpp">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_GeneralS.cpp">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_PushSlideway.cpp">
+      <Filter>Level\LevelSkill\Skills\Skill_PushSlideway</Filter>
+    </ClCompile>
+    <ClCompile Include="BuffCalc.cpp">
+      <Filter>Level\LevelBuff</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelBuff.cpp">
+      <Filter>Level\LevelBuff</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Birth.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Bleeding.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Blocking.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Burning.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Cold.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Dead.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Deal.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Dizzy.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_FlyBirth.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Frozen.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Immune.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_IMS.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_InSlates.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_KB.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_KD.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_MindCtrl.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Mount.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_PB.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Petrified.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Petrify.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_ResideHole.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_ResideWT.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Shoot.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Stun.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Teleport.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_TeleportOut.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Weaks.cpp">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRevive.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Dormant</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Dormant.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Dormant</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnInvisible.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Invisible</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Invisible.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Invisible</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_General.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_General</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Jink.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Jink</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Flies.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Flies</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_SkillStun.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_SkillStun</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_NotAttackable.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_NotAttackable</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_CentipedeCyst.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_CentipedeNode_Crouch.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_CentipedeNode_Move.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_CentipedeNode_Tendrils.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_GhostCollide.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_GhostCollide</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Possess.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Possess</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_TongueFly.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_TongueFly</Filter>
+    </ClCompile>
+    <ClCompile Include="TonguePhys.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_TongueFly</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Banner.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Banner</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_FireFly.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_FireFly</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_LockSP.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_LockSP</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Area.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Area</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_AuraJoker.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_AuraLight.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_AuraMystery.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_AuraNature.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_AuraStrength.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_AuraWisdom.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Slime.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_Slime</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_SacredOrb.cpp">
+      <Filter>Level\LevelBuff\Buffs\Buff_SacredOrb</Filter>
+    </ClCompile>
+    <ClCompile Include="Level.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelAgentBrief.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelAIs.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelAovMap.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelBasis.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelChancer.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelClasses.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelData.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelDebugDraw.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelDecider.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelDefines.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelEventMap.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelEvents.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelExploreMap.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelHooks.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelIDs.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelInactives.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelLockers.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelObjMap.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelPersistData.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelResources.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelResPiles.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelSkills.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelSlatesBasis.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelTileMap.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelTroops.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelUtil.cpp">
+      <Filter>Level\_LevelCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelAIContext.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelAttrs.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelAttrs_Weak.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelBlocking.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelCoSkill.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelCounter.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelFlock.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelItem.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelItemState.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelObj.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelObjMove.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelObjPauser.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelObjResidable.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelObjSrc.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelObliterateArg.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelOp.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelOps.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelPlayer.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelPlayerSlatesData.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelPlayerStates.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelSensor.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelService.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelStrike.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelTalks.cpp">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelRtnuCircum.cpp">
+      <Filter>Level\_LevelObjCore\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelRtnuCmds.cpp">
+      <Filter>Level\_LevelObjCore\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelRtnus.cpp">
+      <Filter>Level\_LevelObjCore\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="GestureFlyDown.cpp">
+      <Filter>Level\LevelGesture</Filter>
+    </ClCompile>
+    <ClCompile Include="GestureFlyUp.cpp">
+      <Filter>Level\LevelGesture</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelGesture.cpp">
+      <Filter>Level\LevelGesture</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelGesture_FlyThrust.cpp">
+      <Filter>Level\LevelGesture</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelGesture_Jump.cpp">
+      <Filter>Level\LevelGesture</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelBehavior.cpp">
+      <Filter>Level\LevelBehavior</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelBGs.cpp">
+      <Filter>Level\LevelBehavior</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnController.cpp">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnEvent.cpp">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFunc.cpp">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMath.cpp">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTalk.cpp">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAccompany_Obsolete.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnDeal.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnDestroyLo.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnEquip.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFaction.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFlee.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFlyDown.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFlyingHover.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFlyThrust.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFlyUp.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFollow.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFollow_Obsolete.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnLichen.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnLockPlayer.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMoveAlong.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMoveTo.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRaiseUp.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnReside.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnResPile.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetCollide.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetUnitPace.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSignal.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSpawnUnit.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnStopMove.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnStroll.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSwitchWalkable.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSyncSpeed.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTeleport.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSiege.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions\BgnSiege</Filter>
+    </ClCompile>
+    <ClCompile Include="Buff_Siege.cpp">
+      <Filter>Level\LevelBehavior\bgns\Actions\BgnSiege</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_CheckItem.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAreaOp.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckAIScenario.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckDist.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckEquip.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckEventSrc.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckExausted.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckGrade.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckHP.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckKilling.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckMap.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckMasterDist.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckMoveMethod.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckMoving.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckObstacle.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckPain.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckPlayerRes.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckResiding.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckResPile.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFindNearPos.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFindNearPos_Special.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFindWalkableArea.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGetDay.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGetLevelObjID.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGetLevelObjPos.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMonitorCoSkill.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMonitorMasterLeave.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMonitorStuck.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnService.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnDetectAgent.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnDetectResidable.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnDetectSignal.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnDetectUnit.cpp">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_AssignVita.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Attack.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Brief.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_CheckDay.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_DestroyArtifact.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_EnableBody.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Env.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Flusks.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_GetBaseAttr.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_IncGoldMine.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ModBaseAttr.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ModHP.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ModRes.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ModShape.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ModSP.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RegisterTeleportTarget.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ResetMP.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RevealMap.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Revive.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_SpawnDailyItems.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_SpawnItem.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Teleport.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Temple.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollAwards.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollGoods.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollItems.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollPoemAwards.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollSlatesAwards.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollSpells.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollUnique.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_RollVendor.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_AssignAward.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_AssignItem.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_CheckAward.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ExchangeItem.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_ExpendAward.cpp">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAGA_Call.cpp">
+      <Filter>Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAGA_CheckAgentRefValid.cpp">
+      <Filter>Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAGA_CheckState.cpp">
+      <Filter>Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Build.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_CancelCmd.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_CheckDist.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Clean.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Combat.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Detect.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Join.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_MakeBuff.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Monitor.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_MoveAlong.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Quit.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_SetCmd.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_SetVar.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_Spawn.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnTroop_SwitchRetinue.cpp">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAI_CheckCmd.cpp">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAI_CheckMentalState.cpp">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAI_MonitorCmd.cpp">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAI_SetMentalState.cpp">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckCounter.cpp">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckTimer.cpp">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckVar.cpp">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnModCounter.cpp">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnModVar.cpp">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRandomizeVar.cpp">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnResetTimer.cpp">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_Alerting.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_Approach.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_Attack.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_CalcDist.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_Cast.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_CheckAlertedCount.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_CheckCast.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_CheckCombatedCount.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_CheckExist.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_CheckEZone.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_CheckRange.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_Combating.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_FindAttackPos.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_FindFleePos.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_ForceUpdate.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_KeepDist.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_Siege.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnThreat_UpdateCtrl.cpp">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_创建飞妖.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_小恶魔_寻找闪避跳跃点.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_飞妖_更新FlankAttack.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_飞妖_更新Shuttle.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_圣旗_Assign.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_宝藏洞穴_Search.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_Centipede_GetInfo.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_Centipede_PlayAct.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_Centipede_SpawnCyst.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_Centipede_Stretch.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_CentipedeNode_Activate.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_CentipedeNode_GetPrevNode.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_SnailP1_初始化.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_SnailP1_舌已打断.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_SnailP1_舌虫已返回.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_SnailP1_舌被攻击.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_SnailP1舌虫_寻找毒爆点.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_SnailP1舌虫_工作模式.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_地狱触手_DetectThreat.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\地狱触手</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_地狱触手_FindAttackTarget.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\地狱触手</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_地狱触手_侦测干扰.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\地狱触手</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_恶魔之眼_MonitorArea.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\恶魔之眼</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_恶魔之眼_Update.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\恶魔之眼</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_断桥_EndRepair.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\断桥</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_断桥_StartRepair.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\断桥</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnFireFly.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\FireFly%28火蝇%29</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_Disciple_RollAwards.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\Disciple%28魔法使徒%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Disciple_Init.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\Disciple%28魔法使徒%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_MagicStone.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\MagicStone%28魔法石%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_LanternRoute.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\LanternRoute%28灯塔路线%29</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Vendor.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\索尔</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_SlimeOp.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\变形怪</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_Belly.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\Belly</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_StarPlate.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\StarPlate</Filter>
+    </ClCompile>
+    <ClCompile Include="Bgn_MagicCircuit.cpp">
+      <Filter>Level\LevelBehavior\bgns\Misc\MagicCircuit</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesA_SetButton.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesA_SetEdgeLock.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesA_SetEntrance.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesA_SetMatchKey.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesA_SetSwitch.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesA_SetType.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesA_SetType_RandomPick.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSlatesA_CheckProcessed.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSlatesA_FinishProcess.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSlatesA_GetStarCount.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSlatesA_OpenFence.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSlatesA_Reveal.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSlatesA_SpawnAgent.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSlatesA_Teleport.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckRtnuCmd.cpp">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRtnu_Accompany.cpp">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRtnu_CheckBehavior.cpp">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRtnu_CheckIsRtnu.cpp">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRtnu_GetCount.cpp">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSwitchRetinue.cpp">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnAttack.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckJumpAttack.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckSkill.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckSkillEvent.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckSkillStage.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckSkillStageAge.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckSkillTargetRange.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckSkillWindow.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnGetSkillDynObstacle.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnJumpAttack.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnLocoSkill.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetSkillTarget.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSkillOp.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSwitchSkillStage.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnUtumThrust.cpp">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckBuff.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckDead.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckFlies.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckStunInfo.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnCheckStunSrc.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnDie.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnJink.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnKnockDown.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMakeBuff.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMakeSkillStun.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnPossess.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnRemoveBuff.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnWaitStun.cpp">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesB_Generate.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesB</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnSetupSlatesB_SetEntrance.cpp">
+      <Filter>Level\LevelBehavior\bgns\SlatesB</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelNPCs.cpp">
+      <Filter>Level\LevelNPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="NPCPendings.cpp">
+      <Filter>Level\LevelNPCs</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelDropper.cpp">
+      <Filter>Level\LevelDropper</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelDeal.cpp">
+      <Filter>Level\LevelDeal</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_BreakCentipedeNode.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_CleanOwnerBuff.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_CreateEo.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_CreateSpore.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_CureHP.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_CureSP.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_Dizzy.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_Dmg.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_FliesOp.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_IgniteHolyOrb.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_IncMP.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_Jink.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_KnockBack.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_KnockDown.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_MakeBuff.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_MakePainDrop.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_ModRes.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_ModSlatesRes.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_Petrify.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_PhysDmg.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_RemoveBuff.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_SoulRecover.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_StartBhvRelay.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_StompBellyEgg.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_Suck.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_SummonUnit.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="Deal_Teleport.cpp">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelReactor.cpp">
+      <Filter>Level\LevelReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="Reactor_Damage.cpp">
+      <Filter>Level\LevelReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="Reactor_DamageImmune.cpp">
+      <Filter>Level\LevelReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="Reactor_Hit.cpp">
+      <Filter>Level\LevelReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="Reactor_PostDamage.cpp">
+      <Filter>Level\LevelReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="Reactor_PreKill.cpp">
+      <Filter>Level\LevelReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="Reactor_Stun.cpp">
+      <Filter>Level\LevelReactor</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelAbility.cpp">
+      <Filter>Level\LevelAbility</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelTech.cpp">
+      <Filter>Level\LevelAbility</Filter>
+    </ClCompile>
+    <ClCompile Include="Tech_Fury.cpp">
+      <Filter>Level\LevelAbility\_techs</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_BloodTeeth.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_DeathCall.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_Fire.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_FlameBlade.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_FlashSwing.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_HonorSword.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_LightningBow.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_Nameless.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_ObliterateBow.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_PhantomDagger.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_SkullSword.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_TeleportSword.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_Unarmed.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_UtumTide.cpp">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_7sonLeather.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_AnWeep.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_BlackSteel.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_EliPromise.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_Frost.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_HonorPlate.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_HunterPlate.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_SimCurse.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_TalBless.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_WhirlWind.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_WolfSkin.cpp">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_Bomb.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_ExplodeOil.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_GemPot.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_HonorBook.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_HPAmulet.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_HPFlusk.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_HPPotion.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_MagicRing.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_MoneyBag.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_SacredArrow.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_ShieldAmulet.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_ShieldMask.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_SPAmulet.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_SPPotion.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_ToeStone.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_VampireRing.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_WeaponInductionStone.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_Whetstone.cpp">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_StormEye.cpp">
+      <Filter>Level\LevelAbility\shields</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelSpell.cpp">
+      <Filter>Level\LevelAbility\spells</Filter>
+    </ClCompile>
+    <ClCompile Include="Spell_FireBall.cpp">
+      <Filter>Level\LevelAbility\spells</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelPoem.cpp">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClCompile>
+    <ClCompile Include="Poem_ChartI.cpp">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClCompile>
+    <ClCompile Include="Poem_ChartII.cpp">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClCompile>
+    <ClCompile Include="Poem_ChartIII.cpp">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClCompile>
+    <ClCompile Include="Banner_Fire.cpp">
+      <Filter>Level\LevelAbility\banners</Filter>
+    </ClCompile>
+    <ClCompile Include="Banner_Wolf.cpp">
+      <Filter>Level\LevelAbility\banners</Filter>
+    </ClCompile>
+    <ClCompile Include="Ability_PushSlideway.cpp">
+      <Filter>Level\LevelAbility\special</Filter>
+    </ClCompile>
+    <ClCompile Include="Upgrade_ArmorOfVigor.cpp">
+      <Filter>Level\LevelArtifactUpgrade</Filter>
+    </ClCompile>
+    <ClCompile Include="Upgrade_ShieldOfVigor.cpp">
+      <Filter>Level\LevelArtifactUpgrade</Filter>
+    </ClCompile>
+    <ClCompile Include="LoSpawner.cpp">
+      <Filter>LevelObjs\LoSpawner</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelUnitArg.cpp">
+      <Filter>LevelObjs\_LoUnit</Filter>
+    </ClCompile>
+    <ClCompile Include="LoUnit.cpp">
+      <Filter>LevelObjs\_LoUnit</Filter>
+    </ClCompile>
+    <ClCompile Include="LoSPStone.cpp">
+      <Filter>LevelObjs\LoSPStone</Filter>
+    </ClCompile>
+    <ClCompile Include="Skill_MissileSP.cpp">
+      <Filter>LevelObjs\LoSPStone</Filter>
+    </ClCompile>
+    <ClCompile Include="LoLifeFlies.cpp">
+      <Filter>LevelObjs\LoLifeFlies</Filter>
+    </ClCompile>
+    <ClCompile Include="LoItem.cpp">
+      <Filter>LevelObjs\_LoItem</Filter>
+    </ClCompile>
+    <ClCompile Include="LoHole.cpp">
+      <Filter>LevelObjs\LoHole</Filter>
+    </ClCompile>
+    <ClCompile Include="LoWatchTower.cpp">
+      <Filter>LevelObjs\LoWatchTower</Filter>
+    </ClCompile>
+    <ClCompile Include="LoPerches.cpp">
+      <Filter>LevelObjs\LoPerches</Filter>
+    </ClCompile>
+    <ClCompile Include="LoTeleportSite.cpp">
+      <Filter>LevelObjs\LoTeleportSite</Filter>
+    </ClCompile>
+    <ClCompile Include="LoTeleporter.cpp">
+      <Filter>LevelObjs\LoTeleporter</Filter>
+    </ClCompile>
+    <ClCompile Include="LoDormantSpawner.cpp">
+      <Filter>LevelObjs\LoDormantSpawner</Filter>
+    </ClCompile>
+    <ClCompile Include="LoEffectObj.cpp">
+      <Filter>LevelObjs\_LoEffectObj</Filter>
+    </ClCompile>
+    <ClCompile Include="LoAgent.cpp">
+      <Filter>LevelObjs\_LoAgent</Filter>
+    </ClCompile>
+    <ClCompile Include="EoAreaDmg.cpp">
+      <Filter>LevelObjs\EoAreaDmg</Filter>
+    </ClCompile>
+    <ClCompile Include="LoGeneralAgent.cpp">
+      <Filter>LevelObjs\LoGeneralAgent</Filter>
+    </ClCompile>
+    <ClCompile Include="EoBomb.cpp">
+      <Filter>LevelObjs\EoBomb</Filter>
+    </ClCompile>
+    <ClCompile Include="EoWave.cpp">
+      <Filter>LevelObjs\EoWave</Filter>
+    </ClCompile>
+    <ClCompile Include="EoAbsorb.cpp">
+      <Filter>LevelObjs\EoAbsorb</Filter>
+    </ClCompile>
+    <ClCompile Include="EoArea.cpp">
+      <Filter>LevelObjs\EoArea</Filter>
+    </ClCompile>
+    <ClCompile Include="LoMagicBoard.cpp">
+      <Filter>LevelObjs\LoMagicBoard</Filter>
+    </ClCompile>
+    <ClCompile Include="MBUtil.cpp">
+      <Filter>LevelObjs\LoMagicBoard</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMB_CheckCommitCount.cpp">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMB_CheckResCount.cpp">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMB_CheckUnsealCount.cpp">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMB_CommitTile.cpp">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnMB_UnsealTile.cpp">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="MagicBoardAI.cpp">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClCompile>
+    <ClCompile Include="EoTrap.cpp">
+      <Filter>LevelObjs\EoTrap</Filter>
+    </ClCompile>
+    <ClCompile Include="EoStripe.cpp">
+      <Filter>LevelObjs\EoStripe</Filter>
+    </ClCompile>
+    <ClCompile Include="EoSwing.cpp">
+      <Filter>LevelObjs\EoSwing</Filter>
+    </ClCompile>
+    <ClCompile Include="EoMagnetBall.cpp">
+      <Filter>LevelObjs\EoMagnetBall</Filter>
+    </ClCompile>
+    <ClCompile Include="EoSwingBullet.cpp">
+      <Filter>LevelObjs\EoSwingBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="EoBulletBomb.cpp">
+      <Filter>LevelObjs\EoBulletBomb</Filter>
+    </ClCompile>
+    <ClCompile Include="EoPush.cpp">
+      <Filter>LevelObjs\EoPush</Filter>
+    </ClCompile>
+    <ClCompile Include="EoBullet.cpp">
+      <Filter>LevelObjs\EoBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="EoBulletBase.cpp">
+      <Filter>LevelObjs\EoBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="EoShootBullet.cpp">
+      <Filter>LevelObjs\EoShootBullet</Filter>
+    </ClCompile>
+    <ClCompile Include="EoSignal.cpp">
+      <Filter>LevelObjs\EoSignal</Filter>
+    </ClCompile>
+    <ClCompile Include="EoMissile.cpp">
+      <Filter>LevelObjs\EoMissile</Filter>
+    </ClCompile>
+    <ClCompile Include="EoChain.cpp">
+      <Filter>LevelObjs\EoChain</Filter>
+    </ClCompile>
+    <ClCompile Include="EoObliterater.cpp">
+      <Filter>LevelObjs\EoObliterater</Filter>
+    </ClCompile>
+    <ClCompile Include="EoTornado.cpp">
+      <Filter>LevelObjs\EoTornado</Filter>
+    </ClCompile>
+    <ClCompile Include="LoSlate.cpp">
+      <Filter>LevelObjs\LoSlate</Filter>
+    </ClCompile>
+    <ClCompile Include="LoSlatesA.cpp">
+      <Filter>LevelObjs\LoSlate\A</Filter>
+    </ClCompile>
+    <ClCompile Include="LoSlatesB.cpp">
+      <Filter>LevelObjs\LoSlate\B</Filter>
+    </ClCompile>
+    <ClCompile Include="SlatesBuilderB.cpp">
+      <Filter>LevelObjs\LoSlate\B</Filter>
+    </ClCompile>
+    <ClCompile Include="EoToeStoneThrusts.cpp">
+      <Filter>LevelObjs\EoToeStoneThrusts</Filter>
+    </ClCompile>
+    <ClCompile Include="EoLink.cpp">
+      <Filter>LevelObjs\EoLink</Filter>
+    </ClCompile>
+    <ClCompile Include="EoLichen.cpp">
+      <Filter>LevelObjs\EoLichen</Filter>
+    </ClCompile>
+    <ClCompile Include="EoEnv.cpp">
+      <Filter>LevelObjs\EoEnv</Filter>
+    </ClCompile>
+    <ClCompile Include="EoOwnerDeal.cpp">
+      <Filter>LevelObjs\EoOwnerDeal</Filter>
+    </ClCompile>
+    <ClCompile Include="EoAirBomb.cpp">
+      <Filter>LevelObjs\EoAirBomb</Filter>
+    </ClCompile>
+    <ClCompile Include="BgnChainedHammerOp.cpp">
+      <Filter>LevelObjs\EoChainedHammer</Filter>
+    </ClCompile>
+    <ClCompile Include="EoChainedHammer.cpp">
+      <Filter>LevelObjs\EoChainedHammer</Filter>
+    </ClCompile>
+    <ClCompile Include="EoStep.cpp">
+      <Filter>LevelObjs\EoStep</Filter>
+    </ClCompile>
+    <ClCompile Include="CentipedeRope.cpp">
+      <Filter>LevelObjs\LoCentipede</Filter>
+    </ClCompile>
+    <ClCompile Include="LoCentipede.cpp">
+      <Filter>LevelObjs\LoCentipede</Filter>
+    </ClCompile>
+    <ClCompile Include="LoSnailP1.cpp">
+      <Filter>LevelObjs\LoSnailP1</Filter>
+    </ClCompile>
+    <ClCompile Include="EoTongue.cpp">
+      <Filter>LevelObjs\EoTongue</Filter>
+    </ClCompile>
+    <ClCompile Include="EoLichenSpread.cpp">
+      <Filter>LevelObjs\EoLichenSpread</Filter>
+    </ClCompile>
+    <ClCompile Include="EoUtumAttack.cpp">
+      <Filter>LevelObjs\EoUtum</Filter>
+    </ClCompile>
+    <ClCompile Include="EoUtumRepairBridge.cpp">
+      <Filter>LevelObjs\EoUtum</Filter>
+    </ClCompile>
+    <ClCompile Include="EoInvoke.cpp">
+      <Filter>LevelObjs\EoInvoke</Filter>
+    </ClCompile>
+    <ClCompile Include="EoLanternRoute.cpp">
+      <Filter>LevelObjs\EoLanternRoute</Filter>
+    </ClCompile>
+    <ClCompile Include="EoHolyOrb.cpp">
+      <Filter>LevelObjs\EoHolyOrb</Filter>
+    </ClCompile>
+    <ClCompile Include="LoSlideway.cpp">
+      <Filter>LevelObjs\LoSlideway</Filter>
+    </ClCompile>
+    <ClCompile Include="EoDemonBlood.cpp">
+      <Filter>LevelObjs\EoDemonBlood</Filter>
+    </ClCompile>
+    <ClCompile Include="EoPushAdv.cpp">
+      <Filter>LevelObjs\EoPushAdv</Filter>
+    </ClCompile>
+    <ClCompile Include="EoObjDeal.cpp">
+      <Filter>LevelObjs\EoObjDeal</Filter>
+    </ClCompile>
+    <ClCompile Include="EoMassSpline.cpp">
+      <Filter>LevelObjs\EoMassSpline</Filter>
+    </ClCompile>
+    <ClCompile Include="EoSplineBullet.cpp">
+      <Filter>LevelObjs\EoMassSpline</Filter>
+    </ClCompile>
+    <ClCompile Include="EoRavens.cpp">
+      <Filter>LevelObjs\EoRavens</Filter>
+    </ClCompile>
+    <ClCompile Include="EoShards.cpp">
+      <Filter>LevelObjs\EoShards</Filter>
+    </ClCompile>
+    <ClCompile Include="LoStarPlate.cpp">
+      <Filter>LevelObjs\LoStarPlate</Filter>
+    </ClCompile>
+    <ClCompile Include="LoBelly.cpp">
+      <Filter>LevelObjs\LoBelly</Filter>
+    </ClCompile>
+    <ClCompile Include="EoBellyEgg.cpp">
+      <Filter>LevelObjs\EoBellyEgg</Filter>
+    </ClCompile>
+    <ClCompile Include="LoMagicCircuit.cpp">
+      <Filter>LevelObjs\LoMagicCircuit</Filter>
+    </ClCompile>
+    <ClCompile Include="EoBellyEelString.cpp">
+      <Filter>LevelObjs\EoBellyEelString</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocal.cpp">
+      <Filter>Protocals</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelRecords.cpp">
+      <Filter>LevelRecords</Filter>
+    </ClCompile>
+    <ClCompile Include="stdh.cpp">
+      <Filter>Level</Filter>
+    </ClCompile>
+    <ClCompile Include="EoMagicCircuitRailAbsorb.cpp">
+      <Filter>LevelObjs\EoMagicCircuitRailAbsorb</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LevelSkill.h">
+      <Filter>Level\LevelSkill</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSkillCDs.h">
+      <Filter>Level\LevelSkill</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSkillDriver.h">
+      <Filter>Level\LevelSkill</Filter>
+    </ClInclude>
+    <ClInclude Include="BulletBase.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_CastSignal.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_ChainSpurt.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_ChainSummon.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Charge.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Dive.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_FlyUp.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Gesture.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Guard.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_InvokeAgent.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_InvokeItem.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_JumpAttack.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_MeleeAbsorb.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_MeleeAttack.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_PhantomAttack.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Plunge.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_PounceMount.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Reside.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Roll.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_SpitAttack.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Spray.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Summon.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Sweep.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_TeleportAttack.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_ThrowEo.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_Zeal.h">
+      <Filter>Level\LevelSkill\Skills</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_RavenBullet.h">
+      <Filter>Level\LevelSkill\Skills\RavenSummon</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_RavenSummon.h">
+      <Filter>Level\LevelSkill\Skills\RavenSummon</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_UtumBirth.h">
+      <Filter>Level\LevelSkill\Skills\UtumSummon</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_UtumSummon.h">
+      <Filter>Level\LevelSkill\Skills\UtumSummon</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_General.h">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_GeneralC.h">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_GeneralS.h">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_PushSlideway.h">
+      <Filter>Level\LevelSkill\Skills\Skill_PushSlideway</Filter>
+    </ClInclude>
+    <ClInclude Include="BuffCalc.h">
+      <Filter>Level\LevelBuff</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelBuff.h">
+      <Filter>Level\LevelBuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Birth.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Bleeding.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Blocking.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Burning.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Cold.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Dead.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Deal.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Dizzy.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_FlyBirth.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Frozen.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Immune.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_IMS.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_InSlates.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_KB.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_KD.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_MindCtrl.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Mount.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_PB.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Petrified.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Petrify.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_ResideHole.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_ResideWT.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Shoot.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Stun.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Teleport.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_TeleportOut.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Weaks.h">
+      <Filter>Level\LevelBuff\Buffs</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRevive.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Dormant</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Dormant.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Dormant</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnInvisible.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Invisible</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Invisible.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Invisible</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_General.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_General</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Jink.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Jink</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Flies.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Flies</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_SkillStun.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_SkillStun</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_NotAttackable.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_NotAttackable</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_CentipedeCyst.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_CentipedeNode_Crouch.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_CentipedeNode_Move.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_CentipedeNode_Tendrils.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Centipede</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_GhostCollide.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_GhostCollide</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Possess.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Possess</Filter>
+    </ClInclude>
+    <ClInclude Include="TonguePhys.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_TongueFly</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Banner.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Banner</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_FireFly.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_FireFly</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_LockSP.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_LockSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Area.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Area</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_AuraJoker.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_AuraLight.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_AuraMystery.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_AuraNature.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_AuraStrength.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_AuraWisdom.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Aura</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Slime.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_Slime</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_SacredOrb.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_SacredOrb</Filter>
+    </ClInclude>
+    <ClInclude Include="Level.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAgentBrief.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAIs.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAovMap.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelBasis.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelChancer.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelClasses.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelCost.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelData.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDebugDraw.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDecider.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDefines.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDetectTargetFlags.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDetectWeights.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelEventMap.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelEvents.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelEventSrc.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelExploreMap.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelHookDefines.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelHooks.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelIDs.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelInactives.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelLockers.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelMsgBuf.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObjHistory.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObjMap.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelPersistData.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRelationMatrix.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelResources.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelResPiles.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSkills.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSlatesBasis.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelTileMap.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelTroops.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelUpgradableValue.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelUpgrade.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelUtil.h">
+      <Filter>Level\_LevelCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAIContext.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAttrs.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAttrs_DamageAttr.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAttrs_Weak.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelBlocking.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelCoSkill.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelCounter.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelItem.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelItemBuffType.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelItemState.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObj.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObjMiscFlags.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObjMove.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObjPauser.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObjResidable.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObjSrc.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelObliterateArg.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelOp.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelOps.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelOSB.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelPlayer.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelPlayerSlatesData.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelPlayerStates.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSensor.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelService.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelStrike.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelTalks.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRtnuCircum.h">
+      <Filter>Level\_LevelObjCore\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRtnuCmds.h">
+      <Filter>Level\_LevelObjCore\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRtnuDefines.h">
+      <Filter>Level\_LevelObjCore\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRtnus.h">
+      <Filter>Level\_LevelObjCore\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="GestureFlyDown.h">
+      <Filter>Level\LevelGesture</Filter>
+    </ClInclude>
+    <ClInclude Include="GestureFlyUp.h">
+      <Filter>Level\LevelGesture</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelGesture.h">
+      <Filter>Level\LevelGesture</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelGesture_FlyThrust.h">
+      <Filter>Level\LevelGesture</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelGesture_Jump.h">
+      <Filter>Level\LevelGesture</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelBehavior.h">
+      <Filter>Level\LevelBehavior</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelBGs.h">
+      <Filter>Level\LevelBehavior</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnController.h">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnEvent.h">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFunc.h">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMath.h">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTalk.h">
+      <Filter>Level\LevelBehavior\bgns</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAccompany_Obsolete.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnDeal.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnDestroyLo.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnEquip.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFaction.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFlee.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFlyDown.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFlyingHover.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFlyThrust.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFlyUp.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFollow.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFollow_Obsolete.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnLichen.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnLockPlayer.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMoveAlong.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMoveTo.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRaiseUp.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnReside.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnResPile.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetCollide.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetUnitPace.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSignal.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSpawnUnit.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnStopMove.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnStroll.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSwitchWalkable.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSyncSpeed.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTeleport.h">
+      <Filter>Level\LevelBehavior\bgns\Actions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSiege.h">
+      <Filter>Level\LevelBehavior\bgns\Actions\BgnSiege</Filter>
+    </ClInclude>
+    <ClInclude Include="Buff_Siege.h">
+      <Filter>Level\LevelBehavior\bgns\Actions\BgnSiege</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_CheckItem.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAreaOp.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckAIScenario.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckDist.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckEquip.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckEventSrc.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckExausted.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckGrade.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckHP.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckKilling.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckMap.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckMasterDist.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckMoveMethod.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckMoving.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckObstacle.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckPain.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckPlayerRes.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckResiding.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckResPile.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFindNearPos.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFindNearPos_Special.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFindWalkableArea.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGetDay.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGetLevelObjID.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGetLevelObjPos.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMonitorCoSkill.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMonitorMasterLeave.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMonitorStuck.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnService.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnDetectAgent.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnDetectResidable.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnDetectSignal.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnDetectUnit.h">
+      <Filter>Level\LevelBehavior\bgns\Conditions\Detection</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_AssignVita.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Attack.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Brief.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_CheckDay.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_DestroyArtifact.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_EnableBody.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Env.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Flusks.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_GetBaseAttr.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_IncGoldMine.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ModBaseAttr.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ModHP.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ModRes.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ModShape.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ModSP.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RegisterTeleportTarget.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ResetMP.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RevealMap.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Revive.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_SpawnDailyItems.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Teleport.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Temple.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RollGoods.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RollItems.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RollPoemAwards.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RollSlatesAwards.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RollSpells.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_RollVendor.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_AssignAward.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_AssignItem.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_CheckAward.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ExchangeItem.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_ExpendAward.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Award</Filter>
+    </ClInclude>
+    <ClInclude Include="BccLoAgentRef.h">
+      <Filter>Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAGA_Call.h">
+      <Filter>Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAGA_CheckAgentRefValid.h">
+      <Filter>Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAGA_CheckState.h">
+      <Filter>Level\LevelBehavior\bgns\AGA   %28AccessGeneralAgent%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Build.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_CancelCmd.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_CheckDist.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Clean.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Combat.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Detect.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Join.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_MakeBuff.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Monitor.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_MoveAlong.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Quit.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_SetCmd.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_SetVar.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_Spawn.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnTroop_SwitchRetinue.h">
+      <Filter>Level\LevelBehavior\bgns\Troop</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAI_CheckCmd.h">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAI_CheckMentalState.h">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAI_MonitorCmd.h">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAI_SetMentalState.h">
+      <Filter>Level\LevelBehavior\bgns\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckCounter.h">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckTimer.h">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckVar.h">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnModCounter.h">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnModVar.h">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRandomizeVar.h">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnResetTimer.h">
+      <Filter>Level\LevelBehavior\bgns\Var</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_Alerting.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_Approach.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_Attack.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_CalcDist.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_Cast.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_CheckAlertedCount.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_CheckCast.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_CheckCombatedCount.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_CheckExist.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_CheckEZone.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_CheckRange.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_Combating.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_FindAttackPos.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_FindFleePos.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_ForceUpdate.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_KeepDist.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_Siege.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnThreat_UpdateCtrl.h">
+      <Filter>Level\LevelBehavior\bgns\Threat</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_创建飞妖.h">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_小恶魔_寻找闪避跳跃点.h">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_飞妖_更新FlankAttack.h">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_飞妖_更新Shuttle.h">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_圣旗_Assign.h">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_宝藏洞穴_Search.h">
+      <Filter>Level\LevelBehavior\bgns\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_Centipede_GetInfo.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_Centipede_PlayAct.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_Centipede_SpawnCyst.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_Centipede_Stretch.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_CentipedeNode_Activate.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_CentipedeNode_GetPrevNode.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_SnailP1_初始化.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_SnailP1_舌已打断.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_SnailP1_舌虫已返回.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_SnailP1_舌被攻击.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_SnailP1舌虫_寻找毒爆点.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_SnailP1舌虫_工作模式.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\巨蜗</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_地狱触手_DetectThreat.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\地狱触手</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_地狱触手_FindAttackTarget.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\地狱触手</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_地狱触手_侦测干扰.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\地狱触手</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_恶魔之眼_MonitorArea.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\恶魔之眼</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_恶魔之眼_Update.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\恶魔之眼</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_断桥_EndRepair.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\断桥</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_断桥_StartRepair.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\断桥</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnFireFly.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\FireFly%28火蝇%29</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_Disciple_RollAwards.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\Disciple%28魔法使徒%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Disciple_Init.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\Disciple%28魔法使徒%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_MagicStone.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\MagicStone%28魔法石%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_LanternRoute.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\LanternRoute%28灯塔路线%29</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGA_Vendor.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\索尔</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_SlimeOp.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\变形怪</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_Belly.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\Belly</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_StarPlate.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\StarPlate</Filter>
+    </ClInclude>
+    <ClInclude Include="Bgn_MagicCircuit.h">
+      <Filter>Level\LevelBehavior\bgns\Misc\MagicCircuit</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesA_SetButton.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesA_SetEdgeLock.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesA_SetEntrance.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesA_SetMatchKey.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesA_SetSwitch.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesA_SetType.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesA_SetType_RandomPick.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSlatesA_CheckProcessed.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSlatesA_FinishProcess.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSlatesA_GetStarCount.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSlatesA_OpenFence.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSlatesA_Reveal.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSlatesA_SpawnAgent.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSlatesA_Teleport.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesA</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckRtnuCmd.h">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRtnu_Accompany.h">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRtnu_CheckBehavior.h">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRtnu_CheckIsRtnu.h">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRtnu_GetCount.h">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSwitchRetinue.h">
+      <Filter>Level\LevelBehavior\bgns\Rtnu</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnAttack.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckJumpAttack.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckSkill.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckSkillEvent.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckSkillStage.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckSkillStageAge.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckSkillTargetRange.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckSkillWindow.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnGetSkillDynObstacle.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnJumpAttack.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnLocoSkill.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetSkillTarget.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSkillOp.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSwitchSkillStage.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnUtumThrust.h">
+      <Filter>Level\LevelBehavior\bgns\Skill</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckBuff.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckDead.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckFlies.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckStunInfo.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnCheckStunSrc.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnDie.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnJink.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnKnockDown.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMakeBuff.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMakeSkillStun.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnPossess.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnRemoveBuff.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnWaitStun.h">
+      <Filter>Level\LevelBehavior\bgns\Buff</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesB_Generate.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesB</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnSetupSlatesB_SetEntrance.h">
+      <Filter>Level\LevelBehavior\bgns\SlatesB</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelNPCs.h">
+      <Filter>Level\LevelNPCs</Filter>
+    </ClInclude>
+    <ClInclude Include="NPCPendings.h">
+      <Filter>Level\LevelNPCs</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDropper.h">
+      <Filter>Level\LevelDropper</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelDeal.h">
+      <Filter>Level\LevelDeal</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_BreakCentipedeNode.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_CleanOwnerBuff.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_CreateEo.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_CreateSpore.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_CureHP.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_CureSP.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_Dizzy.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_Dmg.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_FliesOp.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_IgniteHolyOrb.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_IncMP.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_Jink.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_KnockBack.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_KnockDown.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_MakeBuff.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_MakePainDrop.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_ModRes.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_ModSlatesRes.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_Petrify.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_PhysDmg.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_RemoveBuff.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_SoulRecover.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_StartBhvRelay.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_StompBellyEgg.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_Suck.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_SummonUnit.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="Deal_Teleport.h">
+      <Filter>Level\LevelDeal\Deals</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelReactor.h">
+      <Filter>Level\LevelReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="Reactor_Damage.h">
+      <Filter>Level\LevelReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="Reactor_DamageImmune.h">
+      <Filter>Level\LevelReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="Reactor_Hit.h">
+      <Filter>Level\LevelReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="Reactor_PostDamage.h">
+      <Filter>Level\LevelReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="Reactor_PreKill.h">
+      <Filter>Level\LevelReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="Reactor_Stun.h">
+      <Filter>Level\LevelReactor</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelAbility.h">
+      <Filter>Level\LevelAbility</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelTech.h">
+      <Filter>Level\LevelAbility</Filter>
+    </ClInclude>
+    <ClInclude Include="Tech_Fury.h">
+      <Filter>Level\LevelAbility\_techs</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_BloodTeeth.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_DeathCall.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_Fire.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_FlameBlade.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_FlashSwing.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_HonorSword.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_LightningBow.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_Nameless.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_ObliterateBow.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_PhantomDagger.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_SkullSword.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_TeleportSword.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_Unarmed.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_UtumTide.h">
+      <Filter>Level\LevelAbility\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_7sonLeather.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_AnWeep.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_BlackSteel.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_EliPromise.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_Frost.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_HonorPlate.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_HunterPlate.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_SimCurse.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_TalBless.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_WhirlWind.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_WolfSkin.h">
+      <Filter>Level\LevelAbility\armors</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_Bomb.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_ExplodeOil.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_GemPot.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_HonorBook.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_HPAmulet.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_HPFlusk.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_HPPotion.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_MagicRing.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_MoneyBag.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_SacredArrow.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_ShieldAmulet.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_ShieldMask.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_SPAmulet.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_SPPotion.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_ToeStone.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_VampireRing.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_WeaponInductionStone.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_Whetstone.h">
+      <Filter>Level\LevelAbility\artifacts</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_StormEye.h">
+      <Filter>Level\LevelAbility\shields</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSpell.h">
+      <Filter>Level\LevelAbility\spells</Filter>
+    </ClInclude>
+    <ClInclude Include="Spell_FireBall.h">
+      <Filter>Level\LevelAbility\spells</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelPoem.h">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClInclude>
+    <ClInclude Include="Poem_ChartI.h">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClInclude>
+    <ClInclude Include="Poem_ChartII.h">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClInclude>
+    <ClInclude Include="Poem_ChartIII.h">
+      <Filter>Level\LevelAbility\poem</Filter>
+    </ClInclude>
+    <ClInclude Include="Banner_Fire.h">
+      <Filter>Level\LevelAbility\banners</Filter>
+    </ClInclude>
+    <ClInclude Include="Banner_Wolf.h">
+      <Filter>Level\LevelAbility\banners</Filter>
+    </ClInclude>
+    <ClInclude Include="Ability_PushSlideway.h">
+      <Filter>Level\LevelAbility\special</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelArtifactUpgrade.h">
+      <Filter>Level\LevelArtifactUpgrade</Filter>
+    </ClInclude>
+    <ClInclude Include="Upgrade_ArmorOfVigor.h">
+      <Filter>Level\LevelArtifactUpgrade</Filter>
+    </ClInclude>
+    <ClInclude Include="Upgrade_ShieldOfVigor.h">
+      <Filter>Level\LevelArtifactUpgrade</Filter>
+    </ClInclude>
+    <ClInclude Include="LoSpawner.h">
+      <Filter>LevelObjs\LoSpawner</Filter>
+    </ClInclude>
+    <ClInclude Include="LoStartLoc.h">
+      <Filter>LevelObjs\LoStartLoc</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelUnitArg.h">
+      <Filter>LevelObjs\_LoUnit</Filter>
+    </ClInclude>
+    <ClInclude Include="LoUnit.h">
+      <Filter>LevelObjs\_LoUnit</Filter>
+    </ClInclude>
+    <ClInclude Include="LoSPStone.h">
+      <Filter>LevelObjs\LoSPStone</Filter>
+    </ClInclude>
+    <ClInclude Include="Skill_MIssileSP.h">
+      <Filter>LevelObjs\LoSPStone</Filter>
+    </ClInclude>
+    <ClInclude Include="LoLifeFlies.h">
+      <Filter>LevelObjs\LoLifeFlies</Filter>
+    </ClInclude>
+    <ClInclude Include="LoItem.h">
+      <Filter>LevelObjs\_LoItem</Filter>
+    </ClInclude>
+    <ClInclude Include="LoHole.h">
+      <Filter>LevelObjs\LoHole</Filter>
+    </ClInclude>
+    <ClInclude Include="LoWatchTower.h">
+      <Filter>LevelObjs\LoWatchTower</Filter>
+    </ClInclude>
+    <ClInclude Include="LoPerches.h">
+      <Filter>LevelObjs\LoPerches</Filter>
+    </ClInclude>
+    <ClInclude Include="LoNPCLoc.h">
+      <Filter>LevelObjs\LoNPCLoc</Filter>
+    </ClInclude>
+    <ClInclude Include="LoLoc.h">
+      <Filter>LevelObjs\LoLoc</Filter>
+    </ClInclude>
+    <ClInclude Include="LoRoute.h">
+      <Filter>LevelObjs\LoRoute</Filter>
+    </ClInclude>
+    <ClInclude Include="LoTeleportSite.h">
+      <Filter>LevelObjs\LoTeleportSite</Filter>
+    </ClInclude>
+    <ClInclude Include="LoTeleporter.h">
+      <Filter>LevelObjs\LoTeleporter</Filter>
+    </ClInclude>
+    <ClInclude Include="LoDormantSpawner.h">
+      <Filter>LevelObjs\LoDormantSpawner</Filter>
+    </ClInclude>
+    <ClInclude Include="LoEffectObj.h">
+      <Filter>LevelObjs\_LoEffectObj</Filter>
+    </ClInclude>
+    <ClInclude Include="LoAgent.h">
+      <Filter>LevelObjs\_LoAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="LoAgentRef.h">
+      <Filter>LevelObjs\_LoAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="EoAreaDmg.h">
+      <Filter>LevelObjs\EoAreaDmg</Filter>
+    </ClInclude>
+    <ClInclude Include="LoGeneralAgent.h">
+      <Filter>LevelObjs\LoGeneralAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="EoBomb.h">
+      <Filter>LevelObjs\EoBomb</Filter>
+    </ClInclude>
+    <ClInclude Include="EoWave.h">
+      <Filter>LevelObjs\EoWave</Filter>
+    </ClInclude>
+    <ClInclude Include="EoAbsorb.h">
+      <Filter>LevelObjs\EoAbsorb</Filter>
+    </ClInclude>
+    <ClInclude Include="EoArea.h">
+      <Filter>LevelObjs\EoArea</Filter>
+    </ClInclude>
+    <ClInclude Include="LoMagicBoard.h">
+      <Filter>LevelObjs\LoMagicBoard</Filter>
+    </ClInclude>
+    <ClInclude Include="MagicBoardDefines.h">
+      <Filter>LevelObjs\LoMagicBoard</Filter>
+    </ClInclude>
+    <ClInclude Include="MBUtil.h">
+      <Filter>LevelObjs\LoMagicBoard</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMB_CheckCommitCount.h">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMB_CheckResCount.h">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMB_CheckUnsealCount.h">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMB_CommitTile.h">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnMB_UnsealTile.h">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="MagicBoardAI.h">
+      <Filter>LevelObjs\LoMagicBoard\ai</Filter>
+    </ClInclude>
+    <ClInclude Include="EoTrap.h">
+      <Filter>LevelObjs\EoTrap</Filter>
+    </ClInclude>
+    <ClInclude Include="EoStripe.h">
+      <Filter>LevelObjs\EoStripe</Filter>
+    </ClInclude>
+    <ClInclude Include="EoSwing.h">
+      <Filter>LevelObjs\EoSwing</Filter>
+    </ClInclude>
+    <ClInclude Include="EoMagnetBall.h">
+      <Filter>LevelObjs\EoMagnetBall</Filter>
+    </ClInclude>
+    <ClInclude Include="EoSwingBullet.h">
+      <Filter>LevelObjs\EoSwingBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="EoBulletBomb.h">
+      <Filter>LevelObjs\EoBulletBomb</Filter>
+    </ClInclude>
+    <ClInclude Include="EoPush.h">
+      <Filter>LevelObjs\EoPush</Filter>
+    </ClInclude>
+    <ClInclude Include="EoBullet.h">
+      <Filter>LevelObjs\EoBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="EoBulletBase.h">
+      <Filter>LevelObjs\EoBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="EoShootBullet.h">
+      <Filter>LevelObjs\EoShootBullet</Filter>
+    </ClInclude>
+    <ClInclude Include="EoSignal.h">
+      <Filter>LevelObjs\EoSignal</Filter>
+    </ClInclude>
+    <ClInclude Include="EoMissile.h">
+      <Filter>LevelObjs\EoMissile</Filter>
+    </ClInclude>
+    <ClInclude Include="EoChain.h">
+      <Filter>LevelObjs\EoChain</Filter>
+    </ClInclude>
+    <ClInclude Include="EoObliterater.h">
+      <Filter>LevelObjs\EoObliterater</Filter>
+    </ClInclude>
+    <ClInclude Include="EoTornado.h">
+      <Filter>LevelObjs\EoTornado</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSlateDefines.h">
+      <Filter>LevelObjs\LoSlate</Filter>
+    </ClInclude>
+    <ClInclude Include="LoSlate.h">
+      <Filter>LevelObjs\LoSlate</Filter>
+    </ClInclude>
+    <ClInclude Include="LoSlates.h">
+      <Filter>LevelObjs\LoSlate</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSlateDefinesA.h">
+      <Filter>LevelObjs\LoSlate\A</Filter>
+    </ClInclude>
+    <ClInclude Include="LoSlatesA.h">
+      <Filter>LevelObjs\LoSlate\A</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelSlateDefinesB.h">
+      <Filter>LevelObjs\LoSlate\B</Filter>
+    </ClInclude>
+    <ClInclude Include="SlatesBuilderB.h">
+      <Filter>LevelObjs\LoSlate\B</Filter>
+    </ClInclude>
+    <ClInclude Include="EoToeStoneThrusts.h">
+      <Filter>LevelObjs\EoToeStoneThrusts</Filter>
+    </ClInclude>
+    <ClInclude Include="EoLink.h">
+      <Filter>LevelObjs\EoLink</Filter>
+    </ClInclude>
+    <ClInclude Include="EoLichen.h">
+      <Filter>LevelObjs\EoLichen</Filter>
+    </ClInclude>
+    <ClInclude Include="EoEnv.h">
+      <Filter>LevelObjs\EoEnv</Filter>
+    </ClInclude>
+    <ClInclude Include="EoOwnerDeal.h">
+      <Filter>LevelObjs\EoOwnerDeal</Filter>
+    </ClInclude>
+    <ClInclude Include="EoAirBomb.h">
+      <Filter>LevelObjs\EoAirBomb</Filter>
+    </ClInclude>
+    <ClInclude Include="BgnChainedHammerOp.h">
+      <Filter>LevelObjs\EoChainedHammer</Filter>
+    </ClInclude>
+    <ClInclude Include="EoChainedHammer.h">
+      <Filter>LevelObjs\EoChainedHammer</Filter>
+    </ClInclude>
+    <ClInclude Include="EoStep.h">
+      <Filter>LevelObjs\EoStep</Filter>
+    </ClInclude>
+    <ClInclude Include="CentipedeRope.h">
+      <Filter>LevelObjs\LoCentipede</Filter>
+    </ClInclude>
+    <ClInclude Include="LoCentipede.h">
+      <Filter>LevelObjs\LoCentipede</Filter>
+    </ClInclude>
+    <ClInclude Include="LoSnailP1.h">
+      <Filter>LevelObjs\LoSnailP1</Filter>
+    </ClInclude>
+    <ClInclude Include="EoTongue.h">
+      <Filter>LevelObjs\EoTongue</Filter>
+    </ClInclude>
+    <ClInclude Include="EoLichenSpread.h">
+      <Filter>LevelObjs\EoLichenSpread</Filter>
+    </ClInclude>
+    <ClInclude Include="EoUtumAttack.h">
+      <Filter>LevelObjs\EoUtum</Filter>
+    </ClInclude>
+    <ClInclude Include="EoUtumRepairBridge.h">
+      <Filter>LevelObjs\EoUtum</Filter>
+    </ClInclude>
+    <ClInclude Include="EoInvoke.h">
+      <Filter>LevelObjs\EoInvoke</Filter>
+    </ClInclude>
+    <ClInclude Include="EoLanternRoute.h">
+      <Filter>LevelObjs\EoLanternRoute</Filter>
+    </ClInclude>
+    <ClInclude Include="EoHolyOrb.h">
+      <Filter>LevelObjs\EoHolyOrb</Filter>
+    </ClInclude>
+    <ClInclude Include="LoSlideway.h">
+      <Filter>LevelObjs\LoSlideway</Filter>
+    </ClInclude>
+    <ClInclude Include="EoDemonBlood.h">
+      <Filter>LevelObjs\EoDemonBlood</Filter>
+    </ClInclude>
+    <ClInclude Include="EoPushAdv.h">
+      <Filter>LevelObjs\EoPushAdv</Filter>
+    </ClInclude>
+    <ClInclude Include="EoObjDeal.h">
+      <Filter>LevelObjs\EoObjDeal</Filter>
+    </ClInclude>
+    <ClInclude Include="EoMassSpline.h">
+      <Filter>LevelObjs\EoMassSpline</Filter>
+    </ClInclude>
+    <ClInclude Include="EoSplineBullet.h">
+      <Filter>LevelObjs\EoMassSpline</Filter>
+    </ClInclude>
+    <ClInclude Include="EoRavens.h">
+      <Filter>LevelObjs\EoRavens</Filter>
+    </ClInclude>
+    <ClInclude Include="EoShards.h">
+      <Filter>LevelObjs\EoShards</Filter>
+    </ClInclude>
+    <ClInclude Include="LoStarPlate.h">
+      <Filter>LevelObjs\LoStarPlate</Filter>
+    </ClInclude>
+    <ClInclude Include="LoBelly.h">
+      <Filter>LevelObjs\LoBelly</Filter>
+    </ClInclude>
+    <ClInclude Include="EoBellyEgg.h">
+      <Filter>LevelObjs\EoBellyEgg</Filter>
+    </ClInclude>
+    <ClInclude Include="EelRoadNetwork.h">
+      <Filter>LevelObjs\LoMagicCircuit</Filter>
+    </ClInclude>
+    <ClInclude Include="LoMagicCircuit.h">
+      <Filter>LevelObjs\LoMagicCircuit</Filter>
+    </ClInclude>
+    <ClInclude Include="EoBellyEelString.h">
+      <Filter>LevelObjs\EoBellyEelString</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocal.h">
+      <Filter>Protocals</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordAgent.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordBuff.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordEffectSet.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordEO.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordFlock.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordGesture.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordGlobal.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordGoods.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordItem.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordItemClass.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordItemSeed.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordMagicBoard.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordMagicTile.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordMap.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordNPC.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordPosture.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordRegion.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordRes.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecords.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordSkill.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordSlateType.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordUnit.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelRecordUpgrade.h">
+      <Filter>LevelRecords</Filter>
+    </ClInclude>
+    <ClInclude Include="stdh.h" />
+    <ClInclude Include="EoMagicCircuitRailAbsorb.h">
+      <Filter>LevelObjs\EoMagicCircuitRailAbsorb</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Skill_GeneralAdvS.h">
+      <Filter>Level\LevelSkill\Skills\General</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Buff_TongueFly.h">
+      <Filter>Level\LevelBuff\Buffs\Buff_TongueFly</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LevelFlock.h">
+      <Filter>Level\_LevelObjCore</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BgnGA_SpawnItem.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BgnGA_RollAwards.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </CustomBuild>
+    <CustomBuild Include="BgnGA_RollUnique.h">
+      <Filter>Level\LevelBehavior\bgns\GA    %28GeneralAgent%29\Roll</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LoSlatesB.h">
+      <Filter>LevelObjs\LoSlate\B</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

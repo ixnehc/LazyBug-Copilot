@@ -1,0 +1,236 @@
+/* ====== 基础布局 ====== */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ====== 标题栏布局 ====== */
+.webview-titlebar {
+    background-color: var(--titlebar-bg);
+    border-bottom: 2px solid var(--titlebar-border);
+    border-top: 1px solid var(--titlebar-border);
+    padding: 4px 12px;
+    min-height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    width: calc(100%);
+    margin-right: 40px;
+}
+
+.webview-titlebar:hover {
+    background-color: var(--titlebar-bg-hover);
+}
+
+.webview-title {
+    font-weight: 600;
+    font-size: 0.9em;
+    color: var(--text-color);
+    flex-grow: 1;
+    line-height: 1.2;
+    margin-right: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ====== 设置按钮 - 固定定位 ====== */
+.webview-settings-button {
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    padding: 4px 8px;
+    font-size: 1.1em;
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1.2;
+    margin-left: 0;
+    flex-shrink: 0;
+    z-index: 100;
+    width: 31px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.webview-settings-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: transparent;
+}
+
+.webview-settings-button:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+    transition: all 0.1s ease;
+}
+
+/* ====== 内容区域布局 ====== */
+.webview-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+@property --bg-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+/* ====== 暂停状态边框样式 ====== */
+.pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 9999;
+    display: none;
+    /* 静态红色边框（停止流动时显示） */
+    border: 3px solid rgba(255, 0, 0, 0.6);
+    /* 内发光效果 */
+    box-shadow: 
+        inset 0 0 8px 2px rgba(255, 0, 0, 0.4),
+        inset 0 0 16px 4px rgba(255, 0, 0, 0.15);
+}
+
+.pause-overlay::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    box-sizing: border-box;
+    padding: 3px; /* 流动边框的宽度 */
+    background: conic-gradient(
+        from var(--bg-angle),
+        /* 光束1 */
+        transparent               0deg,
+        rgba(255, 60, 60, 0.1)   15deg,
+        rgba(255, 100, 50, 1.0)   30deg,
+        rgba(255, 50, 50, 1.0)    45deg,
+        rgba(255, 80, 60, 0.9)    60deg,
+        rgba(255, 40, 40, 0.3)    75deg,
+        /* 暗区1 */
+        transparent               90deg,
+        /* 光束2 */
+        transparent              105deg,
+        rgba(255, 70, 60, 0.2)   120deg,
+        rgba(255, 90, 50, 1.0)   135deg,
+        rgba(255, 60, 50, 1.0)   150deg,
+        rgba(255, 70, 55, 0.8)   165deg,
+        rgba(255, 50, 50, 0.2)   180deg,
+        /* 暗区2 */
+        transparent              195deg,
+        /* 光束3 */
+        transparent              210deg,
+        rgba(255, 60, 60, 0.1)   225deg,
+        rgba(255, 100, 45, 1.0)  240deg,
+        rgba(255, 55, 55, 1.0)   255deg,
+        rgba(255, 85, 55, 0.9)   270deg,
+        rgba(255, 45, 50, 0.3)   285deg,
+        /* 暗区3 */
+        transparent              300deg,
+        /* 光束4 */
+        transparent              315deg,
+        rgba(255, 70, 55, 0.2)   330deg,
+        rgba(255, 95, 50, 1.0)   345deg,
+        transparent              360deg
+    );
+    /* 用 mask 将中心区域挖空，只保留 padding 的 3px 区域 */
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: 
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    animation: rotate-border-angle 2s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes rotate-border-angle {
+    0%   { --bg-angle: 0deg; }
+    100% { --bg-angle: 360deg; }
+}
+
+.pause-overlay.show {
+    display: block;
+}
+
+/* 停止流动动画 - 隐藏流动层，显示底层静态红框 */
+.pause-overlay.stopped {
+    border: 3px solid rgba(255, 0, 0, 0.6);
+}
+
+.pause-overlay.stopped::before {
+    display: none;
+}
+
+/* ====== 聊天容器布局 ====== */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* ====== 消息基础布局 ====== */
+.message {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left-width: 4px;
+    border-left-style: solid;
+    max-width: 90%;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.message-content ul,
+.message-content ol,
+.message-content li {
+    white-space: normal;
+}
+
+/* ====== 全局滚动条样式 ====== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}

@@ -1,0 +1,12 @@
+﻿*. 要增加清空chat内容功能(不用回退文件修改)
+*. 要能为gemini设置max thinking token
+
+*.大段的代码块要限制行数,并能折叠打开
+
+*. 要允许处理多个tool call
+
+*. Parse文件时,按照文件的修改日期排序,依序parse
+
+
+*. 上下文压缩
+*. OpenRouter verifying

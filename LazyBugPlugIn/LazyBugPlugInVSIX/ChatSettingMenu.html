@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setting Menu</title>
+    <style>
+        :root {
+            --body-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --hover-bg: #2a2a2a;
+            --border-color: #404040;
+            --separator-color: #404040;
+            --icon-color: #aaaaaa;
+            --setting-icon-color: #ffc107;
+            --doc-icon-color: #4caf50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.4;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .menu-container {
+            display: flex;
+            flex-direction: column;
+            padding: 4px 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            gap: 8px;
+        }
+
+        .menu-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .menu-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .menu-item.disabled:hover {
+            background-color: transparent;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .menu-icon.setting {
+            color: var(--setting-icon-color);
+        }
+
+        .menu-icon.doc {
+            color: var(--doc-icon-color);
+        }
+
+        .menu-label {
+            flex: 1;
+            white-space: nowrap;
+        }
+
+        .menu-separator {
+            height: 1px;
+            background-color: var(--separator-color);
+            margin: 4px 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <div class="menu-item" data-item="setting">
+            <span class="menu-icon setting">&#9881;</span>
+            <span class="menu-label">Setting...</span>
+        </div>
+        
+        <div class="menu-separator"></div>
+        
+        <div class="menu-item" data-item="cli_whitelist.ini">
+            <span class="menu-icon doc">&#128196;</span>
+            <span class="menu-label">cli_whitelist.ini</span>
+        </div>
+        
+        <div class="menu-item" data-item="llm.ini">
+            <span class="menu-icon doc">&#128196;</span>
+            <span class="menu-label">llm.ini</span>
+        </div>
+        
+        <div class="menu-item" data-item="global_rules.md">
+            <span class="menu-icon doc">&#128196;</span>
+            <span class="menu-label">global_rules.md</span>
+        </div>
+        
+        <div class="menu-item" data-item="project_rules.md">
+            <span class="menu-icon doc">&#128196;</span>
+            <span class="menu-label">project_rules.md</span>
+        </div>
+    </div>
+
+    <script>
+        // ============ 菜单项点击处理 ============
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // 如果菜单项被禁用，不处理点击
+                if (this.classList.contains('disabled')) {
+                    return;
+                }
+                const itemName = this.getAttribute('data-item');
+                if (itemName && window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'itemClicked',
+                        data: {
+                            itemName: itemName
+                        }
+                    });
+                }
+            });
+        });
+
+        // ============ 消息处理 ============
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', event => {
+                try {
+                    const message = event.data;
+
+                    if (typeof message !== 'object' || message === null) {
+                        console.error('Received non-object message:', event.data);
+                        return;
+                    }
+
+                    switch (message.action) {
+                        case 'initializeComplete':
+                            console.log('Setting Menu UI initialized');
+                            break;
+
+                        case 'setItemEnabled':
+                            // 设置菜单项启用/禁用状态
+                            if (message.data && message.data.itemName !== undefined) {
+                                const item = document.querySelector(`.menu-item[data-item="${message.data.itemName}"]`);
+                                if (item) {
+                                    if (message.data.enabled) {
+                                        item.classList.remove('disabled');
+                                    } else {
+                                        item.classList.add('disabled');
+                                    }
+                                }
+                            }
+                            break;
+
+                        default:
+                            console.warn('Unknown message action:', message.action);
+                            break;
+                    }
+                } catch (e) {
+                    console.error('Error processing message from C++:', e, 'Raw data:', event.data);
+                }
+            });
+
+            // 通知C++ JS初始化完成
+            window.chrome.webview.postMessage({ action: 'jsInitialized' });
+        } else {
+            console.error('window.chrome.webview not available.');
+        }
+
+        // 监听ESC键，通知C++关闭窗口
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({ action: 'escapePressed' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,673 @@
+//file_path:D:\projects\IxEngineBackUp\Common\gds\GObj.h
+//instruction:为GObjBase添加SaveXml和LoadXml函数声明，并为相关elem类添加对应的XML序列化函数
+
+// ... existing code ...
+#include <string>//0x0B0ACBB7
+#include <hash_map>//0x363358C7
+#include <set>//0xCF0A6439
+//0xC299B53A
+
+// 添加XML相关头文件
+#include <sstream>
+#include <fstream>
+
+////////////////////////////////////////////////////////////////////////////0x2C7D5EDD
+// ... existing code ...
+
+struct GElemBase//0x21A18989
+{//0xC6356DAF
+	// ... existing code ...
+	
+	// 添加XML序列化和反序列化函数
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0) = 0;
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml) = 0;
+	
+	// ... existing code ...
+};//0x2978F0A5
+
+// ... existing code ...
+
+struct GObjBase//0xB5DF4D18
+{//0x2A90639A
+	// ... existing code ...
+	
+	// 添加XML序列化和反序列化函数
+	virtual void SaveXml(std::ostream &os, int indent = 0) = 0;
+	virtual BOOL LoadXml(const std::string &xml, BOOL *bRepaired = NULL) = 0;
+	virtual void SaveXmlToFile(const std::string &filename) = 0;
+	virtual BOOL LoadXmlFromFile(const std::string &filename, BOOL *bRepaired = NULL) = 0;
+	
+	// ... existing code ...
+};//0x89BEEDBE
+
+// ... existing code ...
+
+template <class T>//0xD49D9CD7
+struct GObj:public GObjBase//0x2A3180F8
+{//0x68E5F972
+	// ... existing code ...
+	
+	// 实现XML序列化和反序列化函数
+	virtual void SaveXml(std::ostream &os, int indent = 0)
+	{
+		// 输出XML头部
+		std::string indentStr(indent, ' ');
+		os << indentStr << "<" << __name() << " version=\"" << __ver() << "\">" << std::endl;
+		
+		// 让基类先处理
+		GObjBase *base = _base();
+		if (base)
+			base->SaveXml(os, indent + 2);
+		
+		// 处理所有元素
+		T *owner = _owner();
+		GElemBase *p = __elems();
+		while(p)
+		{
+			p->SaveXml(owner, os, indent + 2);
+			p = p->next;
+		}
+		
+		// 输出XML尾部
+		os << indentStr << "</" << __name() << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(const std::string &xml, BOOL *bRepaired = NULL)
+	{
+		// 简单实现，实际应使用XML解析库
+		if (bRepaired)
+			*bRepaired = FALSE;
+			
+		// 让基类先处理
+		GObjBase *base = _base();
+		if (base)
+			base->LoadXml(xml, bRepaired);
+			
+		// 处理所有元素
+		T *owner = _owner();
+		GElemBase *p = __elems();
+		while(p)
+		{
+			if (!p->LoadXml(owner, xml))
+			{
+				if (bRepaired)
+					*bRepaired = TRUE;
+			}
+			p = p->next;
+		}
+		
+		return TRUE;
+	}
+	
+	virtual void SaveXmlToFile(const std::string &filename)
+	{
+		std::ofstream file(filename.c_str());
+		if (file.is_open())
+		{
+			file << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << std::endl;
+			SaveXml(file);
+			file.close();
+		}
+	}
+	
+	virtual BOOL LoadXmlFromFile(const std::string &filename, BOOL *bRepaired = NULL)
+	{
+		std::ifstream file(filename.c_str());
+		if (!file.is_open())
+			return FALSE;
+			
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		file.close();
+		
+		return LoadXml(buffer.str(), bRepaired);
+	}
+	
+	// ... existing code ...
+};//0x745D5B60
+
+// ... existing code ...
+
+// 为GElem_VarSingle添加XML序列化和反序列化函数
+template <class T>//0xA268FE45
+struct GElem_VarSingle:public GElemBase//0xBBC72BCB
+{//0x7851B8A6
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		T value = *(T*)_Ptr(objOwner);
+		os << indentStr << "<" << elemname << ">" << value << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + ">";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		size_t endPos = xml.find(tagEnd, startPos);
+		if (endPos == std::string::npos)
+			return FALSE;
+			
+		startPos += tagStart.length();
+		std::string valueStr = xml.substr(startPos, endPos - startPos);
+		
+		std::stringstream ss(valueStr);
+		ss >> *(T*)_Ptr(objOwner);
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0x43D660B1
+
+// 为GElem_String添加XML序列化和反序列化函数
+struct GElem_String:public GElemBase//0xDC1EBD1E
+{//0xA6EDD3CA
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		std::string value = *(std::string*)_Ptr(objOwner);
+		os << indentStr << "<" << elemname << ">" << value << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + ">";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		size_t endPos = xml.find(tagEnd, startPos);
+		if (endPos == std::string::npos)
+			return FALSE;
+			
+		startPos += tagStart.length();
+		std::string valueStr = xml.substr(startPos, endPos - startPos);
+		
+		*(std::string*)_Ptr(objOwner) = valueStr;
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0xA289FFB8
+
+// 为GElem_ObjSingle添加XML序列化和反序列化函数
+template <class T>//0x69899849
+struct GElem_ObjSingle:public GElemBase//0x9B089DC1
+{//0xD456523B
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		os << indentStr << "<" << elemname << ">" << std::endl;
+		((T*)_Ptr(objOwner))->__gobj.SaveXml(os, indent + 2);
+		os << indentStr << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + ">";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		size_t endPos = xml.find(tagEnd, startPos);
+		if (endPos == std::string::npos)
+			return FALSE;
+			
+		startPos += tagStart.length();
+		std::string objXml = xml.substr(startPos, endPos - startPos);
+		
+		return ((T*)_Ptr(objOwner))->__gobj.LoadXml(objXml);
+	}
+	
+	// ... existing code ...
+};//0xE8BF5759
+
+// 为GElem_VarVector添加XML序列化和反序列化函数
+template <class T>//0x641C3E14
+struct GElem_VarVector:public GElemBase//0x188A6B92
+{//0xE8A2F8E5
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		std::vector<T>* p = ((std::vector<T>*)_Ptr(objOwner));
+		
+		os << indentStr << "<" << elemname << " count=\"" << p->size() << "\">" << std::endl;
+		
+		for (size_t i = 0; i < p->size(); i++)
+		{
+			os << indentStr << "  <item index=\"" << i << "\">" << (*p)[i] << "</item>" << std::endl;
+		}
+		
+		os << indentStr << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + " count=\"";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		size_t countStart = startPos + tagStart.length();
+		size_t countEnd = xml.find("\"", countStart);
+		if (countEnd == std::string::npos)
+			return FALSE;
+			
+		std::string countStr = xml.substr(countStart, countEnd - countStart);
+		int count = atoi(countStr.c_str());
+		
+		std::vector<T>* p = ((std::vector<T>*)_Ptr(objOwner));
+		p->resize(count);
+		
+		// 简单处理，实际应逐个解析item标签
+		for (int i = 0; i < count; i++)
+		{
+			std::string itemTag = "<item index=\"" + std::to_string(i) + "\">";
+			size_t itemStart = xml.find(itemTag, countEnd);
+			if (itemStart == std::string::npos)
+				continue;
+				
+			itemStart += itemTag.length();
+			size_t itemEnd = xml.find("</item>", itemStart);
+			if (itemEnd == std::string::npos)
+				continue;
+				
+			std::string valueStr = xml.substr(itemStart, itemEnd - itemStart);
+			std::stringstream ss(valueStr);
+			ss >> (*p)[i];
+		}
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0x8BD04BF4
+
+// 为GElem_StringVector添加XML序列化和反序列化函数
+struct GElem_StringVector:public GElemBase//0x82C13539
+{//0xDCA4DE80
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		std::vector<std::string>* p = ((std::vector<std::string>*)_Ptr(objOwner));
+		
+		os << indentStr << "<" << elemname << " count=\"" << p->size() << "\">" << std::endl;
+		
+		for (size_t i = 0; i < p->size(); i++)
+		{
+			os << indentStr << "  <item index=\"" << i << "\">" << (*p)[i] << "</item>" << std::endl;
+		}
+		
+		os << indentStr << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + " count=\"";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		size_t countStart = startPos + tagStart.length();
+		size_t countEnd = xml.find("\"", countStart);
+		if (countEnd == std::string::npos)
+			return FALSE;
+			
+		std::string countStr = xml.substr(countStart, countEnd - countStart);
+		int count = atoi(countStr.c_str());
+		
+		std::vector<std::string>* p = ((std::vector<std::string>*)_Ptr(objOwner));
+		p->resize(count);
+		
+		// 简单处理，实际应逐个解析item标签
+		for (int i = 0; i < count; i++)
+		{
+			std::string itemTag = "<item index=\"" + std::to_string(i) + "\">";
+			size_t itemStart = xml.find(itemTag, countEnd);
+			if (itemStart == std::string::npos)
+				continue;
+				
+			itemStart += itemTag.length();
+			size_t itemEnd = xml.find("</item>", itemStart);
+			if (itemEnd == std::string::npos)
+				continue;
+				
+			(*p)[i] = xml.substr(itemStart, itemEnd - itemStart);
+		}
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0xA6C3B9BE
+
+// 为GElem_ObjVector添加XML序列化和反序列化函数
+template <class T>//0x34589208
+struct GElem_ObjVector:public GElemBase//0x6A800C49
+{//0x7D23F068
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		std::vector<T>* p = ((std::vector<T>*)_Ptr(objOwner));
+		
+		os << indentStr << "<" << elemname << " count=\"" << p->size() << "\">" << std::endl;
+		
+		for (size_t i = 0; i < p->size(); i++)
+		{
+			os << indentStr << "  <item index=\"" << i << "\">" << std::endl;
+			(*p)[i].__gobj.SaveXml(os, indent + 4);
+			os << indentStr << "  </item>" << std::endl;
+		}
+		
+		os << indentStr << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + " count=\"";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		size_t countStart = startPos + tagStart.length();
+		size_t countEnd = xml.find("\"", countStart);
+		if (countEnd == std::string::npos)
+			return FALSE;
+			
+		std::string countStr = xml.substr(countStart, countEnd - countStart);
+		int count = atoi(countStr.c_str());
+		
+		std::vector<T>* p = ((std::vector<T>*)_Ptr(objOwner));
+		p->resize(count);
+		
+		// 简单处理，实际应逐个解析item标签
+		for (int i = 0; i < count; i++)
+		{
+			std::string itemStartTag = "<item index=\"" + std::to_string(i) + "\">";
+			std::string itemEndTag = "</item>";
+			
+			size_t itemStart = xml.find(itemStartTag, countEnd);
+			if (itemStart == std::string::npos)
+				continue;
+				
+			size_t itemEnd = xml.find(itemEndTag, itemStart);
+			if (itemEnd == std::string::npos)
+				continue;
+				
+			itemStart += itemStartTag.length();
+			std::string objXml = xml.substr(itemStart, itemEnd - itemStart);
+			
+			(*p)[i].__gobj.LoadXml(objXml);
+		}
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0x9483FF20
+
+// 为GElem_VarArray添加XML序列化和反序列化函数
+template <class T>//0xEE5E054F
+struct GElem_VarArray:public GElemBase//0xB4F69276
+{//0xF49A7654
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		T* p = (T*)_Ptr(objOwner);
+		
+		os << indentStr << "<" << elemname << " size=\"" << szArray << "\">" << std::endl;
+		
+		for (size_t i = 0; i < szArray; i++)
+		{
+			os << indentStr << "  <item index=\"" << i << "\">" << p[i] << "</item>" << std::endl;
+		}
+		
+		os << indentStr << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + " size=\"";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		T* p = (T*)_Ptr(objOwner);
+		
+		// 简单处理，实际应逐个解析item标签
+		for (size_t i = 0; i < szArray; i++)
+		{
+			std::string itemTag = "<item index=\"" + std::to_string(i) + "\">";
+			size_t itemStart = xml.find(itemTag, startPos);
+			if (itemStart == std::string::npos)
+				continue;
+				
+			itemStart += itemTag.length();
+			size_t itemEnd = xml.find("</item>", itemStart);
+			if (itemEnd == std::string::npos)
+				continue;
+				
+			std::string valueStr = xml.substr(itemStart, itemEnd - itemStart);
+			std::stringstream ss(valueStr);
+			ss >> p[i];
+		}
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0x84F45219
+
+// 为GElem_StringArray添加XML序列化和反序列化函数
+struct GElem_StringArray:public GElemBase//0x257FA618
+{//0xCA138A7E
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		std::string* p = (std::string*)_Ptr(objOwner);
+		
+		os << indentStr << "<" << elemname << " size=\"" << szArray << "\">" << std::endl;
+		
+		for (size_t i = 0; i < szArray; i++)
+		{
+			os << indentStr << "  <item index=\"" << i << "\">" << p[i] << "</item>" << std::endl;
+		}
+		
+		os << indentStr << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + " size=\"";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		std::string* p = (std::string*)_Ptr(objOwner);
+		
+		// 简单处理，实际应逐个解析item标签
+		for (size_t i = 0; i < szArray; i++)
+		{
+			std::string itemTag = "<item index=\"" + std::to_string(i) + "\">";
+			size_t itemStart = xml.find(itemTag, startPos);
+			if (itemStart == std::string::npos)
+				continue;
+				
+			itemStart += itemTag.length();
+			size_t itemEnd = xml.find("</item>", itemStart);
+			if (itemEnd == std::string::npos)
+				continue;
+				
+			p[i] = xml.substr(itemStart, itemEnd - itemStart);
+		}
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0xB4C8FED5
+
+// 为GElem_ObjArray添加XML序列化和反序列化函数
+template <class T>//0xD8B53F64
+struct GElem_ObjArray:public GElemBase//0x858455FA
+{//0x76283992
+	// ... existing code ...
+	
+	virtual void SaveXml(void *objOwner, std::ostream &os, int indent = 0)
+	{
+		std::string indentStr(indent, ' ');
+		T* p = (T*)_Ptr(objOwner);
+		
+		os << indentStr << "<" << elemname << " size=\"" << szArray << "\">" << std::endl;
+		
+		for (size_t i = 0; i < szArray; i++)
+		{
+			os << indentStr << "  <item index=\"" << i << "\">" << std::endl;
+			p[i].__gobj.SaveXml(os, indent + 4);
+			os << indentStr << "  </item>" << std::endl;
+		}
+		
+		os << indentStr << "</" << elemname << ">" << std::endl;
+	}
+	
+	virtual BOOL LoadXml(void *objOwner, const std::string &xml)
+	{
+		// 简单实现，实际应使用XML解析库
+		std::string tagStart = "<" + elemname + " size=\"";
+		std::string tagEnd = "</" + elemname + ">";
+		
+		size_t startPos = xml.find(tagStart);
+		if (startPos == std::string::npos)
+			return FALSE;
+			
+		T* p = (T*)_Ptr(objOwner);
+		
+		// 简单处理，实际应逐个解析item标签
+		for (size_t i = 0; i < szArray; i++)
+		{
+			std::string itemStartTag = "<item index=\"" + std::to_string(i) + "\">";
+			std::string itemEndTag = "</item>";
+			
+			size_t itemStart = xml.find(itemStartTag, startPos);
+			if (itemStart == std::string::npos)
+				continue;
+				
+			size_t itemEnd = xml.find(itemEndTag, itemStart);
+			if (itemEnd == std::string::npos)
+				continue;
+				
+			itemStart += itemStartTag.length();
+			std::string objXml = xml.substr(itemStart, itemEnd - itemStart);
+			
+			p[i].__gobj.LoadXml(objXml);
+		}
+		
+		return TRUE;
+	}
+	
+	// ... existing code ...
+};//0x8205148C
+
+// ... existing code ...
+
+// 在BEGIN_GOBJ宏中添加XML相关函数
+#define BEGIN_GOBJ(classtype,version)													\//0x8FDA35EE
+public:																											\//0x446E19B0
+GObj<classtype> __gobj;																			\//0x13D9CE54
+virtual GObjBase *GetGObj(){	return &__gobj;}										\//0x0B6DB214
+void GConstructor()																					\//0x64AEC8C8
+{																													\//0x64E0ACC6
+	static classtype::_dummyclass dummy;												\//0x85952517
+	__gobj.Zero(TRUE);																					\//0xEA290951
+}																													\//0xE3081FBA
+void GDestructor()																						\//0x879C03E1
+{																													\//0xF507B873
+	__gobj.Clear(TRUE);																				\//0x8A9B9C4F
+}																													\//0x45DCB2F3
+void GClear()																								\//0x431E96DC
+{																													\//0x827FE7A4
+	__gobj.Clear(FALSE);																				\//0xBA5B5094
+	__gobj.Zero(FALSE);																				\//0x22DAA1D7
+}																													\//0x86C1AD21
+void GSave(CDataPacket &dp)																	\//0xD6DA3A7E
+{																													\//0xC8B4A7AB
+	SaveGObj(dp,&__gobj);																			\//0x804D34D6
+}																													\//0xD8C80004
+BOOL GLoad(CDataPacket &dp)																\//0x7A29512D
+{																													\//0x2F1CFAC0
+	return LoadGObj(dp,&__gobj,NULL);													\//0x139C4BCC
+}																													\//0x53402FAA
+BOOL GLoad(CDataPacket &dp,BOOL *bRepaired)								\//0x84ABE401
+{																													\//0xDA3FC861
+	return LoadGObj(dp,&__gobj,bRepaired);											\//0x1180DEDA
+}																													\//0x73B2C28B
+void GSaveXml(std::ostream &os)																\//0xD6DA3A7F
+{																													\//0xC8B4A7AC
+	__gobj.SaveXml(os);																				\//0x804D34D7
+}																													\//0xD8C80005
+BOOL GLoadXml(const std::string &xml)													\//0x7A29512E
+{																													\//0x2F1CFAC1
+	return __gobj.LoadXml(xml, NULL);														\//0x139C4BCD
+}																													\//0x53402FAB
+BOOL GLoadXml(const std::string &xml, BOOL *bRepaired)					\//0x84ABE402
+{																													\//0xDA3FC862
+	return __gobj.LoadXml(xml, bRepaired);												\//0x1180DEDB
+}																													\//0x73B2C28C
+void GSaveXmlToFile(const std::string &filename)								\//0xD6DA3A80
+{																													\//0xC8B4A7AD
+	__gobj.SaveXmlToFile(filename);															\//0x804D34D8
+}																													\//0xD8C80006
+BOOL GLoadXmlFromFile(const std::string &filename)							\//0x7A29512F
+{																													\//0x2F1CFAC2
+	return __gobj.LoadXmlFromFile(filename, NULL);								\//0x139C4BCE
+}																													\//0x53402FAC
+BOOL GLoadXmlFromFile(const std::string &filename, BOOL *bRepaired)	\//0x84ABE403
+{																													\//0xDA3FC863
+	return __gobj.LoadXmlFromFile(filename, bRepaired);						\//0x1180DEDC
+}																													\//0x73B2C28D
+classtype &operator=(const classtype &src)											\//0xF6673B44
+// ... existing code ...

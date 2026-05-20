@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Input</title>
+    
+    <!-- CSS文件 -->
+    <link rel="stylesheet" href="../CommonHtml/tag-common.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="tags.css">
+    <link rel="stylesheet" href="input.css">
+    <link rel="stylesheet" href="toolbar.css">
+    <link rel="stylesheet" href="autocomplete.css">
+    <link rel="stylesheet" href="api-menu.css">
+    <link rel="stylesheet" href="responsive.css">
+</head>
+<body>
+    <div class="chat-input-container">
+        <!-- 标签栏 -->
+        <div class="tags-bar" id="tagsBar">
+            <button class="at-button" id="atButton" title="显示/隐藏标签">📎</button>
+            <div class="tags-container" id="tagsContainer"></div>
+        </div>
+        
+        <!-- 编辑区域 -->
+        <div class="input-area">
+            <div 
+                class="input-editor" 
+                id="inputEditor" 
+                contenteditable="true"
+                data-placeholder="Enter your messages..."></div>
+            <div class="input-watermark"><span class="keyboard-key">PageUp</span>/<span class="keyboard-key">PageDown</span> to navigate previous inputs</div>
+        </div>
+        
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-left" id="toolbarLeft">
+                <!-- MajorChat API 按钮 -->
+                <button class="api-menu-button" id="apiMenuButton">
+                    <span class="api-menu-text" id="apiMenuText">选择模型</span>
+                    <span class="api-menu-arrow">▼</span>
+                </button>
+                <!-- Context Usage 进度条 -->
+                <div class="context-usage-container" id="contextUsageContainer">
+                    <div class="context-usage-bar" id="contextUsageBar">
+                        <div class="context-usage-fill" id="contextUsageFill"></div>
+                    </div>
+                    <span class="context-usage-tooltip" id="contextUsageTooltip"></span>
+                </div>
+                <!-- 工具按钮将通过JavaScript动态添加 -->
+            </div>
+            <div class="toolbar-right">
+                <button class="skill-button" id="skillButton" title="Skill">
+                    <span>✨</span>
+                </button>
+                <button class="send-button" id="sendButton" title="发送">
+                    <span>⬆</span>
+                </button>
+                <button class="stop-button hidden" id="stopButton" title="停止">
+                    <span>■</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自动补全弹出窗口 -->
+    <div class="autocomplete-popup hidden" id="autoCompletePopup"></div>
+
+    <!-- JavaScript文件 -->
+    <script src="../CommonHtml/tag-utils.js"></script>
+    <script src="constants.js"></script>
+    <script src="utils.js"></script>
+    <script src="native-bridge.js"></script>
+    <script src="tags.js"></script>
+    <script src="content.js"></script>
+    <script src="autocomplete.js"></script>
+    <script src="ui-controls.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

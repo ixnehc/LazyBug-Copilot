@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;pkgdef;pkgundef;vsixmanifest</Extensions>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{1bf487e6-b21f-4c25-8675-c965901b06e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_stringparser">
+      <UniqueIdentifier>{128196cc-3166-4798-a458-807d5b41f558}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_codediff">
+      <UniqueIdentifier>{f7f41bcf-1b16-4c50-97b4-28c1c240c39d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Attach">
+      <UniqueIdentifier>{912c820d-a56d-4557-8cb9-d4a33708fff2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{fdb280d2-523f-43f2-9169-2bd286a2aec5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\SolutionDump">
+      <UniqueIdentifier>{b2dbec92-b494-4765-97b5-4676de3d4cc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_timer">
+      <UniqueIdentifier>{7991a460-72df-4a5c-9b89-9095587933e5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Guids.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Module.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Stdh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MyToolWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LazyBugChangelistsWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Package.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\stringparser\stringparser.cpp">
+      <Filter>common\_stringparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\codediff\CodeDiff.cpp">
+      <Filter>common\_codediff</Filter>
+    </ClCompile>
+    <ClCompile Include="RDTEventsListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandFilter.cpp">
+      <Filter>Source Files\Attach</Filter>
+    </ClCompile>
+    <ClCompile Include="FileChangeAttach.cpp">
+      <Filter>Source Files\Attach</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenedDocStates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\codediff\CodeDiff2.cpp">
+      <Filter>common\_codediff</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils_SolutionDump.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp">
+      <Filter>Source Files\SolutionDump</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\profiler.cpp">
+      <Filter>common\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\timer.cpp">
+      <Filter>common\_timer</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CommonIncludes.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Guids.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyToolWindow.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Package.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Stdh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LazyBugChangelistsWindow.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\stringparser\stringparser.h">
+      <Filter>common\_stringparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\codediff\CodeDiff.h">
+      <Filter>common\_codediff</Filter>
+    </ClInclude>
+    <ClInclude Include="PackageState.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RDTEventsListener.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DocReloadFilter.h">
+      <Filter>Source Files\Attach</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandFilter.h">
+      <Filter>Source Files\Attach</Filter>
+    </ClInclude>
+    <ClInclude Include="FileChangeAttach.h">
+      <Filter>Source Files\Attach</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenedDocStates.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h">
+      <Filter>Source Files\SolutionDump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\profiler.h">
+      <Filter>common\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\timer.h">
+      <Filter>common\_timer</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="LazyBugPlugIn.idl">
+      <Filter>Source Files</Filter>
+    </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LazyBugPlugIn.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LazyBugPlugIn.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PkgdefFile Include="LazyBugPlugIn.pkgdef">
+      <Filter>Source Files</Filter>
+    </PkgdefFile>
+  </ItemGroup>
+</Project>

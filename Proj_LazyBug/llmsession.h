@@ -1,0 +1,257 @@
+﻿#pragma once
+
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <deque>
+#include <string>
+#include <algorithm>
+#include <map>
+#include <unordered_set>
+#include <mutex>
+#include <memory>
+#include <atomic>
+
+#include "stringparser/stringparser.h"
+
+#include "LlmLib.h"
+#include "LlmTools.h"
+
+typedef int AiChatQuestionID;
+
+struct LlmSessionSetting
+{
+	bool IsValid()
+	{
+		return !apiEndpoint_.empty();
+	}
+	bool ExistRuleFiles() const
+	{
+		for (const auto& file : rulesFiles)
+		{
+			if (!file.empty())
+				return true;
+		}
+		return false;
+	}
+
+	LlmApi api;
+	std::string apiKey;      // API密钥
+	std::string apiEndpoint_; // API端点，如"https://api.openai.com/v1/chat/completions"
+	LlmApiFormat apiFormat;
+	LlmApiCacheControlType apiCacheControlType;
+	std::vector<std::string> rulesFiles;
+	int timeoutSeconds;      // 请求超时时间（秒）
+
+	LlmSessionSetting() : timeoutSeconds(3000)
+	{}
+};
+
+
+struct LlmSessionRequest
+{
+	LlmSessionRequest()
+	{
+		isStreaming = true;
+	}
+
+	struct Entry
+	{
+		Entry()
+		{
+			tp = None;
+			cacheControl = false;
+		}
+		enum Type
+		{
+			None,
+			System,
+			User,
+			Assistant,
+			ToolCallAndResult,
+			Reasoning,
+		};
+		Type tp;
+		std::string content;
+		std::string reasoningContent;//只在tp为Assistant时有效
+		bool cacheControl;
+		std::string mimeType;    // 非空表示 content 是 base64 图片数据
+	};
+
+	void Clear() { entries.clear();	prompt.clear();isStreaming = true; }
+
+	void CommitMessages(json& messages, const LlmSessionSetting& setting);
+
+	void AddUserMessage(const char* str)	{		_Add(Entry::User, str);	}
+	void AddUserMessageOfImage(const char* str, const char* mimeType);
+	void AddAssistMessage(const char* str) { _Add(Entry::Assistant, str); }
+	void AddSystemMessage(const char* str) { _Add(Entry::System, str); }
+	void AddReasoningMessage(const char* str) { _Add(Entry::Reasoning, str); }
+	void AddToolCallResult(const char* jsonStr) { _Add(Entry::ToolCallAndResult, jsonStr); }//str为OpenAI 格式的tool call json字串
+	void AddCacheControl()
+	{
+		if (entries.size() > 0)
+			entries[entries.size() - 1].cacheControl = true;
+	}
+	void SetPrompt(const char* str)	{		prompt = str;	}
+
+	void _Add(Entry::Type tp, const char*str)
+	{
+		Entry e;
+		e.tp = tp;
+		e.content = str;
+		entries.push_back(e);
+	}
+
+	void _ProcessReasoning(const LlmSessionSetting& setting);
+	void _ProcessReasoning2(const LlmSessionSetting& setting);
+
+	static void CommitUserMessage(json& messages, const char* str, const LlmSessionSetting& setting, const char* mimeType = nullptr);
+	static void CommitImageMessage(json& messages, const char* base64Data, const char* mimeType, const LlmSessionSetting& setting);
+	static void CommitAssistMessage(json& messages, const char* str, const char* reasoningContent, const LlmSessionSetting& setting);
+	static void CommitSystemMessage(json& messages, const char* str, const LlmSessionSetting& setting);
+	static void CommitToolCallResult(json& messages, const char* jsonStr, const LlmSessionSetting& setting);//jsonStr为OpenAI 格式的tool call json字串
+	static void CommitCacheControl(json& messages, const LlmSessionSetting& setting);
+
+	std::vector<Entry> entries;
+	std::string prompt;
+	bool isStreaming;
+};
+
+struct LlmSessionUsage
+{
+	LlmSessionUsage()
+	{
+		Zero();
+	}
+	void Zero()
+	{
+		fee = 0.0f;
+		inputToken_ = 0;
+		inputToken_equivalent = 0;
+		outputToken = 0;
+	}
+	void Accumulate(const LlmSessionUsage &other)
+	{
+		fee += other.fee;
+		inputToken_ += other.inputToken_;
+		inputToken_equivalent += other.inputToken_equivalent;
+		outputToken += other.outputToken;
+	}
+
+	// Session Cost 格式化函数
+	std::string FormatToCostText() const
+	{
+		char buffer[256];
+		sprintf_s(buffer, 256, "$%.4f(%d -> %d)", fee, inputToken_equivalent, outputToken);
+		return std::string(buffer);
+	}
+
+	// Session Cost 解析函数
+	static LlmSessionUsage ParseFromCostText(const std::string& costText)
+	{
+		LlmSessionUsage usage;
+		
+		// 验证输入格式：$price(inputToken -> outputToken)
+		size_t dollarPos = costText.find('$');
+		size_t leftParenPos = costText.find('(');
+		size_t arrowPos = costText.find(" -> ");
+		size_t rightParenPos = costText.find(')');
+		
+		// 检查格式是否正确
+		if (dollarPos == std::string::npos || leftParenPos == std::string::npos || 
+			arrowPos == std::string::npos || rightParenPos == std::string::npos ||
+			dollarPos >= leftParenPos || leftParenPos >= arrowPos || arrowPos >= rightParenPos)
+		{
+			// 格式不正确，返回零值
+			return usage;
+		}
+		
+		try
+		{
+			// 解析价格部分
+			std::string priceStr = costText.substr(dollarPos + 1, leftParenPos - dollarPos - 1);
+			usage.fee = std::stof(priceStr);
+				
+			// 解析输入token部分
+			std::string inputTokenStr = costText.substr(leftParenPos + 1, arrowPos - leftParenPos - 1);
+			usage.inputToken_equivalent = usage.inputToken_ = std::stoi(inputTokenStr);
+
+			// 解析输出token部分
+			std::string outputTokenStr = costText.substr(arrowPos + 4, rightParenPos - arrowPos - 4);
+			usage.outputToken = std::stoi(outputTokenStr);
+		}
+		catch (...)
+		{
+			// 解析出错，返回零值
+			usage.Zero();
+		}
+		
+		return usage;
+	}
+
+	float fee;
+	int inputToken_;
+	int inputToken_equivalent;
+	int outputToken;
+};
+
+// 前向声明
+typedef void CURL;
+
+// LLM会话类
+class CLlmSession
+{
+public:
+	CLlmSession(const LlmSessionSetting& settings);
+	~CLlmSession();
+	
+	// 发送请求
+	bool Request(const LlmSessionRequest &request);
+	
+	// 停止当前请求
+	void Interrupt();
+
+	// 检查是否完成
+	bool IsCompleted();
+	
+	// 获取回答
+	bool GetAnswer(std::string& answer);
+	bool FetchDeltaAnswer(std::string& delta,std::string &deltaReasoning);
+	bool GetUpdatedToolCalls(std::vector<LlmToolCall>& toolCalls);
+	bool GetTokenUsage(LlmSessionUsage &usage);
+
+	// 获取错误信息
+	bool HasError();
+	std::string GetErrorMessage();
+	
+	// 处理函数
+	void Process();
+	
+	// 互斥锁 - 公开，以便回调函数使用
+	std::mutex m_mutex;
+	
+public:
+	LlmSessionSetting m_settings;        // 设置
+	LlmSessionRequest m_request;
+	CLlmToolCallParser m_toolCallParser;
+
+	std::string m_answer;            // 完整回答
+	std::string m_deltaAnswer;            
+	std::string m_reasoning;            // 完整回答
+	std::string m_deltaReasoning;
+	std::string m_errorMessage;      // 错误消息
+	bool m_isCompleted;              // 是否完成
+	bool m_hasError;                 // 是否有错误
+	std::atomic<bool> m_interruptRequested; // 添加停止请求标志
+
+	LlmSessionUsage m_usage;
+	
+	// 添加一个缓冲区来处理不完整的流数据块
+	std::string m_buffer; 
+	std::deque<std::string> m_bufferLines;
+
+	// 发送请求到LLM
+	static void RequestThreadFunction(CLlmSession* session);
+	
+};

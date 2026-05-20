@@ -1,0 +1,5 @@
+// Random.cpp: implementation of the CRandom class.
+//
+//////////////////////////////////////////////////////////////////////
+#include "stdh.h"
+#include "MultiTree.h"

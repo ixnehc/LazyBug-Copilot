@@ -1,0 +1,1012 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{353cdaf3-22eb-4b36-b923-c7da6f355a33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog">
+      <UniqueIdentifier>{628f9b9b-2fc6-4eba-b05d-7503e4b221b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\questions">
+      <UniqueIdentifier>{80c13115-5ef4-4df1-8b34-7dc1302ca765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatCtrl">
+      <UniqueIdentifier>{255208f2-7da2-4adf-912b-f5130940620e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatTaskMgr">
+      <UniqueIdentifier>{5a7eb81c-aa4e-47b4-9a54-cd22a8dbcaa7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput">
+      <UniqueIdentifier>{e9ffe1e8-49ca-40ed-933f-05127d2fcb51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatSettingPage">
+      <UniqueIdentifier>{8fc0c0e2-8f46-4c0b-8c7f-35d4a703f7a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChangelistDialog">
+      <UniqueIdentifier>{7b5a14e0-6d75-4b65-86c0-ca877f61eb2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{74b24f43-1e36-46a1-b65d-d2298a2f360a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Llm">
+      <UniqueIdentifier>{8099d067-8ae6-4ca3-9d7b-598b0ea74a83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Changelists">
+      <UniqueIdentifier>{8227cd80-78a9-48e7-aa69-473435c403a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SolutionDB">
+      <UniqueIdentifier>{93e66ec6-b90a-47b5-8753-13a17f95c844}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\CppSymbol">
+      <UniqueIdentifier>{93443f00-4543-4ce9-8149-ae984c7b2ab7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SolutionDBService">
+      <UniqueIdentifier>{eff0926d-7282-4f65-85ee-d074b01b8f49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\NameIndexer">
+      <UniqueIdentifier>{9386467f-3ebb-4348-b83b-4d25d83cb594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{093af15e-a957-4e36-a667-84225d64a57c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_interface">
+      <UniqueIdentifier>{73d083be-3b31-4a2a-a13b-e98298b192ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_log">
+      <UniqueIdentifier>{887e4a6e-4ce7-4e40-80a3-d1e75e67952a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_Registry">
+      <UniqueIdentifier>{85344fe8-1282-440a-a82f-822f0f300120}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_stringparser">
+      <UniqueIdentifier>{5b55cd70-79b7-4cc0-b003-b52fbe139d75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_timer">
+      <UniqueIdentifier>{40b17c40-83c3-4319-8e15-686811581c01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_mod">
+      <UniqueIdentifier>{f10092d8-e3eb-437b-bb3f-29e9bc9f4092}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_editor">
+      <UniqueIdentifier>{ef7b77a7-bb33-4b58-b290-14667320d9b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_datapacket">
+      <UniqueIdentifier>{206e7bf1-9fc7-4e15-ab10-829bcedcbeae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_gds">
+      <UniqueIdentifier>{54e9447f-c2f3-4596-8455-4a8b7ee6355a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_class">
+      <UniqueIdentifier>{9c7fe9fc-b556-4706-a927-545daeb4e8c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_mempool">
+      <UniqueIdentifier>{2f836a7d-e0a3-4976-87a2-46c89f12d5cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_multitree">
+      <UniqueIdentifier>{5218dfd6-a9d4-4aa9-9859-9dd631b142a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_errorreport">
+      <UniqueIdentifier>{37937cb2-d220-445b-a451-336339fb4b6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_strlib">
+      <UniqueIdentifier>{a6f9235e-3e97-4be9-9d64-35096cfb25dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_config">
+      <UniqueIdentifier>{87402310-e2d6-4614-8011-866edbea4147}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_filewatcher">
+      <UniqueIdentifier>{261cd4d3-3084-413c-b935-adffe464d68e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_encrypt">
+      <UniqueIdentifier>{d17908c1-b582-4760-a757-5f570d972eed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_codediff">
+      <UniqueIdentifier>{990a0c04-f110-433b-a2ff-9bf0e4f4a698}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_xml">
+      <UniqueIdentifier>{eecd5fec-2359-4903-a96f-89664f6817ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\TreeSitFiles">
+      <UniqueIdentifier>{86d77d35-c9fa-41a5-b18a-06f581d7d6d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\CodingHistory">
+      <UniqueIdentifier>{ade3a7a3-2312-426c-974a-c129dd69f065}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\rules">
+      <UniqueIdentifier>{646facda-cf39-4cef-9701-520484d30aea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\SmartRepair">
+      <UniqueIdentifier>{3a9ab6d2-5bef-4036-966b-eac92798f930}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\SmartRepair\rules">
+      <UniqueIdentifier>{c4b70ad7-2040-4127-9995-cfe490a2c9aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\SmartRepair\RepairWnd">
+      <UniqueIdentifier>{9f0d55e2-df53-48b2-a81a-7ab93958aa7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SymbolRefsCache">
+      <UniqueIdentifier>{8164ebfd-2dc3-47e4-b358-a4b9afdf1a4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utils">
+      <UniqueIdentifier>{bb7a89e5-8d69-44c9-9aa1-7185adccbbec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\BackupDepot">
+      <UniqueIdentifier>{454e26e1-9fc6-43d1-b19b-c5f2a95046f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\ChatAgent">
+      <UniqueIdentifier>{2c511f92-98c5-409c-a77f-e3213ed0e32a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatUi">
+      <UniqueIdentifier>{0ceb4b6c-ec6b-49d6-be92-929d2da2f2d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput\ChatSkillsTree">
+      <UniqueIdentifier>{86641998-31a5-493b-a0fd-03082f9f2b40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatSettingMenu">
+      <UniqueIdentifier>{e3b1db4f-5d67-4f37-b4f1-f21d18cd3c8f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LazyBugPlugInControls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LazyBugPlugInControlsExport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CheckpointsFileChange.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatHistory.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputHistory.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatFileWriter.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_ReplaceInFile.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_VerifyLlmApiProvider.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_FastApply.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTaskMgr.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputTagMenuWindow.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACListBuilder.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACList.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputTag.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInput.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatSettingPage.cpp">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChangelistsDialog.cpp">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChangelistsEdit.cpp">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\GuiActor_Changelists.cpp">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\GuiAgent_Changelists.cpp">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\GuiData_Changelists.cpp">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\GuiView_Changelists.cpp">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Checkpoints.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LspClient.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ReplaceChunks.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\UnifiedDiff.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmTools.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmLib.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmProcessors.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmSession.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmChat.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\FileChange.cpp">
+      <Filter>Core\Changelists</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Changelists.cpp">
+      <Filter>Core\Changelists</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp">
+      <Filter>Core\CppSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBApi.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp">
+      <Filter>Core\NameIndexer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\interface\interface.cpp">
+      <Filter>common\_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\interface\InterfaceInstantiate.cpp">
+      <Filter>common\_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Log\LastError.cpp">
+      <Filter>common\_log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Log\LogDump.cpp">
+      <Filter>common\_log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Log\LogFile.cpp">
+      <Filter>common\_log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Registry\Registry.cpp">
+      <Filter>common\_Registry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\stringparser\stringparser.cpp">
+      <Filter>common\_stringparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\profiler.cpp">
+      <Filter>common\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\timer.cpp">
+      <Filter>common\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\mod\ModBase.cpp">
+      <Filter>common\_mod</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\editor\editor.cpp">
+      <Filter>common\_editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\datapacket\ChunkPacket.cpp">
+      <Filter>common\_datapacket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\datapacket\DataPacket.cpp">
+      <Filter>common\_datapacket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\gds\GProp.cpp">
+      <Filter>common\_gds</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\gds\GVar.cpp">
+      <Filter>common\_gds</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\class\class.cpp">
+      <Filter>common\_class</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\mempool\mempool.cpp">
+      <Filter>common\_mempool</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\MultiTree\NodeTree.cpp">
+      <Filter>common\_multitree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\errorreport\ErrorReport.cpp">
+      <Filter>common\_errorreport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\strlib\strlib.cpp">
+      <Filter>common\_strlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\config\config.cpp">
+      <Filter>common\_config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\filewatcher\FileWatcher.cpp">
+      <Filter>common\_filewatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\encrypt\encrypt.cpp">
+      <Filter>common\_encrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\codediff\CodeDiff.cpp">
+      <Filter>common\_codediff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\xml\tinyxml.cpp">
+      <Filter>common\_xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\xml\tinyxmlerror.cpp">
+      <Filter>common\_xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\xml\tinyxmlparser.cpp">
+      <Filter>common\_xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterFiles.cpp">
+      <Filter>Core\TreeSitFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CodingHistory.cpp">
+      <Filter>Core\CodingHistory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\FileLocator.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACWindow.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACItemTip.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SmartRepairRefCollector.cpp">
+      <Filter>GUI\SmartRepair</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SmartRepairTrigger.cpp">
+      <Filter>GUI\SmartRepair</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SmartRepair.cpp">
+      <Filter>GUI\SmartRepair</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\RepairWndG.cpp">
+      <Filter>GUI\SmartRepair\RepairWnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\RepairWnd.cpp">
+      <Filter>GUI\SmartRepair\RepairWnd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\codediff\CodeDiff2.cpp">
+      <Filter>common\_codediff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SymbolRefsCache.cpp">
+      <Filter>Core\SymbolRefsCache</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\filewatcher\FoldersWatcher.cpp">
+      <Filter>common\_filewatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CoreDefines.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_FindInFiles.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_ReadFile.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTitleMenu.cpp">
+      <Filter>GUI\ChatDialog\ChatCtrl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatLlmMenu.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatDialogSplitter.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmLibLoader.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmFormatter.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\BackupDepot.cpp">
+      <Filter>Core\BackupDepot</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_Image.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatInputImageTip.cpp">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_SearchFile.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_ResolveSymbolLinks.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatOpsCtrl.cpp">
+      <Filter>Core\ChatAgent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatAgent.cpp">
+      <Filter>Core\ChatAgent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatDialogA.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatUi.cpp">
+      <Filter>GUI\ChatDialog\ChatUi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatBriefA.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatSkillsTree.cpp">
+      <Filter>GUI\ChatDialog\ChatInput\ChatSkillsTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_CliWhitelist.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_CLI.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_Question.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CliWhitelist.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_QueryFinish.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_CreateSkill.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatSettingMenu.cpp">
+      <Filter>GUI\ChatDialog\ChatSettingMenu</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_Context.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTokenStats.cpp">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatOpsCompress.cpp">
+      <Filter>Core\ChatAgent</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LazyBugPlugInControls.def">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="res\LazyBugPlugInControls.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="packages.config" />
+    <None Include="..\Proj_LazyBug\ChatInput.html">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </None>
+    <None Include="..\Proj_LazyBug\ChatSettingPage.html">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </None>
+    <None Include="..\Proj_LazyBug\RepairWnd.html">
+      <Filter>GUI\SmartRepair\RepairWnd</Filter>
+    </None>
+    <None Include="..\Proj_LazyBug\ChatCtrl.html" />
+    <None Include="..\Proj_LazyBug\ChatSkillsTree.html">
+      <Filter>GUI\ChatDialog\ChatInput\ChatSkillsTree</Filter>
+    </None>
+    <None Include="..\Proj_LazyBug\ChatSettingMenu.html">
+      <Filter>GUI\ChatDialog\ChatSettingMenu</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LazyBugPlugInControls.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LazyBugPlugInControlsExport.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CheckpointsFileChange.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatHistory.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputHistory.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatFileWriter.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2.h">
+      <Filter>GUI\ChatDialog\ChatCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2EnvironmentOptions.h">
+      <Filter>GUI\ChatDialog\ChatCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_ReplaceInFile.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_VerifyLlmApiProvider.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_FastApply.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTaskMgr.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputTagMenuWindow.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACItem.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACListBuilder.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACList.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputTag.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInput.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatSettingPage.h">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChangelistsDialog.h">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChangelistsEdit.h">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\GuiActor_Changelists.h">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\GuiAgent_Changelists.h">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\GuiData_Changelists.h">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\GuiView_Changelists.h">
+      <Filter>GUI\ChangelistDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LazyBugConfig.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Checkpoints.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ReplaceChunks.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\UnifiedDiff.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmTools.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmProcessors.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmSession.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmChat.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmLib.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\FileChange.h">
+      <Filter>Core\Changelists</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Changelists.h">
+      <Filter>Core\Changelists</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h">
+      <Filter>Core\CppSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBApi.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\PipeMsg.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\NameIndexer.h">
+      <Filter>Core\NameIndexer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\interface\interface.h">
+      <Filter>common\_interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\interface\InterfaceInstantiate.h">
+      <Filter>common\_interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Log\LastError.h">
+      <Filter>common\_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Log\LogDump.h">
+      <Filter>common\_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Log\LogFile.h">
+      <Filter>common\_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Registry\Registry.h">
+      <Filter>common\_Registry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\stringparser\stringparser.h">
+      <Filter>common\_stringparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\profiler.h">
+      <Filter>common\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\timer.h">
+      <Filter>common\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\mod\ModBase.h">
+      <Filter>common\_mod</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\editor\editor.h">
+      <Filter>common\_editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\ChunkPacket.h">
+      <Filter>common\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\DataPacket.h">
+      <Filter>common\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\FileCacher.h">
+      <Filter>common\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GDefines.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GObj.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GProp.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GStub.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GVar.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\class\class.h">
+      <Filter>common\_class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\mempool\mempool.h">
+      <Filter>common\_mempool</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\MultiTree\MultiTree.h">
+      <Filter>common\_multitree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\MultiTree\NodeTree.h">
+      <Filter>common\_multitree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\errorreport\ErrorReport.h">
+      <Filter>common\_errorreport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\strlib\strlib.h">
+      <Filter>common\_strlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\config\config.h">
+      <Filter>common\_config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\filewatcher\FileWatcher.h">
+      <Filter>common\_filewatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\encrypt\encrypt.h">
+      <Filter>common\_encrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\codediff\CodeDiff.h">
+      <Filter>common\_codediff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\xml\tinyxml.h">
+      <Filter>common\_xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CoreDefines.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h">
+      <Filter>Core\TreeSitFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterFiles.h">
+      <Filter>Core\TreeSitFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CodingHistory.h">
+      <Filter>Core\CodingHistory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\FileLocator.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACWindow.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACItemTip.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SmartRepairRefCollector.h">
+      <Filter>GUI\SmartRepair</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SmartRepairDefines.h">
+      <Filter>GUI\SmartRepair</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SmartRepairTrigger.h">
+      <Filter>GUI\SmartRepair</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SmartRepair.h">
+      <Filter>GUI\SmartRepair</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\RepairWndG.h">
+      <Filter>GUI\SmartRepair\RepairWnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\RepairWnd.h">
+      <Filter>GUI\SmartRepair\RepairWnd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\codediff\dmp_diff.h">
+      <Filter>common\_codediff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SymbolRefsCache.h">
+      <Filter>Core\SymbolRefsCache</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\filewatcher\FoldersWatcher.h">
+      <Filter>common\_filewatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_FindInFiles.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_ReadFile.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTitleMenu.h">
+      <Filter>GUI\ChatDialog\ChatCtrl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatLlmMenu.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatDialogSplitter.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmLibLoader.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmFormatter.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_File.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\BackupDepot.h">
+      <Filter>Core\BackupDepot</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_Image.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatInputImageTip.h">
+      <Filter>GUI\ChatDialog\ChatInput</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_SearchFile.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_ResolveSymbolLinks.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatAgent.h">
+      <Filter>Core\ChatAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatAgentDefines.h">
+      <Filter>Core\ChatAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatOpsCtrl.h">
+      <Filter>Core\ChatAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatDialogA.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatUi.h">
+      <Filter>GUI\ChatDialog\ChatUi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatBriefA.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatSkillsTree.h">
+      <Filter>GUI\ChatDialog\ChatInput\ChatSkillsTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_CliWhitelist.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmSkills.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_CLI.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_Question.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CliWhitelist.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_QueryFinish.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_CreateSkill.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatSettingMenu.h">
+      <Filter>GUI\ChatDialog\ChatSettingMenu</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_Context.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTokenStats.h">
+      <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatOpsCompress.h">
+      <Filter>Core\ChatAgent</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LazyBugPlugInControls.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\Proj_LazyBug\chatquestion_default.txt">
+      <Filter>GUI\ChatDialog\questions</Filter>
+    </Text>
+    <Text Include="..\lazybugplugin\lazybugpluginvsix\rules\chatrules_kimi_k2.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_warmup.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules - 副本 (3).txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules - 副本.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_deepseek.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_deepseek_v2.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_deepseek_v3.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_usingtools.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_existingcode_ov02.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_existingcode _ov01.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_replace_in_file_use_json.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_rewritefile.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_difffile.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_patchfile.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_ver2.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_ver3.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_replace_in_file.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_existingcode.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_ver4.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_ver5.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_ver6.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_ver8.txt">
+      <Filter>GUI\ChatDialog\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_repair_rewrite.txt">
+      <Filter>GUI\SmartRepair\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_repair_fim.txt">
+      <Filter>GUI\SmartRepair\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_repair_v2.txt">
+      <Filter>GUI\SmartRepair\rules</Filter>
+    </Text>
+    <Text Include="..\Proj_LazyBug\chatrules_repair.txt">
+      <Filter>GUI\SmartRepair\rules</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

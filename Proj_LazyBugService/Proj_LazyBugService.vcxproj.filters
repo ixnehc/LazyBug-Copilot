@@ -1,0 +1,1671 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{a478592c-de87-4505-b76a-8ae67721b3ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{7efa009d-293e-469d-b076-01016249af82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_interface">
+      <UniqueIdentifier>{13682575-05d4-44bd-a5ec-1065b9d27970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_log">
+      <UniqueIdentifier>{d5f15b21-b9c2-494e-a91c-f661ab0654bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_Registry">
+      <UniqueIdentifier>{929ec2e1-0300-4623-b7ae-133c96f8d550}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_stringparser">
+      <UniqueIdentifier>{46f6489d-40a4-475c-bcd9-16b94fccd486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_timer">
+      <UniqueIdentifier>{26306e3c-508a-4951-ac6f-bed2401c97d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_mod">
+      <UniqueIdentifier>{6c4c394c-6c27-45b3-8341-39e360137ae6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_editor">
+      <UniqueIdentifier>{98556df0-ca27-4197-b73e-a16a2fdcecaa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_datapacket">
+      <UniqueIdentifier>{9a4819a5-5597-425e-8617-5e1ceb5373d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_gds">
+      <UniqueIdentifier>{0134ee8c-1a4f-4b55-afde-2fd0c8172853}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_class">
+      <UniqueIdentifier>{fec19def-0f57-43b8-8da8-d2a5e5423a6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_mempool">
+      <UniqueIdentifier>{bc363635-313e-4fa0-af4a-86169bbed9d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_multitree">
+      <UniqueIdentifier>{e27c1312-e44d-444e-9373-b8e50e0058d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_errorreport">
+      <UniqueIdentifier>{cfea0e1c-a20b-401d-a9be-c323dff2cb82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_strlib">
+      <UniqueIdentifier>{f90ff0f9-1926-41cd-8a7a-c79630a3f746}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_config">
+      <UniqueIdentifier>{cf9bc482-e516-4b19-9069-a51c49ff643d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_filewatcher">
+      <UniqueIdentifier>{0e67e7ea-c891-4dc4-ab1d-71589f0de09e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_encrypt">
+      <UniqueIdentifier>{d9bdca56-150b-4c58-b344-b98ab83a0f93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_codediff">
+      <UniqueIdentifier>{95bdf86e-1910-486f-8249-46325116d47a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common\_xml">
+      <UniqueIdentifier>{25dc7ed5-3bcd-429d-b38e-53ac1288b73c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\CppSymbol">
+      <UniqueIdentifier>{80208ab8-2d5c-4616-a09d-28669032629d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\NameIndexer">
+      <UniqueIdentifier>{2070d708-fc9a-4c65-8115-a6913d952832}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SolutionDB">
+      <UniqueIdentifier>{ff39f99a-b21a-4f23-b5ea-94decc614653}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SolutionDBService">
+      <UniqueIdentifier>{56c143cb-eb40-4988-9ea3-66fa9f433a6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SolutionDB\_Lucene">
+      <UniqueIdentifier>{c9013fb3-c9fd-4d36-8ef8-c0061858cf8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SolutionDB\SolutionIndexer">
+      <UniqueIdentifier>{90009ac8-0135-420f-a007-c7063c50b99f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\SolutionDB\SolutionScanner">
+      <UniqueIdentifier>{29037c95-7a36-418b-9117-bacb81682f09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Utils">
+      <UniqueIdentifier>{84aedd88-787c-4cb7-a67e-9522f12cd370}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\TreeSitterSymbol">
+      <UniqueIdentifier>{e8fe4d83-1453-429c-9201-15614371dd50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Llm">
+      <UniqueIdentifier>{78140d7c-64a3-4879-bffb-612610b43044}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Proj_LazyBugService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\interface\interface.cpp">
+      <Filter>common\_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\interface\InterfaceInstantiate.cpp">
+      <Filter>common\_interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Log\LastError.cpp">
+      <Filter>common\_log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Log\LogDump.cpp">
+      <Filter>common\_log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Log\LogFile.cpp">
+      <Filter>common\_log</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Registry\Registry.cpp">
+      <Filter>common\_Registry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\stringparser\stringparser.cpp">
+      <Filter>common\_stringparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\profiler.cpp">
+      <Filter>common\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\timer.cpp">
+      <Filter>common\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\mod\ModBase.cpp">
+      <Filter>common\_mod</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\editor\editor.cpp">
+      <Filter>common\_editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\datapacket\ChunkPacket.cpp">
+      <Filter>common\_datapacket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\datapacket\DataPacket.cpp">
+      <Filter>common\_datapacket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\gds\GProp.cpp">
+      <Filter>common\_gds</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\gds\GVar.cpp">
+      <Filter>common\_gds</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\class\class.cpp">
+      <Filter>common\_class</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\mempool\mempool.cpp">
+      <Filter>common\_mempool</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\MultiTree\NodeTree.cpp">
+      <Filter>common\_multitree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\errorreport\ErrorReport.cpp">
+      <Filter>common\_errorreport</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\strlib\strlib.cpp">
+      <Filter>common\_strlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\config\config.cpp">
+      <Filter>common\_config</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\filewatcher\FileWatcher.cpp">
+      <Filter>common\_filewatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\encrypt\encrypt.cpp">
+      <Filter>common\_encrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\codediff\CodeDiff.cpp">
+      <Filter>common\_codediff</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\xml\tinyxml.cpp">
+      <Filter>common\_xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\xml\tinyxmlerror.cpp">
+      <Filter>common\_xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\xml\tinyxmlparser.cpp">
+      <Filter>common\_xml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp">
+      <Filter>Core\CppSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CppSymbolParser.cpp">
+      <Filter>Core\CppSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CppSymbol.cpp">
+      <Filter>Core\CppSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp">
+      <Filter>Core\CppSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\StringPool.cpp">
+      <Filter>Core\CppSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp">
+      <Filter>Core\NameIndexer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ProjSetting.cpp">
+      <Filter>Core\SolutionDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBs.cpp">
+      <Filter>Core\SolutionDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDB.cpp">
+      <Filter>Core\SolutionDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBApi.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBServer.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBService.cpp">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\filewatcher\FoldersWatcher.cpp">
+      <Filter>common\_filewatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CoreDefines.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.cpp">
+      <Filter>Core\SolutionDB\SolutionIndexer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.cpp">
+      <Filter>Core\SolutionDB\SolutionIndexer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionIndexer.cpp">
+      <Filter>Core\SolutionDB\SolutionIndexer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionScanner.cpp">
+      <Filter>Core\SolutionDB\SolutionScanner</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp">
+      <Filter>Core\SolutionDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguage.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCpp.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterParser.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbol.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbolDefines.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_SearchFile.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\interface\interface.h">
+      <Filter>common\_interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\interface\InterfaceInstantiate.h">
+      <Filter>common\_interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Log\LastError.h">
+      <Filter>common\_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Log\LogDump.h">
+      <Filter>common\_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Log\LogFile.h">
+      <Filter>common\_log</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Registry\Registry.h">
+      <Filter>common\_Registry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\stringparser\stringparser.h">
+      <Filter>common\_stringparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\profiler.h">
+      <Filter>common\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\timer.h">
+      <Filter>common\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\mod\ModBase.h">
+      <Filter>common\_mod</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\editor\editor.h">
+      <Filter>common\_editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\ChunkPacket.h">
+      <Filter>common\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\DataPacket.h">
+      <Filter>common\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\FileCacher.h">
+      <Filter>common\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GDefines.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GObj.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GProp.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GStub.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\gds\GVar.h">
+      <Filter>common\_gds</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\class\class.h">
+      <Filter>common\_class</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\mempool\mempool.h">
+      <Filter>common\_mempool</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\MultiTree\MultiTree.h">
+      <Filter>common\_multitree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\MultiTree\NodeTree.h">
+      <Filter>common\_multitree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\errorreport\ErrorReport.h">
+      <Filter>common\_errorreport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\strlib\strlib.h">
+      <Filter>common\_strlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\config\config.h">
+      <Filter>common\_config</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\filewatcher\FileWatcher.h">
+      <Filter>common\_filewatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\encrypt\encrypt.h">
+      <Filter>common\_encrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\codediff\CodeDiff.h">
+      <Filter>common\_codediff</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\xml\tinyxml.h">
+      <Filter>common\_xml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h">
+      <Filter>Core\CppSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CppSymbolParser.h">
+      <Filter>Core\CppSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CppSymbol.h">
+      <Filter>Core\CppSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\StringPool.h">
+      <Filter>Core\CppSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\NameIndexer.h">
+      <Filter>Core\NameIndexer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBDefines.h">
+      <Filter>Core\SolutionDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ProjSetting.h">
+      <Filter>Core\SolutionDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBs.h">
+      <Filter>Core\SolutionDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDB.h">
+      <Filter>Core\SolutionDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBApi.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\PipeMsg.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBServer.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBService.h">
+      <Filter>Core\SolutionDBService</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\filewatcher\FoldersWatcher.h">
+      <Filter>common\_filewatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CoreDefines.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.h">
+      <Filter>Core\SolutionDB\SolutionIndexer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.h">
+      <Filter>Core\SolutionDB\SolutionIndexer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AbstractAllTermDocs.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AbstractField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AllTermDocs.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Analyzer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Array.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ASCIIFoldingFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Attribute.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AttributeSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AveragePayloadFunction.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Base64.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BaseCharFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BitSet.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BitUtil.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BitVector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanClause.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanScorer2.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedDeletes.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedIndexInput.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedIndexOutput.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteBlockPool.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteFieldSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteSliceReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteSliceWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CachingSpanFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CachingTokenFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CachingWrapperFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharArraySet.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharBlockPool.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharFolder.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharTokenizer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CheckIndex.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ChecksumIndexInput.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ChecksumIndexOutput.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CloseableThreadLocal.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Collator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Collection.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Collector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ComplexExplanation.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CompoundFileReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CompoundFileWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CompressionTools.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ConcurrentMergeScheduler.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ConjunctionScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Constants.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ConstantScoreQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CustomScoreProvider.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CustomScoreQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CycleCheck.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DateField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DateTools.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DefaultSimilarity.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DefaultSkipListReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DefaultSkipListWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Directory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DirectoryReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DisjunctionMaxQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DisjunctionMaxScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DisjunctionSumScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocConsumerPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumerPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumerPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumers.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumersPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumersPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldProcessor.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldProcessorPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldProcessorPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocIdBitSet.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocIdSet.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocIdSetIterator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocInverter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocInverterPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocInverterPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Document.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocumentsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocumentsWriterThreadState.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocValues.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DoubleFieldSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ExactPhraseScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Explanation.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FastCharStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Field.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Fieldable.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCache.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheImpl.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheRangeFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheSanityChecker.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheTermsFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldComparator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldComparatorSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldDoc.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldDocSortedHitQueue.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldInfo.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldInfos.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldInvertState.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldMaskingSpanQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldScoreQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldSelector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldSortedTermVectorMapper.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldsReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldValueHitQueue.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FileReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FileSwitchDirectory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FileUtils.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Filter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredDocIdSet.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredDocIdSetIterator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredTermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilterIndexReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilterManager.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FlagsAttribute.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsDocsConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsDocsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsFieldsConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsFieldsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsPositionsConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsPositionsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsTermsConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsTermsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxFieldMergeState.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxTermsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxTermsWriterPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxTermsWriterPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FSDirectory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FSLockFactory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FuzzyQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FuzzyTermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HashMap.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HashSet.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HitQueue.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HitQueueBase.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexCommit.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexDeletionPolicy.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexFileDeleter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexFileNameFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexFileNames.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexInput.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexOutput.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexSearcher.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InfoStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InputStreamReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IntBlockPool.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IntFieldSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocConsumerPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocConsumerPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocEndConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocEndConsumerPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocEndConsumerPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ISOLatin1AccentFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\KeepOnlyLastCommitDeletionPolicy.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\KeywordAnalyzer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\KeywordTokenizer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LengthFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LetterTokenizer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LoadFirstFieldSelector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Lock.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LockFactory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LogByteSizeMergePolicy.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LogDocMergePolicy.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LogMergePolicy.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LowerCaseFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LowerCaseTokenizer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Lucene.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneAllocator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneException.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneFactory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneHeaders.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneObject.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneSignal.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneSync.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneTypes.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Map.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MapFieldSelector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MapOfSets.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MappingCharFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MatchAllDocsQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MaxPayloadFunction.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MergeDocIDRemapper.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MergePolicy.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MergeScheduler.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MinPayloadFunction.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MiscUtils.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MMapDirectory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiFieldQueryParser.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiLevelSkipListReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiLevelSkipListWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiPhraseQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultipleTermPositions.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiSearcher.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiTermQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiTermQueryWrapperFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NativeFSLockFactory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NearSpansOrdered.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NearSpansUnordered.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NoLockFactory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormalizeCharMap.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormsWriterPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormsWriterPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumberTools.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericRangeFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericRangeQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericTokenStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericUtils.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OffsetAttribute.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OpenBitSet.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OpenBitSetDISI.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OpenBitSetIterator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OrdFieldSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ParallelMultiSearcher.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ParallelReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Payload.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadAttribute.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadFunction.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadNearQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadSpanUtil.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadTermQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PerFieldAnalyzerWrapper.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhrasePositions.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhraseQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhraseQueue.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhraseScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PorterStemFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PorterStemmer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PositionBasedTermVectorMapper.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PositionIncrementAttribute.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PositiveScoresOnlyCollector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PrefixFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PrefixQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PrefixTermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PriorityQueue.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Query.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParseError.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParser.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserCharStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserConstants.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserToken.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserTokenManager.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryTermVector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryWrapperFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMDirectory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMFile.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMInputStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMOutputStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Random.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RawPostingList.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Reader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReaderUtil.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReadOnlyDirectoryReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReadOnlySegmentReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReqExclScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReqOptSumScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReusableStringReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReverseOrdFieldSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ScoreCachingWrappingScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ScoreDoc.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Scorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ScorerDocQueue.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Searchable.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Searcher.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentInfo.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentInfoCollection.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentInfos.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentMergeInfo.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentMergeQueue.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentMerger.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermDocs.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermPositions.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermPositionVector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermVector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentWriteState.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SerialMergeScheduler.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Set.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SetBasedFieldSelector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Similarity.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimilarityDelegator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleAnalyzer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleFSDirectory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleFSLockFactory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleLRUCache.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SingleInstanceLockFactory.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SingleTermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SloppyPhraseScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SmallDouble.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SnapshotDeletionPolicy.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Sort.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SortedTermVectorMapper.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SortedVIntList.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SortField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanFilterResult.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanFirstQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanNearQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanNotQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanOrQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanQueryFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Spans.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanTermQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanWeight.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardAnalyzer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardTokenizer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardTokenizerImpl.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StopAnalyzer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StopFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StoredFieldsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StoredFieldsWriterPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StringReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StringUtils.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Synchronize.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\targetver.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TeeSinkTokenFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Term.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermAttribute.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermBuffer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermDocs.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermFreqVector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermInfo.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermInfosReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermInfosWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermPositions.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermPositionVector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermRangeFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermRangeQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermRangeTermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermScorer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHash.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashConsumer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashConsumerPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashConsumerPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermSpans.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorEntry.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorEntryFreqSortedComparator.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorMapper.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorOffsetInfo.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsReader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsTermsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsTermsWriterPerField.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsTermsWriterPerThread.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsWriter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TestPoint.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ThreadPool.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TimeLimitingCollector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Token.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TokenFilter.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Tokenizer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TokenStream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopDocs.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopDocsCollector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopFieldCollector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopFieldDocs.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopScoreDocCollector.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TypeAttribute.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\UnicodeUtils.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\UTF8Stream.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ValueSource.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ValueSourceQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\VariantUtils.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Weight.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WhitespaceAnalyzer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WhitespaceTokenizer.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WildcardQuery.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WildcardTermEnum.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WordlistLoader.h">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionIndexer.h">
+      <Filter>Core\SolutionDB\SolutionIndexer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionScanner.h">
+      <Filter>Core\SolutionDB\SolutionScanner</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h">
+      <Filter>Core\SolutionDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_File.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguage.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCpp.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterParser.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbol.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbolDefines.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_SearchFile.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmSkills.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\extlib\lucene\include\lucene++\CMakeLists.txt">
+      <Filter>Core\SolutionDB\_Lucene</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

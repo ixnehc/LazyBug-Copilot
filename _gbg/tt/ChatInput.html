@@ -1,0 +1,3194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Input</title>
+    <style>
+        :root {
+            --primary-color: #58a6ff;
+            --border-color: #30363d;
+            --bg-color: #0d1117;
+            --text-color: #f0f6fc;
+            --placeholder-color: #8b949e;
+            --hover-color: #21262d;
+            --focus-color: #58a6ff;
+            --tag-bg: #1c2b41;
+            --tag-border: #388bfd;
+            --tag-text: #58a6ff;
+            --toolbar-bg: #161b22;
+            --button-bg: #21262d;
+            --button-hover: #30363d;
+            --send-button-bg: #238636;
+            --send-button-hover: #2ea043;
+            --send-button-disabled: #6e7681;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .chat-input-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+        }
+
+        /* 标签栏 */
+        .tags-bar {
+            min-height: 32px;
+            max-height: 80px;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 6px 12px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        /* @ 按钮 */
+        .at-button {
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+        }
+
+        .at-button:hover:not(:disabled) {
+            background-color: var(--button-hover);
+            border-color: var(--primary-color);
+        }
+
+        .at-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            color: var(--placeholder-color);
+        }
+
+        /* 标签容器 */
+        .tags-container {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: flex-start;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            color: var(--tag-text);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+
+        .tag.file {
+            background-color: #2a2a2a;
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .tag.image {
+            background-color: transparent;
+            border-color: #FFA500;
+            color: #FFA500;
+            padding: 2px 4px;
+            height: 60px;
+            min-width: 40px;
+        }
+
+        .tag-image {
+            display: block;
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .tag-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            font-size: 10px;
+            line-height: 1;
+        }
+
+        .tag-remove:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 编辑区域 */
+        .input-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100px;
+            position: relative;
+        }
+
+        .input-editor {
+            flex: 1;
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 12px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.5;
+            overflow-y: auto;
+            white-space: pre-wrap; /* 保留空白字符和换行 */
+            tab-size: 4; /* 设置制表符宽度 */
+        }
+
+        /* 水印提示 */
+        .input-watermark {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 14px;
+            font-style: italic;
+            color: var(--placeholder-color);
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+
+        .input-watermark.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* 键盘按键样式 */
+        .keyboard-key {
+            display: inline-block;
+            padding: 1px 4px;
+            margin: 0 1px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            background-color: var(--button-bg);
+            font-size: 10px;
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        .input-editor:empty::before {
+            content: attr(data-placeholder);
+            color: var(--placeholder-color);
+            pointer-events: none;
+        }
+
+        .input-editor:focus {
+            box-shadow: inset 0 0 0 2px var(--focus-color);
+        }
+
+        /* 内联标签样式 */
+        .inline-tag {
+            display: inline-block;
+            vertical-align: baseline;
+            margin: 0 2px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background-color: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            color: var(--tag-text);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: default;
+            user-select: none;
+            white-space: nowrap;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            line-height: 1.2;
+        }
+
+        .inline-tag:hover {
+            background-color: #2a4663;
+            border-color: #4dabf7;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        .inline-tag:focus {
+            outline: 2px solid var(--focus-color);
+            box-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
+        }
+
+        .inline-tag.file {
+            background-color: #2a2a2a;
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .inline-tag.file:hover {
+            background-color: #3a3a3a;
+            border-color: #ffffff;
+        }
+
+        /* 标签选中状态样式 */
+        .inline-tag::selection {
+            background-color: #4c9aff;
+            color: white;
+        }
+
+        .inline-tag::-moz-selection {
+            background-color: #4c9aff;
+            color: white;
+        }
+
+        /* 当标签在选择范围内时的特殊样式 */
+        .inline-tag.selected {
+            background-color: #4c9aff !important;
+            border-color: #7db3ff !important;
+            color: white !important;
+            box-shadow: 0 0 8px rgba(76, 154, 255, 0.5) !important;
+        }
+
+        .inline-tag.file.selected {
+            background-color: #ffffff !important;
+            border-color: #cccccc !important;
+            color: #000000 !important;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .inline-tag-text {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .inline-tag-remove {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            padding: 0;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 2px;
+            font-size: 10px;
+            line-height: 1;
+            opacity: 0.7;
+        }
+
+        .inline-tag-remove:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            opacity: 1;
+        }
+
+
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--toolbar-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 3px 12px;
+            gap: 6px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-button {
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: background-color 0.15s ease;
+        }
+
+        .tool-button:hover:not(:disabled) {
+            background-color: var(--button-hover);
+        }
+
+        .tool-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .tool-button-icon {
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 发送按钮 */
+        .send-button {
+            background-color: var(--send-button-bg);
+            border: 1px solid var(--send-button-bg);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 900;
+            transition: background-color 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .send-button:hover:not(:disabled) {
+            background-color: var(--send-button-hover);
+        }
+
+        .send-button:disabled {
+            background-color: var(--send-button-disabled);
+            border-color: var(--send-button-disabled);
+            cursor: not-allowed;
+        }
+
+        .send-button:active:not(:disabled) {
+            transform: scale(0.95);
+            background-color: #1e6e3e;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Stop按钮 */
+        .stop-button {
+            background-color: #dc3545;
+            border: 1px solid #dc3545;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: 900;
+            transition: background-color 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 0.8;
+        }
+
+        .stop-button span {
+            transform: translateY(-4px);
+        }
+
+        .stop-button:hover:not(:disabled) {
+            background-color: #c82333;
+        }
+
+        .stop-button:disabled {
+            background-color: var(--send-button-disabled);
+            border-color: var(--send-button-disabled);
+            cursor: not-allowed;
+        }
+
+        .stop-button:active:not(:disabled) {
+            transform: scale(0.95);
+            background-color: #a02332;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 滚动条样式 */
+        .tags-bar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        .tags-bar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .tags-bar::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .tags-bar::-webkit-scrollbar-thumb:hover {
+            background-color: var(--placeholder-color);
+        }
+
+        /* 隐藏状态 */
+        .hidden {
+            display: none !important;
+        }
+
+        .tags-bar.empty .tags-container {
+            display: none;
+        }
+
+        /* 自动补全列表样式 */
+        .autocomplete-popup {
+            position: fixed;
+            z-index: 1000;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            max-height: 200px;
+            overflow-y: auto;
+            min-width: 200px;
+            max-width: 400px;
+        }
+
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.selected {
+            background-color: var(--hover-color);
+        }
+
+        .autocomplete-item.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .autocomplete-item-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .autocomplete-item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .autocomplete-item-text {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .autocomplete-item-description {
+            font-size: 12px;
+            color: var(--placeholder-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .autocomplete-item.selected .autocomplete-item-description {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+
+
+        /* 响应式设计 */
+        @media (max-width: 400px) {
+            .toolbar {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            
+            .toolbar-left {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .toolbar-right {
+                flex-shrink: 0;
+            }
+            
+            .tool-button {
+                font-size: 11px;
+                padding: 2px 4px;
+            }
+        }
+
+        /* MajorChat API 按钮 */
+        .api-menu-button {
+            background-color: var(--button-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 3px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: background-color 0.15s ease;
+            min-width: 120px;
+            max-width: 200px;
+        }
+
+        .api-menu-button:hover {
+            background-color: var(--button-hover);
+            border-color: var(--primary-color);
+        }
+
+        .api-menu-button.active {
+            background-color: var(--button-hover);
+            border-color: var(--primary-color);
+        }
+
+        .api-menu-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .api-menu-arrow {
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: transform 0.15s ease;
+        }
+
+        .api-menu-text.unavailable {
+            color: #d35d5d;
+        }
+
+        .api-menu-item.selected {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .api-menu-item-text {
+            flex: 1;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .api-menu-item-check {
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            opacity: 0;
+        }
+
+        .api-menu-text.unavailable {
+            color: #d35d5d;
+        }
+
+        /* Context Usage 进度条样式 */
+        .context-usage-container {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            margin-left: 0px;
+            margin-right: 6px;
+            position: relative;
+        }
+
+        .context-usage-bar {
+            width: 5px;
+            height: 20px;
+            background-color: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .context-usage-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #238636; /* 绿色 - 默认 */
+            transition: height 0.3s ease, background-color 0.3s ease;
+            border-radius: 2px;
+        }
+
+        /* 黄色状态 - 1/3 到 2/3 */
+        .context-usage-fill.yellow {
+            background-color: #d29922;
+        }
+
+        /* 红色状态 - 大于 2/3 */
+        .context-usage-fill.red {
+            background-color: #da3633;
+        }
+
+        /* 进度条右下角永久显示的tip */
+        .context-usage-tooltip {
+            position: absolute;
+            left: 8px;
+            bottom: -2px;
+            font-size: 9px;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-input-container">
+        <!-- 标签栏 -->
+        <div class="tags-bar" id="tagsBar">
+            <button class="at-button" id="atButton" title="显示/隐藏标签">📎</button>
+            <div class="tags-container" id="tagsContainer"></div>
+        </div>
+        
+        <!-- 编辑区域 -->
+        <div class="input-area">
+            <div 
+                class="input-editor" 
+                id="inputEditor" 
+                contenteditable="true"
+                data-placeholder="Enter your messages..."></div>
+            <div class="input-watermark"><span class="keyboard-key">PageUp</span>/<span class="keyboard-key">PageDown</span> to navigate previous inputs</div>
+        </div>
+        
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-left" id="toolbarLeft">
+                <!-- MajorChat API 按钮 -->
+                <button class="api-menu-button" id="apiMenuButton">
+                    <span class="api-menu-text" id="apiMenuText">选择模型</span>
+                    <span class="api-menu-arrow">▼</span>
+                </button>
+                <!-- Context Usage 进度条 -->
+                <div class="context-usage-container" id="contextUsageContainer">
+                    <div class="context-usage-bar" id="contextUsageBar">
+                        <div class="context-usage-fill" id="contextUsageFill"></div>
+                    </div>
+                    <span class="context-usage-tooltip" id="contextUsageTooltip"></span>
+                </div>
+                <!-- 工具按钮将通过JavaScript动态添加 -->
+            </div>
+            <div class="toolbar-right">
+                <button class="send-button" id="sendButton" title="发送">
+                    <span>⬆</span>
+                </button>
+                <button class="stop-button hidden" id="stopButton" title="停止">
+                    <span>■</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自动补全弹出窗口 -->
+    <div class="autocomplete-popup hidden" id="autoCompletePopup"></div>
+
+    
+
+    <script>
+        // 全局变量
+        let isInitialized = false;
+        let currentTags = [];
+        let currentToolButtons = [];
+        let autoCompleteData = {
+            isVisible: false,
+            items: [],
+            selectedIndex: -1,
+            query: '',
+            position: { x: 0, y: 0 }
+        };
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            isInitialized = true;
+            
+            // 初始化@按钮状态
+            const atButton = document.getElementById('atButton');
+            if (atButton) {
+                atButton.disabled = true;
+            }
+            
+            // 暴露函数到全局作用域，供C++的ExecuteScript调用
+            window.setInputContent = setInputContent;
+            window.getInputContent = getInputContent;
+            window.getInputPlainText = getInputPlainText;
+            window.getSelectedText = getSelectedText;
+            window.processAutoCompleteMessage = processAutoCompleteMessage;
+            window.getCursorPosition = getCursorPosition;
+            window.replaceAutoCompleteWithTag = replaceAutoCompleteWithTag;
+            window.focusEditor = focusEditor;
+            window.setContextUsage = setContextUsage;
+            
+            // 初始化水印显示状态
+            updateWatermarkVisibility();
+            
+            // 通知C++初始化完成
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    action: 'initialized'
+                }));
+            }
+        });
+
+        function focusEditor() {
+            const inputEditor = document.getElementById('inputEditor');
+            if (inputEditor) {
+                inputEditor.focus();
+                
+                // Move cursor to the end
+                const selection = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(inputEditor);
+                range.collapse(false); // false to collapse to the end
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        }
+
+        function initializeEventListeners() {
+            const inputEditor = document.getElementById('inputEditor');
+            const sendButton = document.getElementById('sendButton');
+            const stopButton = document.getElementById('stopButton');
+            const atButton = document.getElementById('atButton');
+
+            // 输入内容变化监听
+            inputEditor.addEventListener('input', debounce(notifyContentChanged, 300));
+            inputEditor.addEventListener('input', ensureTagIntegrity);
+            inputEditor.addEventListener('input', handleAutoComplete);
+            inputEditor.addEventListener('input', updateWatermarkVisibility);
+            inputEditor.addEventListener('keydown', handleKeyDown);
+            
+            // 粘贴事件监听
+            inputEditor.addEventListener('paste', handlePaste);
+
+            // 文本选择监听
+            document.addEventListener('selectionchange', handleSelectionChange);
+            inputEditor.addEventListener('mouseup', handleSelectionChange);
+            inputEditor.addEventListener('keyup', handleSelectionChange);
+
+            // 发送按钮点击
+            sendButton.addEventListener('click', handleSendClick);
+
+            // Stop按钮点击
+            if (stopButton) {
+                stopButton.addEventListener('click', handleStopClick);
+            }
+
+            // @按钮点击
+            if (atButton) {
+                atButton.addEventListener('click', handleAtButtonClick);
+            }
+
+            // API菜单按钮点击
+            const apiMenuButton = document.getElementById('apiMenuButton');
+            if (apiMenuButton) {
+                apiMenuButton.addEventListener('click', handleApiMenuButtonClick);
+            }
+
+            // 监听来自C++的消息
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.addEventListener('message', handleMessage);
+            }
+        }
+
+        function ensureTagIntegrity() {
+            const inputEditor = document.getElementById('inputEditor');
+            const zwsp = '\u200B';
+            let changed = false;
+            
+            // 保存当前光标位置信息
+            const selection = window.getSelection();
+            let cursorInfo = null;
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                cursorInfo = {
+                    node: range.startContainer,
+                    offset: range.startOffset,
+                    isCollapsed: range.collapsed
+                };
+            }
+            
+            // 遍历所有子节点，找到内联标签
+            const walker = document.createTreeWalker(
+                inputEditor,
+                NodeFilter.SHOW_ELEMENT,
+                {
+                    acceptNode: function(node) {
+                        return node.classList && node.classList.contains('inline-tag') 
+                            ? NodeFilter.FILTER_ACCEPT 
+                            : NodeFilter.FILTER_REJECT;
+                    }
+                }
+            );
+            
+            const tags = [];
+            let currentNode;
+            while (currentNode = walker.nextNode()) {
+                tags.push(currentNode);
+            }
+            
+            // 检查每个标签的ZWSP包装
+            tags.forEach(tag => {
+                let needsRepair = false;
+                
+                // 检查前面的ZWSP
+                const prevSibling = tag.previousSibling;
+                if (!prevSibling || prevSibling.nodeType !== Node.TEXT_NODE) {
+                    // 没有前一个文本节点，插入ZWSP
+                    const beforeZwsp = document.createTextNode(zwsp);
+                    tag.parentNode.insertBefore(beforeZwsp, tag);
+                    needsRepair = true;
+                } else if (prevSibling.textContent === zwsp) {
+                    // 完美，已经是独立的ZWSP
+                } else if (prevSibling.textContent.endsWith(zwsp)) {
+                    // ZWSP被混合在文本末尾，需要分离
+                    const content = prevSibling.textContent;
+                    const mainContent = content.slice(0, -1); // 移除末尾的ZWSP
+                    const zwspContent = content.slice(-1);    // 提取ZWSP
+                    
+                    // 检查光标是否在这个节点中
+                    if (cursorInfo && cursorInfo.node === prevSibling) {
+                        // 调整光标信息
+                        if (cursorInfo.offset > mainContent.length) {
+                            // 光标在ZWSP部分，移动到新的ZWSP节点
+                            cursorInfo.offset = cursorInfo.offset - mainContent.length;
+                            // 标记需要移动到新节点（稍后处理）
+                            cursorInfo.needsNewNode = true;
+                            cursorInfo.newNodeType = 'prevZwsp';
+                            cursorInfo.relatedTag = tag;
+                        }
+                    }
+                    
+                    if (mainContent.length > 0) {
+                        prevSibling.textContent = mainContent;
+                        const separateZwsp = document.createTextNode(zwspContent);
+                        tag.parentNode.insertBefore(separateZwsp, tag);
+                        
+                        // 更新光标节点引用
+                        if (cursorInfo && cursorInfo.needsNewNode && cursorInfo.newNodeType === 'prevZwsp') {
+                            cursorInfo.node = separateZwsp;
+                            cursorInfo.needsNewNode = false;
+                        }
+                    } else {
+                        prevSibling.textContent = zwspContent;
+                    }
+                    needsRepair = true;
+                } else {
+                    // 没有ZWSP，插入一个
+                    const beforeZwsp = document.createTextNode(zwsp);
+                    tag.parentNode.insertBefore(beforeZwsp, tag);
+                    needsRepair = true;
+                }
+                
+                // 检查后面的ZWSP
+                const nextSibling = tag.nextSibling;
+                if (!nextSibling || nextSibling.nodeType !== Node.TEXT_NODE) {
+                    // 没有后一个文本节点，插入ZWSP
+                    const afterZwsp = document.createTextNode(zwsp);
+                    if (nextSibling) {
+                        tag.parentNode.insertBefore(afterZwsp, nextSibling);
+                    } else {
+                        tag.parentNode.appendChild(afterZwsp);
+                    }
+                    needsRepair = true;
+                } else if (nextSibling.textContent === zwsp) {
+                    // 完美，已经是独立的ZWSP
+                } else if (nextSibling.textContent.startsWith(zwsp)) {
+                    // ZWSP被混合在文本开头，需要分离
+                    const content = nextSibling.textContent;
+                    const zwspContent = content.slice(0, 1);    // 提取ZWSP
+                    const mainContent = content.slice(1);       // 移除开头的ZWSP
+                    
+                    // 检查光标是否在这个节点中
+                    if (cursorInfo && cursorInfo.node === nextSibling) {
+                        // 调整光标信息
+                        if (cursorInfo.offset === 0) {
+                            // 光标在ZWSP前，保持在ZWSP节点
+                            cursorInfo.needsNewNode = true;
+                            cursorInfo.newNodeType = 'nextZwsp';
+                            cursorInfo.relatedTag = tag;
+                            cursorInfo.offset = 0;
+                        } else if (cursorInfo.offset === 1) {
+                            // 光标在ZWSP后，移动到主内容节点开头
+                            cursorInfo.offset = 0;
+                            // 节点引用保持不变（nextSibling将变成主内容）
+                        } else {
+                            // 光标在主内容中，调整偏移
+                            cursorInfo.offset = cursorInfo.offset - 1;
+                        }
+                    }
+                    
+                    if (mainContent.length > 0) {
+                        nextSibling.textContent = mainContent;
+                        const separateZwsp = document.createTextNode(zwspContent);
+                        tag.parentNode.insertBefore(separateZwsp, nextSibling);
+                        
+                        // 更新光标节点引用
+                        if (cursorInfo && cursorInfo.needsNewNode && cursorInfo.newNodeType === 'nextZwsp') {
+                            cursorInfo.node = separateZwsp;
+                            cursorInfo.needsNewNode = false;
+                        }
+                    } else {
+                        nextSibling.textContent = zwspContent;
+                    }
+                    needsRepair = true;
+                } else {
+                    // 没有ZWSP，插入一个
+                    const afterZwsp = document.createTextNode(zwsp);
+                    tag.parentNode.insertBefore(afterZwsp, nextSibling);
+                    needsRepair = true;
+                }
+                
+                if (needsRepair) {
+                    changed = true;
+                }
+            });
+            
+            // 如果进行了修复，精确恢复光标位置
+            if (changed && cursorInfo) {
+                try {
+                    // 使用更新后的光标信息恢复位置
+                    const range = document.createRange();
+                    if (cursorInfo.node && cursorInfo.node.parentNode) {
+                        range.setStart(cursorInfo.node, Math.min(cursorInfo.offset, cursorInfo.node.textContent ? cursorInfo.node.textContent.length : 0));
+                        range.collapse(true);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    } else {
+                        // 节点无效，移动到编辑器末尾
+                        range.selectNodeContents(inputEditor);
+                        range.collapse(false);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                    }
+                } catch (e) {
+                    // 如果恢复失败，移动到编辑器末尾
+                    const range = document.createRange();
+                    range.selectNodeContents(inputEditor);
+                    range.collapse(false);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+        }
+
+        function handleSelectionChange() {
+            const inputEditor = document.getElementById('inputEditor');
+            if (!inputEditor) return;
+            
+            // 清除所有标签的选中状态
+            const allTags = inputEditor.querySelectorAll('.inline-tag');
+            allTags.forEach(tag => tag.classList.remove('selected'));
+            
+            const selection = window.getSelection();
+            if (selection.rangeCount === 0 || selection.isCollapsed) {
+                return; // 没有选择或选择已折叠
+            }
+            
+            const range = selection.getRangeAt(0);
+            
+            // 检查选择范围内的所有标签
+            allTags.forEach(tag => {
+                if (isNodeInRange(tag, range)) {
+                    tag.classList.add('selected');
+                }
+            });
+        }
+        
+        function isNodeInRange(node, range) {
+            try {
+                // 检查节点是否与选择范围相交
+                if (range.intersectsNode) {
+                    return range.intersectsNode(node);
+                }
+                
+                // 备用方法：检查节点是否在范围内
+                const nodeRange = document.createRange();
+                nodeRange.selectNode(node);
+                
+                return range.compareBoundaryPoints(Range.START_TO_END, nodeRange) >= 0 &&
+                       range.compareBoundaryPoints(Range.END_TO_START, nodeRange) <= 0;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function handleKeyDown(event) {
+            // 如果自动补全列表可见，优先处理自动补全按键
+            if (autoCompleteData.isVisible) {
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    selectNextAutoCompleteItem();
+                    return;
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    selectPreviousAutoCompleteItem();
+                    return;
+                } else if (event.key === 'Enter' || event.key === 'Tab') {
+                    event.preventDefault();
+                    confirmAutoCompleteSelection();
+                    return;
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    hideAutoComplete();
+                    return;
+                }
+            }
+            
+            if (event.key === 'Enter') {
+                if (event.ctrlKey || event.metaKey) {
+                    // Ctrl+Enter 或 Cmd+Enter 发送
+                    event.preventDefault();
+                    handleSendClick();
+                } else if (!event.shiftKey) {
+                    // 普通 Enter 不换行，发送
+                    event.preventDefault();
+                    handleSendClick();
+                }
+                // Shift+Enter 允许换行
+            } else if (event.key === 'Escape') {
+                // 处理Esc键 - 如果自动补全没有处理，则发送给C++
+                console.warn('Escape received');
+                event.preventDefault();
+                sendMessageToNative({
+                    action: 'escape'
+                });
+            } else if (event.key === 'Backspace' || event.key === 'Delete') {
+                // 处理标签删除
+                handleTagDeletion(event);
+            } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                // 处理光标在标签周围的导航
+                handleArrowKeyNavigation(event);
+            } else if (event.key === 'PageUp') {
+                // 处理Page Up键 - 浏览输入历史(向前)
+                event.preventDefault();
+                const contentJson = getInputContent();
+                sendMessageToNative({
+                    action: 'pageNavigation',
+                    direction: 'up',
+                    content: JSON.parse(contentJson) // 和send消息保持一致的格式
+                });
+            } else if (event.key === 'PageDown') {
+                // 处理Page Down键 - 浏览输入历史(向后)
+                event.preventDefault();
+                const contentJson = getInputContent();
+                sendMessageToNative({
+                    action: 'pageNavigation',
+                    direction: 'down',
+                    content: JSON.parse(contentJson) // 和send消息保持一致的格式
+                });
+            }
+        }
+
+        function handleArrowKeyNavigation(event) {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            // 如果没有按住shift键，并且当前是范围选择，则让浏览器默认处理（收起光标）
+            if (!event.shiftKey && !selection.isCollapsed) {
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            
+            if (event.key === 'ArrowLeft') {
+                if (event.shiftKey) {
+                    // Shift+左键：扩展选区
+                    const focusNode = selection.focusNode;
+                    const focusOffset = selection.focusOffset;
+                    
+                    // 检查focus是否在标签后的ZWSP中，且准备向左扩展选区
+                    if (focusNode && focusNode.nodeType === Node.TEXT_NODE && 
+                        focusNode.textContent === '\u200B' && 
+                        focusNode.previousSibling && 
+                        focusNode.previousSibling.classList && 
+                        focusNode.previousSibling.classList.contains('inline-tag')) {
+                        
+                        event.preventDefault();
+                        const tagElement = focusNode.previousSibling;
+                        const beforeZwsp = tagElement.previousSibling;
+                        
+                        if (beforeZwsp && beforeZwsp.textContent === '\u200B') {
+                            // 扩展选区到标签前的ZWSP开头
+                            selection.extend(beforeZwsp, 0);
+                        }
+                        return;
+                    }
+                    
+                    // 检查focus是否紧邻标签后的ZWSP
+                    if (focusNode && focusNode.nodeType === Node.TEXT_NODE && focusOffset === 0) {
+                        const prevSibling = focusNode.previousSibling;
+                        if (prevSibling && prevSibling.nodeType === Node.TEXT_NODE && 
+                            prevSibling.textContent === '\u200B' && 
+                            prevSibling.previousSibling && 
+                            prevSibling.previousSibling.classList && 
+                            prevSibling.previousSibling.classList.contains('inline-tag')) {
+                            
+                            event.preventDefault();
+                            const tagElement = prevSibling.previousSibling;
+                            const beforeZwsp = tagElement.previousSibling;
+                            
+                            if (beforeZwsp && beforeZwsp.textContent === '\u200B') {
+                                selection.extend(beforeZwsp, 0);
+                            }
+                            return;
+                        }
+                    }
+                } else {
+                    // 普通左键：移动光标
+                    const container = range.startContainer;
+                    const offset = range.startOffset;
+
+                    // 检查是否在标签后的 ZWSP 中
+                    if (container.nodeType === Node.TEXT_NODE && 
+                        container.textContent === '\u200B' && 
+                        container.previousSibling && 
+                        container.previousSibling.classList && 
+                        container.previousSibling.classList.contains('inline-tag')) {
+                        
+                        event.preventDefault();
+                        const tagElement = container.previousSibling;
+                        const beforeZwsp = tagElement.previousSibling;
+
+                        if (beforeZwsp && beforeZwsp.textContent === '\u200B') {
+                            range.setStartBefore(beforeZwsp);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                        return;
+                    }
+                }
+                
+                // 检查是否紧邻标签组合
+                if (range.collapsed) { // 这个检查只对光标移动有意义
+                    const prevElement = getPreviousElement(range);
+                    if (prevElement && prevElement.nodeType === Node.TEXT_NODE && 
+                        prevElement.textContent === '\u200B' && 
+                        prevElement.previousSibling && 
+                        prevElement.previousSibling.classList && 
+                        prevElement.previousSibling.classList.contains('inline-tag')) {
+                        event.preventDefault();
+                        const tagElement = prevElement.previousSibling;
+                        const beforeZwsp = tagElement.previousSibling;
+                        if (beforeZwsp && beforeZwsp.textContent === '\u200B') {
+                           if (event.shiftKey) {
+                                selection.extend(beforeZwsp, 0);
+                            } else {
+                                range.setStartBefore(beforeZwsp);
+                                range.collapse(true);
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                            }
+                        }
+                    }
+                }
+            } else if (event.key === 'ArrowRight') {
+                if (event.shiftKey) {
+                    // Shift+右键：扩展选区
+                    const focusNode = selection.focusNode;
+                    const focusOffset = selection.focusOffset;
+                    
+                    // 检查focus是否在标签前的ZWSP中，且准备向右扩展选区
+                    if (focusNode && focusNode.nodeType === Node.TEXT_NODE && 
+                        focusNode.textContent === '\u200B' && 
+                        focusNode.nextSibling && 
+                        focusNode.nextSibling.classList && 
+                        focusNode.nextSibling.classList.contains('inline-tag')) {
+                        
+                        event.preventDefault();
+                        const tagElement = focusNode.nextSibling;
+                        const afterZwsp = tagElement.nextSibling;
+                        
+                        if (afterZwsp && afterZwsp.textContent === '\u200B') {
+                            // 扩展选区到标签后的ZWSP末尾
+                            selection.extend(afterZwsp, 1);
+                        }
+                        return;
+                    }
+                    
+                    // 检查focus是否紧邻标签前的ZWSP
+                    if (focusNode && focusNode.nodeType === Node.TEXT_NODE && 
+                        focusOffset === focusNode.textContent.length) {
+                        const nextSibling = focusNode.nextSibling;
+                        if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE && 
+                            nextSibling.textContent === '\u200B' && 
+                            nextSibling.nextSibling && 
+                            nextSibling.nextSibling.classList && 
+                            nextSibling.nextSibling.classList.contains('inline-tag')) {
+                            
+                            event.preventDefault();
+                            const tagElement = nextSibling.nextSibling;
+                            const afterZwsp = tagElement.nextSibling;
+                            
+                            if (afterZwsp && afterZwsp.textContent === '\u200B') {
+                                selection.extend(afterZwsp, 1);
+                            }
+                            return;
+                        }
+                    }
+                } else {
+                    // 普通右键：移动光标
+                    const container = range.startContainer;
+                    const offset = range.startOffset;
+                    
+                    // 检查当前位置是否是标签前的 ZWSP
+                    if (container.nodeType === Node.TEXT_NODE && 
+                        container.textContent === '\u200B' && 
+                        container.nextSibling && 
+                        container.nextSibling.classList && 
+                        container.nextSibling.classList.contains('inline-tag')) {
+                        
+                        event.preventDefault();
+                        const tagElement = container.nextSibling;
+                        const afterZwsp = tagElement.nextSibling;
+                        if (afterZwsp && afterZwsp.textContent === '\u200B') {
+                            range.setStartAfter(afterZwsp);
+                            range.collapse(true);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }
+                        return;
+                    }
+                }
+                
+                // 检查是否紧邻标签组合
+                if (range.collapsed) { // 这个检查只对光标移动有意义
+                    const nextElement = getNextElement(range);
+                    if (nextElement && nextElement.nodeType === Node.TEXT_NODE && 
+                        nextElement.textContent === '\u200B' && 
+                        nextElement.nextSibling && 
+                        nextElement.nextSibling.classList && 
+                        nextElement.nextSibling.classList.contains('inline-tag')) {
+                        event.preventDefault();
+                        const tagElement = nextElement.nextSibling;
+                        const afterZwsp = tagElement.nextSibling;
+                        if (afterZwsp && afterZwsp.textContent === '\u200B') {
+                            if (event.shiftKey) {
+                                selection.extend(afterZwsp, 1);
+                            } else {
+                                range.setStartAfter(afterZwsp);
+                                range.collapse(true);
+                                selection.removeAllRanges();
+                                selection.addRange(range);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function handleTagDeletion(event) {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+
+            if (event.key === 'Backspace' && range.collapsed) {
+                const container = range.startContainer;
+                const offset = range.startOffset;
+                
+                // 检查是否在标签后的 ZWSP 中
+                if (container.nodeType === Node.TEXT_NODE && 
+                    container.textContent === '\u200B' && 
+                    container.previousSibling && 
+                    container.previousSibling.classList && 
+                    container.previousSibling.classList.contains('inline-tag')) {
+                    event.preventDefault();
+                    const tagElement = container.previousSibling;
+                    const beforeZwsp = tagElement.previousSibling;
+                    const afterZwsp = container;
+                    
+                    // 选中整个标签组合，让浏览器自然删除（可撤销）
+                    selectTagCombination(beforeZwsp, tagElement, afterZwsp);
+                    // 让浏览器执行删除
+                    document.execCommand('delete');
+                    
+                    notifyContentChanged();
+                    return;
+                }
+                
+                // 检查是否紧邻标签组合
+                const prevElement = getPreviousElement(range);
+                if (prevElement && prevElement.nodeType === Node.TEXT_NODE && 
+                    prevElement.textContent === '\u200B' && 
+                    prevElement.previousSibling && 
+                    prevElement.previousSibling.classList && 
+                    prevElement.previousSibling.classList.contains('inline-tag')) {
+                    event.preventDefault();
+                    const tagElement = prevElement.previousSibling;
+                    const beforeZwsp = tagElement.previousSibling;
+                    const afterZwsp = prevElement;
+                    
+                    // 选中整个标签组合，让浏览器自然删除（可撤销）
+                    selectTagCombination(beforeZwsp, tagElement, afterZwsp);
+                    document.execCommand('delete');
+                    
+                    notifyContentChanged();
+                    return;
+                }
+            } else if (event.key === 'Delete' && range.collapsed) {
+                const container = range.startContainer;
+                
+                // 检查是否在标签前的 ZWSP 中
+                if (container.nodeType === Node.TEXT_NODE && 
+                    container.textContent === '\u200B' && 
+                    container.nextSibling && 
+                    container.nextSibling.classList && 
+                    container.nextSibling.classList.contains('inline-tag')) {
+                    event.preventDefault();
+                    const beforeZwsp = container;
+                    const tagElement = container.nextSibling;
+                    const afterZwsp = tagElement.nextSibling;
+                    
+                    // 选中整个标签组合，让浏览器自然删除（可撤销）
+                    selectTagCombination(beforeZwsp, tagElement, afterZwsp);
+                    document.execCommand('delete');
+                    
+                    notifyContentChanged();
+                    return;
+                }
+                
+                // 检查下一个元素是否是标签组合
+                const nextElement = getNextElement(range);
+                if (nextElement && nextElement.nodeType === Node.TEXT_NODE && 
+                    nextElement.textContent === '\u200B' && 
+                    nextElement.nextSibling && 
+                    nextElement.nextSibling.classList && 
+                    nextElement.nextSibling.classList.contains('inline-tag')) {
+                    event.preventDefault();
+                    const beforeZwsp = nextElement;
+                    const tagElement = nextElement.nextSibling;
+                    const afterZwsp = tagElement.nextSibling;
+                    
+                    // 选中整个标签组合，让浏览器自然删除（可撤销）
+                    selectTagCombination(beforeZwsp, tagElement, afterZwsp);
+                    document.execCommand('delete');
+                    
+                    notifyContentChanged();
+                    return;
+                }
+            }
+        }
+        
+        function selectTagCombination(beforeZwsp, tagElement, afterZwsp) {
+            const selection = window.getSelection();
+            const range = document.createRange();
+            
+            // 确定选择的起点和终点
+            let startNode, startOffset;
+            let endNode, endOffset;
+            
+            if (beforeZwsp && beforeZwsp.textContent === '\u200B') {
+                startNode = beforeZwsp;
+                startOffset = 0;
+            } else {
+                startNode = tagElement;
+                startOffset = 0;
+            }
+            
+            if (afterZwsp && afterZwsp.textContent === '\u200B') {
+                endNode = afterZwsp;
+                endOffset = 1;
+            } else {
+                endNode = tagElement;
+                endOffset = 1;
+            }
+            
+            try {
+                range.setStart(startNode, startOffset);
+                range.setEnd(endNode, endOffset);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            } catch (e) {
+                // 如果设置范围失败，回退到直接删除
+                console.warn('Failed to select tag combination, falling back to direct removal');
+                if (beforeZwsp && beforeZwsp.textContent === '\u200B') {
+                    beforeZwsp.remove();
+                }
+                tagElement.remove();
+                if (afterZwsp && afterZwsp.textContent === '\u200B') {
+                    afterZwsp.remove();
+                }
+            }
+        }
+
+        function handleSendClick() {
+            const contentJson = getInputContent(); // 获取完整内容
+            const plainText = getEditorPlainText(); // 获取纯文本
+            
+            if (plainText.trim()) {
+                sendMessageToNative({
+                    action: 'send',
+                    content: JSON.parse(contentJson), // 作为JSON对象发送
+                    plainText: plainText
+                });
+                
+                // 清空输入框
+                clearInputContent();
+            }
+        }
+
+        function handleStopClick() {
+            sendMessageToNative({
+                action: 'stopButtonClicked'
+            });
+        }
+
+        function handleAtButtonClick(event) {
+            if (currentTags.length === 0) {
+                return; // 没有标签时不响应点击
+            }
+            
+            event.stopPropagation(); // 防止冒泡到document
+            
+            // 获取@按钮的位置
+            const atButton = document.getElementById('atButton');
+            const rect = atButton.getBoundingClientRect();
+            
+            // 发送消息给C++显示外部标签菜单
+            sendMessageToNative({
+                action: 'showTagMenu',
+                position: {
+                    x: rect.left,
+                    y: rect.top
+                }
+            });
+        }
+
+        function notifyContentChanged() {
+            if (!isInitialized) return;
+            
+            const contentJson = getInputContent();
+            
+            sendMessageToNative({
+                action: 'contentChanged',
+                content: JSON.parse(contentJson)
+            });
+        }
+
+        function handlePaste(event) {
+            // 阻止默认粘贴行为
+            event.preventDefault();
+            
+            // 获取粘贴的文本内容
+            const clipboardData = event.clipboardData || window.clipboardData;
+            const pastedText = clipboardData.getData('text/plain');
+            
+            if (pastedText) {
+                // 使用insertTextWithLineBreaks函数插入文本，正确处理换行
+                insertTextWithLineBreaks(pastedText);
+                
+                updateWatermarkVisibility();
+                
+                // 使用setTimeout确保DOM更新完成后再检查自动补全
+                setTimeout(() => {
+                    handleAutoComplete();
+                    // 在自动补全检查完成后再通知内容变化
+                    setTimeout(() => {
+                        notifyContentChanged();
+                    }, 10);
+                }, 0);
+            }
+        }
+
+        function updateWatermarkVisibility() {
+            const inputEditor = document.getElementById('inputEditor');
+            const watermark = document.querySelector('.input-watermark');
+            const sendButton = document.getElementById('sendButton');
+            
+            if (!inputEditor || !watermark || !sendButton) return;
+            
+            // 检查编辑器是否为空（忽略ZWSP字符）
+            const isEmpty = isEditorEmpty(inputEditor);
+            
+            if (isEmpty) {
+                watermark.classList.remove('hidden');
+                sendButton.disabled = true;
+            } else {
+                watermark.classList.add('hidden');
+                sendButton.disabled = false;
+            }
+        }
+
+        function isEditorEmpty(editor) {
+            // 如果没有子节点，说明为空
+            if (editor.childNodes.length === 0) {
+                return true;
+            }
+            
+            // 检查是否只包含空白文本和ZWSP字符
+            for (const node of editor.childNodes) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    // 移除ZWSP字符后检查是否还有实际内容
+                    const text = node.textContent.replace(/\u200B/g, '').trim();
+                    if (text.length > 0) {
+                        return false;
+                    }
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    // 如果有任何元素节点（如标签），说明不为空
+                    if (node.classList && node.classList.contains('inline-tag')) {
+                        return false;
+                    }
+                    // 检查其他可能的内容元素
+                    if (node.textContent.trim().length > 0) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        // ===== 标签菜单相关函数 =====
+
+        function updateTagsDisplay() {
+            const tagsBar = document.getElementById('tagsBar');
+            const tagsContainer = document.getElementById('tagsContainer');
+            const atButton = document.getElementById('atButton');
+            
+            // 过滤出可见的标签用于显示
+            const visibleTags = currentTags.filter(tag => tag.visible !== false);
+            
+            // 控制@按钮的启用状态：有任何标签（包括不可见的）就启用
+            if (atButton) {
+                atButton.disabled = currentTags.length === 0;
+            }
+            
+            if (visibleTags.length === 0) {
+                tagsBar.classList.add('empty');
+                tagsContainer.innerHTML = '';
+                return;
+            }
+            
+            tagsBar.classList.remove('empty');
+            tagsContainer.innerHTML = '';
+            
+            // 只显示可见的标签
+            visibleTags.forEach(tag => {
+                const tagElement = createTagElement(tag);
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+
+        function toggleTagVisibility(tagId) {
+            // 先立即更新本地状态，确保UI响应及时
+            const tag = currentTags.find(t => t.id === tagId);
+            if (tag) {
+                tag.visible = !tag.visible;
+                
+                // 立即更新标签栏显示
+                updateTagsDisplay();
+            }
+            
+            // 发送切换可见性的消息到C++
+            sendMessageToNative({
+                action: 'toggleTagVisibility',
+                tagId: tagId
+            });
+        }
+
+        function handleMessage(event) {
+            try {
+                // WebView2的PostWebMessageAsJson发送的消息已经是JavaScript对象，不需要JSON.parse
+                const data = event.data;
+                processNativeMessage(data);
+            } catch (e) {
+                console.error('Failed to process message:', e);
+            }
+        }
+
+        function processNativeMessage(data) {
+            console.log('processNativeMessage called with:', data);
+            switch (data.action) {
+                case 'updateTags':
+                    updateTags(data.tags || []);
+                    break;
+                case 'updateToolButtons':
+                    updateToolButtons(data.buttons || []);
+                    break;
+                case 'setContent':
+                    console.log('setContent action received, data.content:', data.content);
+                    console.log('data.content type:', typeof data.content);
+                    setInputContent(data.content || '[]');
+                    break;
+                case 'clearContent':
+                    clearInputContent();
+                    break;
+                case 'insertText':
+                    insertTextAtCursor(data.text || '');
+                    break;
+                case 'insertInlineTag':
+                    insertInlineTag(data.tag || {});
+                    break;
+
+                case 'setSendButtonEnabled':
+                    setSendButtonEnabled(data.enabled !== false);
+                    break;
+                case 'setSendButtonText':
+                    setSendButtonText(data.text || '发送');
+                    break;
+                case 'showStopButton':
+                    showStopButton();
+                    break;
+                case 'hideStopButton':
+                    hideStopButton();
+                    break;
+                case 'setPlaceholder':
+                    setPlaceholder(data.placeholder || '请输入您的消息...');
+                    break;
+                case 'updateMajorChatApiMenu':
+                    updateMajorChatApiMenu(data.current || '', data.apis || []);
+                    break;
+                case 'updateAutoComplete':
+                    updateAutoComplete(data.items || [], data.selectedIndex);
+                    break;
+                case 'hideAutoComplete':
+                    autoCompleteData.isVisible = false;
+                    break;
+            }
+        }
+
+        function updateAutoComplete(items, selectedIndex) {
+            autoCompleteData.items = items;
+            autoCompleteData.selectedIndex = selectedIndex;
+            autoCompleteData.isVisible = items.length > 0;
+        }
+
+        function updateTags(tags) {
+            currentTags = tags; // 记录所有标签（包括不可见的）
+            
+            // 过滤出可见的标签用于显示
+            const visibleTags = tags.filter(tag => tag.visible !== false);
+            
+            // 调试信息：显示标签统计
+            console.log('UpdateTags: Total tags:', tags.length, 'Visible tags:', visibleTags.length);
+            if (tags.length > visibleTags.length) {
+                const hiddenTags = tags.filter(tag => tag.visible === false);
+                console.log('Hidden tags (' + hiddenTags.length + '):', hiddenTags.map(tag => tag.text));
+            }
+            
+            // 更新标签栏显示
+            updateTagsDisplay();
+            
+            // 如果标签菜单当前可见，更新菜单内容
+            const tagMenu = document.getElementById('tagMenuPopup');
+            if (tagMenu && !tagMenu.classList.contains('hidden')) {
+                // 更新每个菜单项的状态而不是重建整个菜单
+                currentTags.forEach(tag => {
+                    updateTagMenuItemState(tag.id);
+                });
+            }
+        }
+
+function createTagElement(tag) {
+            const tagDiv = document.createElement('div');
+            tagDiv.className = `tag ${tag.type || 'info'}`;
+            // image 类型的标签不显示普通文字 tooltip，改用原生图片预览窗口
+            if (tag.type !== 'image') {
+                tagDiv.title = tag.data || tag.text;
+            }
+            
+            // 为标签添加点击事件处理
+            tagDiv.style.cursor = 'pointer';
+            tagDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // 发送标签点击消息到C++
+                sendMessageToNative({
+                    action: 'tagClicked',
+                    tagId: tag.id
+                });
+            });
+
+            // image 类型：标记 data 属性以便后续查询
+            if (tag.type === 'image') {
+                tagDiv.setAttribute('data-image-tag-id', tag.id);
+                
+                const imgSrc = tag.imgSrc || tag.data || '';
+                if (imgSrc) {
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.className = 'tag-image';
+                    img.alt = tag.text || '';
+                    img.draggable = false;
+                    tagDiv.appendChild(img);
+                } else {
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'tag-text';
+                    textSpan.textContent = tag.text;
+                    tagDiv.appendChild(textSpan);
+                }
+            } else {
+                const textSpan = document.createElement('span');
+                textSpan.className = 'tag-text';
+                textSpan.textContent = tag.text;
+                tagDiv.appendChild(textSpan);
+            }
+            
+            if (tag.removable !== false) {
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'tag-remove';
+                removeBtn.innerHTML = '×';
+                removeBtn.title = '移除标签';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeTag(tag.id);
+                });
+                tagDiv.appendChild(removeBtn);
+            }
+            
+            return tagDiv;
+        }
+
+        function removeTag(tagId) {
+            // 注意：这里实际上是隐藏标签，而不是删除
+            sendMessageToNative({
+                action: 'hideTag',
+                tagId: tagId
+            });
+        }
+
+        function updateToolButtons(buttons) {
+            currentToolButtons = buttons;
+            const toolbarLeft = document.getElementById('toolbarLeft');
+            toolbarLeft.innerHTML = '';
+            
+            buttons.forEach(button => {
+                const buttonElement = createToolButtonElement(button);
+                toolbarLeft.appendChild(buttonElement);
+            });
+        }
+
+        function createToolButtonElement(button) {
+            const buttonDiv = document.createElement('button');
+            buttonDiv.className = 'tool-button';
+            buttonDiv.disabled = !button.enabled;
+            buttonDiv.title = button.tooltip || button.text;
+            
+            if (button.icon) {
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'tool-button-icon';
+                iconSpan.innerHTML = button.icon;
+                buttonDiv.appendChild(iconSpan);
+            }
+            
+            if (button.text) {
+                const textSpan = document.createElement('span');
+                textSpan.textContent = button.text;
+                buttonDiv.appendChild(textSpan);
+            }
+            
+            buttonDiv.addEventListener('click', () => {
+                if (!buttonDiv.disabled) {
+                    sendMessageToNative({
+                        action: 'toolButton',
+                        buttonId: button.id,
+                        buttonAction: button.action
+                    });
+                }
+            });
+            
+            return buttonDiv;
+        }
+
+        function setInputContent(content) {
+            const inputEditor = document.getElementById('inputEditor');
+            if (!inputEditor) return;
+            
+            // 添加调试信息
+            console.log('setInputContent called with:', content);
+            console.log('Content type:', typeof content);
+            console.log('Is array:', Array.isArray(content));
+            
+            // 清空编辑器
+            inputEditor.innerHTML = '';
+            
+            let contentArray = [];
+            
+            if (typeof content === 'string') {
+                console.log('Processing as string, attempting JSON parse...');
+                try {
+                    // 尝试解析JSON字符串
+                    contentArray = JSON.parse(content);
+                    console.log('JSON parse successful:', contentArray);
+                } catch (e) {
+                    // 解析失败，当作普通文本处理
+                    console.warn('JSON parse failed, treating as plain text:', e);
+                    insertTextWithLineBreaks(content);
+                    notifyContentChanged();
+                    return;
+                }
+            } else if (Array.isArray(content)) {
+                // 如果传入的已经是数组
+                console.log('Processing as array directly:', content);
+                contentArray = content;
+            } else {
+                console.error('Invalid content type for setInputContent:', content);
+                return;
+            }
+
+            console.log('Final contentArray:', contentArray);
+            const zwsp = '\u200B';
+            
+            // 重建内容
+            for (let i = 0; i < contentArray.length; i++) {
+                const item = contentArray[i];
+                console.log('Processing item:', item);
+                
+                if (item.type === 'text') {
+                    // 处理文本内容，检查是否包含换行符
+                    const text = item.content;
+                    if (text.includes('\n')) {
+                        // 包含换行符，需要分割处理
+                        const lines = text.split('\n');
+                        for (let j = 0; j < lines.length; j++) {
+                            if (j > 0) {
+                                // 插入<br>标签
+                                const brElement = document.createElement('br');
+                                inputEditor.appendChild(brElement);
+                            }
+                            if (lines[j].length > 0) {
+                                // 插入文本节点
+                                const textNode = document.createTextNode(lines[j]);
+                                inputEditor.appendChild(textNode);
+                            }
+                        }
+                    } else {
+                        // 不包含换行符，直接添加文本节点
+                        const textNode = document.createTextNode(text);
+                        inputEditor.appendChild(textNode);
+                    }
+                    console.log('Added text content:', text);
+                } else if (item.type === 'tag') {
+                    // 添加标签节点（用ZWSP包围）
+                    const beforeZwsp = document.createTextNode(zwsp);
+                    const tagElement = createInlineTagElement({
+                        id: item.id,
+                        text: item.text,
+                        type: item.tagType,
+                        tagType: item.tagType,
+                        data: item.data,
+                        imgSrc: item.imgSrc || '',
+                        removable: item.removable
+                    });
+                    const afterZwsp = document.createTextNode(zwsp);
+                    
+                    inputEditor.appendChild(beforeZwsp);
+                    inputEditor.appendChild(tagElement);
+                    inputEditor.appendChild(afterZwsp);
+                    console.log('Added tag element:', item.text);
+                }
+            }
+            
+            // 如果编辑器为空，确保有焦点位置
+            if (inputEditor.childNodes.length === 0) {
+                console.log('Editor is empty, adding empty text node');
+                const textNode = document.createTextNode('');
+                inputEditor.appendChild(textNode);
+            }
+            
+            // 移动光标到末尾
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(inputEditor);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            console.log('setInputContent completed, final editor content:', inputEditor.innerHTML);
+            updateWatermarkVisibility();
+        }
+
+        function clearInputContent() {
+            const inputEditor = document.getElementById('inputEditor');
+            inputEditor.innerHTML = '';
+            updateWatermarkVisibility();
+        }
+
+        function insertTextAtCursor(text) {
+            const inputEditor = document.getElementById('inputEditor');
+            const selection = window.getSelection();
+            
+            if (!inputEditor) {
+                return;
+            }
+            
+            // 确保编辑器有焦点
+            inputEditor.focus();
+            
+            // 如果没有选择范围，创建一个在编辑器末尾的范围
+            if (!selection.rangeCount) {
+                const range = document.createRange();
+                range.selectNodeContents(inputEditor);
+                range.collapse(false); // 移动到末尾
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
+            const range = selection.getRangeAt(0);
+            const textNode = document.createTextNode(text);
+            
+            range.deleteContents();
+            range.insertNode(textNode);
+            
+            // 移动光标到插入文本后
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            notifyContentChanged();
+        }
+
+        function insertTextWithLineBreaks(text) {
+            const inputEditor = document.getElementById('inputEditor');
+            const selection = window.getSelection();
+            
+            if (!inputEditor) {
+                return;
+            }
+            
+            // 确保编辑器有焦点
+            inputEditor.focus();
+            
+            // 如果没有选择范围，创建一个在编辑器末尾的范围
+            if (!selection.rangeCount) {
+                const range = document.createRange();
+                range.selectNodeContents(inputEditor);
+                range.collapse(false); // 移动到末尾
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
+            const range = selection.getRangeAt(0);
+            
+            // 删除选中的内容
+            range.deleteContents();
+            
+            // 按换行符分割文本
+            const lines = text.split(/\r?\n/);
+            
+            for (let i = 0; i < lines.length; i++) {
+                if (i > 0) {
+                    // 插入换行符（使用<br>标签）
+                    const brElement = document.createElement('br');
+                    range.insertNode(brElement);
+                    range.setStartAfter(brElement);
+                }
+                
+                if (lines[i].length > 0) {
+                    // 直接插入文本内容，保留所有空白字符
+                    // 由于设置了white-space: pre-wrap，制表符和空格会被保留
+                    const textNode = document.createTextNode(lines[i]);
+                    range.insertNode(textNode);
+                    range.setStartAfter(textNode);
+                }
+            }
+            
+            // 确保光标位置正确
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+
+        function insertInlineTag(tagData) {
+            const inputEditor = document.getElementById('inputEditor');
+            const selection = window.getSelection();
+            
+            // 确保编辑器有焦点
+            inputEditor.focus();
+            
+            // 如果没有选择范围，创建一个在编辑器末尾的范围
+            if (!selection.rangeCount) {
+                const range = document.createRange();
+                range.selectNodeContents(inputEditor);
+                range.collapse(false); // 移动到末尾
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
+            const range = selection.getRangeAt(0);
+            const tagElement = createInlineTagElement(tagData);
+            
+            range.deleteContents();
+            
+            // 用 ZWSP 包裹标签
+            const zwsp = '\u200B'; // Zero Width Space
+            const beforeZwsp = document.createTextNode(zwsp);
+            const afterZwsp = document.createTextNode(zwsp);
+            
+            range.insertNode(beforeZwsp);
+            range.setStartAfter(beforeZwsp);
+            range.insertNode(tagElement);
+            range.setStartAfter(tagElement);
+            range.insertNode(afterZwsp);
+            
+            // 将光标移动到标签后的 ZWSP 之后
+            range.setStartAfter(afterZwsp);
+            range.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            
+            notifyContentChanged();
+        }
+
+        function createInlineTagElement(tag) {
+            const tagSpan = document.createElement('span');
+            tagSpan.className = `inline-tag ${tag.type || tag.tagType || 'info'}`;
+            tagSpan.setAttribute('data-tag-id', tag.id || '');
+            tagSpan.setAttribute('data-tag-data', tag.data || '');
+            tagSpan.setAttribute('data-tag-type', tag.type || tag.tagType || 'info');
+            tagSpan.setAttribute('data-tag-removable', (tag.removable !== false).toString());
+            tagSpan.title = tag.data || tag.text;
+            tagSpan.contentEditable = false;
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'inline-tag-text';
+            textSpan.textContent = tag.text || '';
+            tagSpan.appendChild(textSpan);
+            
+            return tagSpan;
+        }
+
+        function removeInlineTag(tagElement) {
+            if (tagElement && tagElement.parentNode) {
+                tagElement.parentNode.removeChild(tagElement);
+                notifyContentChanged();
+            }
+        }
+
+        function getEditorPlainText() {
+            const inputEditor = document.getElementById('inputEditor');
+            let text = '';
+            
+            for (const child of inputEditor.childNodes) {
+                if (child.nodeType === Node.TEXT_NODE) {
+                    // 过滤掉 ZWSP 字符，但保留其他所有空白字符（包括制表符、空格）
+                    const textContent = child.textContent.replace(/\u200B/g, '');
+                    text += textContent;
+                } else if (child.nodeType === Node.ELEMENT_NODE) {
+                    if (child.tagName === 'BR') {
+                        // BR标签转换为换行符
+                        text += '\n';
+                    } else if (child.classList && child.classList.contains('inline-tag')) {
+                        // 获取标签类型和data属性
+                        const tagType = child.getAttribute('data-tag-type') || '';
+                        const tagData = child.getAttribute('data-tag-data') || '';
+                        
+                        // 对于file类型，使用data(文件路径)作为plainText内容，并用[]包含
+                        if (tagType === 'file' && tagData) {
+                            text += `[${tagData}]`;
+                        } else {
+                            // 对于其他类型，显示[标签文本]
+                            // 优先查找 .inline-tag-text 元素
+                            const tagText = child.querySelector('.inline-tag-text');
+                            if (tagText) {
+                                text += `[${tagText.textContent}]`;
+                            } else {
+                                // 对于 image 类型等没有 .inline-tag-text 元素的情况，使用 data-tag-text 属性
+                                const tagTextAttr = child.getAttribute('data-tag-text') || '';
+                                if (tagTextAttr) {
+                                    text += `[${tagTextAttr}]`;
+                                }
+                            }
+                        }
+                    } else {
+                        // 对于其他元素，也要过滤 ZWSP，但保留其他空白字符
+                        const textContent = child.textContent.replace(/\u200B/g, '');
+                        text += textContent;
+                    }
+                }
+            }
+            
+            return text;
+        }
+
+        function getPreviousElement(range) {
+            const container = range.startContainer;
+            const offset = range.startOffset;
+            
+            if (container.nodeType === Node.TEXT_NODE) {
+                if (offset === 0 && container.previousSibling) {
+                    return container.previousSibling;
+                }
+            } else if (container.nodeType === Node.ELEMENT_NODE) {
+                if (offset > 0) {
+                    return container.childNodes[offset - 1];
+                }
+            }
+            return null;
+        }
+
+        function getNextElement(range) {
+            const container = range.startContainer;
+            const offset = range.startOffset;
+            
+            if (container.nodeType === Node.TEXT_NODE) {
+                if (offset === container.textContent.length && container.nextSibling) {
+                    return container.nextSibling;
+                }
+            } else if (container.nodeType === Node.ELEMENT_NODE) {
+                if (offset < container.childNodes.length) {
+                    return container.childNodes[offset];
+                }
+            }
+            return null;
+        }
+
+
+
+        function setSendButtonEnabled(enabled) {
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = !enabled;
+        }
+
+        function setSendButtonText(text) {
+            const sendButton = document.getElementById('sendButton');
+            const textSpan = sendButton.querySelector('span');
+            if (textSpan) {
+                textSpan.textContent = text;
+            }
+        }
+
+        function showStopButton() {
+            const sendButton = document.getElementById('sendButton');
+            const stopButton = document.getElementById('stopButton');
+            
+            if (sendButton) {
+                sendButton.classList.add('hidden');
+            }
+            if (stopButton) {
+                stopButton.classList.remove('hidden');
+            }
+        }
+
+        function hideStopButton() {
+            const sendButton = document.getElementById('sendButton');
+            const stopButton = document.getElementById('stopButton');
+            
+            if (stopButton) {
+                stopButton.classList.add('hidden');
+            }
+            if (sendButton) {
+                sendButton.classList.remove('hidden');
+            }
+        }
+
+        function setPlaceholder(placeholder) {
+            const inputEditor = document.getElementById('inputEditor');
+            inputEditor.setAttribute('data-placeholder', placeholder);
+        }
+
+        function sendMessageToNative(message) {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage(message);
+            }
+        }
+
+        // 工具函数：防抖
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 暴露给C++调用的函数
+        function getInputContent() {
+            const inputEditor = document.getElementById('inputEditor');
+            if (!inputEditor) return JSON.stringify([]);
+            
+            const contentArray = [];
+            const zwsp = '\u200B';
+            
+            // 递归遍历节点以处理可能存在的嵌套结构（如div、span等）
+            function traverseNodes(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    // 文本节点：过滤ZWSP并保存非空文本
+                    const text = node.textContent.replace(new RegExp(zwsp, 'g'), '');
+                    if (text.length > 0) {
+                        contentArray.push({
+                            type: 'text',
+                            content: text
+                        });
+                    }
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.classList && node.classList.contains('inline-tag')) {
+                        // 标签节点：保存标签信息
+                        contentArray.push({
+                            type: 'tag',
+                            id: node.getAttribute('data-tag-id') || '',
+                            text: node.textContent || '',
+                            tagType: node.getAttribute('data-tag-type') || node.getAttribute('class').replace('inline-tag', '').trim() || 'info',
+                            data: node.getAttribute('data-tag-data') || '',
+                            removable: node.getAttribute('data-tag-removable') !== 'false'
+                        });
+                    } else if (node.tagName === 'BR') {
+                        // 换行标签：保存为换行文本
+                        contentArray.push({
+                            type: 'text',
+                            content: '\n'
+                        });
+                    } else {
+                        // 处理普通块级元素（如 div, p），块级元素前通常带有隐含的换行
+                        const isBlockElement = ['DIV', 'P', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(node.tagName);
+                        if (isBlockElement && contentArray.length > 0 && contentArray[contentArray.length - 1].content !== '\n') {
+                            contentArray.push({ type: 'text', content: '\n' });
+                        }
+                        
+                        // 递归处理子节点
+                        for (let child of node.childNodes) {
+                            traverseNodes(child);
+                        }
+                    }
+                }
+            }
+            
+            for (let child of inputEditor.childNodes) {
+                traverseNodes(child);
+            }
+            
+            // 合并连续的文本项，确保序列化结构一致
+            const mergedContentArray = [];
+            for (let i = 0; i < contentArray.length; i++) {
+                const currentItem = contentArray[i];
+                if (currentItem.type === 'text') {
+                    if (mergedContentArray.length > 0 && mergedContentArray[mergedContentArray.length - 1].type === 'text') {
+                        mergedContentArray[mergedContentArray.length - 1].content += currentItem.content;
+                    } else {
+                        mergedContentArray.push({ type: 'text', content: currentItem.content });
+                    }
+                } else {
+                    mergedContentArray.push(currentItem);
+                }
+            }
+            
+            return JSON.stringify(mergedContentArray);
+        }
+
+        function getInputPlainText() {
+            return JSON.stringify(getEditorPlainText());
+        }
+
+        function getSelectedText() {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                return JSON.stringify(selection.toString());
+            }
+            return JSON.stringify('');
+        }
+
+        //====================== 自动补全相关函数 ======================
+
+        function handleAutoComplete() {
+            const inputEditor = document.getElementById('inputEditor');
+            const selection = window.getSelection();
+            
+            console.log('handleAutoComplete called');
+            
+            if (!selection.rangeCount) {
+                console.log('No selection range, hiding autocomplete');
+                hideAutoComplete();
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            if (!range.collapsed) {
+                console.log('Range not collapsed, hiding autocomplete');
+                hideAutoComplete();
+                return;
+            }
+
+            // 查找当前光标前的@符号
+            const atInfo = findAtSymbolBeforeCursor(range);
+            console.log('atInfo:', atInfo);
+            
+            if (atInfo) {
+                const query = atInfo.query;
+                autoCompleteData.query = query;
+                
+                console.log('Found @ symbol, query:', query);
+                
+                // 计算@符号的屏幕位置
+                const atPosition = getAtSymbolScreenPosition(range, atInfo.atPosition);
+                console.log('@ position:', atPosition);
+                
+                if (!autoCompleteData.isVisible) {
+                    // 显示自动补全
+                    console.log('Sending autoCompleteShow message');
+                    sendMessageToNative({
+                        action: 'autoCompleteShow',
+                        query: query,
+                        position: atPosition
+                    });
+                } else {
+                    // 更新查询
+                    console.log('Sending autoCompleteUpdate message');
+                    sendMessageToNative({
+                        action: 'autoCompleteUpdate',
+                        query: query,
+                        position: atPosition
+                    });
+                }
+            } else {
+                console.log('No @ symbol found, hiding autocomplete');
+                hideAutoComplete();
+            }
+        }
+
+        function findAtSymbolBeforeCursor(range) {
+            let container = range.startContainer;
+            let offset = range.startOffset;
+            
+            console.log('findAtSymbolBeforeCursor called');
+            console.log('container:', container);
+            console.log('offset:', offset);
+            console.log('container.nodeType:', container.nodeType);
+            
+            // 如果容器是元素节点，需要找到实际的文本节点和位置
+            if (container.nodeType === Node.ELEMENT_NODE) {
+                console.log('Container is element node, finding text node...');
+                console.log('childNodes count:', container.childNodes.length);
+                
+                // 遍历所有子节点，找到包含@符号的文本节点
+                const childNodes = Array.from(container.childNodes);
+                console.log('childNodes:', childNodes);
+                
+                // 从后往前查找，因为光标通常在最后
+                for (let i = childNodes.length - 1; i >= 0; i--) {
+                    const child = childNodes[i];
+                    console.log(`Checking child ${i}:`, child, 'nodeType:', child.nodeType);
+                    
+                    if (child.nodeType === Node.TEXT_NODE && child.textContent.length > 0) {
+                        const text = child.textContent;
+                        console.log(`Text node content: "${text}"`);
+                        
+                    // 在这个文本节点中查找@符号
+                    const atIndex = text.lastIndexOf('@');
+                    if (atIndex !== -1) {
+                        console.log('Found @ symbol in text node at position:', atIndex);
+                        
+                        // 获取@符号后的查询字符串，包括后续文本节点的内容
+                        let query = text.substring(atIndex + 1);
+                        
+                        // 收集光标位置之后的文本（从@符号所在节点开始）
+                        // 从当前节点的下一个节点开始，收集所有文本内容直到遇到非word符号
+                        for (let j = i + 1; j < childNodes.length; j++) {
+                            const nextChild = childNodes[j];
+                            console.log(`Checking subsequent child ${j}:`, nextChild);
+                            if (nextChild.nodeType === Node.TEXT_NODE) {
+                                const nextText = nextChild.textContent;
+                                console.log(`Adding text from subsequent node: "${nextText}"`);
+                                query += nextText;
+                                // 检查是否包含非word符号或非ASCII字符（如中文）
+                                if (/[\s\n\r\t]|[^\x00-\x7F]/.test(nextText)) {
+                                    console.log('Found non-word or non-ASCII character, stopping collection');
+                                    break;
+                                }
+                            } else {
+                                console.log('Encountered non-text node, stopping collection');
+                                break;
+                            }
+                        }
+                        
+                        console.log('Final query from text nodes:', JSON.stringify(query));
+                        
+                        return {
+                            atPosition: atIndex,
+                            query: query,
+                            fullText: '@' + query
+                        };
+                    }
+                    }
+                }
+                
+                console.log('No @ symbol found in any text node');
+                return null;
+            }
+            
+            if (container.nodeType !== Node.TEXT_NODE) {
+                console.log('Container is not a text node after processing');
+                return null;
+            }
+
+            const text = container.textContent;
+            console.log('text content:', JSON.stringify(text));
+            console.log('text length:', text.length);
+            
+            let searchPos = offset - 1;
+            
+            // 向前搜索@符号，限制搜索范围避免跨越太远
+            const maxSearchDistance = 100; // 最多向前搜索100个字符
+            let searchDistance = 0;
+            
+            while (searchPos >= 0 && searchDistance < maxSearchDistance) {
+                const char = text[searchPos];
+                console.log(`Checking char at pos ${searchPos}: '${char}' (code: ${char.charCodeAt(0)})`);
+                
+                if (char === '@') {
+                    // 找到@符号，提取查询字符串（包括光标之前和之后的部分）
+                    let query = text.substring(searchPos + 1, offset);
+                    console.log('Found @ symbol at position:', searchPos);
+                    console.log('Query (before cursor):', JSON.stringify(query));
+                    
+                    // 收集光标位置之后的文本（直到遇到非word符号）
+                    // 从当前文本节点的光标位置之后开始收集
+                    let remainingText = text.substring(offset);
+                    console.log('Remaining text in current node:', JSON.stringify(remainingText));
+                    
+                        // 在当前文本节点中查找非word符号或非ASCII字符的位置
+                    const nonWordMatch = remainingText.match(/[\s\n\r\t]|[^\x00-\x7F]/);
+                    if (nonWordMatch) {
+                        query += remainingText.substring(0, nonWordMatch.index);
+                        console.log('Found non-word or non-ASCII char in current node, query:', JSON.stringify(query));
+                    } else {
+                        query += remainingText;
+                        console.log('No non-word or non-ASCII char in current node, query:', JSON.stringify(query));
+                        
+                        // 继续收集后续文本节点的内容
+                        if (container.nextSibling && container.nextSibling.nodeType === Node.TEXT_NODE) {
+                            console.log('Checking next sibling...');
+                            let nextNode = container.nextSibling;
+                            while (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+                                const nextText = nextNode.textContent;
+                                console.log(`Adding text from next sibling: "${nextText}"`);
+                                
+                                // 在后续节点中查找非word符号或非ASCII字符
+                                const nonWordMatchNext = nextText.match(/[\s\n\r\t]|[^\x00-\x7F]/);
+                                if (nonWordMatchNext) {
+                                    query += nextText.substring(0, nonWordMatchNext.index);
+                                    console.log('Found non-word char, final query:', JSON.stringify(query));
+                                    break;
+                                } else {
+                                    query += nextText;
+                                }
+                                nextNode = nextNode.nextSibling;
+                            }
+                        }
+                    }
+                    
+                    console.log('Final query:', JSON.stringify(query));
+                    
+                    return {
+                        atPosition: searchPos,
+                        query: query,
+                        fullText: '@' + query
+                    };
+                } else if (char === ' ' || char === '\n' || char === '\t') {
+                    // 遇到明显的单词分隔符时停止搜索
+                    console.log('Found word separator, stopping search');
+                    break;
+                }
+                searchPos--;
+                searchDistance++;
+            }
+
+            // 如果在当前文本节点中没有找到@符号，检查前面的文本节点
+            console.log('No @ symbol found in current text node, checking previous siblings...');
+            let currentNode = container;
+            let totalQuery = text.substring(0, offset); // 当前节点中光标前的所有文本
+            
+            while (currentNode.previousSibling && searchDistance < maxSearchDistance) {
+                const prevNode = currentNode.previousSibling;
+                console.log('Checking previous sibling:', prevNode, 'nodeType:', prevNode.nodeType);
+                
+                if (prevNode.nodeType === Node.TEXT_NODE) {
+                    const prevText = prevNode.textContent;
+                    console.log('Previous text node content:', JSON.stringify(prevText));
+                    
+                    // 在前一个文本节点中查找@符号
+                    const atIndex = prevText.lastIndexOf('@');
+                    if (atIndex !== -1) {
+                        console.log('Found @ symbol in previous text node at position:', atIndex);
+                        
+                        // 构建完整的查询字符串：@符号后的文本 + 中间的文本节点 + 当前节点的文本
+                        let query = prevText.substring(atIndex + 1);
+                        
+                        // 收集@符号所在节点和当前节点之间的所有文本节点
+                        let intermediateNode = prevNode.nextSibling;
+                        while (intermediateNode && intermediateNode !== container) {
+                            if (intermediateNode.nodeType === Node.TEXT_NODE) {
+                                query += intermediateNode.textContent;
+                                console.log('Adding intermediate text:', JSON.stringify(intermediateNode.textContent));
+                            } else {
+                                // 如果中间有非文本节点，说明@符号和当前位置不连续
+                                console.log('Found non-text node between @ and cursor, stopping');
+                                return null;
+                            }
+                            intermediateNode = intermediateNode.nextSibling;
+                        }
+                        
+                        // 添加当前节点中光标前的文本
+                        query += totalQuery;
+                        
+                        // 收集光标之后的文本（直到遇到非word符号）
+                        let remainingText = text.substring(offset);
+                        console.log('Remaining text after cursor:', JSON.stringify(remainingText));
+                        
+                        // 在当前文本节点中查找非word符号的位置
+                        const nonWordMatch = remainingText.match(/[\s\n\r\t]|[^\x00-\x7F]/);
+                        if (nonWordMatch) {
+                            query += remainingText.substring(0, nonWordMatch.index);
+                            console.log('Found non-word or non-ASCII char in current node, query:', JSON.stringify(query));
+                        } else {
+                            query += remainingText;
+                            console.log('No non-word or non-ASCII char in current node, query:', JSON.stringify(query));
+                            
+                            // 继续收集后续文本节点的内容
+                            if (container.nextSibling && container.nextSibling.nodeType === Node.TEXT_NODE) {
+                                console.log('Checking next siblings for more text...');
+                                let nextNode = container.nextSibling;
+                                while (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+                                    const nextText = nextNode.textContent;
+                                    console.log(`Adding text from next sibling: "${nextText}"`);
+                                    
+                                    // 在后续节点中查找非word符号或非ASCII字符
+                                    const nonWordMatchNext = nextText.match(/[\s\n\r\t]|[^\x00-\x7F]/);
+                                    if (nonWordMatchNext) {
+                                        query += nextText.substring(0, nonWordMatchNext.index);
+                                        console.log('Found non-word or non-ASCII char, final query:', JSON.stringify(query));
+                                        break;
+                                    } else {
+                                        query += nextText;
+                                    }
+                                    nextNode = nextNode.nextSibling;
+                                }
+                            }
+                        }
+                        
+                        console.log('Final cross-node query:', JSON.stringify(query));
+                        
+                        return {
+                            atPosition: atIndex,
+                            query: query,
+                            fullText: '@' + query
+                        };
+                    }
+                    
+                    // 将这个节点的文本添加到总查询前面
+                    totalQuery = prevText + totalQuery;
+                    searchDistance += prevText.length;
+                    
+                    // 检查是否有单词分隔符
+                    if (prevText.includes(' ') || prevText.includes('\n') || prevText.includes('\t')) {
+                        console.log('Found word separator in previous text, stopping cross-node search');
+                        break;
+                    }
+                } else {
+                    // 遇到非文本节点，停止搜索
+                    console.log('Encountered non-text node, stopping cross-node search');
+                    break;
+                }
+                
+                currentNode = prevNode;
+            }
+
+            console.log('No @ symbol found within search range (including previous siblings)');
+            return null;
+        }
+
+        function getAtSymbolScreenPosition(range, atPosition) {
+            try {
+                const container = range.startContainer;
+                
+                // 创建一个新的Range对象，指向@符号的位置
+                const atRange = document.createRange();
+                atRange.setStart(container, atPosition);
+                atRange.setEnd(container, atPosition);
+                
+                // 获取@符号的客户端矩形
+                const rect = atRange.getBoundingClientRect();
+                
+                // 返回相对于WebView的位置
+                return {
+                    x: Math.round(rect.left),
+                    y: Math.round(rect.top)
+                };
+            } catch (e) {
+                console.error('Error calculating @ symbol position:', e);
+                // 如果计算失败，返回默认位置
+                return { x: 0, y: 0 };
+            }
+        }
+
+        function processAutoCompleteMessage(message) {
+            if (message.action === 'showAutoComplete') {
+                showAutoComplete(message.items, message.position, message.config, message.selectedIndex, message.query);
+            } else if (message.action === 'hideAutoComplete') {
+                hideAutoComplete();
+            }
+        }
+
+        function showAutoComplete(items, position, config, selectedIndex, query) {
+            autoCompleteData.isVisible = true;
+            autoCompleteData.items = items || [];
+            autoCompleteData.selectedIndex = selectedIndex || 0;
+            autoCompleteData.query = query || '';
+            autoCompleteData.position = position || { x: 0, y: 0 };
+
+            const popup = document.getElementById('autoCompletePopup');
+            popup.classList.remove('hidden');
+            
+            // 设置位置
+            popup.style.left = position.x + 'px';
+            popup.style.top = position.y + 'px';
+            
+            // 设置宽度
+            if (config && config.width) {
+                popup.style.width = config.width + 'px';
+            }
+
+            // 构建列表项
+            popup.innerHTML = '';
+            items.forEach((item, index) => {
+                const itemElement = createAutoCompleteItem(item, index === selectedIndex);
+                itemElement.addEventListener('click', () => {
+                    selectAutoCompleteItem(index);
+                    confirmAutoCompleteSelection();
+                });
+                popup.appendChild(itemElement);
+            });
+
+            // 确保选中项可见
+            scrollSelectedItemIntoView();
+        }
+
+        function createAutoCompleteItem(item, isSelected) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'autocomplete-item' + (isSelected ? ' selected' : '');
+            
+            if (item.icon) {
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'autocomplete-item-icon';
+                iconSpan.innerHTML = item.icon;
+                itemDiv.appendChild(iconSpan);
+            }
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'autocomplete-item-content';
+            
+            const textDiv = document.createElement('div');
+            textDiv.className = 'autocomplete-item-text';
+            textDiv.textContent = item.text;
+            contentDiv.appendChild(textDiv);
+            
+            if (item.description) {
+                const descDiv = document.createElement('div');
+                descDiv.className = 'autocomplete-item-description';
+                descDiv.textContent = item.description;
+                contentDiv.appendChild(descDiv);
+            }
+            
+            itemDiv.appendChild(contentDiv);
+            return itemDiv;
+        }
+
+        function hideAutoComplete() {
+            if (!autoCompleteData.isVisible) return;
+            
+            autoCompleteData.isVisible = false;
+            const popup = document.getElementById('autoCompletePopup');
+            popup.classList.add('hidden');
+            
+            sendMessageToNative({
+                action: 'autoCompleteHide'
+            });
+        }
+
+        function selectAutoCompleteItem(index) {
+            if (index < 0 || index >= autoCompleteData.items.length) return;
+            
+            autoCompleteData.selectedIndex = index;
+            updateAutoCompleteSelection();
+            
+            sendMessageToNative({
+                action: 'autoCompleteSelect',
+                index: index
+            });
+        }
+
+        function selectNextAutoCompleteItem() {
+            if (!autoCompleteData.isVisible || autoCompleteData.items.length === 0) return;
+            
+            let newIndex = autoCompleteData.selectedIndex + 1;
+            if (newIndex >= autoCompleteData.items.length) {
+                newIndex = 0;
+            }
+            selectAutoCompleteItem(newIndex);
+        }
+
+        function selectPreviousAutoCompleteItem() {
+            if (!autoCompleteData.isVisible || autoCompleteData.items.length === 0) return;
+            
+            let newIndex = autoCompleteData.selectedIndex - 1;
+            if (newIndex < 0) {
+                newIndex = autoCompleteData.items.length - 1;
+            }
+            selectAutoCompleteItem(newIndex);
+        }
+
+        function confirmAutoCompleteSelection() {
+            if (!autoCompleteData.isVisible || 
+                autoCompleteData.selectedIndex < 0 || 
+                autoCompleteData.selectedIndex >= autoCompleteData.items.length) {
+                return;
+            }
+
+            sendMessageToNative({
+                action: 'autoCompleteConfirm'
+            });
+        }
+
+        function updateAutoCompleteSelection() {
+            const popup = document.getElementById('autoCompletePopup');
+            const items = popup.querySelectorAll('.autocomplete-item');
+            
+            items.forEach((item, index) => {
+                if (index === autoCompleteData.selectedIndex) {
+                    item.classList.add('selected');
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+
+            scrollSelectedItemIntoView();
+        }
+
+        function scrollSelectedItemIntoView() {
+            const popup = document.getElementById('autoCompletePopup');
+            const selectedItem = popup.querySelector('.autocomplete-item.selected');
+            
+            if (selectedItem) {
+                selectedItem.scrollIntoView({
+                    block: 'nearest'
+                });
+            }
+        }
+
+        function getCursorPosition() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) {
+                return JSON.stringify({ x: 0, y: 0 });
+            }
+
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            
+            return JSON.stringify({
+                x: Math.round(rect.left),
+                y: Math.round(rect.bottom)
+            });
+        }
+
+        function replaceAutoCompleteWithTag(prefix, tagData) {
+            const inputEditor = document.getElementById('inputEditor');
+            
+            if (!inputEditor) return;
+            
+            // 优先使用传入的 prefix 参数来定位 @ 符号
+            // prefix 是 @ 符号后的查询文本
+            const targetText = '@' + prefix;
+            
+            // 遍历所有文本节点，查找包含 @prefix 的位置
+            const textNodes = [];
+            const walk = document.createTreeWalker(inputEditor, NodeFilter.SHOW_TEXT);
+            let node;
+            while ((node = walk.nextNode())) {
+                textNodes.push(node);
+            }
+            
+            // 收集所有文本节点的内容并查找 targetText
+            let combinedText = '';
+            let foundNode = null;
+            let foundOffset = -1;
+            
+            for (let i = 0; i < textNodes.length; i++) {
+                const textNode = textNodes[i];
+                const text = textNode.textContent;
+                
+                // 检查当前文本节点是否包含 @prefix
+                const atPos = text.lastIndexOf('@');
+                if (atPos !== -1) {
+                    // 检查 @ 后的内容是否与 prefix 匹配
+                    const afterAt = text.substring(atPos + 1);
+                    
+                    // 从当前节点开始，收集连续的文本节点来匹配完整的 prefix
+                    let accumulatedText = afterAt;
+                    let matchEndNode = textNode;
+                    let matchEndOffset = text.length;
+                    let j = i + 1;
+                    
+                    while (j < textNodes.length && accumulatedText.length < prefix.length) {
+                        const nextTextNode = textNodes[j];
+                        // 只收集连续的文本节点
+                        if (isTextNodeContinuous(matchEndNode, nextTextNode)) {
+                            accumulatedText += nextTextNode.textContent;
+                            matchEndNode = nextTextNode;
+                            matchEndOffset = nextTextNode.textContent.length;
+                            j++;
+                        } else {
+                            break;
+                        }
+                    }
+                    
+                    // 检查是否匹配 prefix（允许前缀匹配，因为用户可能还在输入）
+                    if (prefix.indexOf(accumulatedText) === 0 || accumulatedText.indexOf(prefix) === 0) {
+                        foundNode = textNode;
+                        foundOffset = atPos;
+                        
+                        // 处理跨节点的替换
+                        if (matchEndNode !== textNode) {
+                            // 跨多个文本节点的情况
+                            _replaceAcrossNodes(textNode, atPos, matchEndNode, matchEndOffset, prefix, tagData);
+                            return;
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // 如果没找到跨节点的匹配，使用传统方式
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            
+            const range = selection.getRangeAt(0);
+            const container = range.startContainer;
+            
+            if (container.nodeType !== Node.TEXT_NODE) return;
+
+            const text = container.textContent;
+            const offset = range.startOffset;
+            
+            // 使用 prefix 参数来查找@符号的位置（从后往前找）
+            // 查找最近的 @prefix 模式
+            let atPos = -1;
+            let searchStart = offset;
+            
+            // 如果 prefix 不为空，尝试匹配 @prefix
+            if (prefix.length > 0) {
+                const searchText = text.substring(0, searchStart);
+                const targetPattern = '@' + prefix;
+                atPos = searchText.lastIndexOf(targetPattern);
+                
+                // 如果没找到完整匹配，尝试只找 @
+                if (atPos === -1) {
+                    atPos = searchText.lastIndexOf('@');
+                }
+            } else {
+                atPos = text.lastIndexOf('@', offset - 1);
+            }
+            
+            if (atPos === -1) {
+                // 最后尝试：在整段文本中查找包含 prefix 的 @
+                atPos = text.lastIndexOf('@');
+                if (atPos === -1) return;
+                
+                const afterAt = text.substring(atPos + 1);
+                if (prefix.length > 0 && afterAt.indexOf(prefix) !== 0) {
+                    // @ 后的文本不匹配 prefix，可能不是我们想要的 @
+                    return;
+                }
+            }
+
+            // 删除@和查询文本
+            const beforeAt = text.substring(0, atPos);
+            const afterQuery = text.substring(atPos + 1 + prefix.length);
+            
+            // 更新文本节点
+            container.textContent = beforeAt + afterQuery;
+            
+            // 设置新的光标位置（在@位置）
+            const newRange = document.createRange();
+            newRange.setStart(container, atPos);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+
+            // 插入标签
+            const tagElement = createInlineTagElement({
+                id: tagData.id || ('ac_' + Date.now()),
+                text: tagData.text,
+                type: tagData.type || 'autocomplete',
+                data: tagData.data || '',
+                imgSrc: tagData.imgSrc || '',
+                removable: true
+            });
+
+            const zwsp = '\u200B';
+            const beforeZwsp = document.createTextNode(zwsp);
+            const afterZwsp = document.createTextNode(zwsp);
+            
+            newRange.insertNode(beforeZwsp);
+            newRange.setStartAfter(beforeZwsp);
+            newRange.insertNode(tagElement);
+            newRange.setStartAfter(tagElement);
+            newRange.insertNode(afterZwsp);
+            
+            // 将光标移动到标签后
+            newRange.setStartAfter(afterZwsp);
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            
+            // 隐藏自动补全
+            hideAutoComplete();
+            
+            // 通知内容变化
+            notifyContentChanged();
+        }
+        
+        // 辅助函数：检查两个文本节点是否连续（中间没有其他元素）
+        function isTextNodeContinuous(node1, node2) {
+            if (!node1 || !node2) return false;
+            let current = node1.nextSibling;
+            while (current) {
+                if (current === node2) return true;
+                // 如果中间有非空文本节点或非文本节点，认为不连续
+                if (current.nodeType === Node.TEXT_NODE && current.textContent.length > 0) {
+                    return false;
+                }
+                if (current.nodeType === Node.ELEMENT_NODE) {
+                    // 如果是 <br> 标签，认为不连续
+                    if (current.tagName === 'BR') return false;
+                    // 如果是行内标签，继续检查
+                    if (current.classList && current.classList.contains('inline-tag')) return false;
+                }
+                current = current.nextSibling;
+            }
+            return false;
+        }
+        
+        // 辅助函数：处理跨多个文本节点的替换
+        function _replaceAcrossNodes(startNode, startOffset, endNode, endOffset, prefix, tagData) {
+            const inputEditor = document.getElementById('inputEditor');
+            const selection = window.getSelection();
+            
+            // 处理起始节点：保留 @ 之前的文本
+            const startText = startNode.textContent;
+            const beforeAt = startText.substring(0, startOffset);
+            startNode.textContent = beforeAt;
+            
+            // 处理结束节点：保留匹配文本之后的文本
+            const endText = endNode.textContent;
+            const afterQuery = endText.substring(endOffset);
+            
+            
+            // 创建要插入的内容：标签 + 结束节点的剩余文本
+            const tagElement = createInlineTagElement({
+                id: tagData.id || ('ac_' + Date.now()),
+                text: tagData.text,
+                type: tagData.type || 'autocomplete',
+                data: tagData.data || '',
+                imgSrc: tagData.imgSrc || '',
+                removable: true
+            });
+            
+            // 构建插入序列
+            const zwsp = '\u200B';
+            const fragment = document.createDocumentFragment();
+            const beforeZwsp = document.createTextNode(zwsp);
+            const afterZwsp = document.createTextNode(zwsp);
+            const afterTextNode = document.createTextNode(afterQuery);
+            
+            fragment.appendChild(beforeZwsp);
+            fragment.appendChild(tagElement);
+            fragment.appendChild(afterZwsp);
+            if (afterQuery) {
+                fragment.appendChild(afterTextNode);
+            }
+            
+            // 找到插入位置：startNode 之后
+            let insertPoint = startNode;
+            let current = startNode.nextSibling;
+            
+            // 删除 startNode 和 endNode 之间的所有节点
+            while (current && current !== endNode) {
+                const next = current.nextSibling;
+                if (current.nodeType === Node.TEXT_NODE) {
+                    current.remove();
+                }
+                current = next;
+            }
+            
+            // 处理 endNode：如果 endNode 不是 startNode，修改其内容为剩余文本
+            if (endNode !== startNode) {
+                endNode.textContent = afterQuery;
+                if (afterQuery === '') {
+                    endNode.remove();
+                }
+            }
+            
+            // 在 insertPoint 后插入 fragment
+            insertPoint.parentNode.insertBefore(fragment, insertPoint.nextSibling);
+            
+            // 设置光标位置
+            const newRange = document.createRange();
+            if (afterQuery) {
+                newRange.setStart(afterTextNode, 0);
+            } else {
+                newRange.setStartAfter(afterZwsp);
+            }
+            newRange.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            
+            // 隐藏自动补全并通知内容变化
+            hideAutoComplete();
+            notifyContentChanged();
+        }
+
+        //====================== MajorChat API 菜单相关函数 ======================
+
+        function handleApiMenuButtonClick(event) {
+            event.stopPropagation();
+            
+            // 获取API按钮的位置
+            const apiMenuButton = document.getElementById('apiMenuButton');
+            const rect = apiMenuButton.getBoundingClientRect();
+            
+            // 发送消息给C++显示外部LLM菜单
+            sendMessageToNative({
+                action: 'showLlmMenu',
+                position: {
+                    x: rect.left,
+                    y: rect.top
+                }
+            });
+        }
+
+        function updateMajorChatApiMenu(currentApi, apis) {
+            // 找到当前API的可用性状态
+            const currentApiObject = apis.find(api => api.name === currentApi);
+            const isCurrentApiAvailable = currentApiObject ? currentApiObject.available : true;
+            
+            // 更新按钮显示的当前API
+            const apiMenuText = document.getElementById('apiMenuText');
+            if (apiMenuText) {
+                apiMenuText.textContent = currentApi || '选择模型';
+                apiMenuText.title = currentApi || '选择模型';
+
+                if (!isCurrentApiAvailable) {
+                    apiMenuText.classList.add('unavailable');
+                } else {
+                    apiMenuText.classList.remove('unavailable');
+                }
+            }
+        }
+
+        // 设置 Context Usage 进度条
+        function setContextUsage(progress, tooltip) {
+            const usageFill = document.getElementById('contextUsageFill');
+            const tooltipElement = document.getElementById('contextUsageTooltip');
+            
+            if (!usageFill) return;
+            
+            // 标准化进度值 (0-1)
+            let normalizedProgress = progress;
+            if (progress > 1) {
+                normalizedProgress = progress / 100.0;
+            }
+            normalizedProgress = Math.max(0, Math.min(1, normalizedProgress));
+            
+            // 设置高度
+            usageFill.style.height = (normalizedProgress * 100) + '%';
+            
+            // 移除所有颜色类
+            usageFill.classList.remove('yellow', 'red');
+            
+            // 根据进度设置颜色
+            if (normalizedProgress > 2/3) {
+                usageFill.classList.add('red');
+            } else if (normalizedProgress > 1/3) {
+                usageFill.classList.add('yellow');
+            }
+            // 小于 1/3 保持默认绿色
+            
+            // 更新永久显示的 tooltip
+            if (tooltipElement && tooltip) {
+                tooltipElement.textContent = tooltip;
+            }
+        }
+    </script>
+</body>
+</html>

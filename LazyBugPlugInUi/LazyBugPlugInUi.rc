@@ -1,0 +1,131 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "windows.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#include ""windows.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "1000  CTMENU       ""PackageCommands.cto""\r\n"
+    "#define VER_FILEDESCRIPTION_STR ""LazyBugPlugIn Package Resources\\0""\r\n"
+    "#define VER_INTERNALNAME_STR ""LazyBugPlugInUI.dll\\0""\r\n"
+    "#define VER_ORIGINALFILENAME_STR ""LazyBugPlugInUI.dll\\0""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+
+IDB_IMAGES    PNG    "Images.png"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+IDI_PACKAGE_ICON   ICON      "Package.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_LazyBugPlugIn_DLG DIALOGEX 0, 0, 80, 80
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+//     PUSHBUTTON      "&Click Me",IDC_CLICKME_BTN,5,5,70,70
+END
+
+IDD_LazyBugChangelistsWindow_DLG DIALOGEX 0, 0, 80, 80
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+//     PUSHBUTTON      "&Click Me",IDC_CLICKME_BTN,5,5,70,70
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_OFFICIALNAME        "LazyBug"
+    IDS_COMPANYNAME         "IxSoftware"
+    IDS_PRODUCTDETAILS      "Information about my package"
+    IDS_VERSION             "1.0"
+
+
+    IDS_WINDOW_TITLE        "LazyBugChat"
+    IDS_CHANGELISTS_TITLE        "LazyBugChangelists"
+    IDS_E_CANTCREATETOOL    "Unable to create the tool"
+    IDS_E_GETVIEWOBJECT_CALLED_AGAIN 
+                            "GetViewObject was unexpectedly called more then once."
+    IDS_BUTTONCLICK_MESSAGE "Inside LazyBugPlugInWindowPane::OnButtonClick"
+
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+1000               CTMENU    "PackageCommands.cto"
+#define VER_FILEDESCRIPTION_STR "LazyBugPlugIn Package Resources\0"
+#define VER_INTERNALNAME_STR "LazyBugPlugInUI.dll\0"
+#define VER_ORIGINALFILENAME_STR "LazyBugPlugInUI.dll\0"
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

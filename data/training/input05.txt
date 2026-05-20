@@ -1,0 +1,47 @@
+//file_path:D:\projects\IxEngineBackUp\Common\valueset\valueset.cpp
+//instruction:在ValueSet类中添加vector2df相关函数实现
+
+... existing code ...
+BOOL ValueSet::AddColor(float t,DWORD col)
+{
+	if (_hd.type!=KT_Color)
+		return FALSE;
+	Key_col k;
+	k.t=ANIMTICK_FROM_SECOND(t);
+	k.color=col;
+	InsertKey(GetKeyCount(),k);
+	return TRUE;
+}
+
+i_math::vector2df ValueSet::GetVector2df(AnimTick t)
+{
+	if (IsEmpty())
+		return i_math::vector2df(0.0f, 0.0f);
+
+	_AdjustT(t);
+
+	Key_2f ret;
+	CalcKey<Key_2f>(t, &ret);
+	return ret.v;
+}
+
+void ValueSet::ResetVector2df(const i_math::vector2df& v)
+{
+	_hd.type = KT_Floatx2;
+	_hd.szKey = sizeof(Key_2f);
+	_hd.keycount = 0;
+	_buf.clear();
+	AddVector2df(0, v);
+}
+
+BOOL ValueSet::AddVector2df(float t, const i_math::vector2df& v)
+{
+	if (_hd.type != KT_Floatx2)
+		return FALSE;
+	Key_2f k;
+	k.t = ANIMTICK_FROM_SECOND(t);
+	k.v = v;
+	InsertKey(GetKeyCount(), k);
+	return TRUE;
+}
+... existing code ...

@@ -1,0 +1,118 @@
+/* MajorChat API 按钮 */
+.api-menu-button {
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 3px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+    min-width: 120px;
+    max-width: 200px;
+}
+
+.api-menu-button:hover {
+    background-color: var(--button-hover);
+    border-color: var(--primary-color);
+}
+
+.api-menu-button.active {
+    background-color: var(--button-hover);
+    border-color: var(--primary-color);
+}
+
+.api-menu-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.api-menu-arrow {
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: transform 0.15s ease;
+}
+
+.api-menu-text.unavailable {
+    color: #d35d5d;
+}
+
+.api-menu-item.selected {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.api-menu-item-text {
+    flex: 1;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.api-menu-item-check {
+    width: 12px;
+    height: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    opacity: 0;
+}
+
+/* Context Usage 进度条样式 */
+.context-usage-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-left: 0px;
+    margin-right: 6px;
+    position: relative;
+}
+
+.context-usage-bar {
+    width: 5px;
+    height: 20px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+.context-usage-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #238636;
+    transition: height 0.3s ease, background-color 0.3s ease;
+    border-radius: 2px;
+}
+
+.context-usage-fill.yellow {
+    background-color: #d29922;
+}
+
+.context-usage-fill.red {
+    background-color: #da3633;
+}
+
+.context-usage-tooltip {
+    position: absolute;
+    left: 8px;
+    bottom: -2px;
+    font-size: 9px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    white-space: nowrap;
+    pointer-events: none;
+}

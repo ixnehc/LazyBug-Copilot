@@ -1,0 +1,40 @@
+﻿// LazyBugPlugIn.idl : IDL source for LazyBugPlugIn.dll
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (LazyBugPlugIn.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+midl_pragma warning (disable : 2015)
+import "vsshell.idl";
+midl_pragma warning (default : 2015)
+
+//standard dispids
+#define DISPID_Name                     (-800)
+#define DISPID_Delete                   (-801)
+#define DISPID_Object                   (-802)
+#define DISPID_Parent                   (-803)
+#define DISPID_NewEnum					(-4)
+#define DISPID_Value					(0)
+
+[
+	uuid(87efd33c-91e1-4f66-9540-e515d0bb1461),
+	version(1.0),
+	helpstring("LazyBugPlugIn 1.0 Type Library")
+]
+library LazyBugPlugInLib
+{
+	importlib("stdole32.tlb");
+	importlib("stdole2.tlb");
+
+
+	[
+		uuid(6d2723b6-3b30-480e-8537-65b39d8b99c5),
+		helpstring("LazyBugPlugIn Package")
+	]
+	coclass LazyBugPlugInPackage
+	{
+		[default] interface IVsPackage;
+	};
+};

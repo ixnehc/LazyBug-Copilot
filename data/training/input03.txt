@@ -1,0 +1,44 @@
+//file_path:D:\projects\P4Star\P4Star\P4Star\P4Star.cpp
+//instruction:删除InitInstance中被注释掉的代码块
+
+BOOL CP4StarApp::InitInstance()
+{
+    DoUpdate();
+
+    exit(0);
+	// InitCommonControlsEx() is required on Windows XP if an application
+	// manifest specifies use of ComCtl32.dll version 6 or later to enable
+	// visual styles.  Otherwise, any window creation will fail.
+	INITCOMMONCONTROLSEX InitCtrls;
+	InitCtrls.dwSize = sizeof(InitCtrls);
+	// Set this to include all the common control classes you want to use
+	// in your application.
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls);
+
+    CMyCommandLineInfo info;
+    ParseCommandLine(info);
+
+    std::string s = "abc";
+
+    if (info.params[0] == "describe")
+    {
+        CString cmd;
+        cmd = "describe ";
+        cmd += info.params[1];
+        std::string output;
+        Exec("P4.exe", (LPCTSTR)cmd,output);
+
+        std::vector<std::string> pieces;
+        SplitStringBy("\r\n", output, &pieces);
+
+        AfxMessageBox(pieces[0].c_str());
+    }
+
+    if (info.params[0])
+
+	CWinApp::InitInstance(); 
+	// Since the dialog has been closed, return FALSE so that we exit the
+	//  application, rather than start the application's message pump.
+	return FALSE; 
+}

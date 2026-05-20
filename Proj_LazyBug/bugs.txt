@@ -1,0 +1,51 @@
+﻿*. Ctrl-v 粘贴进chat input的字符无法触发auto complete list
+
+*. 一个session连续两次tool call修改文件,第一次tool call返回的token似乎没有cache,第二次tool call返回有cache
+	*. 要输出request记录到文件,以便查看
+
+*. deepseek r1不显示reasoning的内容(deepseek r1(via openrouter)可以显示)
+*. Stop一个正在进行的session,无法真正中断它(只是在后台等待它结束),费用会是完整的费用
+
+*. deepseek v3使用tool call好像会卡住
+
+*. 出现了要求修改.cpp文件,但是内容其实是.h文件的情况
+
+*. 打开新的solution后,ChatInput的tag还是原来的chat的
+
+*. FileEdit要更早出现
+*. Gemini会出现说我要做什么做什么,然后直接就停止了的情况
+	*. 有时候thinking完后会一下停止
+
+*. 输入后,最近一次Chat的记录末尾的cost数值会归0
+*. 当点击菜单后,滚动到之前的某个记录,再次点开菜单,不会复位(回到第一项),还在之前滚动的位置
+
+*. 修改文件要保留旧的文件的分行格式(0D0A还是0A)
+
+*. Chat窗口里Restore以后,cpu占用会飙升,并持续好几秒
+
+*. 要解决gemini/deepseek replace file 错误的问题
+
+*. Visual Studio里,好像要chat dialog打开后,再开启solution, 才能连上LazyBugService
+	*.先开solution,再初始化插件的情况下
+
+*. 超大项目,LazyBugService  cpu占用过高
+
+*. 当ChatCtrl里Restore到一个旧的版本后,用户可能会继续手动修改文件,然后如果再取消Restore,会清除掉用户之后的修改,
+*. 当ChatCtrl里Restore第一个对话之前,所有的attach会消失
+
+*. 历史聊天记录要保存在Chat记录中,而不是registry里
+
+*. 项目里新添加了一个c++文件,AutoCompleteList可以显示这个文件,但是,文件里的symbol显示不出来
+
+*. 代码行很多(比如超过10000行),生成compare信息的时间会很长
+
+*. CSystemDirectories里的路径现在是手工写的,要从当前系统里取得
+*. 新打开一个solution,当项目还在parse时,中止LazyBug.exe(VS里强制打断), 下次打开后,Parse不会继续
+
+*. 切换solution时,旧的solution的attach files还在
+
+*. AutoComplete的问题:
+	*. 比如输入@CSmartRepair,后,将光标移到C前面,删除C,并不会用"SmartRepair“去Query,而是用空串Query
+	*. @CSmartRepair,出来一大堆CSmartRepairXXXX的symbol,但没有CSmartRepair
+	*. @ParseRequest,出来ParseRequest.Save,ParseRequest.Load,但是没有ParseRequest
+	*. 找不到 enum class SymbolRefCategory

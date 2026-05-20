@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Retail|Win32">
+      <Configuration>Retail</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Retail|x64">
+      <Configuration>Retail</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{1538e53e-ddc0-4350-bbfd-e85fc3480279}</ProjectGuid>
+    <RootNamespace>ProjLazyBugService</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <TargetName>LazyBugService_RL</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+    <TargetName>LazyBugService</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>Default</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)LazyBugService_RL.exe</OutputFile>
+      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterCSharp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <CustomBuildStep>
+      <Outputs>LazyBugService_RL.exe</Outputs>
+      <Command>copy $(OutDir)LazyBugService_RL.exe $(SolutionDir)bin\LazyBugService_RL.exe</Command>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>Default</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)LazyBugService.exe</OutputFile>
+      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterCSharp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <CustomBuildStep>
+      <Outputs>LazyBugService.exe</Outputs>
+      <Command>copy $(OutDir)LazyBugService.exe $(SolutionDir)retail\LazyBugService.exe</Command>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\class\class.cpp" />
+    <ClCompile Include="..\Common\codediff\CodeDiff.cpp" />
+    <ClCompile Include="..\Common\config\config.cpp" />
+    <ClCompile Include="..\Common\datapacket\ChunkPacket.cpp" />
+    <ClCompile Include="..\Common\datapacket\DataPacket.cpp" />
+    <ClCompile Include="..\Common\editor\editor.cpp" />
+    <ClCompile Include="..\Common\encrypt\encrypt.cpp" />
+    <ClCompile Include="..\Common\errorreport\ErrorReport.cpp" />
+    <ClCompile Include="..\Common\filewatcher\FileWatcher.cpp" />
+    <ClCompile Include="..\Common\filewatcher\FoldersWatcher.cpp" />
+    <ClCompile Include="..\Common\gds\GProp.cpp" />
+    <ClCompile Include="..\Common\gds\GVar.cpp" />
+    <ClCompile Include="..\Common\interface\interface.cpp" />
+    <ClCompile Include="..\Common\interface\InterfaceInstantiate.cpp" />
+    <ClCompile Include="..\Common\Log\LastError.cpp" />
+    <ClCompile Include="..\Common\Log\LogDump.cpp" />
+    <ClCompile Include="..\Common\Log\LogFile.cpp" />
+    <ClCompile Include="..\Common\mempool\mempool.cpp" />
+    <ClCompile Include="..\Common\mod\ModBase.cpp" />
+    <ClCompile Include="..\Common\MultiTree\NodeTree.cpp" />
+    <ClCompile Include="..\Common\Registry\Registry.cpp" />
+    <ClCompile Include="..\Common\stringparser\stringparser.cpp" />
+    <ClCompile Include="..\Common\strlib\strlib.cpp" />
+    <ClCompile Include="..\Common\timer\profiler.cpp" />
+    <ClCompile Include="..\Common\timer\timer.cpp" />
+    <ClCompile Include="..\Common\xml\tinyxml.cpp" />
+    <ClCompile Include="..\Common\xml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\Common\xml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CoreDefines.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CppSymbol.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CppSymbolParser.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionIndexer.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ProjSetting.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDB.cpp">
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">Default</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</LanguageStandard>
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Default</LanguageStandard>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</LanguageStandard_C>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</LanguageStandard_C>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</LanguageStandard_C>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">Default</LanguageStandard_C>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</LanguageStandard_C>
+      <LanguageStandard_C Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Default</LanguageStandard_C>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBApi.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBs.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBServer.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBService.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionScanner.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\StringPool.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguage.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCpp.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterParser.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbol.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbolDefines.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_SearchFile.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp" />
+    <ClCompile Include="Proj_LazyBugService.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">MaxSpeed</Optimization>
+    </ClCompile>
+    <ClCompile Include="stdh.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\class\class.h" />
+    <ClInclude Include="..\Common\codediff\CodeDiff.h" />
+    <ClInclude Include="..\Common\config\config.h" />
+    <ClInclude Include="..\Common\datapacket\ChunkPacket.h" />
+    <ClInclude Include="..\Common\datapacket\DataPacket.h" />
+    <ClInclude Include="..\Common\datapacket\FileCacher.h" />
+    <ClInclude Include="..\Common\editor\editor.h" />
+    <ClInclude Include="..\Common\encrypt\encrypt.h" />
+    <ClInclude Include="..\Common\errorreport\ErrorReport.h" />
+    <ClInclude Include="..\Common\filewatcher\FileWatcher.h" />
+    <ClInclude Include="..\Common\filewatcher\FoldersWatcher.h" />
+    <ClInclude Include="..\Common\gds\GDefines.h" />
+    <ClInclude Include="..\Common\gds\GObj.h" />
+    <ClInclude Include="..\Common\gds\GProp.h" />
+    <ClInclude Include="..\Common\gds\GStub.h" />
+    <ClInclude Include="..\Common\gds\GVar.h" />
+    <ClInclude Include="..\Common\interface\interface.h" />
+    <ClInclude Include="..\Common\interface\InterfaceInstantiate.h" />
+    <ClInclude Include="..\Common\Log\LastError.h" />
+    <ClInclude Include="..\Common\Log\LogDump.h" />
+    <ClInclude Include="..\Common\Log\LogFile.h" />
+    <ClInclude Include="..\Common\mempool\mempool.h" />
+    <ClInclude Include="..\Common\mod\ModBase.h" />
+    <ClInclude Include="..\Common\MultiTree\MultiTree.h" />
+    <ClInclude Include="..\Common\MultiTree\NodeTree.h" />
+    <ClInclude Include="..\Common\Registry\Registry.h" />
+    <ClInclude Include="..\Common\stringparser\stringparser.h" />
+    <ClInclude Include="..\Common\strlib\strlib.h" />
+    <ClInclude Include="..\Common\timer\profiler.h" />
+    <ClInclude Include="..\Common\timer\timer.h" />
+    <ClInclude Include="..\Common\xml\tinyxml.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AbstractAllTermDocs.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AbstractField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AllTermDocs.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Analyzer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Array.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ASCIIFoldingFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Attribute.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AttributeSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\AveragePayloadFunction.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Base64.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BaseCharFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BitSet.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BitUtil.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BitVector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanClause.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BooleanScorer2.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedDeletes.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedIndexInput.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedIndexOutput.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\BufferedReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteBlockPool.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteFieldSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteSliceReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ByteSliceWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CachingSpanFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CachingTokenFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CachingWrapperFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharArraySet.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharBlockPool.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharFolder.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CharTokenizer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CheckIndex.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ChecksumIndexInput.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ChecksumIndexOutput.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CloseableThreadLocal.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Collator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Collection.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Collector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ComplexExplanation.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CompoundFileReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CompoundFileWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CompressionTools.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ConcurrentMergeScheduler.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ConjunctionScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Constants.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ConstantScoreQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CustomScoreProvider.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CustomScoreQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\CycleCheck.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DateField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DateTools.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DefaultSimilarity.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DefaultSkipListReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DefaultSkipListWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Directory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DirectoryReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DisjunctionMaxQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DisjunctionMaxScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DisjunctionSumScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocConsumerPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumerPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumerPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumers.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumersPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldConsumersPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldProcessor.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldProcessorPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocFieldProcessorPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocIdBitSet.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocIdSet.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocIdSetIterator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocInverter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocInverterPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocInverterPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Document.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocumentsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocumentsWriterThreadState.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DocValues.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\DoubleFieldSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ExactPhraseScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Explanation.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FastCharStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Field.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Fieldable.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCache.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheImpl.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheRangeFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheSanityChecker.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldCacheTermsFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldComparator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldComparatorSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldDoc.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldDocSortedHitQueue.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldInfo.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldInfos.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldInvertState.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldMaskingSpanQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldScoreQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldSelector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldSortedTermVectorMapper.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldsReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FieldValueHitQueue.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FileReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FileSwitchDirectory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FileUtils.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Filter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredDocIdSet.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredDocIdSetIterator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilteredTermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilterIndexReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FilterManager.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FlagsAttribute.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsDocsConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsDocsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsFieldsConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsFieldsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsPositionsConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsPositionsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsTermsConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FormatPostingsTermsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxFieldMergeState.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxTermsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxTermsWriterPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FreqProxTermsWriterPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FSDirectory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FSLockFactory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FuzzyQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\FuzzyTermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HashMap.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HashSet.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HitQueue.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\HitQueueBase.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexCommit.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexDeletionPolicy.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexFileDeleter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexFileNameFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexFileNames.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexInput.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexOutput.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexSearcher.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IndexWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InfoStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InputStreamReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IntBlockPool.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\IntFieldSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocConsumerPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocConsumerPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocEndConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocEndConsumerPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\InvertedDocEndConsumerPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ISOLatin1AccentFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\KeepOnlyLastCommitDeletionPolicy.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\KeywordAnalyzer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\KeywordTokenizer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LengthFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LetterTokenizer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LoadFirstFieldSelector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Lock.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LockFactory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LogByteSizeMergePolicy.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LogDocMergePolicy.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LogMergePolicy.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LowerCaseFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LowerCaseTokenizer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Lucene.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneAllocator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneException.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneFactory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneHeaders.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneObject.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneSignal.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneSync.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\LuceneTypes.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Map.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MapFieldSelector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MapOfSets.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MappingCharFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MatchAllDocsQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MaxPayloadFunction.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MergeDocIDRemapper.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MergePolicy.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MergeScheduler.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MinPayloadFunction.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MiscUtils.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MMapDirectory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiFieldQueryParser.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiLevelSkipListReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiLevelSkipListWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiPhraseQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultipleTermPositions.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiSearcher.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiTermQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\MultiTermQueryWrapperFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NativeFSLockFactory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NearSpansOrdered.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NearSpansUnordered.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NoLockFactory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormalizeCharMap.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormsWriterPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NormsWriterPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumberTools.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericRangeFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericRangeQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericTokenStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\NumericUtils.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OffsetAttribute.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OpenBitSet.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OpenBitSetDISI.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OpenBitSetIterator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\OrdFieldSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ParallelMultiSearcher.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ParallelReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Payload.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadAttribute.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadFunction.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadNearQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadSpanUtil.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PayloadTermQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PerFieldAnalyzerWrapper.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhrasePositions.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhraseQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhraseQueue.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PhraseScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PorterStemFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PorterStemmer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PositionBasedTermVectorMapper.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PositionIncrementAttribute.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PositiveScoresOnlyCollector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PrefixFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PrefixQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PrefixTermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\PriorityQueue.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Query.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParseError.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParser.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserCharStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserConstants.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserToken.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryParserTokenManager.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryTermVector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\QueryWrapperFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMDirectory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMFile.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMInputStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RAMOutputStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Random.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\RawPostingList.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Reader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReaderUtil.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReadOnlyDirectoryReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReadOnlySegmentReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReqExclScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReqOptSumScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReusableStringReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ReverseOrdFieldSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ScoreCachingWrappingScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ScoreDoc.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Scorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ScorerDocQueue.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Searchable.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Searcher.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentInfo.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentInfoCollection.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentInfos.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentMergeInfo.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentMergeQueue.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentMerger.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermDocs.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermPositions.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermPositionVector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentTermVector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SegmentWriteState.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SerialMergeScheduler.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Set.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SetBasedFieldSelector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Similarity.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimilarityDelegator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleAnalyzer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleFSDirectory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleFSLockFactory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SimpleLRUCache.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SingleInstanceLockFactory.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SingleTermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SloppyPhraseScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SmallDouble.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SnapshotDeletionPolicy.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Sort.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SortedTermVectorMapper.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SortedVIntList.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SortField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanFilterResult.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanFirstQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanNearQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanNotQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanOrQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanQueryFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Spans.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanTermQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\SpanWeight.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardAnalyzer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardTokenizer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StandardTokenizerImpl.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StopAnalyzer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StopFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StoredFieldsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StoredFieldsWriterPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StringReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\StringUtils.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Synchronize.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\targetver.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TeeSinkTokenFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Term.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermAttribute.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermBuffer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermDocs.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermFreqVector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermInfo.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermInfosReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermInfosWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermPositions.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermPositionVector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermRangeFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermRangeQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermRangeTermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermScorer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHash.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashConsumer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashConsumerPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashConsumerPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermsHashPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermSpans.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorEntry.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorEntryFreqSortedComparator.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorMapper.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorOffsetInfo.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsReader.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsTermsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsTermsWriterPerField.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsTermsWriterPerThread.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TermVectorsWriter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TestPoint.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ThreadPool.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TimeLimitingCollector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Token.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TokenFilter.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Tokenizer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TokenStream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopDocs.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopDocsCollector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopFieldCollector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopFieldDocs.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TopScoreDocCollector.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\TypeAttribute.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\UnicodeUtils.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\UTF8Stream.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ValueSource.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\ValueSourceQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\VariantUtils.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\Weight.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WhitespaceAnalyzer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WhitespaceTokenizer.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WildcardQuery.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WildcardTermEnum.h" />
+    <ClInclude Include="..\extlib\lucene\include\lucene++\WordlistLoader.h" />
+    <ClInclude Include="..\Proj_LazyBug\CoreDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\CppSymbol.h" />
+    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\CppSymbolParser.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmSkills.h" />
+    <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionIndexer.h" />
+    <ClInclude Include="..\Proj_LazyBug\NameIndexer.h" />
+    <ClInclude Include="..\Proj_LazyBug\PipeMsg.h" />
+    <ClInclude Include="..\Proj_LazyBug\ProjSetting.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDB.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBApi.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBs.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBServer.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBService.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionScanner.h" />
+    <ClInclude Include="..\Proj_LazyBug\StringPool.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguage.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCpp.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterParser.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbol.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbolDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_File.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_SearchFile.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h" />
+    <ClInclude Include="stdh.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\extlib\lucene\include\lucene++\CMakeLists.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

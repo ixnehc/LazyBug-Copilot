@@ -1,0 +1,59 @@
+﻿#pragma once
+
+#include "LevelBehavior.h"
+#include "behaviorgraph/BehaviorGraphPads.h"
+
+#include "records/recordsdefine.h"
+
+class CBgp_Invisible:public CBehaviorGraphPad
+{
+	DEFINE_CLASS(CBgp_Invisible);
+
+	virtual const char *GetTypeName()	{		return "隐身";	}
+	virtual DWORD GetStubCount()
+	{
+		return 2;
+	}
+	virtual PadStub GetStub(DWORD idx)
+	{
+		BEGIN_STUB();
+			STUB_IN(0,"开始");
+			STUB_OUT(1,"结束");
+		END_STUB();
+	}
+	virtual BgpCategory GetCategory()	{		return BgpCtgr_Action;	}
+	virtual BgpFamily GetFamily()	{		return BgpFamily_Level;	}
+
+	virtual void FillDesc(std::string &s,FillDescAssist *assist)
+	{
+		s="n/a";
+		if (_idBuff!=RecordID_Invalid)
+			FormatString(s,"隐身(永久持续)\n使用[%s]",assist->GetBuffName(_idBuff));
+	}
+
+    BEGIN_GOBJ_PURE_UID(CBgp_Invisible,1);
+		GELEM_BGP_BASE();
+		GELEM_VAR_INIT(RecordID,_idBuff,RecordID_Invalid);
+			GELEM_EDITVAR("使用的Buff",GVT_U,GSem(GSem_RecordID,"buffs"),"使用哪个Buff来隐身");
+    END_GOBJ();    
+
+public: //当作protected
+	RecordID _idBuff;
+
+};
+
+
+class CBgn_Invisible:public CLevelBgn
+{
+public:
+	DEFINE_CLASS(CBgn_Invisible);
+
+	CBgn_Invisible()
+	{
+	}
+
+	virtual void Start(DWORD iStb,BGNOutputs &outputs);
+
+protected:
+
+};

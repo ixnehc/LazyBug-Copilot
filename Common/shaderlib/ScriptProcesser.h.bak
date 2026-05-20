@@ -1,0 +1,83 @@
+#pragma once
+
+#include <vector>
+#include <string>
+
+#include "ScriptParser.h"
+
+#include "ShaderLib/SLDefines.h"
+#include "ShaderLib/SLFeature.h"
+
+extern CScriptProcesser* g_pScriptProcesser;
+
+
+
+struct SLTemplate;
+struct SLFeature;
+
+class CScriptProcesser
+{
+public:
+	void Clean();
+	void SetCurSVC(ShaderVarCategory svc)	{		_cursvc=svc;	}
+	ShaderVarCategory GetCurSVC()	{		return _cursvc;	}
+	void MarkEPPresence()	{		_bEP=TRUE;	}
+	void MarkVsInPresence()	{		_bVsIn=TRUE;	}
+	void MarkPsInPresence()	{		_bPsIn=TRUE;	}
+	void MarkPsOutPresence()	{		_bPsOut=TRUE;	}
+	void MarkVsPresence()	{		_bVS=TRUE;	}
+	void MarkPsPresence()	{		_bPS=TRUE;	}
+	void SetCurVarType(const char *type)	{		_curtype=type;	}
+	void AddVar(const char *name);
+	BOOL AcceptRecentVarInit();
+	BOOL SetRecentVarSementic(const char *sementic);
+	void SetRecentVarAnnotation(const char *annotation);
+	void SetRecentVarArraySize(DWORD sz);
+	void SetRecentVarPriority(int priority);
+	void AppendRecentVarAssign(const char *assign);
+	void AppendRecentVarState(const char *state);
+	void AcceptFeature(const char *feature);
+	BOOL AcceptFeatureFlag(const char *flagname);
+	void AppendGlobal(const char *global);
+	void AcceptVsVer(const char *ver);
+	void AcceptPsVer(const char *ver);
+	BOOL AcceptFeatureGroupName(const char *group);
+	BOOL AcceptGroupFeature(const char *feature);
+
+	BOOL AddCap(const char *name);
+	void AcceptRecentCapValue(int v);
+	void SetRecentCapPriority(int priority);
+
+
+	BOOL AccumExprCode(CWordCode wc);
+	BOOL AcceptExpr();
+
+	ExprNode *CalcExpr();
+
+	BOOL CheckVarDupe(const char *varname,ShaderVarCategory svc);
+
+	SLTemplate*FetchTemplate();
+	SLFeature *FetchFeature();
+	void FetchFeature(SLFeature *feature);
+protected:
+	ShaderVarCategory _cursvc;
+	BOOL _bEP,_bVsIn,_bPsIn,_bVS,_bPS,_bPsOut;
+	std::string _curtype;
+	std::string _featurename;
+	std::string _featureglobal;
+	std::string _vs_ver;
+	std::string _ps_ver;
+	std::vector<ExprCode>_exprcodes;
+
+	std::vector<ShaderVar>_vars;
+	std::vector<PriorShaderCap>_caps;
+
+	std::vector<ExprNode*>_exprVS;
+	std::vector<ExprNode*>_exprPS;
+
+	//format for each group: groupname:feature1,feature2,...
+	std::vector<std::string>_featuregroups;
+
+	FeatureFlag _featureflag;
+};
+

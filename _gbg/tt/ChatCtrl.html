@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <style>
+        :root {
+            --body-bg: #121212; /* Black background */
+            --text-color: #e0e0e0; /* Light grey text */
+            --user-message-bg: #004d40; /* Darker teal for user */
+            --user-message-border: #00796b; /* Teal border */
+            --ai-message-bg: #151b1f; /* Dark grey for AI */
+            --ai-message-border: #455a64; /* Lighter grey border for AI */
+            --system-message-bg: #303030; /* Dark grey for system */
+            --system-message-border: #555555; /* Medium grey border for system */
+            --tool-call-message-bg: #2b222e; /* Light purple background for tool call messages */
+            --tool-call-message-border: #6a4c8a; /* Light purple border for tool call messages */
+            --code-bg: #1e1e1e; /* Very dark grey for code blocks */
+            --code-text-color: #d4d4d4; /* Off-white for code text */
+            --code-border: #333; /* Dark border for code */
+            --blockquote-border: #444; /* Dark border for blockquote */
+            --scrollbar-track: #202020;
+            --scrollbar-thumb: #555;
+            --scrollbar-thumb-hover: #777;
+            /* 标题栏专用颜色变量 */
+            --titlebar-bg: #1a1a1a; /* 深灰色背景 */
+            --titlebar-bg-hover: #252525; /* 悬停时稍亮的灰色 */
+            --titlebar-border: #404040; /* 边框颜色 */
+            --titlebar-button-bg: #2d2d2d; /* 按钮背景 */
+            --titlebar-button-bg-hover: #3a3a3a; /* 按钮悬停背景 */
+            --titlebar-button-border: #505050; /* 按钮边框 */
+            --settings-button-bg: #2d2d2d; /* 设置按钮背景 */
+            --settings-button-bg-hover: #3a3a3a; /* 设置按钮悬停背景 */
+            --settings-button-border: #505050; /* 设置按钮边框 */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0; /* 移除padding，让标题栏占满宽度 */
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            overflow: hidden; /* 防止body滚动，滚动将在内容区域内 */
+            height: 100vh; /* 占满整个视口高度 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 标题栏样式 */
+        .webview-titlebar {
+            background-color: var(--titlebar-bg);
+            border-bottom: 2px solid var(--titlebar-border);
+            border-top: 1px solid var(--titlebar-border);
+            padding: 4px 12px; /* 减少padding，原来是8px 15px */
+            min-height: 20px; /* 减少高度，原来是40px */
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            flex-shrink: 0; /* 防止标题栏被压缩 */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); /* 添加轻微阴影 */
+            width: calc(100%); /* 缩短宽度：40px按钮宽度 */
+            margin-right: 40px; /* 为设置按钮留出空间 */
+        }
+
+        .webview-titlebar:hover {
+            background-color: var(--titlebar-bg-hover);
+        }
+
+        .webview-title {
+            font-weight: 600;
+            font-size: 0.9em; /* 减小字体，原来是1em */
+            color: var(--text-color);
+            flex-grow: 1;
+            line-height: 1.2; /* 添加行高控制 */
+            margin-right: 8px; /* 为设置按钮留出空间 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .webview-titlebar-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-right: 8px; /* 为设置按钮留出空间 */
+        }
+
+        .webview-titlebar-button {
+            padding: 2px 6px; /* 减少padding，原来是4px 8px */
+            font-size: 0.75em; /* 稍微减小字体，原来是0.8em */
+            background-color: var(--titlebar-button-bg);
+            color: var(--text-color);
+            border: 1px solid var(--titlebar-button-border);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            line-height: 1.2; /* 添加行高控制 */
+        }
+
+        .webview-titlebar-button:hover {
+            background-color: var(--titlebar-button-bg-hover);
+        }
+
+        /* 设置按钮样式 */
+        .webview-settings-button {
+            position: fixed; /* 改为fixed定位，相对于视口 */
+            right: 0px; /* 紧贴窗口右侧，无边距 */
+            top: 0px; /* 与标题栏顶部对齐 */
+            padding: 4px 8px; /* 增加padding，与标题栏高度一致 */
+            font-size: 1.1em; /* 进一步增大字体，原来是0.9em */
+            background-color: transparent; /* 普通模式下透明背景 */
+            color: var(--text-color);
+            border: 1px solid transparent; /* 普通模式下透明边框，避免闪烁 */
+            border-radius: 8px; /* 添加圆角，让边缘更柔和 */
+            cursor: pointer;
+            transition: all 0.2s ease; /* 平滑过渡效果 */
+            line-height: 1.2;
+            margin-left: 0; /* 移除左边距，紧贴右侧 */
+            flex-shrink: 0; /* 防止按钮被压缩 */
+            z-index: 100; /* 确保按钮在最上层，高于标题栏 */
+            width: 31px; /* 增加宽度 */
+            height: 31px; /* 设置固定高度，与标题栏一致 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .webview-settings-button:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* 使用半透明白色，更柔和的背景 */
+            border-color: transparent; /* 悬停时保持透明边框，移除明显边界 */
+        }
+
+        .webview-settings-button:active {
+            background-color: rgba(255, 255, 255, 0.2); /* 点按时更亮的背景 */
+            transform: scale(0.95); /* 轻微缩小，模拟按下效果 */
+            transition: all 0.1s ease; /* 点按时更快的过渡 */
+        }
+
+        /* 内容区域样式 */
+        .webview-content {
+            flex: 1; /* 占用剩余空间 */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative; /* 添加相对定位，为内部的绝对定位元素提供定位基准 */
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px; /* 将原来body的padding移到这里 */
+            overflow-y: auto; /* 在内容区域内滚动 */
+            flex: 1;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left-width: 4px;
+            border-left-style: solid;
+            max-width: 90%;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .message-content ul,
+        .message-content ol,
+        .message-content li {
+            white-space: normal;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-message-bg);
+            border-left-color: var(--user-message-border);
+            margin-left: 40px; /* 为左侧restore按钮留出足够空间 */
+            color: #e0f2f1; /* Lighter text for user messages on dark bg */
+            position: relative; /* 添加相对定位支持按钮绝对定位 */
+        }
+
+        /* 创建扩展的hover区域，覆盖整个聊天容器宽度但仅在文字框的竖直范围内 */
+        .user-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: -2000px; /* 向左延伸足够距离，覆盖按钮区域和更远的左侧空间 */
+            right: 0; /* 延伸到消息框右边界 */
+            z-index: 1; /* 确保在内容下方但能接收hover事件 */
+            pointer-events: auto; /* 确保能接收鼠标事件 */
+        }
+
+        /* 确保消息内容在hover区域之上 */
+        .user-message .message-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 当鼠标悬停在扩展区域时显示按钮 */
+        .user-message:hover .user-message-buttons {
+            opacity: 1;
+        }
+
+        /* 用户消息按钮样式 */
+        .user-message-buttons {
+            position: absolute;
+            top: 50%; /* 垂直居中定位 */
+            left: 0px; /* 左侧对齐 */
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 10; /* 确保按钮在内容之上 */
+            transform: translate(-100%, -50%); /* 水平移到左侧外部，垂直居中 */
+            margin-left: -8px; /* 增加一点间距 */
+        }
+
+        .user-message-button {
+            padding: 4px 8px; /* 增大padding */
+            font-size: 0.9em; /* 增大字体 */
+            background-color: rgba(0, 0, 0, 0.3);
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px; /* 稍微增大圆角 */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1.2;
+            white-space: nowrap; /* 防止文字换行 */
+            min-width: 24px; /* 设置最小宽度 */
+            min-height: 24px; /* 设置最小高度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-message-button:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .user-message-button:active {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(0.95);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Disabled消息样式 */
+        .message.disabled {
+            opacity: 0.3;
+            filter: grayscale(80%);
+            cursor: pointer; /* 显示可点击的鼠标指针 */
+        }
+
+        .message.disabled .user-message-buttons {
+            display: none; /* 隐藏disabled消息的按钮 */
+        }
+
+
+
+
+        /* AI thinking消息样式 - 小字体、浅灰色 */
+        .ai-thinking-content {
+            font-size: 0.85em; /* 比正常消息小一号字体 */
+            color: #888; /* 浅灰色 */
+            font-style: italic; /* 斜体以区分thinking内容 */
+            opacity: 0.8; /* 稍微透明 */
+            line-height: 1.3; /* 减小行间距 */
+        }
+
+        .ai-message {
+            align-self: stretch; /* 改为stretch以撑满宽度 */
+            background-color: var(--ai-message-bg);
+            border-left-color: var(--ai-message-border);
+            max-width: none; /* 覆盖通用的max-width限制 */
+            margin: 0 -15px; /* 负margin来抵消容器的padding，使其撑满屏幕 */
+            padding: 10px 15px; /* 保持内容的padding */
+            border-radius: 0; /* 移除圆角，因为要撑满宽度 */
+            position: relative; /* 为费用显示元素提供定位基准 */
+        }
+
+        /* 费用显示样式 */
+        .cost-display {
+            position: absolute;
+            bottom: 2px;
+            right: 15px;
+            font-size: 0.75em;
+            color: #888;
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none; /* 不阻止消息框的交互 */
+            z-index: 1; /* 确保在内容之上 */
+        }
+
+        .system-message {
+            align-self: center;
+            background-color: var(--system-message-bg);
+            border-left-color: var(--system-message-border);
+            font-style: italic;
+            text-align: center;
+            max-width: 100%;
+            color: #bdbdbd; /* Slightly lighter grey for system messages */
+        }
+
+        .tool-call-message {
+            align-self: flex-start; /* 左对齐显示 */
+            background-color: var(--tool-call-message-bg);
+            border-left-color: var(--tool-call-message-border);
+            max-width: 100%; /* 保持宽度为60% */
+            margin: 8px 0; /* 上下留空隙，左右对齐 */
+            padding: 8px 12px; /* 适当减小内边距 */
+            border-radius: 8px; /* 添加圆角 */
+            color: #c7c7c7; /* Light purple text color for better contrast */
+            font-style: italic;
+            font-size: 0.9em; /* 稍微缩小字体 */
+            line-height: 1.4; /* 调整行高 */
+            height: 60%; /* 高度变为原来的3/5 */
+            display: flex; /* 使用flex布局 */
+            align-items: flex-start; /* 垂直顶部对齐 */
+            justify-content: flex-start; /* 水平左对齐 */
+        }
+        /* Reset margins for all direct children of .message-content */
+        .message-content > * {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+            /* Add a small top margin to subsequent children for spacing */
+            .message-content > * + * {
+                margin-top: 0.1em; /* User adjusted: For desired spacing */
+            }
+
+        .message-content p {
+            margin: 0.5em;
+        }
+        /* User added */
+        .message-content pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 4px;
+            padding: 12px;
+            overflow-x: auto;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.9em;
+            color: var(--code-text-color);
+            white-space: pre; /* For <pre>, explicitly use 'pre' to preserve all spaces/newlines as is */
+        }
+
+        .message-content code {
+            font-family: Consolas, "Courier New", monospace;
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.9em;
+            color: var(--code-text-color);
+        }
+
+        .message-content pre code {
+            background-color: transparent;
+            padding: 0;
+            font-size: inherit;
+        }
+
+        .message-content blockquote {
+            border-left: 3px solid var(--blockquote-border);
+            margin-left: 0;
+            padding-left: 15px;
+            color: #aaa; /* Lighter grey for blockquote text on dark bg */
+        }
+
+        .message-content table {
+            border-collapse: collapse;
+            width: auto;
+            margin-bottom: 1em;
+            border: 1px solid var(--code-border);
+        }
+
+        .message-content th, .message-content td {
+            border: 1px solid var(--code-border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .message-content th {
+            background-color: var(--ai-message-bg);
+        }
+
+        .message-content ul, .message-content ol {
+            padding-left: 20px; /* This is for indentation, vertical margins handled by '*' rules above */
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--scrollbar-thumb-hover);
+            }
+
+        .file-edit-window {
+            margin: 10px 0;
+            border: 1px solid var(--code-border);
+            border-radius: 6px;
+            background-color: var(--code-bg);
+            overflow: hidden;
+        }
+
+        .file-edit-titlebar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Keep this for overall spacing */
+            padding: 4px 8px; /* 减少padding，原来是8px 12px */
+            background-color: var(--ai-message-bg);
+            border-bottom: 1px solid var(--code-border);
+            cursor: pointer;
+            user-select: none;
+        }
+
+            .file-edit-titlebar:hover {
+                background-color: #2f3e46;
+            }
+
+        .file-edit-title {
+            font-weight: 600;
+            font-size: 0.8em; /* 减小字体，原来是0.9em */
+            color: var(--text-color);
+            flex-grow: 1; /* Allow title to take available space */
+            line-height: 1.2; /* 添加行高控制 */
+            margin-left: 8px; /* Add space to the left of the title, after the collapse button */
+        }
+
+        /* New style for the left collapse button container */
+        .file-edit-titlebar-left-controls {
+            display: flex;
+            align-items: center;
+            flex-grow: 1; /* Allow this container to grow and push other buttons to right */
+        }
+
+        .file-edit-buttons {
+            display: flex;
+            gap: 4px; /* 减少间距，原来是6px */
+            align-items: center;
+            position: relative; /* For positioning the options menu */
+        }
+
+        .file-edit-button {
+            padding: 2px 6px; /* 减少padding，原来是4px 8px */
+            font-size: 0.7em; /* 减小字体，原来是0.8em */
+            background-color: #404040;
+            color: var(--text-color);
+            border: 1px solid #606060;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            line-height: 1.2; /* 添加行高控制 */
+        }
+
+            .file-edit-button:hover {
+                background-color: #505050;
+            }
+
+        .file-edit-resize-btn {
+            padding: 2px 4px; /* 减少padding，原来是4px 6px */
+            font-size: 0.7em; /* 减小字体，原来是0.8em */
+            background-color: #606060;
+            color: var(--text-color);
+            border: 1px solid #808080;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            line-height: 1.2; /* 添加行高控制 */
+        }
+
+            .file-edit-resize-btn:hover {
+                background-color: #707070;
+            }
+
+        .file-edit-content {
+            padding: 0; /* 移除padding，让pre元素自己处理 */
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.85em;
+            line-height: 1.4;
+            color: var(--code-text-color);
+            background-color: var(--code-bg);
+            overflow-y: hidden; /* 移除垂直滚动条 */
+            overflow-x: auto; /* 保留水平滚动 */
+            /* 移除固定的max-height和min-height，改为自适应 */
+        }
+
+        /* 为FileEdit中的pre和code元素添加特殊样式 */
+        .file-edit-content pre {
+            margin: 0;
+            padding: 12px;
+            background-color: transparent; /* 使用父容器的背景色 */
+            border: none;
+            border-radius: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: 1.6; /* 增加行高以便更好地显示高亮 */
+            white-space: pre; /* 改为pre，不自动换行 */
+            word-wrap: normal; /* 不换行 */
+            height: 100%;
+            min-height: inherit;
+            overflow: visible; /* 让内容可以超出容器 */
+        }
+
+        .file-edit-content code {
+            background-color: transparent !important; /* 覆盖highlight.js的背景色 */
+            padding: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            white-space: inherit; /* 继承父元素的white-space设置 */
+        }
+
+        .file-edit-content::-webkit-scrollbar {
+            width: 6px;
+            height: 6px; /* 添加水平滚动条高度 */
+        }
+
+        .file-edit-content::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+
+        .file-edit-content::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 3px;
+        }
+
+        .file-edit-content::-webkit-scrollbar-corner {
+            background: var(--scrollbar-track); /* 滚动条交叉角落的样式 */
+        }
+
+        .file-edit-collapsed .file-edit-content {
+            display: none;
+        }
+
+        /* file edit 自适应高度相关样式 */
+        .file-edit-window.auto-height .file-edit-content {
+            height: auto !important; /* 自适应高度时覆盖固定高度 */
+            max-height: 200px; /* 设置最大高度限制，与C++的DEFAULT_FILEEDIT_HEIGHT保持一致 */
+        }
+
+        .file-edit-window.auto-height.collapsed .file-edit-content {
+            max-height: 150px; /* 收叠状态下的高度限制更小 */
+            overflow: hidden; /* 收叠时隐藏溢出内容 */
+        }
+
+        /* 完全展开状态 - 移除所有高度限制 */
+        .file-edit-window.fully-expanded .file-edit-content {
+            height: auto !important; /* 自适应高度 */
+            max-height: none !important; /* 移除最大高度限制 */
+            overflow-y: hidden !important; /* 仍然隐藏垂直滚动条 */
+            overflow-x: auto !important; /* 保留水平滚动 */
+        }
+
+        /* 展开/收叠按钮样式 */
+        .file-edit-expand-btn {
+            width: 100%;
+            height: 24px;
+            background: linear-gradient(to bottom, 
+                var(--ai-message-bg) 0%,
+                #1a2b32 50%,
+                var(--ai-message-bg) 100%);
+            border: none;
+            border-top: 1px solid var(--code-border);
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.7em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .file-edit-expand-btn:hover {
+            background: linear-gradient(to bottom, 
+                #2f3e46 0%,
+                #1f3540 50%,
+                #2f3e46 100%);
+        }
+
+        /* 移除expand-text相关样式，只保留图标样式 */
+        .file-edit-expand-btn .expand-icon {
+            font-weight: bold;
+            font-size: 0.8em; /* 稍微增大图标字体 */
+        }
+
+        /* 展开状态下的收叠按钮样式 */
+        .file-edit-window.fully-expanded .file-edit-expand-btn {
+            background: linear-gradient(to bottom, 
+                #2f3e46 0%,
+                #1f3540 50%,
+                #2f3e46 100%);
+            border-top: 2px solid #4a9eff; /* 蓝色边框让收叠按钮更明显 */
+        }
+
+        .file-edit-window.fully-expanded .file-edit-expand-btn:hover {
+            background: linear-gradient(to bottom, 
+                #3a4f56 0%,
+                #2a4050 50%,
+                #3a4f56 100%);
+            border-top-color: #6bb3ff; /* 悬停时更亮的蓝色 */
+        }
+
+        /* FileEdit 旋转圆环修改状态指示器 */
+        .file-edit-modification-icon {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #007acc;
+            border-top: 1.5px solid transparent;
+            border-radius: 50%;
+            animation: fileEditSpin 2s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+            opacity: 0; /* 默认隐藏 */
+            transition: opacity 0.3s ease;
+        }
+
+        .file-edit-modification-icon.active {
+            opacity: 1; /* 激活时显示 */
+        }
+
+        @keyframes fileEditSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 确保标题区域能容纳图标 */
+        .file-edit-title {
+            font-weight: 600;
+            font-size: 0.8em; /* 减小字体，原来是0.9em */
+            color: var(--text-color);
+            flex-grow: 1; /* Allow title to take available space */
+            line-height: 1.2; /* 添加行高控制 */
+            margin-left: 8px; /* Add space to the left of the title, after the collapse button */
+            display: flex;
+            align-items: center; /* 确保标题和图标垂直居中对齐 */
+        }
+
+        /* FileEdit行高亮样式 - 移除左边框 */
+        .file-edit-content .line-highlight-added {
+            background-color: rgba(0, 128, 0, 0.15) !important; /* 绿色背景，表示添加的行 */
+            display: inline-block !important; /* 改为inline-block，避免独占行 */
+            padding: 0 12px 0 12px !important; /* 左右padding确保背景延伸，移除左侧border补偿 */
+            margin: 0 -12px 0 -12px !important; /* 负margin延伸到容器边缘 */
+            line-height: 1.6 !important; /* 固定行高 */
+            width: calc(100% + 24px) !important; /* 重新计算宽度，因为没有border了 */
+            box-sizing: border-box !important; /* 确保padding包含在宽度内 */
+        }
+
+        .file-edit-content .line-highlight-removed {
+            background-color: rgba(220, 53, 69, 0.15) !important; /* 红色背景，表示删除的行 */
+            display: inline-block !important; /* 改为inline-block，避免独占行 */
+            padding: 0 12px 0 12px !important; /* 左右padding确保背景延伸，移除左侧border补偿 */
+            margin: 0 -12px 0 -12px !important; /* 负margin延伸到容器边缘 */
+            line-height: 1.6 !important; /* 固定行高 */
+            width: calc(100% + 24px) !important; /* 重新计算宽度，因为没有border了 */
+            box-sizing: border-box !important; /* 确保padding包含在宽度内 */
+        }
+
+        .file-edit-content .line-highlight-modified {
+            background-color: rgba(255, 193, 7, 0.15) !important; /* 黄色背景，表示修改的行 */
+            display: inline-block !important; /* 改为inline-block，避免独占行 */
+            padding: 0 12px 0 12px !important; /* 左右padding确保背景延伸，移除左侧border补偿 */
+            margin: 0 -12px 0 -12px !important; /* 负margin延伸到容器边缘 */
+            line-height: 1.6 !important; /* 固定行高 */
+            width: calc(100% + 24px) !important; /* 重新计算宽度，因为没有border了 */
+            box-sizing: border-box !important; /* 确保padding包含在宽度内 */
+        }
+
+        .file-edit-content .line-highlight-info {
+            background-color: rgba(13, 202, 240, 0.15) !important; /* 蓝色背景，表示信息行 */
+            display: inline-block !important; /* 改为inline-block，避免独占行 */
+            padding: 0 12px 0 12px !important; /* 左右padding确保背景延伸，移除左侧border补偿 */
+            margin: 0 -12px 0 -12px !important; /* 负margin延伸到容器边缘 */
+            line-height: 1.6 !important; /* 固定行高 */
+            width: calc(100% + 24px) !important; /* 重新计算宽度，因为没有border了 */
+            box-sizing: border-box !important; /* 确保padding包含在宽度内 */
+        }
+
+        .file-edit-content .line-highlight-warning {
+            background-color: rgba(255, 165, 0, 0.15) !important; /* 橙色背景，表示警告行 */
+            display: inline-block !important; /* 改为inline-block，避免独占行 */
+            padding: 0 12px 0 12px !important; /* 左右padding确保背景延伸，移除左侧border补偿 */
+            margin: 0 -12px 0 -12px !important; /* 负margin延伸到容器边缘 */
+            line-height: 1.6 !important; /* 固定行高 */
+            width: calc(100% + 24px) !important; /* 重新计算宽度，因为没有border了 */
+            box-sizing: border-box !important; /* 确保padding包含在宽度内 */
+        }
+        
+        /* 修复高亮行的行高和间距问题 */
+        .file-edit-content pre code [class*="line-highlight-"] {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            vertical-align: top !important; /* 确保垂直对齐 */
+        }
+
+        /* 代码块复制按钮样式 */
+        .code-block-container {
+            position: relative;
+            margin: 0.5em 0;
+        }
+
+        .code-copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 12px;
+            font-size: 0.75em;
+            background-color: rgba(64, 64, 64, 0.8);
+            color: var(--text-color);
+            border: 1px solid #606060;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0; /* 默认隐藏，hover时显示 */
+            z-index: 10;
+        }
+
+        .code-block-container:hover .code-copy-button {
+            opacity: 1;
+        }
+
+        .code-copy-button:hover {
+            background-color: rgba(80, 80, 80, 0.9);
+            border-color: #808080;
+        }
+
+        .code-copy-button:active {
+            background-color: rgba(96, 96, 96, 1);
+            transform: scale(0.95);
+        }
+
+        .code-copy-button.copied {
+            background-color: rgba(0, 128, 0, 0.8);
+            border-color: #00a000;
+        }
+        
+        /* 彻底覆盖highlight.js在行高亮区域内的所有背景色 */
+        .file-edit-content [class*="line-highlight-"] * {
+            background-color: transparent !important; /* 移除所有子元素的背景色 */
+        }
+        
+        /* 确保行高亮区域内的语法高亮元素不会覆盖行背景色 */
+        .file-edit-content [class*="line-highlight-"] .hljs-string,
+        .file-edit-content [class*="line-highlight-"] .hljs-comment,
+        .file-edit-content [class*="line-highlight-"] .hljs-keyword,
+        .file-edit-content [class*="line-highlight-"] .hljs-function,
+        .file-edit-content [class*="line-highlight-"] .hljs-number,
+        .file-edit-content [class*="line-highlight-"] .hljs-type,
+        .file-edit-content [class*="line-highlight-"] .hljs-built_in,
+        .file-edit-content [class*="line-highlight-"] .hljs-literal {
+            background-color: transparent !important; /* 覆盖所有常见的语法高亮背景色 */
+        }
+
+        /* FileEdit Progress Label 样式 */
+        .file-edit-progress-label {
+            background: linear-gradient(90deg, #1a4a5c 0%, #2d5a6e 50%, #1a4a5c 100%);
+            border: 1px solid #3a6a7e;
+            border-radius: 4px;
+            padding: 4px 8px; /* 减少padding，与file-edit-titlebar一致 */
+            margin: 8px 0;
+            color: #e0f2f1;
+            font-size: 0.8em; /* 减小字体，与file-edit-title一致 */
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            animation: progressPulse 2s ease-in-out infinite;
+            min-height: 20px; /* 设置最小高度，与file-edit-titlebar的高度一致 */
+        }
+
+        .file-edit-progress-icon {
+            width: 14px;
+            height: 14px;
+            border: 2px solid #4fc3f7;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: progressSpin 1.5s linear infinite;
+        }
+
+        .file-edit-progress-text {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        @keyframes progressSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes progressPulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 1; }
+        }
+
+
+
+
+        /* Loading Overlay 遮罩层样式 */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--body-bg); /* 完全不透明的背景色，与body背景色一致 */
+            z-index: 10000; /* 确保在最上层 */
+            display: none; /* 默认隐藏 */
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--text-color);
+            border-top: 3px solid var(--user-message-border);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .loading-text {
+            color: var(--text-color);
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* FileEdit Options Menu Styles */
+        .file-edit-options-btn {
+            padding: 2px 8px; /* Specific padding for "..." button */
+        }
+        
+        .file-edit-options-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background-color: #333;
+            color: #666;
+        }
+        
+        .file-edit-options-btn:disabled:hover {
+            background-color: #333; /* 禁用时悬停不改变背景色 */
+        }
+
+        .file-edit-options-menu {
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 100%; /* Position below the buttons area */
+            right: 0; /* Align to the right of the buttonsArea */
+            background-color: var(--ai-message-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 1050; /* Ensure it's above other elements */
+            min-width: 120px;
+            padding: 4px 0; /* Vertical padding for the menu box */
+        }
+
+        .file-edit-options-menu.show {
+            display: block;
+        }
+
+        .file-edit-options-menu-item {
+            padding: 8px 12px;
+            font-size: 0.8em;
+            color: var(--text-color);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .file-edit-options-menu-item:hover {
+            background-color: #2f3e46; /* Consistent hover */
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <!-- 添加 highlight.js 用于语法高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+</head>
+<body>
+    <!-- WebView标题栏 -->
+    <div class="webview-titlebar" id="webview-titlebar">
+        <div class="webview-title" id="webview-title"></div>
+        <div class="webview-titlebar-buttons" id="webview-titlebar-buttons">
+            <!-- 标题栏按钮可以通过JavaScript动态添加 -->
+        </div>
+    </div>
+    <!-- 设置按钮 - 独立于标题栏 -->
+    <button class="webview-settings-button" id="webview-settings-button">⚙</button>
+    <!-- 目录按钮 - 默认隐藏，长按设置按钮后显示 -->
+    <button class="webview-settings-button" id="webview-toc-button" style="display:none;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 3C1.5 2.44772 1.94772 2 2.5 2H5.29289C5.4255 2 5.55268 2.05268 5.64645 2.14645L7.14645 3.64645C7.24022 3.74022 7.36739 3.79289 7.5 3.79289H13.5C14.0523 3.79289 14.5 4.24061 14.5 4.79289V13C14.5 13.5523 14.0523 14 13.5 14H2.5C1.94772 14 1.5 13.5523 1.5 13V3Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></button>
+    
+    <!-- 内容区域 -->
+    <div class="webview-content" id="webview-content">
+        <div id="chat-container" class="chat-container"></div>
+        
+        <!-- Loading Overlay 遮罩层 -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span class="loading-text">Loading...</span>
+        </div>
+    </div>
+
+
+
+    <script>
+        // 常量定义
+        const DEFAULT_CHAT_TITLE = '[ Untitled Chat ]';
+        
+        const chatContainer = document.getElementById('chat-container');
+        const webviewTitlebar = document.getElementById('webview-titlebar');
+        const webviewTitle = document.getElementById('webview-title');
+        const webviewTitlebarButtons = document.getElementById('webview-titlebar-buttons');
+        const webviewSettingsButton = document.getElementById('webview-settings-button');
+
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const webviewTocButton = document.getElementById('webview-toc-button');
+
+        // ====== 目录按钮长按显示逻辑 ======
+        let tocShowTimer = null;
+        let tocHideTimer = null;
+
+        webviewSettingsButton.addEventListener('mouseenter', () => {
+            // 清除可能残留的隐藏定时器
+            clearTimeout(tocHideTimer);
+            // 启动3秒计时器，显示目录按钮
+            tocShowTimer = setTimeout(() => {
+                webviewSettingsButton.style.display = 'none';
+                webviewTocButton.style.display = 'flex';
+            }, 1500);
+        });
+
+        webviewSettingsButton.addEventListener('mouseleave', () => {
+            // 鼠标离开设置按钮，清除显示计时器
+            clearTimeout(tocShowTimer);
+        });
+
+        webviewTocButton.addEventListener('mouseenter', () => {
+            // 鼠标进入目录按钮，清除隐藏定时器（用户仍在区域内操作）
+            clearTimeout(tocHideTimer);
+        });
+
+        webviewTocButton.addEventListener('mouseleave', () => {
+            // 鼠标离开目录按钮，恢复原样
+            clearTimeout(tocHideTimer);
+            tocHideTimer = setTimeout(() => {
+                webviewTocButton.style.display = 'none';
+                webviewSettingsButton.style.display = 'flex';
+            }, 50); // 短暂延迟避免闪烁
+        });
+
+        // 标题栏相关函数
+        function setWebViewTitle(title) {
+            webviewTitle.textContent = title || DEFAULT_CHAT_TITLE;
+        }
+
+        function addTitlebarButton(buttonId, buttonText, buttonAction) {
+            const button = document.createElement('button');
+            button.id = buttonId;
+            button.className = 'webview-titlebar-button';
+            button.textContent = buttonText;
+            button.onclick = (e) => {
+                e.stopPropagation(); // 防止触发标题栏点击事件
+                window.chrome.webview.postMessage({
+                    action: 'titlebarButtonClicked',
+                    buttonId: buttonId,
+                    buttonAction: buttonAction
+                });
+            };
+            webviewTitlebarButtons.appendChild(button);
+            return buttonId;
+        }
+
+        function removeTitlebarButton(buttonId) {
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.remove();
+            }
+        }
+
+        function clearTitlebarButtons() {
+            webviewTitlebarButtons.innerHTML = '';
+        }
+
+        // 标题栏点击事件
+        webviewTitlebar.onclick = (e) => {
+            // 如果点击的不是按钮，则请求更新菜单并显示
+            if (!e.target.classList.contains('webview-titlebar-button')) {
+                e.stopPropagation();
+                // 先发送消息请求更新菜单内容
+                window.chrome.webview.postMessage({
+                    action: 'titlebarClicked'
+                });
+            }
+        };
+
+        // 目录按钮点击事件
+        webviewTocButton.onclick = (e) => {
+            e.stopPropagation();
+            window.chrome.webview.postMessage({
+                action: 'tocButtonClicked'
+            });
+            // 点击后立即恢复原样
+            clearTimeout(tocHideTimer);
+            webviewTocButton.style.display = 'none';
+            webviewSettingsButton.style.display = 'flex';
+        };
+
+        // 设置按钮点击事件
+        webviewSettingsButton.onclick = (e) => {
+            e.stopPropagation();
+            clearTimeout(tocShowTimer); // 清除长按计时器，避免点击后意外切换
+            window.chrome.webview.postMessage({
+                action: 'settingsButtonClicked'
+            });
+        };
+
+        // 全局点击事件，用于隐藏菜单
+        document.addEventListener('click', (e) => {
+            // 如果点击的不是标题栏或菜单内容，则隐藏菜单
+            if (!webviewTitlebar.contains(e.target)) {
+                hideTitlebarMenu();
+            }
+            
+            // 隐藏FileEdit选项菜单（除非点击在菜单或按钮上）
+            let shouldHideFileEditMenus = true;
+            
+            // 检查点击是否在任何FileEdit选项按钮或菜单上
+            if (e.target.classList.contains('file-edit-options-btn') || 
+                e.target.closest('.file-edit-options-btn') ||
+                e.target.classList.contains('file-edit-options-menu') ||
+                e.target.closest('.file-edit-options-menu')) {
+                shouldHideFileEditMenus = false;
+            }
+            
+            if (shouldHideFileEditMenus) {
+                hideAllFileEditOptionMenus();
+            }
+        });
+
+        marked.setOptions({
+            gfm: true,
+            breaks: false, /* MODIFIED: Set to false to avoid single newlines becoming <br> */
+            smartLists: true,
+            smartypants: false,
+            highlight: function (code, lang) { return code; }
+        });
+
+        // 为所有代码块添加复制按钮容器和语法高亮
+        function addCopyButtonsToCodeBlocks(container) {
+            const preElements = container.querySelectorAll('pre');
+            preElements.forEach(pre => {
+                // 跳过 FileEdit 中的代码块（已经有其他交互）
+                if (pre.closest('.file-edit-content')) {
+                    return;
+                }
+                
+                // 如果已经包装过，跳过
+                if (pre.parentElement && pre.parentElement.classList.contains('code-block-container')) {
+                    return;
+                }
+                
+                // 创建容器
+                const container = document.createElement('div');
+                container.className = 'code-block-container';
+                
+                // 创建复制按钮
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'code-copy-button';
+                copyBtn.textContent = 'Copy';
+                copyBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    copyCodeBlock(copyBtn, pre);
+                };
+                
+                // 为代码块添加语法高亮
+                addSyntaxHighlightToCodeBlock(pre);
+                
+                // 将 pre 包装在容器中
+                pre.parentNode.insertBefore(container, pre);
+                container.appendChild(copyBtn);
+                container.appendChild(pre);
+            });
+        }
+
+        // 为单个代码块添加语法高亮
+        function addSyntaxHighlightToCodeBlock(preElement) {
+            // 如果已经高亮过，跳过
+            if (preElement.querySelector('code.hljs')) {
+                return;
+            }
+            
+            // 查找或创建 code 元素
+            let codeElement = preElement.querySelector('code');
+            let codeText = '';
+            let language = '';
+            
+            if (codeElement) {
+                // 从 code 元素获取代码文本和语言
+                codeText = codeElement.textContent || '';
+                // 尝试从 class 属性提取语言（如 "language-cpp" 或 "lang-cpp"）
+                const classMatch = codeElement.className.match(/(?:language-|lang-)(\w+)/);
+                if (classMatch) {
+                    language = classMatch[1];
+                }
+            } else {
+                // 没有 code 元素，获取 pre 的文本内容
+                codeText = preElement.textContent || '';
+                // 尝试从 pre 的 class 属性提取语言
+                const classMatch = preElement.className.match(/(?:language-|lang-)(\w+)/);
+                if (classMatch) {
+                    language = classMatch[1];
+                }
+            }
+            
+            // 如果没有 code 元素，创建一个
+            if (!codeElement) {
+                codeElement = document.createElement('code');
+                codeElement.textContent = codeText;
+                preElement.innerHTML = '';
+                preElement.appendChild(codeElement);
+            }
+            
+            // 使用 highlight.js 进行语法高亮
+            if (typeof hljs !== 'undefined' && codeText.trim()) {
+                try {
+                    let result;
+                    if (language && hljs.getLanguage(language)) {
+                        // 使用指定的语言进行高亮
+                        result = hljs.highlight(codeText, { language: language, ignoreIllegals: true });
+                    } else {
+                        // 自动检测语言
+                        result = hljs.highlightAuto(codeText);
+                    }
+                    codeElement.innerHTML = result.value;
+                    codeElement.classList.add('hljs');
+                    if (result.language) {
+                        codeElement.classList.add(`language-${result.language}`);
+                    }
+                } catch (e) {
+                    console.warn('Syntax highlighting failed:', e);
+                    // 高亮失败时保留原始文本
+                    codeElement.textContent = codeText;
+                }
+            }
+        }
+
+        // 复制代码块内容到剪贴板
+        async function copyCodeBlock(button, preElement) {
+            // 获取代码文本（去除高亮标记，只保留纯文本）
+            let codeText = '';
+            
+            // 尝试获取 code 元素
+            const codeElement = preElement.querySelector('code');
+            if (codeElement) {
+                codeText = codeElement.textContent || codeElement.innerText || '';
+            } else {
+                codeText = preElement.textContent || preElement.innerText || '';
+            }
+            
+            try {
+                await navigator.clipboard.writeText(codeText);
+                // 显示复制成功反馈
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy code:', err);
+                button.textContent = 'Failed';
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                }, 2000);
+            }
+        }
+
+        function isNearBottom(threshold = 50) { /* pixels */
+            const contentArea = document.getElementById('chat-container');
+            if (contentArea.scrollHeight <= contentArea.clientHeight) {
+                return true; /* No scrollbar, always considered at bottom */
+            }
+            return (contentArea.clientHeight + contentArea.scrollTop) >= (contentArea.scrollHeight - threshold);
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                const contentArea = document.getElementById('chat-container');
+                contentArea.scrollTo(0, contentArea.scrollHeight);
+            }, 0);
+        }
+
+        function createMessageElement(id, type) {
+            const messageElem = document.createElement('div');
+            messageElem.id = id;
+            messageElem.className = `message ${type}-message`;
+            
+            const contentElem = document.createElement('div');
+            contentElem.className = 'message-content';
+            messageElem.appendChild(contentElem);
+            
+            // 如果是用户消息，添加按钮区域
+            if (type === 'user') {
+                const buttonsArea = document.createElement('div');
+                buttonsArea.className = 'user-message-buttons';
+                
+                const restoreBtn = document.createElement('button');
+                restoreBtn.className = 'user-message-button';
+                restoreBtn.textContent = '↻'; /* 只保留图标，移除文字 */
+                restoreBtn.title = 'Restore';
+                restoreBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    window.chrome.webview.postMessage({
+                        action: 'userMessageRestoreClicked',
+                        messageId: id
+                    });
+                };
+                
+                buttonsArea.appendChild(restoreBtn);
+                messageElem.appendChild(buttonsArea);
+            }
+            
+            chatContainer.appendChild(messageElem);
+            return contentElem;
+        }
+        function addUserOrSystemMessage(id, textContent, type) {
+            const contentElem = createMessageElement(id, type);
+            contentElem.textContent = textContent;
+            
+            // 如果是系统消息且以"Error:"开头，设置红色背景
+            if (type === 'system' && textContent.startsWith('Error:')) {
+                contentElem.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                contentElem.style.border = '1px solid rgba(255, 0, 0, 0.5)';
+            }
+            
+            scrollToBottom(); /* Always scroll for user/system messages */
+        }
+
+        function addToolCallMessageToAIMessage(id, textContent) {
+            const messageElem = document.getElementById(id);
+            if (!messageElem) {
+                console.error('AI Message element not found for tool call message:', id);
+                return;
+            }
+            
+            const messageContentElem = messageElem.querySelector('.message-content');
+            if (!messageContentElem) {
+                console.error('AI Message content element not found for tool call message:', id);
+                return;
+            }
+            
+            // 创建tool call消息元素
+            const toolCallElem = document.createElement('div');
+            toolCallElem.className = 'tool-call-message';
+            toolCallElem.textContent = textContent;
+            
+            // 添加到AI消息内容的末尾
+            messageContentElem.appendChild(toolCallElem);
+            
+            // 如果聊天窗口在底部附近，滚动到底部
+            if (isNearBottom()) {
+                scrollToBottom();
+            }
+        }
+
+        function startAIMessage(id) {
+            const shouldScroll = isNearBottom();
+            const contentElem = createMessageElement(id, 'ai');
+            if (shouldScroll) {
+                scrollToBottom();
+            }
+        }
+
+
+
+        function appendToAIMessage(id, incrementalContent, isFinalChunk) {
+            const shouldScroll = isNearBottom();
+            const messageElem = document.getElementById(id);
+            if (!messageElem) { console.error('AIMessage element not found for append:', id); return; }
+            
+            const messageContentElem = messageElem.querySelector('.message-content');
+            if (!messageContentElem) { console.error('AIMessage content element (.message-content) not found for append in:', id); return; }
+
+            // Find and remove any existing thinking containers
+            const thinkingContainers = messageContentElem.querySelectorAll('.ai-thinking-container');
+            thinkingContainers.forEach(container => container.remove());
+
+            let targetTextContainer;
+            const lastChild = messageContentElem.lastElementChild;
+
+            if (!lastChild || !lastChild.classList.contains('ai-text-container')) {
+                targetTextContainer = document.createElement('div');
+                targetTextContainer.className = 'ai-text-container';
+                targetTextContainer.setAttribute('data-raw-content', '');
+                messageContentElem.appendChild(targetTextContainer);
+            } else {
+                targetTextContainer = lastChild;
+            }
+
+            let rawContent = targetTextContainer.getAttribute('data-raw-content') || '';
+            rawContent += incrementalContent;
+            targetTextContainer.setAttribute('data-raw-content', rawContent);
+
+            if (typeof DOMPurify !== 'undefined' && typeof marked !== 'undefined') {
+                targetTextContainer.innerHTML = DOMPurify.sanitize(marked.parse(rawContent));
+                // 为代码块添加复制按钮
+                addCopyButtonsToCodeBlocks(targetTextContainer);
+            } else {
+                console.error('DOMPurify or Marked.js not loaded.');
+                targetTextContainer.textContent = rawContent; /* Fallback */
+            }
+
+            if (isFinalChunk) {
+                /* Optional: targetTextContainer.removeAttribute('data-raw-content'); */
+            }
+            if (shouldScroll) {
+                scrollToBottom();
+            }
+        }
+
+        function appendToAIMessage_Thinking(id, incrementalContent, isFinalChunk) {
+            const shouldScroll = isNearBottom();
+            const messageElem = document.getElementById(id);
+            if (!messageElem) { console.error('AIMessage element not found for thinking append:', id); return; }
+            
+            const messageContentElem = messageElem.querySelector('.message-content');
+            if (!messageContentElem) { console.error('AIMessage content element (.message-content) not found for thinking append in:', id); return; }
+
+            let targetTextContainer;
+            const lastChild = messageContentElem.lastElementChild;
+
+            if (!lastChild || !lastChild.classList.contains('ai-thinking-container')) {
+                targetTextContainer = document.createElement('div');
+                targetTextContainer.className = 'ai-thinking-container ai-thinking-content';
+                targetTextContainer.setAttribute('data-raw-content', '');
+                messageContentElem.appendChild(targetTextContainer);
+            } else {
+                targetTextContainer = lastChild;
+            }
+
+            let rawContent = targetTextContainer.getAttribute('data-raw-content') || '';
+            rawContent += incrementalContent;
+            targetTextContainer.setAttribute('data-raw-content', rawContent);
+
+            // thinking消息直接显示文本，不进行markdown渲染
+            targetTextContainer.textContent = rawContent;
+
+            if (isFinalChunk) {
+                /* Optional: targetTextContainer.removeAttribute('data-raw-content'); */
+            }
+            if (shouldScroll) {
+                scrollToBottom();
+            }
+        }
+        function clearChat() {
+            chatContainer.innerHTML = '';
+            // 重置标题栏名称
+            setWebViewTitle(DEFAULT_CHAT_TITLE);
+        }
+
+        // 处理FileEdit内容中的行高亮标记，同时保持语法高亮
+        function processFileEditContentWithHighlights(content) {
+            if (!content) return '';
+            
+            // 按行分割内容
+            const lines = content.split('\n');
+            const processedLines = [];
+            
+            // 先收集所有行的信息（包括高亮类型和原始内容）
+            const lineInfos = [];
+            for (let i = 0; i < lines.length; i++) {
+                let line = lines[i];
+                let highlightClass = '';
+                
+                // 检查行开头的特殊标记
+                if (line.startsWith('[+]')) {
+                    highlightClass = 'line-highlight-added';
+                    line = line.substring(3); // 移除标记
+                } else if (line.startsWith('[-]')) {
+                    highlightClass = 'line-highlight-removed';
+                    line = line.substring(3); // 移除标记
+                } else if (line.startsWith('[*]')) {
+                    highlightClass = 'line-highlight-modified';
+                    line = line.substring(3); // 移除标记
+                } else if (line.startsWith('[i]')) {
+                    highlightClass = 'line-highlight-info';
+                    line = line.substring(3); // 移除标记
+                } else if (line.startsWith('[!]')) {
+                    highlightClass = 'line-highlight-warning';
+                    line = line.substring(3); // 移除标记
+                }
+                
+                lineInfos.push({
+                    originalLine: line,
+                    highlightClass: highlightClass
+                });
+            }
+            
+            // 重新组合没有标记的内容用于语法高亮
+            const cleanContent = lineInfos.map(info => info.originalLine).join('\n');
+            
+            // 应用语法高亮
+            let highlightedContent = cleanContent;
+            if (typeof hljs !== 'undefined') {
+                try {
+                    highlightedContent = hljs.highlight(cleanContent, {language: 'cpp'}).value;
+                } catch (e) {
+                    console.warn('语法高亮失败:', e);
+                    highlightedContent = escapeHtml(cleanContent);
+                }
+            } else {
+                highlightedContent = escapeHtml(cleanContent);
+            }
+            
+            // 将语法高亮后的内容按行分割
+            const highlightedLines = highlightedContent.split('\n');
+            
+            // 为需要行高亮的行添加span包装
+            for (let i = 0; i < lineInfos.length && i < highlightedLines.length; i++) {
+                const lineInfo = lineInfos[i];
+                if (lineInfo.highlightClass) {
+                    processedLines.push(`<span class="${lineInfo.highlightClass}">${highlightedLines[i]}</span>`);
+                } else {
+                    processedLines.push(highlightedLines[i]);
+                }
+            }
+            
+            return processedLines.join('\n');
+        }
+        
+        // HTML转义函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 计算内容实际高度的辅助函数
+        function calculateContentHeight(content) {
+            // 创建临时元素来测量内容高度
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.visibility = 'hidden';
+            tempDiv.style.width = '600px'; // 使用固定宽度而不是100%，避免宽度计算问题
+            tempDiv.style.fontFamily = 'Consolas, "Courier New", monospace';
+            tempDiv.style.fontSize = '0.85em';
+            tempDiv.style.lineHeight = '1.6';
+            tempDiv.style.whiteSpace = 'pre';
+            tempDiv.style.padding = '12px';
+            tempDiv.style.boxSizing = 'border-box'; // 确保padding包含在尺寸计算中
+            
+            // 处理内容
+            const processedContent = processFileEditContentWithHighlights(content || '');
+            tempDiv.innerHTML = processedContent;
+            
+            document.body.appendChild(tempDiv);
+            const height = tempDiv.offsetHeight;
+            document.body.removeChild(tempDiv);
+            
+            // 添加5px的缓冲区域，避免边界情况导致高度计算误差
+            return height + 5;
+        }
+
+        // 更新文件编辑窗口的自适应高度
+        function updateFileEditAutoHeight(fileEditDiv, content) {
+            const contentHeight = calculateContentHeight(content);
+            const maxHeight = 200; // 与C++的DEFAULT_FILEEDIT_HEIGHT保持一致
+            const collapsedMaxHeight = 150;
+            // 使用更保守的阈值，为最大高度减去一个安全边距
+            const safeMaxHeight = maxHeight - 10; // 减去10px作为安全边距，对于200px高度来说足够了
+            
+            // 检查是否为用户手动展开状态
+            const isUserExpanded = fileEditDiv.classList.contains('fully-expanded') && 
+                                   !fileEditDiv.classList.contains('collapsed');
+            
+            // 添加自适应高度类
+            fileEditDiv.classList.add('auto-height');
+            
+            const contentDiv = fileEditDiv.querySelector('.file-edit-content');
+            const expandBtn = fileEditDiv.querySelector('.file-edit-expand-btn');
+            
+            // 如果用户已手动展开，保持展开状态，不要自动折叠
+            if (isUserExpanded) {
+                // 保持用户的展开选择，只确保有展开按钮且状态正确
+                if (!expandBtn) {
+                    const newExpandBtn = document.createElement('button');
+                    newExpandBtn.className = 'file-edit-expand-btn';
+                    newExpandBtn.innerHTML = '<span class="expand-icon">▲</span>';
+                    newExpandBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleFileEditExpansion(fileEditDiv);
+                    };
+                    fileEditDiv.appendChild(newExpandBtn);
+                } else {
+                    // 确保按钮显示正确的展开状态
+                    expandBtn.innerHTML = '<span class="expand-icon">▲</span>';
+                }
+                return; // 直接返回，不要改变用户的展开状态
+            }
+            
+            if (contentHeight > safeMaxHeight) {
+                // 内容超过安全最大高度，显示为折叠状态，并提供展开按钮
+                fileEditDiv.classList.add('collapsed');
+                fileEditDiv.classList.remove('fully-expanded');
+                
+                if (!expandBtn) {
+                    // 创建展开按钮
+                    const newExpandBtn = document.createElement('button');
+                    newExpandBtn.className = 'file-edit-expand-btn';
+                    newExpandBtn.innerHTML = '<span class="expand-icon">▼</span>';
+                    newExpandBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleFileEditExpansion(fileEditDiv);
+                    };
+                    fileEditDiv.appendChild(newExpandBtn);
+                } else {
+                    // 确保按钮显示正确的折叠状态
+                    expandBtn.innerHTML = '<span class="expand-icon">▼</span>';
+                }
+            } else {
+                // 内容不超过安全最大高度，设为折叠状态，但不需要展开按钮
+                // 因为内容在折叠状态下已经能完整显示
+                fileEditDiv.classList.add('collapsed');
+                fileEditDiv.classList.remove('fully-expanded');
+                
+                // 移除展开按钮，因为内容已经能完整显示
+                if (expandBtn) {
+                    expandBtn.remove();
+                }
+            }
+        }
+
+        // 切换文件编辑窗口的展开/收叠状态
+        function toggleFileEditExpansion(fileEditDiv) {
+            const isCollapsed = fileEditDiv.classList.contains('collapsed');
+            const expandBtn = fileEditDiv.querySelector('.file-edit-expand-btn');
+            
+            if (isCollapsed) {
+                // 展开
+                fileEditDiv.classList.remove('collapsed');
+                fileEditDiv.classList.add('fully-expanded');
+                if (expandBtn) {
+                    expandBtn.innerHTML = '<span class="expand-icon">▲</span>';
+                }
+            } else {
+                // 收叠
+                fileEditDiv.classList.add('collapsed');
+                fileEditDiv.classList.remove('fully-expanded');
+                if (expandBtn) {
+                    expandBtn.innerHTML = '<span class="expand-icon">▼</span>';
+                }
+            }
+            
+            // 发送状态变化到C++
+            window.chrome.webview.postMessage({
+                action: 'fileEditExpansionToggled',
+                fileEditId: fileEditDiv.id,
+                isExpanded: !isCollapsed
+            });
+        }
+
+        function createFileEditWindow(fileEditId, messageId, title, content, height, buttons, isCollapsed, diffContent) {
+            const messageElem = document.getElementById(messageId);
+            if (!messageElem) {
+                console.error('Message element not found for FileEdit:', messageId);
+                return;
+            }
+
+            const contentElem = messageElem.querySelector('.message-content');
+            if (!contentElem) {
+                console.error('Message content element not found for FileEdit:', messageId);
+                return;
+            }
+
+            // Find and remove any existing thinking containers
+            const thinkingContainers = contentElem.querySelectorAll('.ai-thinking-container');
+            thinkingContainers.forEach(container => container.remove());
+
+            const fileEditDiv = document.createElement('div');
+            fileEditDiv.id = fileEditId;
+            fileEditDiv.className = 'file-edit-window' + (isCollapsed ? ' file-edit-collapsed' : '');
+            
+            // 存储两种内容和当前显示状态
+            fileEditDiv.setAttribute('data-content', content || '');
+            fileEditDiv.setAttribute('data-diff-content', diffContent || '');
+            // 如果有diff内容，默认显示diff；否则显示原始内容
+            fileEditDiv.setAttribute('data-show-diff', (diffContent && diffContent.trim()) ? 'true' : 'false');
+
+            const titlebar = document.createElement('div');
+            titlebar.className = 'file-edit-titlebar';
+
+            // Container for left-aligned controls (collapse button and title)
+            const leftControlsArea = document.createElement('div');
+            leftControlsArea.className = 'file-edit-titlebar-left-controls'; // New class for styling
+
+            // Create and add the collapse button first
+            const collapseBtn = document.createElement('button');
+            collapseBtn.className = 'file-edit-button file-edit-titlebar-collapse-btn'; // Added a specific class
+            collapseBtn.textContent = isCollapsed ? '▶' : '▼';
+            collapseBtn.title = 'Toggle Collapse';
+            collapseBtn.onclick = (e) => {
+                e.stopPropagation();
+                const isCurrentlyCollapsed = fileEditDiv.classList.contains('file-edit-collapsed');
+                if (isCurrentlyCollapsed) {
+                    fileEditDiv.classList.remove('file-edit-collapsed');
+                    collapseBtn.textContent = '▼';
+                } else {
+                    fileEditDiv.classList.add('file-edit-collapsed');
+                    collapseBtn.textContent = '▶';
+                }
+                window.chrome.webview.postMessage({
+                    action: 'fileEditToggled',
+                    fileEditId: fileEditId,
+                    isCollapsed: !isCurrentlyCollapsed
+                });
+            };
+            leftControlsArea.appendChild(collapseBtn);
+
+
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'file-edit-title';
+            titleSpan.textContent = title || 'Untitled';
+            
+            // 创建旋转圆环修改状态指示器
+            const modificationIcon = document.createElement('div');
+            modificationIcon.className = 'file-edit-modification-icon';
+            modificationIcon.id = fileEditId + '-modification-icon'; // 添加唯一ID便于控制
+            
+            // 将标题文字和图标包装在一个容器中
+            titleSpan.innerHTML = ''; // 清空原有内容
+            const titleText = document.createElement('span');
+            titleText.textContent = title || 'Untitled';
+            titleSpan.appendChild(titleText);
+            titleSpan.appendChild(modificationIcon);
+            
+            // Title click handler - applies to the title text itself
+            titleSpan.onclick = (e) => {
+                e.stopPropagation(); // 阻止事件冒泡，避免触发leftControlsArea的点击事件
+                console.log('FileEdit title text clicked:', fileEditId);
+                window.chrome.webview.postMessage({
+                    action: 'fileEditTitleClicked',
+                    fileEditId: fileEditId
+                });
+            };
+            leftControlsArea.appendChild(titleSpan);
+            
+            // Titlebar click (for the whole bar, excluding buttons)
+            // This will now be on leftControlsArea to avoid conflict with right buttons
+            leftControlsArea.style.cursor = 'pointer'; // Make it clear this area is clickable
+            leftControlsArea.onclick = (e) => {
+                // Ensure click is not on the collapse button or title span itself
+                if (e.target !== collapseBtn && !collapseBtn.contains(e.target) &&
+                    e.target !== titleSpan && !titleSpan.contains(e.target)) {
+                    console.log('FileEdit title area (left controls) clicked:', fileEditId);
+                    window.chrome.webview.postMessage({
+                        action: 'fileEditTitleClicked', // Or a more general titlebar click if needed
+                        fileEditId: fileEditId
+                    });
+                }
+            };
+
+
+            const buttonsArea = document.createElement('div');
+            buttonsArea.className = 'file-edit-buttons'; // This will now only hold custom buttons
+
+            // Add custom buttons
+            if (buttons && Array.isArray(buttons)) {
+                buttons.forEach(btn => {
+                    const button = document.createElement('button');
+                    button.className = 'file-edit-button';
+                    button.textContent = btn.text;
+                    button.onclick = (e) => {
+                        e.stopPropagation();
+                        window.chrome.webview.postMessage({
+                            action: 'fileEditButtonClicked',
+                            fileEditId: fileEditId,
+                            buttonId: btn.id,
+                            buttonAction: btn.action
+                        });
+                    };
+                    buttonsArea.appendChild(button);
+                });
+            }
+
+            // Add Options ("...") button and its menu
+            const optionsBtn = document.createElement('button');
+            optionsBtn.className = 'file-edit-button file-edit-options-btn';
+            optionsBtn.textContent = '...';
+            optionsBtn.title = 'Options';
+            
+            // Option按钮总是启用，不再根据diffContent状态禁用
+            // const hasDiffContent = diffContent && diffContent.trim();
+            // if (!hasDiffContent) {
+            //     optionsBtn.disabled = true;
+            //     optionsBtn.title = 'No additional options available';
+            // }
+
+            const optionsMenu = document.createElement('div');
+            optionsMenu.className = 'file-edit-options-menu';
+            optionsMenu.id = fileEditId + '-options-menu'; // Unique ID for the menu
+
+            // Helper function to update menu items
+            function updateMenuItems() {
+                optionsMenu.innerHTML = ''; // Clear existing items
+                
+                const showDiff = fileEditDiv.getAttribute('data-show-diff') === 'true';
+                const diffContent = fileEditDiv.getAttribute('data-diff-content') || '';
+                const originalContent = fileEditDiv.getAttribute('data-content') || '';
+                
+                // Add Show code/Show diff option
+                const toggleItem = document.createElement('div');
+                toggleItem.className = 'file-edit-options-menu-item';
+                
+                // 检查是否有足够的内容来切换显示
+                const hasValidDiffContent = diffContent.trim() && originalContent.trim();
+                
+                if (hasValidDiffContent) {
+                    // 有diff内容，菜单项可用
+                    toggleItem.textContent = showDiff ? 'Show code' : 'Show diff';
+                    toggleItem.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleFileEditContentDisplay(fileEditDiv);
+                        optionsMenu.classList.remove('show');
+                    };
+                } else {
+                    // 没有diff内容，菜单项禁用
+                    toggleItem.textContent = 'Show diff';
+                    toggleItem.classList.add('disabled');
+                    toggleItem.style.opacity = '0.5';
+                    toggleItem.style.cursor = 'not-allowed';
+                    toggleItem.onclick = (e) => {
+                        e.stopPropagation();
+                        // 禁用状态下不执行任何操作
+                    };
+                }
+                optionsMenu.appendChild(toggleItem);
+            }
+
+            // Initialize menu items
+            updateMenuItems();
+            
+            // Store the update function for later use
+            optionsMenu.updateMenuItems = updateMenuItems;
+
+            buttonsArea.appendChild(optionsBtn);
+            buttonsArea.appendChild(optionsMenu); // Menu is a child of buttonsArea, positioned by CSS
+
+            optionsBtn.onclick = (e) => {
+                e.stopPropagation();
+                // 如果按钮被禁用，不处理点击
+                if (optionsBtn.disabled) {
+                    return;
+                }
+                const shouldShow = !optionsMenu.classList.contains('show');
+                hideAllFileEditOptionMenus(); // Hide all other similar menus first
+                if (shouldShow) {
+                    optionsMenu.updateMenuItems(); // Update menu items before showing
+                    optionsMenu.classList.add('show');
+                }
+                // If it was already visible, hideAllFileEditOptionMenus would have hidden it.
+            };
+
+            titlebar.appendChild(leftControlsArea); // Add left controls (collapse btn + title)
+            titlebar.appendChild(buttonsArea);    // Add right controls (custom buttons)
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'file-edit-content';
+            // 不再设置固定高度，改为自适应
+            
+            // 应用C++语法高亮和行高亮
+            const preElement = document.createElement('pre');
+            const codeElement = document.createElement('code');
+            codeElement.className = 'language-cpp';
+            
+            // 根据显示状态选择要显示的内容
+            const showDiff = fileEditDiv.getAttribute('data-show-diff') === 'true';
+            const contentToShow = (showDiff && diffContent) ? diffContent : content;
+            
+            // 处理语法高亮和行高亮标记
+            const processedContent = processFileEditContentWithHighlights(contentToShow || '');
+            
+            // 使用innerHTML设置处理后的内容（包含语法高亮和行高亮）
+            codeElement.innerHTML = processedContent;
+            
+            preElement.appendChild(codeElement);
+            contentDiv.appendChild(preElement);
+
+            fileEditDiv.appendChild(titlebar);
+            fileEditDiv.appendChild(contentDiv);
+
+            // 在添加到DOM后计算自适应高度
+            contentElem.appendChild(fileEditDiv);
+            
+            // 设置自适应高度
+            updateFileEditAutoHeight(fileEditDiv, contentToShow);
+            
+            scrollToBottom();
+        }
+        
+        // 切换FileEdit内容显示的函数
+        function toggleFileEditContentDisplay(fileEditDiv) {
+            const showDiff = fileEditDiv.getAttribute('data-show-diff') === 'true';
+            const diffContent = fileEditDiv.getAttribute('data-diff-content') || '';
+            const originalContent = fileEditDiv.getAttribute('data-content') || '';
+            
+            // 切换显示状态
+            const newShowDiff = !showDiff;
+            fileEditDiv.setAttribute('data-show-diff', newShowDiff.toString());
+            
+            // 确定要显示的内容
+            const contentToShow = newShowDiff ? diffContent : originalContent;
+            
+            // 更新显示内容
+            const contentElem = fileEditDiv.querySelector('.file-edit-content');
+            if (contentElem) {
+                const codeElement = contentElem.querySelector('code.language-cpp');
+                if (codeElement) {
+                    const processedContent = processFileEditContentWithHighlights(contentToShow);
+                    codeElement.innerHTML = processedContent;
+                }
+                
+                // 更新自适应高度
+                updateFileEditAutoHeight(fileEditDiv, contentToShow);
+                
+                // 根据FileEdit状态决定滚动行为
+                if (fileEditDiv.classList.contains('collapsed')) {
+                    setTimeout(() => {
+                        contentElem.scrollTop = contentElem.scrollHeight;
+                    }, 0);
+                } else if (!fileEditDiv.classList.contains('collapsed') && isNearBottom()) {
+                    setTimeout(() => {
+                        scrollToBottom();
+                    }, 0);
+                }
+            }
+        }
+
+        function updateFileEditWindow(fileEditId, updates) {
+            const fileEditElem = document.getElementById(fileEditId);
+            if (!fileEditElem) {
+                console.error('FileEdit element not found:', fileEditId);
+                return;
+            }
+
+            if (updates.title !== undefined) {
+                const titleElem = fileEditElem.querySelector('.file-edit-title');
+                if (titleElem) {
+                    // 查找标题文字元素（第一个span子元素）
+                    const titleTextElem = titleElem.querySelector('span');
+                    if (titleTextElem) {
+                        titleTextElem.textContent = updates.title;
+                    } else {
+                        // 如果没有找到span子元素，说明是老的结构，需要重建
+                        const modificationIcon = titleElem.querySelector('.file-edit-modification-icon');
+                        titleElem.innerHTML = '';
+                        const titleText = document.createElement('span');
+                        titleText.textContent = updates.title;
+                        titleElem.appendChild(titleText);
+                        if (modificationIcon) {
+                            titleElem.appendChild(modificationIcon);
+                        } else {
+                            // 创建新的修改状态图标
+                            const newModificationIcon = document.createElement('div');
+                            newModificationIcon.className = 'file-edit-modification-icon';
+                            newModificationIcon.id = fileEditId + '-modification-icon';
+                            titleElem.appendChild(newModificationIcon);
+                        }
+                    }
+                }
+            }
+
+            if (updates.content !== undefined || updates.diffContent !== undefined) {
+                const contentElem = fileEditElem.querySelector('.file-edit-content');
+                if (contentElem) {
+                    // 检查更新前是否应该滚动到底部
+                    const shouldScrollToBottom = isNearBottom();
+                    const isExpanded = !fileEditElem.classList.contains('collapsed');
+                    
+                    // 更新存储的内容
+                    if (updates.content !== undefined) {
+                        fileEditElem.setAttribute('data-content', updates.content);
+                    }
+                    if (updates.diffContent !== undefined) {
+                        fileEditElem.setAttribute('data-diff-content', updates.diffContent);
+                    }
+                    
+                    // 重新设置默认显示状态：优先显示diff，没有diff时显示原始内容
+                    const diffContent = fileEditElem.getAttribute('data-diff-content') || '';
+                    const originalContent = fileEditElem.getAttribute('data-content') || '';
+                    
+                    // 如果有diff内容，默认显示diff；否则显示原始内容
+                    if (diffContent.trim()) {
+                        fileEditElem.setAttribute('data-show-diff', 'true');
+                    } else {
+                        fileEditElem.setAttribute('data-show-diff', 'false');
+                    }
+                    
+                    // 根据当前显示状态决定显示哪个内容
+                    const showDiff = fileEditElem.getAttribute('data-show-diff') === 'true';
+                    
+                    let contentToDisplay;
+                    if (showDiff && diffContent.trim()) {
+                        contentToDisplay = diffContent;
+                    } else {
+                        contentToDisplay = originalContent;
+                    }
+                    
+                    // 查找现有的 code 元素
+                    const codeElement = contentElem.querySelector('code.language-cpp');
+                    if (codeElement) {
+                        // 处理语法高亮和行高亮标记
+                        const processedContent = processFileEditContentWithHighlights(contentToDisplay);
+                        
+                        // 使用innerHTML设置处理后的内容（包含语法高亮和行高亮）
+                        codeElement.innerHTML = processedContent;
+                    } else {
+                        // 如果没有找到 code 元素，创建新的结构
+                        contentElem.innerHTML = '';
+                        const preElement = document.createElement('pre');
+                        const newCodeElement = document.createElement('code');
+                        newCodeElement.className = 'language-cpp';
+                        
+                        // 处理语法高亮和行高亮标记
+                        const processedContent = processFileEditContentWithHighlights(contentToDisplay);
+                        
+                        // 使用innerHTML设置处理后的内容（包含语法高亮和行高亮）
+                        newCodeElement.innerHTML = processedContent;
+                        
+                        preElement.appendChild(newCodeElement);
+                        contentElem.appendChild(preElement);
+                    }
+                    
+                    // 更新自适应高度
+                    updateFileEditAutoHeight(fileEditElem, contentToDisplay);
+                    
+                    // 更新菜单项
+                    const optionsMenu = fileEditElem.querySelector('.file-edit-options-menu');
+                    if (optionsMenu && optionsMenu.updateMenuItems) {
+                        optionsMenu.updateMenuItems();
+                    }
+                    
+                    // 更新"..."按钮的启用/禁用状态
+                    const optionsBtn = fileEditElem.querySelector('.file-edit-options-btn');
+                    if (optionsBtn) {
+                        const finalDiffContent = fileEditElem.getAttribute('data-diff-content') || '';
+                        const hasDiffContent = finalDiffContent.trim();
+                        // if (hasDiffContent) {
+                        //     optionsBtn.disabled = false;
+                        //     optionsBtn.title = 'Options';
+                        // } else {
+                        //     optionsBtn.disabled = true;
+                        //     optionsBtn.title = 'No additional options available';
+                        //     // 如果按钮被禁用，同时隐藏菜单
+                        //     if (optionsMenu) {
+                        //         optionsMenu.classList.remove('show');
+                        //     }
+                        // }
+                    }
+                    
+                    // 根据FileEdit状态决定滚动行为
+                    if (fileEditElem.classList.contains('collapsed')) {
+                        // 折叠状态：滚动FileEdit内容到末尾
+                        setTimeout(() => {
+                            contentElem.scrollTop = contentElem.scrollHeight;
+                        }, 0);
+                    } else if (isExpanded && shouldScrollToBottom) {
+                        // 展开状态且聊天窗口在底部附近：滚动整个聊天窗口到底部
+                        setTimeout(() => {
+                            scrollToBottom();
+                        }, 0);
+                    }
+                }
+            }
+
+            if (updates.height !== undefined) {
+                // 忽略固定高度设置，使用自适应高度
+                console.log('Fixed height ignored in favor of auto-height for:', fileEditId);
+            }
+
+            if (updates.buttons !== undefined) {
+                const buttonsArea = fileEditElem.querySelector('.file-edit-buttons');
+                if (buttonsArea) {
+                    const optionsBtn = buttonsArea.querySelector('.file-edit-options-btn');
+                    const optionsMenu = buttonsArea.querySelector('.file-edit-options-menu');
+
+                    // Remove all children that are not the optionsBtn or optionsMenu
+                    let child = buttonsArea.firstChild;
+                    while(child) {
+                        let nextChild = child.nextSibling;
+                        if (child !== optionsBtn && child !== optionsMenu) {
+                            buttonsArea.removeChild(child);
+                        }
+                        child = nextChild;
+                    }
+
+                    // Add new custom buttons before the optionsBtn if it exists
+                    if (updates.buttons && Array.isArray(updates.buttons)) {
+                        updates.buttons.forEach(btnDef => {
+                            const button = document.createElement('button');
+                            button.className = 'file-edit-button';
+                            button.textContent = btnDef.text;
+                            button.onclick = (e) => {
+                                e.stopPropagation();
+                                window.chrome.webview.postMessage({
+                                    action: 'fileEditButtonClicked',
+                                    fileEditId: fileEditId,
+                                    buttonId: btnDef.id,
+                                    buttonAction: btnDef.action
+                                });
+                            };
+                            // Insert new custom buttons before the optionsBtn
+                            if (optionsBtn) {
+                                buttonsArea.insertBefore(button, optionsBtn);
+                            } else {
+                                // Fallback if optionsBtn is not found (shouldn't happen in normal flow)
+                                buttonsArea.appendChild(button);
+                            }
+                        });
+                    }
+                }
+            }
+
+            if (updates.isCollapsed !== undefined) {
+                // Find the collapse button using its new specific class or location
+                const collapseBtn = fileEditElem.querySelector('.file-edit-titlebar-collapse-btn');
+                if (collapseBtn) {
+                    if (updates.isCollapsed) {
+                        fileEditElem.classList.add('file-edit-collapsed');
+                        collapseBtn.textContent = '▶';
+                    } else {
+                        fileEditElem.classList.remove('file-edit-collapsed');
+                        collapseBtn.textContent = '▼';
+                    }
+                }
+            }
+        }
+
+
+        // Helper function to hide all file edit option menus
+        function hideAllFileEditOptionMenus() {
+            document.querySelectorAll('.file-edit-options-menu.show').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+
+
+
+
+
+        // Disable某个消息之后的所有消息
+        function disableMessagesAfter(messageId) {
+            const targetMessage = document.getElementById(messageId);
+            if (!targetMessage) {
+                console.error('Message not found:', messageId);
+                return;
+            }
+            
+            // 找到目标消息在容器中的位置
+            const allMessages = chatContainer.querySelectorAll('.message');
+            let found = false;
+            
+            for (let i = 0; i < allMessages.length; i++) {
+                const message = allMessages[i];
+                
+                if (message.id === messageId) {
+                    // 找到目标消息，disable它和后续所有消息
+                    found = true;
+                    message.classList.add('disabled');
+                    addDisabledMessageClickHandler(message);
+                } else if (found) {
+                    // 如果已经找到目标消息，则disable后续所有消息
+                    message.classList.add('disabled');
+                    addDisabledMessageClickHandler(message);
+                }
+            }
+        }
+
+        // 启用所有被disabled的消息
+        function enableAllDisabledMessages() {
+            const disabledMessages = chatContainer.querySelectorAll('.message.disabled');
+            
+            disabledMessages.forEach(message => {
+                // 移除disabled类
+                message.classList.remove('disabled');
+                
+                // 移除点击事件处理器
+                message.removeEventListener('click', handleDisabledMessageClick);
+            });
+        }
+
+        // 删除所有被disabled的消息
+        function removeDisabledMessages() {
+            const disabledMessages = chatContainer.querySelectorAll('.message.disabled');
+            
+            disabledMessages.forEach(message => {
+                // 从DOM中删除消息元素
+                message.remove();
+            });
+        }
+
+        // 为disabled消息添加点击事件处理
+        function addDisabledMessageClickHandler(messageElement) {
+            // 移除之前可能存在的点击事件处理器
+            messageElement.removeEventListener('click', handleDisabledMessageClick);
+            
+            // 添加新的点击事件处理器
+            messageElement.addEventListener('click', handleDisabledMessageClick);
+        }
+
+        // 处理disabled消息的点击事件
+        function handleDisabledMessageClick(event) {
+            const messageElement = event.currentTarget;
+            const messageId = messageElement.id;
+            
+            // 发送消息到C++
+            window.chrome.webview.postMessage({
+                action: 'disabledMessageClicked',
+                messageId: messageId
+            });
+        }
+
+        // 显示/隐藏加载遮罩层
+        function showLoadingOverlay() {
+            loadingOverlay.classList.add('show');
+        }
+
+        function hideLoadingOverlay() {
+            loadingOverlay.classList.remove('show');
+        }
+
+        // FileEdit 修改状态控制函数
+        function startFileEditModification(fileEditId) {
+            const modificationIcon = document.getElementById(fileEditId + '-modification-icon');
+            if (modificationIcon) {
+                modificationIcon.classList.add('active');
+                console.log('Started modification animation for FileEdit:', fileEditId);
+            } else {
+                console.warn('Modification icon not found for FileEdit:', fileEditId);
+            }
+        }
+
+        function stopFileEditModification(fileEditId) {
+            const modificationIcon = document.getElementById(fileEditId + '-modification-icon');
+            if (modificationIcon) {
+                modificationIcon.classList.remove('active');
+                console.log('Stopped modification animation for FileEdit:', fileEditId);
+            } else {
+                console.warn('Modification icon not found for FileEdit:', fileEditId);
+            }
+        }
+
+        // 设置会话费用显示
+        function setCostDisplay(costText) {
+            // 查找最后一个未disabled的AI消息
+            const allMessages = chatContainer.querySelectorAll('.message.ai-message:not(.disabled)');
+            if (allMessages.length === 0) {
+                console.warn('No active AI messages found for cost display');
+                return;
+            }
+            
+            const lastAiMessage = allMessages[allMessages.length - 1];
+            
+            // 检查是否已经有费用显示元素，如果有则更新，没有则创建
+            let costDisplay = lastAiMessage.querySelector('.cost-display');
+            if (!costDisplay) {
+                // 创建费用显示元素
+                costDisplay = document.createElement('div');
+                costDisplay.className = 'cost-display';
+                lastAiMessage.appendChild(costDisplay);
+            }
+            
+            // 更新费用文本
+            costDisplay.textContent = costText;
+            console.log('Cost display updated:', costText);
+        }
+
+        // FileEdit Progress Label 相关函数
+        function showFileEditProgressLabel(messageId, fileName) {
+            const messageElem = document.getElementById(messageId);
+            if (!messageElem) {
+                console.error('Message element not found for progress label:', messageId);
+                return;
+            }
+
+            const messageContentElem = messageElem.querySelector('.message-content');
+            if (!messageContentElem) {
+                console.error('Message content element not found for progress label:', messageId);
+                return;
+            }
+
+            // 检查是否已经存在进度标签
+            const existingLabel = messageContentElem.querySelector('.file-edit-progress-label');
+            if (existingLabel) {
+                // 获取已存在标签的文件名
+                const existingText = existingLabel.querySelector('.file-edit-progress-text');
+                if (existingText) {
+                    const existingFileName = existingText.innerHTML; // 改用innerHTML以支持HTML标签
+                    
+                    // 构建新的显示文本
+                    let newDisplayText;
+                    if (fileName && fileName.trim()) {
+                        newDisplayText = 'Editing ' + fileName + ' ...';
+                    } else {
+                        newDisplayText = 'Editing file ...';
+                    }
+                    
+                    // 如果文件名没有变化，立即返回，什么也不做
+                    if (existingFileName === newDisplayText) {
+                        console.log('FileEdit progress label fileName unchanged, skipping update for message:', messageId);
+                        return;
+                    }
+                }
+                
+                // 文件名有变化，移除旧标签
+                existingLabel.remove();
+            }
+
+            // 创建进度标签元素
+            const progressLabel = document.createElement('div');
+            progressLabel.className = 'file-edit-progress-label';
+            progressLabel.id = messageId + '-progress-label';
+
+            // 创建旋转图标
+            const progressIcon = document.createElement('div');
+            progressIcon.className = 'file-edit-progress-icon';
+
+            // 创建文本元素
+            const progressText = document.createElement('div');
+            progressText.className = 'file-edit-progress-text';
+            
+            // 设置显示文本（使用innerHTML以支持HTML标签）
+            if (fileName && fileName.trim()) {
+                progressText.innerHTML = 'Editing ' + fileName + ' ...';
+            } else {
+                progressText.innerHTML = 'Editing file ...';
+            }
+
+            // 组装元素
+            progressLabel.appendChild(progressIcon);
+            progressLabel.appendChild(progressText);
+
+            // 添加到消息内容的最下方
+            messageContentElem.appendChild(progressLabel);
+
+            // 如果聊天窗口在底部附近，滚动到底部
+            if (isNearBottom()) {
+                scrollToBottom();
+            }
+
+            console.log('FileEdit progress label shown for message:', messageId, 'fileName:', fileName);
+        }
+
+        function hideFileEditProgressLabel(messageId) {
+            const progressLabel = document.getElementById(messageId + '-progress-label');
+            if (progressLabel) {
+                progressLabel.remove();
+                console.log('FileEdit progress label hidden for message:', messageId);
+            } else {
+                console.warn('FileEdit progress label not found for message:', messageId);
+            }
+        }
+
+        window.chrome.webview.addEventListener('message', event => {
+            try {
+                const message = event.data;
+                if (typeof message !== 'object' || message === null) {
+                    console.error('Received non-object message or C++ sent stringified JSON:', event.data);
+                    return;
+                }
+
+                switch (message.action) {
+                    case 'addUserMessage':
+                        addUserOrSystemMessage(message.id, message.content, 'user');
+                        break;
+                    case 'startAIMessage':
+                        startAIMessage(message.id);
+                        break;
+
+                    case 'addToAIMessage':
+                        appendToAIMessage(message.id, message.content, message.isComplete);
+                        break;
+                    case 'addToAIMessage_Thinking':
+                        appendToAIMessage_Thinking(message.id, message.content, message.isComplete);
+                        break;
+                    case 'addSystemMessage':
+                        addUserOrSystemMessage(message.id, message.content, 'system');
+                        break;
+                    case 'addToolCallMessageToAIMessage':
+                        addToolCallMessageToAIMessage(message.id, message.content);
+                        break;
+                    case 'clearChat': clearChat(); break;
+                    case 'addFileEdit':
+                        createFileEditWindow(message.fileEditId, message.messageId, message.title, message.content, message.height, message.buttons, message.isCollapsed, message.diffContent);
+                        break;
+                    case 'updateFileEditTitle':
+                        updateFileEditWindow(message.fileEditId, { title: message.title });
+                        break;
+                    case 'updateFileEditContent':
+                        updateFileEditWindow(message.fileEditId, { 
+                            content: message.content, 
+                            diffContent: message.diffContent 
+                        });
+                        break;
+                    case 'updateFileEditHeight':
+                        updateFileEditWindow(message.fileEditId, { height: message.height });
+                        break;
+                    case 'updateFileEditButtons':
+                        updateFileEditWindow(message.fileEditId, { buttons: message.buttons });
+                        break;
+                    case 'toggleFileEditCollapse':
+                        updateFileEditWindow(message.fileEditId, { isCollapsed: message.isCollapsed });
+                        break;
+                    // 标题栏相关消息处理
+                    case 'setWebViewTitle':
+                        setWebViewTitle(message.title);
+                        break;
+                    case 'addTitlebarButton':
+                        addTitlebarButton(message.buttonId, message.buttonText, message.buttonAction);
+                        break;
+                    case 'removeTitlebarButton':
+                        removeTitlebarButton(message.buttonId);
+                        break;
+                    case 'clearTitlebarButtons':
+                        clearTitlebarButtons();
+                        break;
+
+                    case 'disableMessagesAfter':
+                        disableMessagesAfter(message.messageId);
+                        break;
+                    case 'enableAllDisabledMessages':
+                        enableAllDisabledMessages();
+                        break;
+                    case 'removeDisabledMessages':
+                        removeDisabledMessages();
+                        break;
+                    case 'showLoadingOverlay':
+                        showLoadingOverlay();
+                        break;
+                    case 'hideLoadingOverlay':
+                        hideLoadingOverlay();
+                        break;
+                    case 'startFileEditModification':
+                        startFileEditModification(message.fileEditId);
+                        break;
+                    case 'stopFileEditModification':
+                        stopFileEditModification(message.fileEditId);
+                        break;
+                    case 'setCostDisplay':
+                        setCostDisplay(message.costText);
+                        break;
+                    case 'showFileEditProgressLabel':
+                        showFileEditProgressLabel(message.messageId, message.fileName);
+                        break;
+                    case 'hideFileEditProgressLabel':
+                        hideFileEditProgressLabel(message.messageId);
+                        break;
+                    default: console.warn('Unknown message action:', message.action); break;
+                }
+            } catch (e) {
+                console.error('Error processing message from C++:', e, 'Raw data:', event.data);
+            }
+        });
+
+        // 拦截所有链接点击，阻止默认导航行为
+        document.addEventListener('click', (e) => {
+            // 查找被点击的元素或其父元素是否为链接
+            let target = e.target;
+            while (target && target.tagName !== 'A') {
+                target = target.parentElement;
+            }
+            
+            // 如果点击的是链接
+            if (target && target.tagName === 'A' && target.href) {
+                e.preventDefault(); // 阻止默认导航行为
+                e.stopPropagation(); // 阻止事件冒泡
+                
+                // 发送消息到C++，请求用外部浏览器打开链接
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'openExternalUrl',
+                        url: target.href
+                    });
+                } else {
+                    console.error('WebView not available to open URL:', target.href);
+                }
+            }
+        }, true); // 使用捕获阶段，确保在其他事件处理之前拦截
+
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage({ action: 'jsInitialized' });
+        } else {
+            console.error('window.chrome.webview not available for initialization message.');
+        }
+    </script>
+</body>
+</html>

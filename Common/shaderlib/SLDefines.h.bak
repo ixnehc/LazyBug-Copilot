@@ -1,0 +1,345 @@
+#pragma once
+
+#include <vector>
+#include <string>
+
+#include "../strlib/strlibdefines.h"
+
+#include "gds/GDefines.h"
+
+class CDataPacket;
+
+//Operator
+#define O_NULL					0//for cxi!
+#define O_LOGIC_NOT				1//!
+#define O_BITWISE_NOT			2//~
+#define O_MULTIPLY				3//*
+#define O_DIVIDE				4// /
+#define	O_REMAINDER				5//%
+#define O_ADD					6//+
+#define O_SUBTRACT				7//-
+#define O_LEFT_SHIFT			8//<<
+#define O_RIGHT_SHIFT			9//>>
+#define O_LESS_THAN				10//<
+#define	O_LESS_THAN_OR_EQUAL	11//<=
+#define O_GREATER_THAN			12//>
+#define O_GREATER_THAN_OR_EQUAL	13//>=
+#define O_EQUAL					14//==
+#define	O_NOT_EQUAL				15//!=
+#define O_BITWISE_AND			16//&
+#define O_BITWISE_XOR			17//^
+#define	O_BITWISE_OR			18//|
+#define O_LOGIC_AND				19//&&
+#define O_LOGIC_OR				20//||
+#define O_LEFT_BRACE			21//(
+#define O_RIGHT_BRACE			22//)
+#define O_ASSIGN				23//=
+#define O_NEGATIVE				24//-
+#define O_COMMA					25//,
+#define O_ARRAY					26//[],replaced by "#"
+
+#define ShaderVarPriority_Default (50)
+
+#define ShaderCapPriority_Default (50)
+
+
+enum ShaderVarCategory
+{
+	SVC_None,
+	SVC_EffectParam,
+	SVC_VsIn,
+	SVC_PsIn,
+	SVC_PsOut,
+	SVC_VsFactor,
+	SVC_PsFactor,
+	SVC_StateVar,
+};
+
+
+//Note: should be synchronized with g_SCCNames
+enum ShaderCapCode
+{
+	SCC_none=-1,
+	SCC_maxbones,
+	SCC_weightcount,
+	//XXXXX:more ShaderCap
+
+	SCC_max,
+};
+
+
+
+struct ExprNode;
+
+struct ExprCode
+{
+	enum Type
+	{
+		None,
+		Operator,
+		Operand_Var,
+		Operand_Number,
+		Node,
+	};
+
+	ExprCode()
+	{
+		type=None;
+		op=O_NULL;
+		node=NULL;
+		varvalue=0;
+	}
+
+	Type type;
+	int op;
+	std::string varname;
+	int varvalue;
+	ExprNode *node;
+
+	void Save(CDataPacket &dp);
+	void Load(CDataPacket &dp);
+
+	ExprCode& operator=(const ExprCode &src)
+	{
+		type=src.type;
+		op=src.op;
+		varname=src.varname;
+		varvalue=src.varvalue;
+		node=src.node;
+		return *this;
+	}
+};
+
+struct ExprNode:public ExprCode
+{
+	ExprNode()
+	{
+		left=right=NULL;
+	}
+
+	ExprNode *left,*right;
+
+	void CleanAndDelete()
+	{
+		if (left)
+			left->CleanAndDelete();
+		if (right)
+			right->CleanAndDelete();
+		delete this;
+	}
+
+	ExprNode *Clone()
+	{
+		ExprNode *enNew=new ExprNode;
+		(ExprCode&)(*enNew)=(ExprCode&)(*this);
+		if (left)
+			enNew->left=left->Clone();
+		if (right)
+			enNew->right=right->Clone();
+		return enNew;
+	}
+
+	void Save(CDataPacket &dp);
+	void Load(CDataPacket &dp);
+
+};
+
+enum FeatureFlag
+{
+	FF_None=0,
+	FF_Base=1,//An Always-be-present feature
+	FF_MtrlEdit=2,//this feature could be edit when editing a mtrl
+	FF_MtrlRepair=4,
+
+	FF_All=0xffffffff,
+
+	FeatureFlag_forcedword=0xffffffff,
+};
+
+
+struct ShaderVar
+{
+	ShaderVar()
+	{
+		category=SVC_None;
+		szArray=-1;
+		vInit=NULL;
+		priority=-1;//undefined priority
+	}
+	void Clean()
+	{
+		if (vInit)
+			vInit->CleanAndDelete();
+		vInit=NULL;
+	}
+	ShaderVarCategory category;
+	std::string type;
+	std::string name;
+	std::string sementic;
+	std::string annotation;
+	std::string assign;
+	std::string statevalue;
+
+	int szArray;
+	int priority;
+
+	ExprNode *vInit;
+
+	void Save(CDataPacket &dp);
+	void Load(CDataPacket &dp);
+
+	ShaderVar&operator=(const ShaderVar&src)
+	{
+		category=src.category;
+		type=src.type;
+		name=src.name;
+		sementic=src.sementic;
+		annotation=src.annotation;
+		statevalue=src.statevalue;
+		szArray=src.szArray;
+		vInit=src.vInit;
+		assign=src.assign;
+		priority=src.priority;
+		return *this;
+	}
+};
+
+
+struct FeatureCode
+{
+	FeatureCode()
+	{
+		c=0;
+	}
+	FeatureCode(unsigned __int64 v)
+	{
+		c=v;
+	}
+	void Clear()
+	{
+		c=0;
+	}
+	void Set(unsigned __int64 v)	{		c=v;	}
+	BOOL FromName(const char *nameFeatures);//seperated using ",",return FALSE if some of feature names are not resolved
+	const char *ToName();//the returned pointer should not be kept
+	inline BOOL Test(FeatureCode& fc);
+	inline void Add(FeatureCode &fc);
+	inline void Filter(FeatureCode &fc);
+	inline void Remove(FeatureCode &fc);
+	inline BOOL IsEmpty();
+	inline FeatureCode operator |(FeatureCode &src);
+	inline BOOL operator ==(FeatureCode &src)	{		return c==src.c;	}
+	BOOL JudgeConflict(FeatureCode &fcConflictGroup);
+	BOOL IncWithMask(FeatureCode &fcMask);//return FALSE if already reached the top value
+	static BOOL CheckValidName(const char *name,std::string *firsterrname=NULL);
+
+	unsigned __int64 c;
+};
+
+BOOL FeatureCode::Test(FeatureCode& fc)
+{
+	if (fc.c&c)
+		return TRUE;
+	return FALSE;
+}
+
+void FeatureCode::Add(FeatureCode &fc)
+{
+	c=c|fc.c;
+}
+
+void FeatureCode::Filter(FeatureCode &fc)
+{
+	c=c&fc.c;
+}
+
+void FeatureCode::Remove(FeatureCode &fc)
+{
+	c=c&(~fc.c);
+}
+
+BOOL FeatureCode::IsEmpty()
+{
+	return c==0;
+}
+
+inline FeatureCode FeatureCode::operator |(FeatureCode &src)
+{
+	return FeatureCode(c|src.c);
+}
+
+
+struct ShaderCode:public FeatureCode
+{
+	ShaderCode()
+	{
+		iLib=0xff;
+		idxUF=0xff;
+		idMte=0;
+	}
+
+	BYTE GetLibIdx()	{		return iLib;	}
+	void SetLibIdx(BYTE idx)	{		iLib=idx;	}
+	 BYTE GetIdxUF()	{		return idxUF;	}
+	void SetIdxUF(BYTE idx)	{		idxUF=idx;	}
+	BOOL IsValid()	{		return iLib!=0xff;	}
+	void Invalid()	{		iLib=0xff;	idxUF=0xff;idMte=0;Clear();}//make it invalid
+	BOOL UFExist()	{		return idxUF!=0xff;	}
+
+	BOOL Equals(ShaderCode &other)
+	{
+		return memcmp(this,&other,sizeof(*this))==0;
+	}
+
+	BYTE iLib;
+	BYTE idxUF;//unifeature
+	WORD idMte;//²ÄÖÊÀ©Õ¹µÄid
+
+	BOOL operator <(const ShaderCode &src)
+	{
+		unsigned __int64 *p=(unsigned __int64 *)this;
+		unsigned __int64 *p2=(unsigned __int64 *)&src;
+		if (p[0]<p2[0])
+			return TRUE;
+		else
+		{
+			if (p[0]>p2[0])
+				return FALSE;
+		}
+		return (*(DWORD*)&p[1]<*(DWORD*)&p2[1]);
+	}
+};
+
+inline bool operator<(const ShaderCode &left,const ShaderCode &right)
+{
+	unsigned __int64 *p=(unsigned __int64 *)&left;
+	unsigned __int64 *p2=(unsigned __int64 *)&right;
+	if (p[0]<p2[0])
+		return TRUE;
+	else
+	{
+		if (p[0]>p2[0])
+			return FALSE;
+	}
+	return (*(DWORD*)&p[1]<*(DWORD*)&p2[1]);
+}
+
+struct ShaderCap
+{
+	ShaderCap()
+	{
+		code=SCC_none;
+	}
+	ShaderCapCode code;
+	int value;
+	void SetCode(ShaderCapCode c)	{		code=c;	}
+	BOOL SetCode(const char *sCode);//return FALSE if sCode is not a valid cap name
+	void SetValue(int v)	{		value=v;	}
+};
+
+struct PriorShaderCap:public ShaderCap
+{
+	DWORD priority;
+};
+
+

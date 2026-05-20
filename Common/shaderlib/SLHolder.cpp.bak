@@ -1,0 +1,280 @@
+/********************************************************************
+	created:	2006/12/20   13:22
+	filename: 	e:\IxEngine\Common\shaderlib\SLHolder.cpp
+	author:		cxi
+	
+	purpose:	
+*********************************************************************/
+
+#include "stdh.h"
+
+#include "SLHolder.h"
+
+#include "stringparser/stringparser.h"
+
+#include "DataPacket/DataPacket.h"
+
+//////////////////////////////////////////////////////////////////////////
+//SLTemplate
+
+void SLTemplate::Clean()
+{
+	bEP=bVsIn=bPsIn=bPsOut=bVS=bPS=FALSE;
+
+	for (int i=0;i<vars.size();i++)
+		vars[i].Clean();
+	for (int i=0;i<exprVS.size();i++)
+		exprVS[i]->CleanAndDelete();
+	for (int i=0;i<exprPS.size();i++)
+		exprPS[i]->CleanAndDelete();
+	vars.clear();
+	exprVS.clear();
+	exprPS.clear();
+
+	featuregroups.clear();
+
+	vs_ver="";
+	ps_ver="";
+}
+
+void SLTemplate::CleanAndDelete()
+{
+	Clean();
+	delete this;
+}
+
+
+
+SLTemplate *SLTemplate::Clone()
+{
+	SLTemplate *holder=new SLTemplate;
+	holder->bVS=bVS;
+	holder->bPS=bPS;
+	holder->bVsIn=bVsIn;
+	holder->bPsIn=bPsIn;
+	holder->bPsOut=bPsOut;
+	holder->bEP=bEP;
+	holder->vars.resize(vars.size());
+	for (int i=0;i<vars.size();i++)
+	{
+		holder->vars[i]=vars[i];
+		if (vars[i].vInit)
+			holder->vars[i].vInit=vars[i].vInit->Clone();
+	}
+	holder->exprVS.resize(exprVS.size());
+	for (int i=0;i<exprVS.size();i++)
+		holder->exprVS[i]=exprVS[i]->Clone();
+	holder->exprPS.resize(exprPS.size());
+	for (int i=0;i<exprPS.size();i++)
+		holder->exprPS[i]=exprPS[i]->Clone();
+
+	holder->vs_ver=vs_ver;
+	holder->ps_ver=ps_ver;
+
+	holder->featuregroups=featuregroups;
+
+	return holder;
+}
+
+void SLTemplate::Save(CDataPacket &dp)
+{
+	dp.Data_NextInt()=bVS;
+	dp.Data_NextInt()=bPS;
+	dp.Data_NextInt()=bVsIn;
+	dp.Data_NextInt()=bPsIn;
+	dp.Data_NextInt()=bPsOut;
+	dp.Data_NextInt()=bEP;
+
+	dp.Data_NextDword()=vars.size();
+	for (int i=0;i<vars.size();i++)
+		vars[i].Save(dp);
+
+	dp.Data_NextDword()=exprVS.size();
+	for (int i=0;i<exprVS.size();i++)
+		exprVS[i]->Save(dp);
+
+	dp.Data_NextDword()=exprPS.size();
+	for (int i=0;i<exprPS.size();i++)
+		exprPS[i]->Save(dp);
+
+	dp.Data_NextDword()=featuregroups.size();
+	for (int i=0;i<featuregroups.size();i++)
+		dp.Data_WriteString(featuregroups[i]);
+
+	dp.Data_WriteString(vs_ver);
+	dp.Data_WriteString(ps_ver);
+}
+
+void SLTemplate::Load(CDataPacket &dp)
+{
+	Clean();
+
+	bVS=dp.Data_NextInt();
+	bPS=dp.Data_NextInt();
+	bVsIn=dp.Data_NextInt();
+	bPsIn=dp.Data_NextInt();
+	bPsOut=dp.Data_NextInt();
+	bEP=dp.Data_NextInt();
+
+	vars.resize(dp.Data_NextDword());
+	for (int i=0;i<vars.size();i++)
+		vars[i].Load(dp);
+
+	exprVS.resize(dp.Data_NextDword());
+	for (int i=0;i<exprVS.size();i++)
+	{
+		exprVS[i]=new ExprNode;
+		exprVS[i]->Load(dp);
+	}
+
+	exprPS.resize(dp.Data_NextDword());
+	for (int i=0;i<exprPS.size();i++)
+	{
+		exprPS[i]=new ExprNode;
+		exprPS[i]->Load(dp);
+	}
+
+	featuregroups.resize(dp.Data_NextDword());
+	for (int i=0;i<featuregroups.size();i++)
+		dp.Data_ReadString(featuregroups[i]);
+
+	dp.Data_ReadString(vs_ver);
+	dp.Data_ReadString(ps_ver);
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//SLFeature
+
+void SLFeature::Clean()
+{
+	for (int i=0;i<vars.size();i++)
+		vars[i].Clean();
+	vars.clear();
+	caps.clear();
+
+	fc.Clear();
+	vs_ver="";
+	ps_ver="";
+	global="";
+	flag=FF_None;
+}
+
+
+void SLFeature::CleanAndDelete()
+{
+	Clean();
+	delete this;
+}
+
+void SLFeature::CopyFrom(SLFeature &src)
+{
+	fc=src.fc;
+
+	name=src.name;
+	global=src.global;
+	vs_ver=src.vs_ver;
+	ps_ver=src.ps_ver;
+	vars.resize(src.vars.size());
+	for (int i=0;i<src.vars.size();i++)
+	{
+		vars[i]=src.vars[i];
+		if (src.vars[i].vInit)
+			vars[i].vInit=src.vars[i].vInit->Clone();
+	}
+	caps=src.caps;
+
+	flag=src.flag;
+}
+
+
+SLFeature *SLFeature::Clone()
+{
+	SLFeature *holder=new SLFeature;
+	holder->CopyFrom(*this);
+
+	return holder;
+}
+
+
+//(*) add "pi." or "vi." for each PsIn or VsIn variable referenced in each var's assign
+//(*) insert a "\r\n" in each ";","{","}" in global and each var's assign
+void SLFeature::AdjustString(SLTemplate *t,BOOL bHLSL)
+{
+	if (!t)
+		return;
+	if (bHLSL)
+	{
+		for (int i=0;i<t->vars.size();i++)
+		{
+			if ((t->vars[i].category!=SVC_PsIn)&&(t->vars[i].category!=SVC_VsIn))
+				continue;
+
+			std::string toFind,toReplace;
+			toFind=std::string(" ")+t->vars[i].name+std::string(" ");
+			if (t->vars[i].category==SVC_PsIn)
+				toReplace=std::string("pi .")+toFind;
+			else
+				toReplace=std::string("vi .")+toFind;
+
+			for (int j=0;j<vars.size();j++)
+			{
+				if (vars[j].assign!="")
+					vars[j].assign=ReplaceString(vars[j].assign.c_str(),toFind.c_str(),toReplace.c_str());
+			}
+		}
+	}
+
+	for (int j=0;j<vars.size();j++)
+	{
+		if (vars[j].assign!="")
+		{
+			vars[j].assign=ReplaceString(vars[j].assign.c_str(),";",";\r\n		");
+			vars[j].assign=ReplaceString(vars[j].assign.c_str(),"{","\r\n		{\r\n		");
+			vars[j].assign=ReplaceString(vars[j].assign.c_str(),"}","}\r\n		");
+		}
+	}
+
+	global=ReplaceString(global.c_str(),";",";\r\n	");
+	global=ReplaceString(global.c_str(),"{","\r\n	{\r\n	");
+	global=ReplaceString(global.c_str(),"}","}\r\n	");
+	global=ReplaceString(global.c_str(),"# end","\r\n");
+	global=ReplaceString(global.c_str(),"# ","#");
+}
+
+
+void SLFeature::Save(CDataPacket &dp)
+{
+	dp.Data_NextDword()=vars.size();
+	for (int i=0;i<vars.size();i++)
+		vars[i].Save(dp);
+	DP_WriteVector(dp,caps);
+
+	dp.Data_WriteData(&fc,sizeof(fc));
+
+	dp.Data_WriteString(name);
+	dp.Data_WriteString(vs_ver);
+	dp.Data_WriteString(ps_ver);
+	dp.Data_WriteString(global);
+
+	dp.Data_NextDword()=flag;
+
+}
+void SLFeature::Load(CDataPacket &dp)
+{
+	Clean();
+
+	vars.resize(dp.Data_NextDword());
+	for (int i=0;i<vars.size();i++)
+		vars[i].Load(dp);
+	DP_ReadVector(dp,caps);
+
+	dp.Data_ReadData(&fc,sizeof(fc));
+
+	dp.Data_ReadString(name);
+	dp.Data_ReadString(vs_ver);
+	dp.Data_ReadString(ps_ver);
+	dp.Data_ReadString(global);
+
+	flag=(FeatureFlag)dp.Data_NextDword();
+}

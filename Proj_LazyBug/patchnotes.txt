@@ -1,0 +1,36 @@
+﻿0.11~0.13.2
+
+Support multiple keywords in text search and symbol query
+User message now shows the tag instead of the plain text
+Fix the "thought signature" issue of Gemini api format
+Fix a cost statistic mistake for OpenAI-compatible LLM api format
+Add a "modified files" summarize frame at the end of each session
+
+0.14
+Image attachment support, you can now paste image or image file into the chat input window
+Chat input window improvement/bug fix. (tag copy-paste, undo-redo)
+Fix a symbol parsing issue resulting in function body not fully retrieved.
+
+0.15
+- C# symbol supported. LLM can now query C# symbols(function name,class name,...)
+- Add new tool of SearchFilePath
+- Display thumbnail for image tags
+- Support symbol link recognization in chat window
+- Add DeepSeek V4 support
+	[Provider]
+	name=DeepSeek
+	endpoint=https://api.deepseek.com/chat/completions
+	apiFormat=DeepSeek
+- Chat input window tag-related bug fixes.
+- Fix a gemini api tool-call naming issue
+- Fix a code-database service stalling issue
+- Fix the issue that thinking mode could never be enabled for anthropic models
+
+0.16
+- Add new tool of CLI (cmd.exe , bash.exe , python.exe)
+- Add new tool of AskQuestion
+- Add skill support and a panel to manage them
+- Fix the cost statistic getting reset issue
+- Remove dependency on mfc dll
+- Support 中文字符的 file path
+- Fix an issue of connecting LM Studio api

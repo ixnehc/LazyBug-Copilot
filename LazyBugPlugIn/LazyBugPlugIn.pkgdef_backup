@@ -1,0 +1,44 @@
+﻿[$RootKey$\Packages\{6d2723b6-3b30-480e-8537-65b39d8b99c5}]
+@="LazyBugPlugIn Package"
+"InprocServer32"="$PackageFolder$\LazyBugPlugIn.dll"
+"CompanyName"="IxSoftware"
+"ProductName"="LazyBug"
+"ProductVersion"="1.0"
+"AllowsBackgroundLoad"=dword:00000001
+[$RootKey$\AutoLoadPackages\{f1536ef8-92ec-443c-9ed7-fdadf150da82}]
+"{6d2723b6-3b30-480e-8537-65b39d8b99c5}"=dword:00000001
+
+[$RootKey$\Packages\{6d2723b6-3b30-480e-8537-65b39d8b99c5}\SatelliteDll]
+"DllName"="LazyBugPlugInUI.dll"
+"Path"="$PackageFolder$"
+
+[$RootKey$\Menus]
+"{6d2723b6-3b30-480e-8537-65b39d8b99c5}"=", 1000, 1"
+
+[$RootKey$\InstalledProducts\LazyBugPlugIn]
+@="#100"
+"Package"="{6d2723b6-3b30-480e-8537-65b39d8b99c5}"
+"ProductDetails"="#102"
+"LogoID"="#400"
+"PID"="1.0"
+"UseInterface"=dword:00000000
+
+
+[$RootKey$\ToolWindows\{1c612bfc-75d6-4485-a830-6b1029a29452}]
+@="{6d2723b6-3b30-480e-8537-65b39d8b99c5}"
+"Name"="LazyBugChat"
+"Float"="100,100,300,400"
+"Orientation"="Right"
+"Style"="Float"
+"Window"="{4A9B7E51-AA16-11D0-A8C5-00A0C921A4D2}"
+
+[$RootKey$\ToolWindows\{045F89AE-AA54-450C-848B-DADD002945B5}]
+@="{6d2723b6-3b30-480e-8537-65b39d8b99c5}"
+"Name"="LazyBugChangelists"
+"Float"="120,120,320,420"
+"Orientation"="Right"
+"Style"="Float"
+
+
+[$RootKey$\Text Editor\External Markers\{571A9BFC-43C6-4DB3-A768-65945766DF93}]
+"Name"="LazyBugDiffAdded"

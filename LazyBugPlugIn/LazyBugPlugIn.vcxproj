@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Retail|x64">
+      <Configuration>Retail</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <TargetName>LazyBugPlugIn</TargetName>
+    <ProjectGUID>{9908e3ba-816b-4dab-bea8-1082c258b122}</ProjectGUID>
+    <MinimumVisualStudioVersion>17.0</MinimumVisualStudioVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VsSDK.props" Condition="exists('..\VsSDK.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VsSDK.props" Condition="exists('..\VsSDK.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VsSDK.props" Condition="exists('..\VsSDK.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalOptions>-ms_ext -c_ext -no_format_opt</AdditionalOptions>
+      <PreprocessorDefinitions>DEBUG;UNICODE;_UNICODE;_NEW_SDK=1;_WINDOWS;_USRDLL;_WCHAR_T_DEFINED;__MIDL__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>0</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>$(IntDir)%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>$(IntDir)%(FileName).h</HeaderFileName>
+      <DLLDataFileName>$(IntDir)%(FileName)_d.c</DLLDataFileName>
+      <InterfaceIdentifierFileName>$(IntDir)%(FileName).c</InterfaceIdentifierFileName>
+      <ProxyFileName>$(IntDir)%(FileName)_p.c</ProxyFileName>
+      <EnableErrorChecks>All</EnableErrorChecks>
+      <StructMemberAlignment>8</StructMemberAlignment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.\;..;$(Office10Include);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;_MBCS;_USRDLL;UNICODE;TLC=2;TLD=2;TLM=2;TLF=3;TLI=4;_NEW_SDK=1;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)LazyBugPlugIn.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;UNICODE;_UNICODE;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <RegisterOutput>false</RegisterOutput>
+      <AdditionalDependencies>vsguids.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ModuleDefinitionFile>.\LazyBugPlugIn.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)LazyBugPlugIn.lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalOptions>-ms_ext -c_ext -no_format_opt</AdditionalOptions>
+      <PreprocessorDefinitions>NDEBUG;_ATL_STATIC_REGISTRY;_ATL_MIN_CRT;UNICODE;_UNICODE;_NEW_SDK=1;_WINDOWS;_USRDLL;_WCHAR_T_DEFINED;__MIDL__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>0</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>$(IntDir)%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>$(IntDir)%(FileName).h</HeaderFileName>
+      <DLLDataFileName>$(IntDir)%(FileName)_d.c</DLLDataFileName>
+      <InterfaceIdentifierFileName>$(IntDir)%(FileName).c</InterfaceIdentifierFileName>
+      <ProxyFileName>$(IntDir)%(FileName)_p.c</ProxyFileName>
+      <EnableErrorChecks>All</EnableErrorChecks>
+      <StructMemberAlignment>8</StructMemberAlignment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/Oxs</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;$(Office10Include);..;..\common;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;_MBCS;_USRDLL;UNICODE;NDEBUG;TLC=2;TLD=2;TLM=2;TLF=3;TLI=4;_NEW_SDK=1;_AFXDLL;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)LazyBugPlugIn.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <SDLCheck>true</SDLCheck>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;UNICODE;_UNICODE;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <RegisterOutput>false</RegisterOutput>
+      <AdditionalDependencies>Wldap32.lib;ws2_32.lib;crypt32.lib;vsguids.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ModuleDefinitionFile>.\LazyBugPlugIn.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)LazyBugPlugIn.lib</ImportLibrary>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+    <Midl>
+      <AdditionalOptions>-ms_ext -c_ext -no_format_opt</AdditionalOptions>
+      <PreprocessorDefinitions>NDEBUG;_ATL_STATIC_REGISTRY;_ATL_MIN_CRT;UNICODE;_UNICODE;_NEW_SDK=1;_WINDOWS;_USRDLL;_WCHAR_T_DEFINED;__MIDL__=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>0</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>X64</TargetEnvironment>
+      <GenerateStublessProxies>true</GenerateStublessProxies>
+      <TypeLibraryName>$(IntDir)%(FileName).tlb</TypeLibraryName>
+      <HeaderFileName>$(IntDir)%(FileName).h</HeaderFileName>
+      <DLLDataFileName>$(IntDir)%(FileName)_d.c</DLLDataFileName>
+      <InterfaceIdentifierFileName>$(IntDir)%(FileName).c</InterfaceIdentifierFileName>
+      <ProxyFileName>$(IntDir)%(FileName)_p.c</ProxyFileName>
+      <EnableErrorChecks>All</EnableErrorChecks>
+      <StructMemberAlignment>8</StructMemberAlignment>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>/Oxs</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;$(Office10Include);..;..\common;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;_MBCS;_USRDLL;UNICODE;NDEBUG;TLC=2;TLD=2;TLM=2;TLF=3;TLI=4;_NEW_SDK=1;_AFXDLL;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)LazyBugPlugIn.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;UNICODE;_UNICODE;_AFXDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+    <Link>
+      <RegisterOutput>false</RegisterOutput>
+      <AdditionalDependencies>Wldap32.lib;ws2_32.lib;crypt32.lib;vsguids.lib;msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <ModuleDefinitionFile>.\LazyBugPlugIn.def</ModuleDefinitionFile>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImportLibrary>$(OutDir)LazyBugPlugIn.lib</ImportLibrary>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Midl Include="LazyBugPlugIn.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\codediff\CodeDiff.cpp" />
+    <ClCompile Include="..\Common\codediff\CodeDiff2.cpp" />
+    <ClCompile Include="..\Common\stringparser\stringparser.cpp" />
+    <ClCompile Include="..\Common\timer\profiler.cpp" />
+    <ClCompile Include="..\Common\timer\timer.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp" />
+    <ClCompile Include="Guids.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+      </PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="FileChangeAttach.cpp" />
+    <ClCompile Include="Module.cpp" />
+    <ClCompile Include="LazyBugChangelistsWindow.cpp" />
+    <ClCompile Include="MyToolWindow.cpp" />
+    <ClCompile Include="Package.cpp" />
+    <ClCompile Include="CommandFilter.cpp" />
+    <ClCompile Include="OpenedDocStates.cpp" />
+    <ClCompile Include="RDTEventsListener.cpp" />
+    <ClCompile Include="Stdh.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Utils_SolutionDump.cpp" />
+    <ClCompile Include="Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LazyBugPlugIn.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\codediff\CodeDiff.h" />
+    <ClInclude Include="..\Common\stringparser\stringparser.h" />
+    <ClInclude Include="..\Common\timer\profiler.h" />
+    <ClInclude Include="..\Common\timer\timer.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h" />
+    <ClInclude Include="DocReloadFilter.h" />
+    <ClInclude Include="CommonIncludes.h" />
+    <ClInclude Include="Guids.h" />
+    <ClInclude Include="FileChangeAttach.h" />
+    <ClInclude Include="LazyBugChangelistsWindow.h" />
+    <ClInclude Include="MyToolWindow.h" />
+    <ClInclude Include="Package.h" />
+    <ClInclude Include="PackageState.h" />
+    <ClInclude Include="CommandFilter.h" />
+    <ClInclude Include="OpenedDocStates.h" />
+    <ClInclude Include="RDTEventsListener.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Stdh.h" />
+    <ClInclude Include="Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LazyBugPlugIn.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <PkgdefFile Include="LazyBugPlugIn.pkgdef" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LazyBugPlugInControls\LazyBugPlugInControls.vcxproj">
+      <Project>{fa52c169-7832-0a87-83d1-2eb24b6b920f}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\VSSDK\Microsoft.VsSDK.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v17.0\VSSDK\Microsoft.VsSDK.Cpp.Overrides.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

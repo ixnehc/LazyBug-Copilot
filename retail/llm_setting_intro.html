@@ -1,0 +1,487 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Configuration File Manual</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+
+        h1 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            margin-top: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+        }
+
+        code {
+            font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        pre code {
+            padding: 0;
+            background-color: transparent;
+        }
+
+        .lang-switch-container {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .lang-label {
+            color: #666;
+            transition: color 0.3s;
+        }
+
+        .lang-label.active {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background-color: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-switch.active {
+            background-color: #3498db;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="lang-switch-container">
+            <span class="lang-label" id="label-cn">中</span>
+            <div class="toggle-switch active" id="lang-toggle" onclick="toggleLanguage()">
+                <div class="toggle-slider"></div>
+            </div>
+            <span class="lang-label active" id="label-en">EN</span>
+        </div>
+
+        <!-- 中文内容块 -->
+        <div id="content-cn" style="display: none;">
+            <h1>LLM 配置文件说明书</h1>
+
+            <h2>概述</h2>
+            <p>本配置文件用于设置 LLM（大语言模型）API 提供商和 API 实例的相关参数。配置文件采用 INI 格式，支持多个 <code>Provider</code> 和 <code>Api</code> 配置段。</p>
+
+            <h2>配置文件格式</h2>
+            <p>配置文件为 INI 格式，支持以下配置段：</p>
+            <ul>
+                <li><code>[Provider1]</code> / <code>[Provider2]</code> / <code>[Provider3]</code> ... - 定义 API 提供商</li>
+                <li><code>[Api1]</code> / <code>[Api2]</code> / <code>[Api3]</code> ... - 定义具体的 API 实例</li>
+            </ul>
+
+            <hr>
+
+            <h2>Provider 配置段</h2>
+            <p>Provider 用于定义 LLM API 服务提供商的基本信息。</p>
+
+            <h3>字段说明</h3>
+            <table>
+                <tr><th>字段名</th><th>是否必填</th><th>默认值</th><th>说明</th></tr>
+                <tr><td><code>name</code></td><td><strong>是</strong></td><td>-</td><td>Provider 的唯一标识名称，不可为空</td></tr>
+                <tr><td><code>endpoint</code></td><td><strong>是</strong></td><td>-</td><td>API 端点地址</td></tr>
+                <tr><td><code>apiFormat</code></td><td>否</td><td><code>OpenAI</code></td><td>API 格式类型，可选值见下方</td></tr>
+            </table>
+
+            <h3>apiFormat 可选值</h3>
+            <table>
+                <tr><th>值</th><th>说明</th></tr>
+                <tr><td><code>OpenAI</code></td><td>OpenAI 格式</td></tr>
+                <tr><td><code>Anthropic</code></td><td>Anthropic Claude 格式</td></tr>
+                <tr><td><code>Gemini</code></td><td>Google Gemini 格式</td></tr>
+                <tr><td><code>OpenRouter</code></td><td>OpenRouter 格式</td></tr>
+                <tr><td><code>Kimi</code></td><td>Moonshot Kimi 格式</td></tr>
+                <tr><td><code>GLM</code></td><td>智谱 GLM 格式</td></tr>
+                <tr><td><code>Minimax</code></td><td>Minimax 格式</td></tr>
+                <tr><td><code>DeepSeek</code></td><td>DeepSeek 格式</td></tr>
+            </table>
+
+            <h3>Provider 配置示例</h3>
+            <pre><code class="language-ini">[Provider]
+name=OpenAI
+endpoint=https://api.openai.com/v1/chat/completions
+apiFormat=OpenAI
+
+[Provider]
+name=Anthropic
+endpoint=https://api.anthropic.com/v1/message
+apiFormat=Anthropic
+
+[Provider]
+name=Google AI
+endpoint=https://generativelanguage.googleapis.com/v1beta
+apiFormat=Gemini</code></pre>
+
+            <hr>
+
+            <h2>Api 配置段</h2>
+            <p>Api 用于定义具体的 LLM 模型实例，需要关联到一个 Provider。</p>
+
+            <h3>字段说明</h3>
+            <table>
+                <tr><th>字段名</th><th>是否必填</th><th>默认值</th><th>说明</th></tr>
+                <tr><td><code>name</code></td><td><strong>是</strong></td><td>-</td><td>API 实例的唯一标识名称，不可为空</td></tr>
+                <tr><td><code>model</code></td><td><strong>是</strong></td><td>-</td><td>模型名称（如 <code>gpt-4</code>、<code>claude-3-opus</code> 等）</td></tr>
+                <tr><td><code>provider</code></td><td><strong>是</strong></td><td>-</td><td>关联的 Provider 名称</td></tr>
+                <tr><td><code>purpose</code></td><td><strong>是</strong></td><td>-</td><td>API 用途，多个用途用逗号分隔</td></tr>
+                <tr><td><code>maxToken</code></td><td>否</td><td>0</td><td>最大生成 token 数（0 表示使用模型默认值）</td></tr>
+                <tr><td><code>contextCapacity</code></td><td>否</td><td>131072 (128K)</td><td>模型能够保证高质量输出的最大上下文容量（以 token 为单位）</td></tr>
+                <tr><td><code>priceInputToken</code></td><td>否</td><td>0.0</td><td>输入 token 单价（每 1M tokens）</td></tr>
+                <tr><td><code>priceOutputToken</code></td><td>否</td><td>0.0</td><td>输出 token 单价（每 1M tokens）</td></tr>
+                <tr><td><code>priceCacheRead</code></td><td>否</td><td><code>priceInputToken</code></td><td>缓存读取单价（每 1M tokens）</td></tr>
+                <tr><td><code>priceCacheWrite</code></td><td>否</td><td><code>priceOutputToken</code></td><td>缓存写入单价（每 1M tokens）</td></tr>
+                <tr><td><code>thinkingMode</code></td><td>否</td><td><code>Auto</code></td><td>思考模式，可选值：<code>Auto</code>、<code>Enable</code>、<code>Disable</code></td></tr>
+                <tr><td><code>cacheControl</code></td><td>否</td><td><code>Auto</code></td><td>缓存控制类型，可选值：<code>Auto</code>、<code>Anthropic</code></td></tr>
+                <tr><td><code>openRouter_only</code></td><td>否</td><td>空</td><td>OpenRouter 专用路由限制，多个值用逗号分隔</td></tr>
+            </table>
+
+            <h3>Purpose 可选值</h3>
+            <table>
+                <tr><th>值</th><th>说明</th></tr>
+                <tr><td><code>MajorChat</code></td><td>主要对话（主聊天功能）</td></tr>
+                <tr><td><code>MinorChat</code></td><td>次要对话（辅助性的对话功能,比如聊天摘要）</td></tr>
+            </table>
+
+            <h3>ThinkingMode 可选值</h3>
+            <table>
+                <tr><th>值</th><th>说明</th></tr>
+                <tr><td><code>Auto</code></td><td>自动模式</td></tr>
+                <tr><td><code>Enable</code></td><td>启用思考模式</td></tr>
+                <tr><td><code>Disable</code></td><td>禁用思考模式</td></tr>
+            </table>
+
+            <h3>CacheControl 可选值</h3>
+            <table>
+                <tr><th>值</th><th>说明</th></tr>
+                <tr><td><code>Auto</code></td><td>自动选择缓存控制方式</td></tr>
+                <tr><td><code>Anthropic</code></td><td>使用 Anthropic 风格的缓存控制,仅用于一些LLM聚合网站,比如OpenRouter</td></tr>
+            </table>
+
+            <h3>Api 配置示例</h3>
+            <pre><code class="language-ini">[Api]
+name=claude opus 4.6
+model=claude-opus-4-6
+provider=Anthropic
+priceInputToken=5.0
+priceCacheRead=0.5
+priceCacheWrite=6.25
+priceOutputToken=25.0
+purpose=MajorChat
+
+[Api]
+name=claude-4.5(openrouter)
+model=anthropic/claude-sonnet-4.5
+provider=OpenRouter
+maxToken=32000
+priceInputToken=3.0
+priceOutputToken=15.0
+priceCacheRead=0.3
+priceCacheWrite=3.75
+purpose=MajorChat
+cacheControl=Anthropic
+
+[Api]
+name=llama-3.3-70b(openrouter)
+model=meta-llama/llama-3.3-70b-instruct
+provider=OpenRouter
+maxToken=65536
+priceInputToken=0.1
+priceOutputToken=0.32
+purpose=MinorChat
+openRouter_only=novita/bf16,parasail/int8</code></pre>
+
+            <hr>
+
+            <h2>注意事项</h2>
+            <ol>
+                <li><strong>名称唯一性</strong>：Provider 和 Api 的 <code>name</code> 字段必须唯一，重复的名称会覆盖之前的配置。</li>
+                <li><strong>Provider 关联</strong>：Api 的 <code>provider</code> 字段必须与某个已定义的 Provider 的 <code>name</code> 匹配。</li>
+                <li><strong>注释</strong>：配置文件中可以使用 <code>;</code> 开头的注释行。</li>
+                <li><strong>列表格式</strong>：<code>purpose</code>、<code>openRouter_only</code> 等列表字段使用逗号分隔多个值。</li>
+                <li><strong>自动重载</strong>：配置文件保存后会自动重新加载。</li>
+            </ol>
+
+            <hr>
+
+            <h2>系统能力判定</h2>
+            <p>系统根据 API 配置自动判定工作能力等级：</p>
+            <ul>
+                <li><strong>Full（完整能力）</strong>：配置了 <code>MajorChat</code>、<code>MinorChat</code> 两种用途的 API</li>
+                <li><strong>Partial（部分能力）</strong>：未配置 <code>MinorChat</code></li>
+                <li><strong>CannotWork（无法工作）</strong>：未配置 任何API</li>
+            </ul>
+        </div>
+
+        <!-- 英文内容块 -->
+        <div id="content-en">
+            <h1>LLM Configuration File Manual</h1>
+
+            <h2>Overview</h2>
+            <p>This configuration file is used to set the relevant parameters for LLM (Large Language Model) API providers and API instances. The configuration file uses the INI format and supports multiple <code>Provider</code> and <code>Api</code> sections.</p>
+
+            <h2>Configuration File Format</h2>
+            <p>The configuration file is in INI format and supports the following sections:</p>
+            <ul>
+                <li><code>[Provider1]</code> / <code>[Provider2]</code> / <code>[Provider3]</code> ... - Define API providers</li>
+                <li><code>[Api1]</code> / <code>[Api2]</code> / <code>[Api3]</code> ... - Define specific API instances</li>
+            </ul>
+
+            <hr>
+
+            <h2>Provider Section</h2>
+            <p>Provider is used to define the basic information of the LLM API service provider.</p>
+
+            <h3>Field Description</h3>
+            <table>
+                <tr><th>Field Name</th><th>Required</th><th>Default Value</th><th>Description</th></tr>
+                <tr><td><code>name</code></td><td><strong>Yes</strong></td><td>-</td><td>Unique identifier name for the Provider, cannot be empty</td></tr>
+                <tr><td><code>endpoint</code></td><td><strong>Yes</strong></td><td>-</td><td>API endpoint address</td></tr>
+                <tr><td><code>apiFormat</code></td><td>No</td><td><code>OpenAI</code></td><td>API format type, see available values below</td></tr>
+            </table>
+
+            <h3>apiFormat Available Values</h3>
+            <table>
+                <tr><th>Value</th><th>Description</th></tr>
+                <tr><td><code>OpenAI</code></td><td>OpenAI format</td></tr>
+                <tr><td><code>Anthropic</code></td><td>Anthropic Claude format</td></tr>
+                <tr><td><code>Gemini</code></td><td>Google Gemini format</td></tr>
+                <tr><td><code>OpenRouter</code></td><td>OpenRouter format</td></tr>
+                <tr><td><code>Kimi</code></td><td>Moonshot Kimi format</td></tr>
+                <tr><td><code>GLM</code></td><td>Zhipu GLM format</td></tr>
+                <tr><td><code>Minimax</code></td><td>Minimax format</td></tr>
+                <tr><td><code>DeepSeek</code></td><td>DeepSeek format</td></tr>
+            </table>
+
+            <h3>Provider Configuration Example</h3>
+            <pre><code class="language-ini">[Provider]
+name=OpenAI
+endpoint=https://api.openai.com/v1/chat/completions
+apiFormat=OpenAI
+
+[Provider]
+name=Anthropic
+endpoint=https://api.anthropic.com/v1/message
+apiFormat=Anthropic
+
+[Provider]
+name=Google AI
+endpoint=https://generativelanguage.googleapis.com/v1beta
+apiFormat=Gemini</code></pre>
+
+            <hr>
+
+            <h2>Api Section</h2>
+            <p>Api is used to define specific LLM model instances, which need to be linked to a Provider.</p>
+
+            <h3>Field Description</h3>
+            <table>
+                <tr><th>Field Name</th><th>Required</th><th>Default Value</th><th>Description</th></tr>
+                <tr><td><code>name</code></td><td><strong>Yes</strong></td><td>-</td><td>Unique identifier name for the API instance, cannot be empty</td></tr>
+                <tr><td><code>model</code></td><td><strong>Yes</strong></td><td>-</td><td>Model name (e.g., <code>gpt-4</code>, <code>claude-3-opus</code>, etc.)</td></tr>
+                <tr><td><code>provider</code></td><td><strong>Yes</strong></td><td>-</td><td>Linked Provider name</td></tr>
+                <tr><td><code>purpose</code></td><td><strong>Yes</strong></td><td>-</td><td>API purpose, multiple purposes are separated by commas</td></tr>
+                <tr><td><code>maxToken</code></td><td>No</td><td>0</td><td>Maximum number of generated tokens (0 indicates using model default)</td></tr>
+                <tr><td><code>contextCapacity</code></td><td>No</td><td>131072 (128K)</td><td>The maximum context capacity the model can handle while ensuring high-quality output (in tokens)</td></tr>
+                <tr><td><code>priceInputToken</code></td><td>No</td><td>0.0</td><td>Input token unit price (per 1M tokens)</td></tr>
+                <tr><td><code>priceOutputToken</code></td><td>No</td><td>0.0</td><td>Output token unit price (per 1M tokens)</td></tr>
+                <tr><td><code>priceCacheRead</code></td><td>No</td><td><code>priceInputToken</code></td><td>Cache read unit price (per 1M tokens)</td></tr>
+                <tr><td><code>priceCacheWrite</code></td><td>No</td><td><code>priceOutputToken</code></td><td>Cache write unit price (per 1M tokens)</td></tr>
+                <tr><td><code>thinkingMode</code></td><td>No</td><td><code>Auto</code></td><td>Thinking mode, available values: <code>Auto</code>, <code>Enable</code>, <code>Disable</code></td></tr>
+                <tr><td><code>cacheControl</code></td><td>No</td><td><code>Auto</code></td><td>Cache control type, available values: <code>Auto</code>, <code>Anthropic</code></td></tr>
+                <tr><td><code>openRouter_only</code></td><td>No</td><td>Empty</td><td>OpenRouter specific routing constraints, multiple values are separated by commas</td></tr>
+            </table>
+
+            <h3>Purpose Available Values</h3>
+            <table>
+                <tr><th>Value</th><th>Description</th></tr>
+                <tr><td><code>MajorChat</code></td><td>Major chat (primary chat function)</td></tr>
+                <tr><td><code>MinorChat</code></td><td>Minor chat (auxiliary chat functions, such as chat summary)</td></tr>
+            </table>
+
+            <h3>ThinkingMode Available Values</h3>
+            <table>
+                <tr><th>Value</th><th>Description</th></tr>
+                <tr><td><code>Auto</code></td><td>Auto mode</td></tr>
+                <tr><td><code>Enable</code></td><td>Enable thinking mode</td></tr>
+                <tr><td><code>Disable</code></td><td>Disable thinking mode</td></tr>
+            </table>
+
+            <h3>CacheControl Available Values</h3>
+            <table>
+                <tr><th>Value</th><th>Description</th></tr>
+                <tr><td><code>Auto</code></td><td>Automatically select the cache control method</td></tr>
+                <tr><td><code>Anthropic</code></td><td>Use Anthropic style cache control, only for some LLM aggregator sites like OpenRouter</td></tr>
+            </table>
+
+            <h3>Api Configuration Example</h3>
+            <pre><code class="language-ini">[Api]
+name=claude opus 4.6
+model=claude-opus-4-6
+provider=Anthropic
+priceInputToken=5.0
+priceCacheRead=0.5
+priceCacheWrite=6.25
+priceOutputToken=25.0
+purpose=MajorChat
+
+[Api]
+name=claude-4.5(openrouter)
+model=anthropic/claude-sonnet-4.5
+provider=OpenRouter
+maxToken=32000
+priceInputToken=3.0
+priceOutputToken=15.0
+priceCacheRead=0.3
+priceCacheWrite=3.75
+purpose=MajorChat
+cacheControl=Anthropic
+
+[Api]
+name=llama-3.3-70b(openrouter)
+model=meta-llama/llama-3.3-70b-instruct
+provider=OpenRouter
+maxToken=65536
+priceInputToken=0.1
+priceOutputToken=0.32
+purpose=MinorChat
+openRouter_only=novita/bf16,parasail/int8</code></pre>
+
+            <hr>
+
+            <h2>Notes</h2>
+            <ol>
+                <li><strong>Name Uniqueness</strong>: The <code>name</code> field of Provider and Api must be unique, duplicated names will overwrite previous configurations.</li>
+                <li><strong>Provider Linkage</strong>: The <code>provider</code> field of an Api must match the <code>name</code> of an already defined Provider.</li>
+                <li><strong>Comments</strong>: Comment lines starting with <code>;</code> can be used in the configuration file.</li>
+                <li><strong>List Format</strong>: List fields such as <code>purpose</code>, <code>openRouter_only</code> use commas to separate multiple values.</li>
+                <li><strong>Auto Reload</strong>: The configuration file will be automatically reloaded after saving.</li>
+            </ol>
+
+            <hr>
+
+            <h2>System Capability Judgment</h2>
+            <p>The system automatically judges the capability level based on the API configuration:</p>
+            <ul>
+                <li><strong>Full (Full Capability)</strong>: Configured with APIs for both <code>MajorChat</code> and <code>MinorChat</code> purposes.</li>
+                <li><strong>Partial (Partial Capability)</strong>: Not configured with <code>MinorChat</code>.</li>
+                <li><strong>CannotWork (Cannot Work)</strong>: No API configured.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+    function toggleLanguage() {
+        var cn = document.getElementById('content-cn');
+        var en = document.getElementById('content-en');
+        var toggle = document.getElementById('lang-toggle');
+        var labelCn = document.getElementById('label-cn');
+        var labelEn = document.getElementById('label-en');
+
+        if (cn.style.display === 'none') {
+            cn.style.display = 'block';
+            en.style.display = 'none';
+            toggle.classList.remove('active');
+            labelCn.classList.add('active');
+            labelEn.classList.remove('active');
+            document.title = 'LLM 配置文件说明书';
+        } else {
+            cn.style.display = 'none';
+            en.style.display = 'block';
+            toggle.classList.add('active');
+            labelCn.classList.remove('active');
+            labelEn.classList.add('active');
+            document.title = 'LLM Configuration File Manual';
+        }
+    }
+    </script>
+
+</body>
+</html>

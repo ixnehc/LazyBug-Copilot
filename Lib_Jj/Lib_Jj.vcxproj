@@ -1,0 +1,1634 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseD|Win32">
+      <Configuration>ReleaseD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseD|x64">
+      <Configuration>ReleaseD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseFFP|Win32">
+      <Configuration>ReleaseFFP</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseFFP|x64">
+      <Configuration>ReleaseFFP</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseMax2024|Win32">
+      <Configuration>ReleaseMax2024</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseMax2024|x64">
+      <Configuration>ReleaseMax2024</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{A2A4170E-632F-43F4-9C8B-ED1EF6EBF6D6}</ProjectGuid>
+    <RootNamespace>Lib_Jj</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.35527.80</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)$(Platform)\$(ProjectName)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common;..\extlib\PositionBasedDynamics\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/D_ITERATOR_DEBUG_LEVEL=0 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/expectedoutputsize:2000000000 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common;..\extlib\PositionBasedDynamics\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/D_ITERATOR_DEBUG_LEVEL=0 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Lib>
+      <AdditionalOptions>/expectedoutputsize:2000000000 %(AdditionalOptions)</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP8 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\extlib\stlport\stlport;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">
+    <ClCompile>
+      <AdditionalOptions>/MP8 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\extlib\stlport\stlport;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/MP8 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\extlib\stlport\stlport;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat />
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">
+    <ClCompile>
+      <AdditionalOptions>/MP8 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>..\extlib\stlport\stlport;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Ability_7sonLeather.cpp" />
+    <ClCompile Include="Ability_AnWeep.cpp" />
+    <ClCompile Include="Ability_BlackSteel.cpp" />
+    <ClCompile Include="Ability_BloodTeeth.cpp" />
+    <ClCompile Include="Ability_Bomb.cpp" />
+    <ClCompile Include="Ability_DeathCall.cpp" />
+    <ClCompile Include="Ability_EliPromise.cpp" />
+    <ClCompile Include="Ability_ExplodeOil.cpp" />
+    <ClCompile Include="Ability_Fire.cpp" />
+    <ClCompile Include="Ability_FlameBlade.cpp" />
+    <ClCompile Include="Ability_FlashSwing.cpp" />
+    <ClCompile Include="Ability_Frost.cpp" />
+    <ClCompile Include="Ability_GemPot.cpp" />
+    <ClCompile Include="Ability_HonorBook.cpp" />
+    <ClCompile Include="Ability_HonorPlate.cpp" />
+    <ClCompile Include="Ability_HonorSword.cpp" />
+    <ClCompile Include="Ability_HPAmulet.cpp" />
+    <ClCompile Include="Ability_HPFlusk.cpp" />
+    <ClCompile Include="Ability_HPPotion.cpp" />
+    <ClCompile Include="Ability_HunterPlate.cpp" />
+    <ClCompile Include="Ability_LightningBow.cpp" />
+    <ClCompile Include="Ability_MagicRing.cpp" />
+    <ClCompile Include="Ability_MoneyBag.cpp" />
+    <ClCompile Include="Ability_Nameless.cpp" />
+    <ClCompile Include="Ability_ObliterateBow.cpp" />
+    <ClCompile Include="Ability_PhantomDagger.cpp" />
+    <ClCompile Include="Ability_PushSlideway.cpp" />
+    <ClCompile Include="Ability_SacredArrow.cpp" />
+    <ClCompile Include="Ability_ShieldAmulet.cpp" />
+    <ClCompile Include="Ability_ShieldMask.cpp" />
+    <ClCompile Include="Ability_SimCurse.cpp" />
+    <ClCompile Include="Ability_SkullSword.cpp" />
+    <ClCompile Include="Ability_SPAmulet.cpp" />
+    <ClCompile Include="Ability_SPPotion.cpp" />
+    <ClCompile Include="Ability_StormEye.cpp" />
+    <ClCompile Include="Ability_TalBless.cpp" />
+    <ClCompile Include="Ability_TeleportSword.cpp" />
+    <ClCompile Include="Ability_ToeStone.cpp" />
+    <ClCompile Include="Ability_Unarmed.cpp" />
+    <ClCompile Include="Ability_UtumTide.cpp" />
+    <ClCompile Include="Ability_VampireRing.cpp" />
+    <ClCompile Include="Ability_WeaponInductionStone.cpp" />
+    <ClCompile Include="Ability_Whetstone.cpp" />
+    <ClCompile Include="Ability_WhirlWind.cpp" />
+    <ClCompile Include="Ability_WolfSkin.cpp" />
+    <ClCompile Include="Banner_Fire.cpp" />
+    <ClCompile Include="Banner_Wolf.cpp" />
+    <ClCompile Include="BgnAccompany_Obsolete.cpp" />
+    <ClCompile Include="BgnAGA_Call.cpp" />
+    <ClCompile Include="BgnAGA_CheckAgentRefValid.cpp" />
+    <ClCompile Include="BgnAGA_CheckState.cpp" />
+    <ClCompile Include="BgnAI_CheckCmd.cpp" />
+    <ClCompile Include="BgnAI_CheckMentalState.cpp" />
+    <ClCompile Include="BgnAI_MonitorCmd.cpp" />
+    <ClCompile Include="BgnAI_SetMentalState.cpp" />
+    <ClCompile Include="BgnAreaOp.cpp" />
+    <ClCompile Include="BgnAttack.cpp" />
+    <ClCompile Include="BgnChainedHammerOp.cpp" />
+    <ClCompile Include="BgnCheckAIScenario.cpp" />
+    <ClCompile Include="BgnCheckBuff.cpp" />
+    <ClCompile Include="BgnCheckCounter.cpp" />
+    <ClCompile Include="BgnCheckDead.cpp" />
+    <ClCompile Include="BgnCheckDist.cpp" />
+    <ClCompile Include="BgnCheckEquip.cpp" />
+    <ClCompile Include="BgnCheckEventSrc.cpp" />
+    <ClCompile Include="BgnCheckExausted.cpp" />
+    <ClCompile Include="BgnCheckFlies.cpp" />
+    <ClCompile Include="BgnCheckGrade.cpp" />
+    <ClCompile Include="BgnCheckHP.cpp" />
+    <ClCompile Include="BgnCheckJumpAttack.cpp" />
+    <ClCompile Include="BgnCheckKilling.cpp" />
+    <ClCompile Include="BgnCheckMap.cpp" />
+    <ClCompile Include="BgnCheckMasterDist.cpp" />
+    <ClCompile Include="BgnCheckMoveMethod.cpp" />
+    <ClCompile Include="BgnCheckMoving.cpp" />
+    <ClCompile Include="BgnCheckObstacle.cpp" />
+    <ClCompile Include="BgnCheckPain.cpp" />
+    <ClCompile Include="BgnCheckPlayerRes.cpp" />
+    <ClCompile Include="BgnCheckResiding.cpp" />
+    <ClCompile Include="BgnCheckResPile.cpp" />
+    <ClCompile Include="BgnCheckRtnuCmd.cpp" />
+    <ClCompile Include="BgnCheckSkill.cpp" />
+    <ClCompile Include="BgnCheckSkillEvent.cpp" />
+    <ClCompile Include="BgnCheckSkillStage.cpp" />
+    <ClCompile Include="BgnCheckSkillStageAge.cpp" />
+    <ClCompile Include="BgnCheckSkillTargetRange.cpp" />
+    <ClCompile Include="BgnCheckSkillWindow.cpp" />
+    <ClCompile Include="BgnCheckStunInfo.cpp" />
+    <ClCompile Include="BgnCheckStunSrc.cpp" />
+    <ClCompile Include="BgnCheckTimer.cpp" />
+    <ClCompile Include="BgnCheckVar.cpp" />
+    <ClCompile Include="BgnController.cpp" />
+    <ClCompile Include="BgnDeal.cpp" />
+    <ClCompile Include="BgnDestroyLo.cpp" />
+    <ClCompile Include="BgnDetectAgent.cpp" />
+    <ClCompile Include="BgnDetectResidable.cpp" />
+    <ClCompile Include="BgnDetectSignal.cpp" />
+    <ClCompile Include="BgnDetectUnit.cpp" />
+    <ClCompile Include="BgnDie.cpp" />
+    <ClCompile Include="BgnEquip.cpp" />
+    <ClCompile Include="BgnEvent.cpp" />
+    <ClCompile Include="BgnFaction.cpp" />
+    <ClCompile Include="BgnFindNearPos.cpp" />
+    <ClCompile Include="BgnFindNearPos_Special.cpp" />
+    <ClCompile Include="BgnFindWalkableArea.cpp" />
+    <ClCompile Include="BgnFireFly.cpp" />
+    <ClCompile Include="BgnFlee.cpp" />
+    <ClCompile Include="BgnFlyDown.cpp" />
+    <ClCompile Include="BgnFlyingHover.cpp" />
+    <ClCompile Include="BgnFlyThrust.cpp" />
+    <ClCompile Include="BgnFlyUp.cpp" />
+    <ClCompile Include="BgnFollow.cpp" />
+    <ClCompile Include="BgnFollow_Obsolete.cpp" />
+    <ClCompile Include="BgnFunc.cpp" />
+    <ClCompile Include="BgnGA_AssignAward.cpp" />
+    <ClCompile Include="BgnGA_AssignItem.cpp" />
+    <ClCompile Include="BgnGA_AssignVita.cpp" />
+    <ClCompile Include="BgnGA_Attack.cpp" />
+    <ClCompile Include="BgnGA_Brief.cpp" />
+    <ClCompile Include="BgnGA_CheckAward.cpp" />
+    <ClCompile Include="BgnGA_CheckDay.cpp" />
+    <ClCompile Include="BgnGA_DestroyArtifact.cpp" />
+    <ClCompile Include="BgnGA_Disciple_Init.cpp" />
+    <ClCompile Include="BgnGA_EnableBody.cpp" />
+    <ClCompile Include="BgnGA_Env.cpp" />
+    <ClCompile Include="BgnGA_ExchangeItem.cpp" />
+    <ClCompile Include="BgnGA_ExpendAward.cpp" />
+    <ClCompile Include="BgnGA_Flusks.cpp" />
+    <ClCompile Include="BgnGA_GetBaseAttr.cpp" />
+    <ClCompile Include="BgnGA_IncGoldMine.cpp" />
+    <ClCompile Include="BgnGA_LanternRoute.cpp" />
+    <ClCompile Include="BgnGA_MagicStone.cpp" />
+    <ClCompile Include="BgnGA_ModBaseAttr.cpp" />
+    <ClCompile Include="BgnGA_ModHP.cpp" />
+    <ClCompile Include="BgnGA_ModRes.cpp" />
+    <ClCompile Include="BgnGA_ModShape.cpp" />
+    <ClCompile Include="BgnGA_ModSP.cpp" />
+    <ClCompile Include="BgnGA_RegisterTeleportTarget.cpp" />
+    <ClCompile Include="BgnGA_ResetMP.cpp" />
+    <ClCompile Include="BgnGA_RevealMap.cpp" />
+    <ClCompile Include="BgnGA_Revive.cpp" />
+    <ClCompile Include="BgnGA_RollAwards.cpp" />
+    <ClCompile Include="BgnGA_RollGoods.cpp" />
+    <ClCompile Include="BgnGA_RollItems.cpp" />
+    <ClCompile Include="BgnGA_RollPoemAwards.cpp" />
+    <ClCompile Include="BgnGA_RollSlatesAwards.cpp" />
+    <ClCompile Include="BgnGA_RollSpells.cpp" />
+    <ClCompile Include="BgnGA_RollUnique.cpp" />
+    <ClCompile Include="BgnGA_RollVendor.cpp" />
+    <ClCompile Include="BgnGA_SpawnDailyItems.cpp" />
+    <ClCompile Include="BgnGA_SpawnItem.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="BgnGA_Teleport.cpp" />
+    <ClCompile Include="BgnGA_Temple.cpp" />
+    <ClCompile Include="BgnGA_Vendor.cpp" />
+    <ClCompile Include="BgnGA_圣旗_Assign.cpp" />
+    <ClCompile Include="BgnGA_宝藏洞穴_Search.cpp" />
+    <ClCompile Include="BgnGA_断桥_EndRepair.cpp" />
+    <ClCompile Include="BgnGA_断桥_StartRepair.cpp" />
+    <ClCompile Include="BgnGetDay.cpp" />
+    <ClCompile Include="BgnGetLevelObjID.cpp" />
+    <ClCompile Include="BgnGetLevelObjPos.cpp" />
+    <ClCompile Include="BgnGetSkillDynObstacle.cpp" />
+    <ClCompile Include="BgnInvisible.cpp" />
+    <ClCompile Include="BgnJink.cpp" />
+    <ClCompile Include="BgnJumpAttack.cpp" />
+    <ClCompile Include="BgnKnockDown.cpp" />
+    <ClCompile Include="BgnLichen.cpp" />
+    <ClCompile Include="BgnLockPlayer.cpp" />
+    <ClCompile Include="BgnLocoSkill.cpp" />
+    <ClCompile Include="BgnMakeBuff.cpp" />
+    <ClCompile Include="BgnMakeSkillStun.cpp" />
+    <ClCompile Include="BgnMath.cpp" />
+    <ClCompile Include="BgnMB_CheckCommitCount.cpp" />
+    <ClCompile Include="BgnMB_CheckResCount.cpp" />
+    <ClCompile Include="BgnMB_CheckUnsealCount.cpp" />
+    <ClCompile Include="BgnMB_CommitTile.cpp" />
+    <ClCompile Include="BgnMB_UnsealTile.cpp" />
+    <ClCompile Include="BgnModCounter.cpp" />
+    <ClCompile Include="BgnModVar.cpp" />
+    <ClCompile Include="BgnMonitorCoSkill.cpp" />
+    <ClCompile Include="BgnMonitorMasterLeave.cpp" />
+    <ClCompile Include="BgnMonitorStuck.cpp" />
+    <ClCompile Include="BgnMoveAlong.cpp" />
+    <ClCompile Include="BgnMoveTo.cpp" />
+    <ClCompile Include="BgnPossess.cpp" />
+    <ClCompile Include="BgnRaiseUp.cpp" />
+    <ClCompile Include="BgnRandomizeVar.cpp" />
+    <ClCompile Include="BgnRemoveBuff.cpp" />
+    <ClCompile Include="BgnResetTimer.cpp" />
+    <ClCompile Include="BgnReside.cpp" />
+    <ClCompile Include="BgnResPile.cpp" />
+    <ClCompile Include="BgnRevive.cpp" />
+    <ClCompile Include="BgnRtnu_Accompany.cpp" />
+    <ClCompile Include="BgnRtnu_CheckBehavior.cpp" />
+    <ClCompile Include="BgnRtnu_CheckIsRtnu.cpp" />
+    <ClCompile Include="BgnRtnu_GetCount.cpp" />
+    <ClCompile Include="BgnService.cpp" />
+    <ClCompile Include="BgnSetCollide.cpp" />
+    <ClCompile Include="BgnSetSkillTarget.cpp" />
+    <ClCompile Include="BgnSetUnitPace.cpp" />
+    <ClCompile Include="BgnSetupSlatesA_SetButton.cpp" />
+    <ClCompile Include="BgnSetupSlatesA_SetEdgeLock.cpp" />
+    <ClCompile Include="BgnSetupSlatesA_SetEntrance.cpp" />
+    <ClCompile Include="BgnSetupSlatesA_SetMatchKey.cpp" />
+    <ClCompile Include="BgnSetupSlatesA_SetSwitch.cpp" />
+    <ClCompile Include="BgnSetupSlatesA_SetType.cpp" />
+    <ClCompile Include="BgnSetupSlatesA_SetType_RandomPick.cpp" />
+    <ClCompile Include="BgnSetupSlatesB_Generate.cpp" />
+    <ClCompile Include="BgnSetupSlatesB_SetEntrance.cpp" />
+    <ClCompile Include="BgnSiege.cpp" />
+    <ClCompile Include="BgnSignal.cpp" />
+    <ClCompile Include="BgnSkillOp.cpp" />
+    <ClCompile Include="BgnSlatesA_CheckProcessed.cpp" />
+    <ClCompile Include="BgnSlatesA_FinishProcess.cpp" />
+    <ClCompile Include="BgnSlatesA_GetStarCount.cpp" />
+    <ClCompile Include="BgnSlatesA_OpenFence.cpp" />
+    <ClCompile Include="BgnSlatesA_Reveal.cpp" />
+    <ClCompile Include="BgnSlatesA_SpawnAgent.cpp" />
+    <ClCompile Include="BgnSlatesA_Teleport.cpp" />
+    <ClCompile Include="BgnSpawnUnit.cpp" />
+    <ClCompile Include="BgnStopMove.cpp" />
+    <ClCompile Include="BgnStroll.cpp" />
+    <ClCompile Include="BgnSwitchRetinue.cpp" />
+    <ClCompile Include="BgnSwitchSkillStage.cpp" />
+    <ClCompile Include="BgnSwitchWalkable.cpp" />
+    <ClCompile Include="BgnSyncSpeed.cpp" />
+    <ClCompile Include="BgnTalk.cpp" />
+    <ClCompile Include="BgnTeleport.cpp" />
+    <ClCompile Include="BgnThreat_Alerting.cpp" />
+    <ClCompile Include="BgnThreat_Approach.cpp" />
+    <ClCompile Include="BgnThreat_Attack.cpp" />
+    <ClCompile Include="BgnThreat_CalcDist.cpp" />
+    <ClCompile Include="BgnThreat_Cast.cpp" />
+    <ClCompile Include="BgnThreat_CheckAlertedCount.cpp" />
+    <ClCompile Include="BgnThreat_CheckCast.cpp" />
+    <ClCompile Include="BgnThreat_CheckCombatedCount.cpp" />
+    <ClCompile Include="BgnThreat_CheckExist.cpp" />
+    <ClCompile Include="BgnThreat_CheckEZone.cpp" />
+    <ClCompile Include="BgnThreat_CheckRange.cpp" />
+    <ClCompile Include="BgnThreat_Combating.cpp" />
+    <ClCompile Include="BgnThreat_FindAttackPos.cpp" />
+    <ClCompile Include="BgnThreat_FindFleePos.cpp" />
+    <ClCompile Include="BgnThreat_ForceUpdate.cpp" />
+    <ClCompile Include="BgnThreat_KeepDist.cpp" />
+    <ClCompile Include="BgnThreat_Siege.cpp" />
+    <ClCompile Include="BgnThreat_UpdateCtrl.cpp" />
+    <ClCompile Include="BgnTroop_Build.cpp" />
+    <ClCompile Include="BgnTroop_CancelCmd.cpp" />
+    <ClCompile Include="BgnTroop_CheckDist.cpp" />
+    <ClCompile Include="BgnTroop_Clean.cpp" />
+    <ClCompile Include="BgnTroop_Combat.cpp" />
+    <ClCompile Include="BgnTroop_Detect.cpp" />
+    <ClCompile Include="BgnTroop_Join.cpp" />
+    <ClCompile Include="BgnTroop_MakeBuff.cpp" />
+    <ClCompile Include="BgnTroop_Monitor.cpp" />
+    <ClCompile Include="BgnTroop_MoveAlong.cpp" />
+    <ClCompile Include="BgnTroop_Quit.cpp" />
+    <ClCompile Include="BgnTroop_SetCmd.cpp" />
+    <ClCompile Include="BgnTroop_SetVar.cpp" />
+    <ClCompile Include="BgnTroop_Spawn.cpp" />
+    <ClCompile Include="BgnTroop_SwitchRetinue.cpp" />
+    <ClCompile Include="BgnUtumThrust.cpp" />
+    <ClCompile Include="BgnWaitStun.cpp" />
+    <ClCompile Include="Bgn_Belly.cpp" />
+    <ClCompile Include="Bgn_CentipedeNode_Activate.cpp" />
+    <ClCompile Include="Bgn_CentipedeNode_GetPrevNode.cpp" />
+    <ClCompile Include="Bgn_Centipede_GetInfo.cpp" />
+    <ClCompile Include="Bgn_Centipede_PlayAct.cpp" />
+    <ClCompile Include="Bgn_Centipede_SpawnCyst.cpp" />
+    <ClCompile Include="Bgn_Centipede_Stretch.cpp" />
+    <ClCompile Include="Bgn_CheckItem.cpp" />
+    <ClCompile Include="Bgn_Disciple_RollAwards.cpp" />
+    <ClCompile Include="Bgn_MagicCircuit.cpp" />
+    <ClCompile Include="Bgn_SlimeOp.cpp" />
+    <ClCompile Include="Bgn_SnailP1_初始化.cpp" />
+    <ClCompile Include="Bgn_SnailP1_舌已打断.cpp" />
+    <ClCompile Include="Bgn_SnailP1_舌虫已返回.cpp" />
+    <ClCompile Include="Bgn_SnailP1_舌被攻击.cpp" />
+    <ClCompile Include="Bgn_SnailP1舌虫_寻找毒爆点.cpp" />
+    <ClCompile Include="Bgn_SnailP1舌虫_工作模式.cpp" />
+    <ClCompile Include="Bgn_StarPlate.cpp" />
+    <ClCompile Include="Bgn_创建飞妖.cpp" />
+    <ClCompile Include="Bgn_地狱触手_DetectThreat.cpp" />
+    <ClCompile Include="Bgn_地狱触手_FindAttackTarget.cpp" />
+    <ClCompile Include="Bgn_地狱触手_侦测干扰.cpp" />
+    <ClCompile Include="Bgn_小恶魔_寻找闪避跳跃点.cpp" />
+    <ClCompile Include="Bgn_恶魔之眼_MonitorArea.cpp" />
+    <ClCompile Include="Bgn_恶魔之眼_Update.cpp" />
+    <ClCompile Include="Bgn_飞妖_更新FlankAttack.cpp" />
+    <ClCompile Include="Bgn_飞妖_更新Shuttle.cpp" />
+    <ClCompile Include="BuffCalc.cpp" />
+    <ClCompile Include="Buff_Area.cpp" />
+    <ClCompile Include="Buff_AuraJoker.cpp" />
+    <ClCompile Include="Buff_AuraLight.cpp" />
+    <ClCompile Include="Buff_AuraMystery.cpp" />
+    <ClCompile Include="Buff_AuraNature.cpp" />
+    <ClCompile Include="Buff_AuraStrength.cpp" />
+    <ClCompile Include="Buff_AuraWisdom.cpp" />
+    <ClCompile Include="Buff_Banner.cpp" />
+    <ClCompile Include="Buff_Birth.cpp" />
+    <ClCompile Include="Buff_Bleeding.cpp" />
+    <ClCompile Include="Buff_Blocking.cpp" />
+    <ClCompile Include="Buff_Burning.cpp" />
+    <ClCompile Include="Buff_CentipedeCyst.cpp" />
+    <ClCompile Include="Buff_CentipedeNode_Crouch.cpp" />
+    <ClCompile Include="Buff_CentipedeNode_Move.cpp" />
+    <ClCompile Include="Buff_CentipedeNode_Tendrils.cpp" />
+    <ClCompile Include="Buff_Cold.cpp" />
+    <ClCompile Include="Buff_Dead.cpp" />
+    <ClCompile Include="Buff_Deal.cpp" />
+    <ClCompile Include="Buff_Dizzy.cpp" />
+    <ClCompile Include="Buff_Dormant.cpp" />
+    <ClCompile Include="Buff_FireFly.cpp" />
+    <ClCompile Include="Buff_Flies.cpp" />
+    <ClCompile Include="Buff_FlyBirth.cpp" />
+    <ClCompile Include="Buff_Frozen.cpp" />
+    <ClCompile Include="Buff_General.cpp" />
+    <ClCompile Include="Buff_GhostCollide.cpp" />
+    <ClCompile Include="Buff_Immune.cpp" />
+    <ClCompile Include="Buff_IMS.cpp" />
+    <ClCompile Include="Buff_InSlates.cpp" />
+    <ClCompile Include="Buff_Invisible.cpp" />
+    <ClCompile Include="Buff_Jink.cpp" />
+    <ClCompile Include="Buff_KB.cpp" />
+    <ClCompile Include="Buff_KD.cpp" />
+    <ClCompile Include="Buff_LockSP.cpp" />
+    <ClCompile Include="Buff_MindCtrl.cpp" />
+    <ClCompile Include="Buff_Mount.cpp" />
+    <ClCompile Include="Buff_NotAttackable.cpp" />
+    <ClCompile Include="Buff_PB.cpp" />
+    <ClCompile Include="Buff_Petrified.cpp" />
+    <ClCompile Include="Buff_Petrify.cpp" />
+    <ClCompile Include="Buff_Possess.cpp" />
+    <ClCompile Include="Buff_ResideHole.cpp" />
+    <ClCompile Include="Buff_ResideWT.cpp" />
+    <ClCompile Include="Buff_SacredOrb.cpp" />
+    <ClCompile Include="Buff_Shoot.cpp" />
+    <ClCompile Include="Buff_Siege.cpp" />
+    <ClCompile Include="Buff_SkillStun.cpp" />
+    <ClCompile Include="Buff_Slime.cpp" />
+    <ClCompile Include="Buff_Stun.cpp" />
+    <ClCompile Include="Buff_Teleport.cpp" />
+    <ClCompile Include="Buff_TeleportOut.cpp" />
+    <ClCompile Include="Buff_TongueFly.cpp" />
+    <ClCompile Include="Buff_UtumBirth.cpp" />
+    <ClCompile Include="Buff_Weaks.cpp" />
+    <ClCompile Include="BulletBase.cpp" />
+    <ClCompile Include="CentipedeRope.cpp" />
+    <ClCompile Include="Deal_BreakCentipedeNode.cpp" />
+    <ClCompile Include="Deal_CleanOwnerBuff.cpp" />
+    <ClCompile Include="Deal_CreateEo.cpp" />
+    <ClCompile Include="Deal_CreateSpore.cpp" />
+    <ClCompile Include="Deal_CureHP.cpp" />
+    <ClCompile Include="Deal_CureSP.cpp" />
+    <ClCompile Include="Deal_Dizzy.cpp" />
+    <ClCompile Include="Deal_Dmg.cpp" />
+    <ClCompile Include="Deal_FliesOp.cpp" />
+    <ClCompile Include="Deal_IgniteHolyOrb.cpp" />
+    <ClCompile Include="Deal_IncMP.cpp" />
+    <ClCompile Include="Deal_Jink.cpp" />
+    <ClCompile Include="Deal_KnockBack.cpp" />
+    <ClCompile Include="Deal_KnockDown.cpp" />
+    <ClCompile Include="Deal_MakeBuff.cpp" />
+    <ClCompile Include="Deal_MakePainDrop.cpp" />
+    <ClCompile Include="Deal_ModRes.cpp" />
+    <ClCompile Include="Deal_ModSlatesRes.cpp" />
+    <ClCompile Include="Deal_Petrify.cpp" />
+    <ClCompile Include="Deal_PhysDmg.cpp" />
+    <ClCompile Include="Deal_RemoveBuff.cpp" />
+    <ClCompile Include="Deal_SoulRecover.cpp" />
+    <ClCompile Include="Deal_StartBhvRelay.cpp" />
+    <ClCompile Include="Deal_StompBellyEgg.cpp" />
+    <ClCompile Include="Deal_Suck.cpp" />
+    <ClCompile Include="Deal_SummonUnit.cpp" />
+    <ClCompile Include="Deal_Teleport.cpp" />
+    <ClCompile Include="EoAbsorb.cpp" />
+    <ClCompile Include="EoAirBomb.cpp" />
+    <ClCompile Include="EoArea.cpp" />
+    <ClCompile Include="EoAreaDmg.cpp" />
+    <ClCompile Include="EoBellyEelString.cpp" />
+    <ClCompile Include="EoBellyEgg.cpp" />
+    <ClCompile Include="EoBomb.cpp" />
+    <ClCompile Include="EoBullet.cpp" />
+    <ClCompile Include="EoBulletBase.cpp" />
+    <ClCompile Include="EoBulletBomb.cpp" />
+    <ClCompile Include="EoChain.cpp" />
+    <ClCompile Include="EoChainedHammer.cpp" />
+    <ClCompile Include="EoDemonBlood.cpp" />
+    <ClCompile Include="EoEnv.cpp" />
+    <ClCompile Include="EoHolyOrb.cpp" />
+    <ClCompile Include="EoInvoke.cpp" />
+    <ClCompile Include="EoLanternRoute.cpp" />
+    <ClCompile Include="EoLichen.cpp" />
+    <ClCompile Include="EoLichenSpread.cpp" />
+    <ClCompile Include="EoLink.cpp" />
+    <ClCompile Include="EoMagnetBall.cpp" />
+    <ClCompile Include="EoMassSpline.cpp" />
+    <ClCompile Include="EoMissile.cpp" />
+    <ClCompile Include="EoObjDeal.cpp" />
+    <ClCompile Include="EoObliterater.cpp" />
+    <ClCompile Include="EoOwnerDeal.cpp" />
+    <ClCompile Include="EoPush.cpp" />
+    <ClCompile Include="EoPushAdv.cpp" />
+    <ClCompile Include="EoRavens.cpp" />
+    <ClCompile Include="EoShards.cpp" />
+    <ClCompile Include="EoShootBullet.cpp" />
+    <ClCompile Include="EoSignal.cpp" />
+    <ClCompile Include="EoSplineBullet.cpp" />
+    <ClCompile Include="EoStep.cpp" />
+    <ClCompile Include="EoStripe.cpp" />
+    <ClCompile Include="EoSwing.cpp" />
+    <ClCompile Include="EoSwingBullet.cpp" />
+    <ClCompile Include="EoToeStoneThrusts.cpp" />
+    <ClCompile Include="EoTongue.cpp" />
+    <ClCompile Include="EoTornado.cpp" />
+    <ClCompile Include="EoTrap.cpp" />
+    <ClCompile Include="EoMagicCircuitRailAbsorb.cpp" />
+    <ClCompile Include="EoUtumAttack.cpp" />
+    <ClCompile Include="EoUtumRepairBridge.cpp" />
+    <ClCompile Include="EoWave.cpp" />
+    <ClCompile Include="GestureFlyDown.cpp" />
+    <ClCompile Include="GestureFlyUp.cpp" />
+    <ClCompile Include="Level.cpp" />
+    <ClCompile Include="LevelAbility.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <ClCompile Include="LevelAgentBrief.cpp" />
+    <ClCompile Include="LevelAIContext.cpp" />
+    <ClCompile Include="LevelAIs.cpp" />
+    <ClCompile Include="LevelAovMap.cpp" />
+    <ClCompile Include="LevelAttrs.cpp" />
+    <ClCompile Include="LevelAttrs_Weak.cpp" />
+    <ClCompile Include="LevelBasis.cpp" />
+    <ClCompile Include="LevelBehavior.cpp" />
+    <ClCompile Include="LevelBGs.cpp" />
+    <ClCompile Include="LevelBlocking.cpp" />
+    <ClCompile Include="LevelBuff.cpp" />
+    <ClCompile Include="LevelChancer.cpp" />
+    <ClCompile Include="LevelClasses.cpp" />
+    <ClCompile Include="LevelCoSkill.cpp" />
+    <ClCompile Include="LevelCounter.cpp" />
+    <ClCompile Include="LevelData.cpp" />
+    <ClCompile Include="LevelDeal.cpp" />
+    <ClCompile Include="LevelDebugDraw.cpp" />
+    <ClCompile Include="LevelDecider.cpp" />
+    <ClCompile Include="LevelDefines.cpp" />
+    <ClCompile Include="LevelDropper.cpp" />
+    <ClCompile Include="LevelEventMap.cpp" />
+    <ClCompile Include="LevelEvents.cpp" />
+    <ClCompile Include="LevelExploreMap.cpp" />
+    <ClCompile Include="LevelFlock.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="LevelGesture.cpp" />
+    <ClCompile Include="LevelGesture_FlyThrust.cpp" />
+    <ClCompile Include="LevelGesture_Jump.cpp" />
+    <ClCompile Include="LevelHooks.cpp" />
+    <ClCompile Include="LevelIDs.cpp" />
+    <ClCompile Include="LevelInactives.cpp" />
+    <ClCompile Include="LevelItem.cpp" />
+    <ClCompile Include="LevelItemState.cpp" />
+    <ClCompile Include="LevelLockers.cpp" />
+    <ClCompile Include="LevelNPCs.cpp" />
+    <ClCompile Include="LevelObj.cpp" />
+    <ClCompile Include="LevelObjMap.cpp" />
+    <ClCompile Include="LevelObjMove.cpp" />
+    <ClCompile Include="LevelObjPauser.cpp" />
+    <ClCompile Include="LevelObjResidable.cpp" />
+    <ClCompile Include="LevelObjSrc.cpp" />
+    <ClCompile Include="LevelObliterateArg.cpp" />
+    <ClCompile Include="LevelOp.cpp" />
+    <ClCompile Include="LevelOps.cpp" />
+    <ClCompile Include="LevelPersistData.cpp" />
+    <ClCompile Include="LevelPlayer.cpp" />
+    <ClCompile Include="LevelPlayerSlatesData.cpp" />
+    <ClCompile Include="LevelPlayerStates.cpp" />
+    <ClCompile Include="LevelPoem.cpp" />
+    <ClCompile Include="LevelReactor.cpp" />
+    <ClCompile Include="LevelRecords.cpp" />
+    <ClCompile Include="LevelResources.cpp" />
+    <ClCompile Include="LevelResPiles.cpp" />
+    <ClCompile Include="LevelRtnuCircum.cpp" />
+    <ClCompile Include="LevelRtnuCmds.cpp" />
+    <ClCompile Include="LevelRtnus.cpp" />
+    <ClCompile Include="LevelSensor.cpp" />
+    <ClCompile Include="LevelService.cpp" />
+    <ClCompile Include="LevelSkill.cpp" />
+    <ClCompile Include="LevelSkillCDs.cpp" />
+    <ClCompile Include="LevelSkillDriver.cpp" />
+    <ClCompile Include="LevelSkills.cpp" />
+    <ClCompile Include="LevelSlatesBasis.cpp" />
+    <ClCompile Include="LevelSpell.cpp" />
+    <ClCompile Include="LevelStrike.cpp" />
+    <ClCompile Include="LevelTalks.cpp" />
+    <ClCompile Include="LevelTech.cpp" />
+    <ClCompile Include="LevelTileMap.cpp" />
+    <ClCompile Include="LevelTroops.cpp" />
+    <ClCompile Include="LevelUnitArg.cpp" />
+    <ClCompile Include="LevelUtil.cpp" />
+    <ClCompile Include="LoAgent.cpp" />
+    <ClCompile Include="LoBelly.cpp" />
+    <ClCompile Include="LoCentipede.cpp" />
+    <ClCompile Include="LoDormantSpawner.cpp" />
+    <ClCompile Include="LoEffectObj.cpp" />
+    <ClCompile Include="LoGeneralAgent.cpp" />
+    <ClCompile Include="LoHole.cpp" />
+    <ClCompile Include="LoItem.cpp" />
+    <ClCompile Include="LoLifeFlies.cpp" />
+    <ClCompile Include="LoMagicBoard.cpp" />
+    <ClCompile Include="LoMagicCircuit.cpp" />
+    <ClCompile Include="LoPerches.cpp" />
+    <ClCompile Include="LoSlate.cpp" />
+    <ClCompile Include="LoSlatesA.cpp" />
+    <ClCompile Include="LoSlatesB.cpp" />
+    <ClCompile Include="LoSlideway.cpp" />
+    <ClCompile Include="LoSnailP1.cpp" />
+    <ClCompile Include="LoSpawner.cpp" />
+    <ClCompile Include="LoSPStone.cpp" />
+    <ClCompile Include="LoStarPlate.cpp" />
+    <ClCompile Include="LoTeleporter.cpp" />
+    <ClCompile Include="LoTeleportSite.cpp" />
+    <ClCompile Include="LoUnit.cpp" />
+    <ClCompile Include="LoWatchTower.cpp" />
+    <ClCompile Include="MagicBoardAI.cpp" />
+    <ClCompile Include="MBUtil.cpp" />
+    <ClCompile Include="NPCPendings.cpp" />
+    <ClCompile Include="Poem_ChartI.cpp" />
+    <ClCompile Include="Poem_ChartII.cpp" />
+    <ClCompile Include="Poem_ChartIII.cpp" />
+    <ClCompile Include="Protocal.cpp" />
+    <ClCompile Include="Reactor_Damage.cpp" />
+    <ClCompile Include="Reactor_DamageImmune.cpp" />
+    <ClCompile Include="Reactor_Hit.cpp" />
+    <ClCompile Include="Reactor_PostDamage.cpp" />
+    <ClCompile Include="Reactor_PreKill.cpp" />
+    <ClCompile Include="Reactor_Stun.cpp" />
+    <ClCompile Include="Skill_CastSignal.cpp" />
+    <ClCompile Include="Skill_ChainSpurt.cpp" />
+    <ClCompile Include="Skill_ChainSummon.cpp" />
+    <ClCompile Include="Skill_Charge.cpp" />
+    <ClCompile Include="Skill_Dive.cpp" />
+    <ClCompile Include="Skill_FlyUp.cpp" />
+    <ClCompile Include="Skill_General.cpp" />
+    <ClCompile Include="Skill_GeneralAdvS.cpp" />
+    <ClCompile Include="Skill_GeneralC.cpp" />
+    <ClCompile Include="Skill_GeneralS.cpp" />
+    <ClCompile Include="Skill_Gesture.cpp" />
+    <ClCompile Include="Skill_Guard.cpp" />
+    <ClCompile Include="Skill_InvokeAgent.cpp" />
+    <ClCompile Include="Skill_InvokeItem.cpp" />
+    <ClCompile Include="Skill_JumpAttack.cpp" />
+    <ClCompile Include="Skill_MeleeAbsorb.cpp" />
+    <ClCompile Include="Skill_MeleeAttack.cpp" />
+    <ClCompile Include="Skill_MissileSP.cpp" />
+    <ClCompile Include="Skill_PhantomAttack.cpp" />
+    <ClCompile Include="Skill_Plunge.cpp" />
+    <ClCompile Include="Skill_PounceMount.cpp" />
+    <ClCompile Include="Skill_PushSlideway.cpp" />
+    <ClCompile Include="Skill_RavenBullet.cpp" />
+    <ClCompile Include="Skill_RavenSummon.cpp" />
+    <ClCompile Include="Skill_Reside.cpp" />
+    <ClCompile Include="Skill_Roll.cpp" />
+    <ClCompile Include="Skill_SpitAttack.cpp" />
+    <ClCompile Include="Skill_Spray.cpp" />
+    <ClCompile Include="Skill_Summon.cpp" />
+    <ClCompile Include="Skill_Sweep.cpp" />
+    <ClCompile Include="Skill_TeleportAttack.cpp" />
+    <ClCompile Include="Skill_ThrowEo.cpp" />
+    <ClCompile Include="Skill_UtumSummon.cpp" />
+    <ClCompile Include="Skill_Zeal.cpp" />
+    <ClCompile Include="SlatesBuilderB.cpp" />
+    <ClCompile Include="Spell_FireBall.cpp" />
+    <ClCompile Include="stdh.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">stdh.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">stdh.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="Tech_Fury.cpp" />
+    <ClCompile Include="test.cpp">
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">false</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">false</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">false</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">false</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">false</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</WholeProgramOptimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">false</WholeProgramOptimization>
+    </ClCompile>
+    <ClCompile Include="TonguePhys.cpp" />
+    <ClCompile Include="Upgrade_ArmorOfVigor.cpp" />
+    <ClCompile Include="Upgrade_ShieldOfVigor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Ability_7sonLeather.h" />
+    <ClInclude Include="Ability_AnWeep.h" />
+    <ClInclude Include="Ability_BlackSteel.h" />
+    <ClInclude Include="Ability_BloodTeeth.h" />
+    <ClInclude Include="Ability_Bomb.h" />
+    <ClInclude Include="Ability_DeathCall.h" />
+    <ClInclude Include="Ability_EliPromise.h" />
+    <ClInclude Include="Ability_ExplodeOil.h" />
+    <ClInclude Include="Ability_Fire.h" />
+    <ClInclude Include="Ability_FlameBlade.h" />
+    <ClInclude Include="Ability_FlashSwing.h" />
+    <ClInclude Include="Ability_Frost.h" />
+    <ClInclude Include="Ability_GemPot.h" />
+    <ClInclude Include="Ability_HonorBook.h" />
+    <ClInclude Include="Ability_HonorPlate.h" />
+    <ClInclude Include="Ability_HonorSword.h" />
+    <ClInclude Include="Ability_HPAmulet.h" />
+    <ClInclude Include="Ability_HPFlusk.h" />
+    <ClInclude Include="Ability_HPPotion.h" />
+    <ClInclude Include="Ability_HunterPlate.h" />
+    <ClInclude Include="Ability_LightningBow.h" />
+    <ClInclude Include="Ability_MagicRing.h" />
+    <ClInclude Include="Ability_MoneyBag.h" />
+    <ClInclude Include="Ability_Nameless.h" />
+    <ClInclude Include="Ability_ObliterateBow.h" />
+    <ClInclude Include="Ability_PhantomDagger.h" />
+    <ClInclude Include="Ability_PushSlideway.h" />
+    <ClInclude Include="Ability_SacredArrow.h" />
+    <ClInclude Include="Ability_ShieldAmulet.h" />
+    <ClInclude Include="Ability_ShieldMask.h" />
+    <ClInclude Include="Ability_SimCurse.h" />
+    <ClInclude Include="Ability_SkullSword.h" />
+    <ClInclude Include="Ability_SPAmulet.h" />
+    <ClInclude Include="Ability_SPPotion.h" />
+    <ClInclude Include="Ability_StormEye.h" />
+    <ClInclude Include="Ability_TalBless.h" />
+    <ClInclude Include="Ability_TeleportSword.h" />
+    <ClInclude Include="Ability_ToeStone.h" />
+    <ClInclude Include="Ability_Unarmed.h" />
+    <ClInclude Include="Ability_UtumTide.h" />
+    <ClInclude Include="Ability_VampireRing.h" />
+    <ClInclude Include="Ability_WeaponInductionStone.h" />
+    <ClInclude Include="Ability_Whetstone.h" />
+    <ClInclude Include="Ability_WhirlWind.h" />
+    <ClInclude Include="Ability_WolfSkin.h" />
+    <ClInclude Include="Banner_Fire.h" />
+    <ClInclude Include="Banner_Wolf.h" />
+    <ClInclude Include="BccLoAgentRef.h" />
+    <ClInclude Include="BgnAccompany_Obsolete.h" />
+    <ClInclude Include="BgnAGA_Call.h" />
+    <ClInclude Include="BgnAGA_CheckAgentRefValid.h" />
+    <ClInclude Include="BgnAGA_CheckState.h" />
+    <ClInclude Include="BgnAI_CheckCmd.h" />
+    <ClInclude Include="BgnAI_CheckMentalState.h" />
+    <ClInclude Include="BgnAI_MonitorCmd.h" />
+    <ClInclude Include="BgnAI_SetMentalState.h" />
+    <ClInclude Include="BgnAreaOp.h" />
+    <ClInclude Include="BgnAttack.h" />
+    <ClInclude Include="BgnChainedHammerOp.h" />
+    <ClInclude Include="BgnCheckAIScenario.h" />
+    <ClInclude Include="BgnCheckBuff.h" />
+    <ClInclude Include="BgnCheckCounter.h" />
+    <ClInclude Include="BgnCheckDead.h" />
+    <ClInclude Include="BgnCheckDist.h" />
+    <ClInclude Include="BgnCheckEquip.h" />
+    <ClInclude Include="BgnCheckEventSrc.h" />
+    <ClInclude Include="BgnCheckExausted.h" />
+    <ClInclude Include="BgnCheckFlies.h" />
+    <ClInclude Include="BgnCheckGrade.h" />
+    <ClInclude Include="BgnCheckHP.h" />
+    <ClInclude Include="BgnCheckJumpAttack.h" />
+    <ClInclude Include="BgnCheckKilling.h" />
+    <ClInclude Include="BgnCheckMap.h" />
+    <ClInclude Include="BgnCheckMasterDist.h" />
+    <ClInclude Include="BgnCheckMoveMethod.h" />
+    <ClInclude Include="BgnCheckMoving.h" />
+    <ClInclude Include="BgnCheckObstacle.h" />
+    <ClInclude Include="BgnCheckPain.h" />
+    <ClInclude Include="BgnCheckPlayerRes.h" />
+    <ClInclude Include="BgnCheckResiding.h" />
+    <ClInclude Include="BgnCheckResPile.h" />
+    <ClInclude Include="BgnCheckRtnuCmd.h" />
+    <ClInclude Include="BgnCheckSkill.h" />
+    <ClInclude Include="BgnCheckSkillEvent.h" />
+    <ClInclude Include="BgnCheckSkillStage.h" />
+    <ClInclude Include="BgnCheckSkillStageAge.h" />
+    <ClInclude Include="BgnCheckSkillTargetRange.h" />
+    <ClInclude Include="BgnCheckSkillWindow.h" />
+    <ClInclude Include="BgnCheckStunInfo.h" />
+    <ClInclude Include="BgnCheckStunSrc.h" />
+    <ClInclude Include="BgnCheckTimer.h" />
+    <ClInclude Include="BgnCheckVar.h" />
+    <ClInclude Include="BgnController.h" />
+    <ClInclude Include="BgnDeal.h" />
+    <ClInclude Include="BgnDestroyLo.h" />
+    <ClInclude Include="BgnDetectAgent.h" />
+    <ClInclude Include="BgnDetectResidable.h" />
+    <ClInclude Include="BgnDetectSignal.h" />
+    <ClInclude Include="BgnDetectUnit.h" />
+    <ClInclude Include="BgnDie.h" />
+    <ClInclude Include="BgnEquip.h" />
+    <ClInclude Include="BgnEvent.h" />
+    <ClInclude Include="BgnFaction.h" />
+    <ClInclude Include="BgnFindNearPos.h" />
+    <ClInclude Include="BgnFindNearPos_Special.h" />
+    <ClInclude Include="BgnFindWalkableArea.h" />
+    <ClInclude Include="BgnFireFly.h" />
+    <ClInclude Include="BgnFlee.h" />
+    <ClInclude Include="BgnFlyDown.h" />
+    <ClInclude Include="BgnFlyingHover.h" />
+    <ClInclude Include="BgnFlyThrust.h" />
+    <ClInclude Include="BgnFlyUp.h" />
+    <ClInclude Include="BgnFollow.h" />
+    <ClInclude Include="BgnFollow_Obsolete.h" />
+    <ClInclude Include="BgnFunc.h" />
+    <ClInclude Include="BgnGA_AssignAward.h" />
+    <ClInclude Include="BgnGA_AssignItem.h" />
+    <ClInclude Include="BgnGA_AssignVita.h" />
+    <ClInclude Include="BgnGA_Attack.h" />
+    <ClInclude Include="BgnGA_Brief.h" />
+    <ClInclude Include="BgnGA_CheckAward.h" />
+    <ClInclude Include="BgnGA_CheckDay.h" />
+    <ClInclude Include="BgnGA_DestroyArtifact.h" />
+    <ClInclude Include="BgnGA_Disciple_Init.h" />
+    <ClInclude Include="BgnGA_EnableBody.h" />
+    <ClInclude Include="BgnGA_Env.h" />
+    <ClInclude Include="BgnGA_ExchangeItem.h" />
+    <ClInclude Include="BgnGA_ExpendAward.h" />
+    <ClInclude Include="BgnGA_Flusks.h" />
+    <ClInclude Include="BgnGA_GetBaseAttr.h" />
+    <ClInclude Include="BgnGA_IncGoldMine.h" />
+    <ClInclude Include="BgnGA_LanternRoute.h" />
+    <ClInclude Include="BgnGA_MagicStone.h" />
+    <ClInclude Include="BgnGA_ModBaseAttr.h" />
+    <ClInclude Include="BgnGA_ModHP.h" />
+    <ClInclude Include="BgnGA_ModRes.h" />
+    <ClInclude Include="BgnGA_ModShape.h" />
+    <ClInclude Include="BgnGA_ModSP.h" />
+    <ClInclude Include="BgnGA_RegisterTeleportTarget.h" />
+    <ClInclude Include="BgnGA_ResetMP.h" />
+    <ClInclude Include="BgnGA_RevealMap.h" />
+    <ClInclude Include="BgnGA_Revive.h" />
+    <CustomBuild Include="BgnGA_RollAwards.h" />
+    <ClInclude Include="BgnGA_RollGoods.h" />
+    <ClInclude Include="BgnGA_RollItems.h" />
+    <ClInclude Include="BgnGA_RollPoemAwards.h" />
+    <ClInclude Include="BgnGA_RollSlatesAwards.h" />
+    <ClInclude Include="BgnGA_RollSpells.h" />
+    <CustomBuild Include="BgnGA_RollUnique.h" />
+    <ClInclude Include="BgnGA_RollVendor.h" />
+    <ClInclude Include="BgnGA_SpawnDailyItems.h" />
+    <CustomBuild Include="BgnGA_SpawnItem.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="BgnGA_Teleport.h" />
+    <ClInclude Include="BgnGA_Temple.h" />
+    <ClInclude Include="BgnGA_Vendor.h" />
+    <ClInclude Include="BgnGA_圣旗_Assign.h" />
+    <ClInclude Include="BgnGA_宝藏洞穴_Search.h" />
+    <ClInclude Include="BgnGA_断桥_EndRepair.h" />
+    <ClInclude Include="BgnGA_断桥_StartRepair.h" />
+    <ClInclude Include="BgnGetDay.h" />
+    <ClInclude Include="BgnGetLevelObjID.h" />
+    <ClInclude Include="BgnGetLevelObjPos.h" />
+    <ClInclude Include="BgnGetSkillDynObstacle.h" />
+    <ClInclude Include="BgnInvisible.h" />
+    <ClInclude Include="BgnJink.h" />
+    <ClInclude Include="BgnJumpAttack.h" />
+    <ClInclude Include="BgnKnockDown.h" />
+    <ClInclude Include="BgnLichen.h" />
+    <ClInclude Include="BgnLockPlayer.h" />
+    <ClInclude Include="BgnLocoSkill.h" />
+    <ClInclude Include="BgnMakeBuff.h" />
+    <ClInclude Include="BgnMakeSkillStun.h" />
+    <ClInclude Include="BgnMath.h" />
+    <ClInclude Include="BgnMB_CheckCommitCount.h" />
+    <ClInclude Include="BgnMB_CheckResCount.h" />
+    <ClInclude Include="BgnMB_CheckUnsealCount.h" />
+    <ClInclude Include="BgnMB_CommitTile.h" />
+    <ClInclude Include="BgnMB_UnsealTile.h" />
+    <ClInclude Include="BgnModCounter.h" />
+    <ClInclude Include="BgnModVar.h" />
+    <ClInclude Include="BgnMonitorCoSkill.h" />
+    <ClInclude Include="BgnMonitorMasterLeave.h" />
+    <ClInclude Include="BgnMonitorStuck.h" />
+    <ClInclude Include="BgnMoveAlong.h" />
+    <ClInclude Include="BgnMoveTo.h" />
+    <ClInclude Include="BgnPossess.h" />
+    <ClInclude Include="BgnRaiseUp.h" />
+    <ClInclude Include="BgnRandomizeVar.h" />
+    <ClInclude Include="BgnRemoveBuff.h" />
+    <ClInclude Include="BgnResetTimer.h" />
+    <ClInclude Include="BgnReside.h" />
+    <ClInclude Include="BgnResPile.h" />
+    <ClInclude Include="BgnRevive.h" />
+    <ClInclude Include="BgnRtnu_Accompany.h" />
+    <ClInclude Include="BgnRtnu_CheckBehavior.h" />
+    <ClInclude Include="BgnRtnu_CheckIsRtnu.h" />
+    <ClInclude Include="BgnRtnu_GetCount.h" />
+    <ClInclude Include="BgnService.h" />
+    <ClInclude Include="BgnSetCollide.h" />
+    <ClInclude Include="BgnSetSkillTarget.h" />
+    <ClInclude Include="BgnSetUnitPace.h" />
+    <ClInclude Include="BgnSetupSlatesA_SetButton.h" />
+    <ClInclude Include="BgnSetupSlatesA_SetEdgeLock.h" />
+    <ClInclude Include="BgnSetupSlatesA_SetEntrance.h" />
+    <ClInclude Include="BgnSetupSlatesA_SetMatchKey.h" />
+    <ClInclude Include="BgnSetupSlatesA_SetSwitch.h" />
+    <ClInclude Include="BgnSetupSlatesA_SetType.h" />
+    <ClInclude Include="BgnSetupSlatesA_SetType_RandomPick.h" />
+    <ClInclude Include="BgnSetupSlatesB_Generate.h" />
+    <ClInclude Include="BgnSetupSlatesB_SetEntrance.h" />
+    <ClInclude Include="BgnSiege.h" />
+    <ClInclude Include="BgnSignal.h" />
+    <ClInclude Include="BgnSkillOp.h" />
+    <ClInclude Include="BgnSlatesA_CheckProcessed.h" />
+    <ClInclude Include="BgnSlatesA_FinishProcess.h" />
+    <ClInclude Include="BgnSlatesA_GetStarCount.h" />
+    <ClInclude Include="BgnSlatesA_OpenFence.h" />
+    <ClInclude Include="BgnSlatesA_Reveal.h" />
+    <ClInclude Include="BgnSlatesA_SpawnAgent.h" />
+    <ClInclude Include="BgnSlatesA_Teleport.h" />
+    <ClInclude Include="BgnSpawnUnit.h" />
+    <ClInclude Include="BgnStopMove.h" />
+    <ClInclude Include="BgnStroll.h" />
+    <ClInclude Include="BgnSwitchRetinue.h" />
+    <ClInclude Include="BgnSwitchSkillStage.h" />
+    <ClInclude Include="BgnSwitchWalkable.h" />
+    <ClInclude Include="BgnSyncSpeed.h" />
+    <ClInclude Include="BgnTalk.h" />
+    <ClInclude Include="BgnTeleport.h" />
+    <ClInclude Include="BgnThreat_Alerting.h" />
+    <ClInclude Include="BgnThreat_Approach.h" />
+    <ClInclude Include="BgnThreat_Attack.h" />
+    <ClInclude Include="BgnThreat_CalcDist.h" />
+    <ClInclude Include="BgnThreat_Cast.h" />
+    <ClInclude Include="BgnThreat_CheckAlertedCount.h" />
+    <ClInclude Include="BgnThreat_CheckCast.h" />
+    <ClInclude Include="BgnThreat_CheckCombatedCount.h" />
+    <ClInclude Include="BgnThreat_CheckExist.h" />
+    <ClInclude Include="BgnThreat_CheckEZone.h" />
+    <ClInclude Include="BgnThreat_CheckRange.h" />
+    <ClInclude Include="BgnThreat_Combating.h" />
+    <ClInclude Include="BgnThreat_FindAttackPos.h" />
+    <ClInclude Include="BgnThreat_FindFleePos.h" />
+    <ClInclude Include="BgnThreat_ForceUpdate.h" />
+    <ClInclude Include="BgnThreat_KeepDist.h" />
+    <ClInclude Include="BgnThreat_Siege.h" />
+    <ClInclude Include="BgnThreat_UpdateCtrl.h" />
+    <ClInclude Include="BgnTroop_Build.h" />
+    <ClInclude Include="BgnTroop_CancelCmd.h" />
+    <ClInclude Include="BgnTroop_CheckDist.h" />
+    <ClInclude Include="BgnTroop_Clean.h" />
+    <ClInclude Include="BgnTroop_Combat.h" />
+    <ClInclude Include="BgnTroop_Detect.h" />
+    <ClInclude Include="BgnTroop_Join.h" />
+    <ClInclude Include="BgnTroop_MakeBuff.h" />
+    <ClInclude Include="BgnTroop_Monitor.h" />
+    <ClInclude Include="BgnTroop_MoveAlong.h" />
+    <ClInclude Include="BgnTroop_Quit.h" />
+    <ClInclude Include="BgnTroop_SetCmd.h" />
+    <ClInclude Include="BgnTroop_SetVar.h" />
+    <ClInclude Include="BgnTroop_Spawn.h" />
+    <ClInclude Include="BgnTroop_SwitchRetinue.h" />
+    <ClInclude Include="BgnUtumThrust.h" />
+    <ClInclude Include="BgnWaitStun.h" />
+    <ClInclude Include="Bgn_Belly.h" />
+    <ClInclude Include="Bgn_CentipedeNode_Activate.h" />
+    <ClInclude Include="Bgn_CentipedeNode_GetPrevNode.h" />
+    <ClInclude Include="Bgn_Centipede_GetInfo.h" />
+    <ClInclude Include="Bgn_Centipede_PlayAct.h" />
+    <ClInclude Include="Bgn_Centipede_SpawnCyst.h" />
+    <ClInclude Include="Bgn_Centipede_Stretch.h" />
+    <ClInclude Include="Bgn_CheckItem.h" />
+    <ClInclude Include="Bgn_Disciple_RollAwards.h" />
+    <ClInclude Include="Bgn_MagicCircuit.h" />
+    <ClInclude Include="Bgn_SlimeOp.h" />
+    <ClInclude Include="Bgn_SnailP1_初始化.h" />
+    <ClInclude Include="Bgn_SnailP1_舌已打断.h" />
+    <ClInclude Include="Bgn_SnailP1_舌虫已返回.h" />
+    <ClInclude Include="Bgn_SnailP1_舌被攻击.h" />
+    <ClInclude Include="Bgn_SnailP1舌虫_寻找毒爆点.h" />
+    <ClInclude Include="Bgn_SnailP1舌虫_工作模式.h" />
+    <ClInclude Include="Bgn_StarPlate.h" />
+    <ClInclude Include="Bgn_创建飞妖.h" />
+    <ClInclude Include="Bgn_地狱触手_DetectThreat.h" />
+    <ClInclude Include="Bgn_地狱触手_FindAttackTarget.h" />
+    <ClInclude Include="Bgn_地狱触手_侦测干扰.h" />
+    <ClInclude Include="Bgn_小恶魔_寻找闪避跳跃点.h" />
+    <ClInclude Include="Bgn_恶魔之眼_MonitorArea.h" />
+    <ClInclude Include="Bgn_恶魔之眼_Update.h" />
+    <ClInclude Include="Bgn_飞妖_更新FlankAttack.h" />
+    <ClInclude Include="Bgn_飞妖_更新Shuttle.h" />
+    <ClInclude Include="BuffCalc.h" />
+    <ClInclude Include="Buff_Area.h" />
+    <ClInclude Include="Buff_AuraJoker.h" />
+    <ClInclude Include="Buff_AuraLight.h" />
+    <ClInclude Include="Buff_AuraMystery.h" />
+    <ClInclude Include="Buff_AuraNature.h" />
+    <ClInclude Include="Buff_AuraStrength.h" />
+    <ClInclude Include="Buff_AuraWisdom.h" />
+    <ClInclude Include="Buff_Banner.h" />
+    <ClInclude Include="Buff_Birth.h" />
+    <ClInclude Include="Buff_Bleeding.h" />
+    <ClInclude Include="Buff_Blocking.h" />
+    <ClInclude Include="Buff_Burning.h" />
+    <ClInclude Include="Buff_CentipedeCyst.h" />
+    <ClInclude Include="Buff_CentipedeNode_Crouch.h" />
+    <ClInclude Include="Buff_CentipedeNode_Move.h" />
+    <ClInclude Include="Buff_CentipedeNode_Tendrils.h" />
+    <ClInclude Include="Buff_Cold.h" />
+    <ClInclude Include="Buff_Dead.h" />
+    <ClInclude Include="Buff_Deal.h" />
+    <ClInclude Include="Buff_Dizzy.h" />
+    <ClInclude Include="Buff_Dormant.h" />
+    <ClInclude Include="Buff_FireFly.h" />
+    <ClInclude Include="Buff_Flies.h" />
+    <ClInclude Include="Buff_FlyBirth.h" />
+    <ClInclude Include="Buff_Frozen.h" />
+    <ClInclude Include="Buff_General.h" />
+    <ClInclude Include="Buff_GhostCollide.h" />
+    <ClInclude Include="Buff_Immune.h" />
+    <ClInclude Include="Buff_IMS.h" />
+    <ClInclude Include="Buff_InSlates.h" />
+    <ClInclude Include="Buff_Invisible.h" />
+    <ClInclude Include="Buff_Jink.h" />
+    <ClInclude Include="Buff_KB.h" />
+    <ClInclude Include="Buff_KD.h" />
+    <ClInclude Include="Buff_LockSP.h" />
+    <ClInclude Include="Buff_MindCtrl.h" />
+    <ClInclude Include="Buff_Mount.h" />
+    <ClInclude Include="Buff_NotAttackable.h" />
+    <ClInclude Include="Buff_PB.h" />
+    <ClInclude Include="Buff_Petrified.h" />
+    <ClInclude Include="Buff_Petrify.h" />
+    <ClInclude Include="Buff_Possess.h" />
+    <ClInclude Include="Buff_ResideHole.h" />
+    <ClInclude Include="Buff_ResideWT.h" />
+    <ClInclude Include="Buff_SacredOrb.h" />
+    <ClInclude Include="Buff_Shoot.h" />
+    <ClInclude Include="Buff_Siege.h" />
+    <ClInclude Include="Buff_SkillStun.h" />
+    <ClInclude Include="Buff_Slime.h" />
+    <ClInclude Include="Buff_Stun.h" />
+    <ClInclude Include="Buff_Teleport.h" />
+    <ClInclude Include="Buff_TeleportOut.h" />
+    <CustomBuild Include="Buff_TongueFly.h" />
+    <ClInclude Include="Buff_UtumBirth.h" />
+    <ClInclude Include="Buff_Weaks.h" />
+    <ClInclude Include="BulletBase.h" />
+    <ClInclude Include="CentipedeRope.h" />
+    <ClInclude Include="Deal_BreakCentipedeNode.h" />
+    <ClInclude Include="Deal_CleanOwnerBuff.h" />
+    <ClInclude Include="Deal_CreateEo.h" />
+    <ClInclude Include="Deal_CreateSpore.h" />
+    <ClInclude Include="Deal_CureHP.h" />
+    <ClInclude Include="Deal_CureSP.h" />
+    <ClInclude Include="Deal_Dizzy.h" />
+    <ClInclude Include="Deal_Dmg.h" />
+    <ClInclude Include="Deal_FliesOp.h" />
+    <ClInclude Include="Deal_IgniteHolyOrb.h" />
+    <ClInclude Include="Deal_IncMP.h" />
+    <ClInclude Include="Deal_Jink.h" />
+    <ClInclude Include="Deal_KnockBack.h" />
+    <ClInclude Include="Deal_KnockDown.h" />
+    <ClInclude Include="Deal_MakeBuff.h" />
+    <ClInclude Include="Deal_MakePainDrop.h" />
+    <ClInclude Include="Deal_ModRes.h" />
+    <ClInclude Include="Deal_ModSlatesRes.h" />
+    <ClInclude Include="Deal_Petrify.h" />
+    <ClInclude Include="Deal_PhysDmg.h" />
+    <ClInclude Include="Deal_RemoveBuff.h" />
+    <ClInclude Include="Deal_SoulRecover.h" />
+    <ClInclude Include="Deal_StartBhvRelay.h" />
+    <ClInclude Include="Deal_StompBellyEgg.h" />
+    <ClInclude Include="Deal_Suck.h" />
+    <ClInclude Include="Deal_SummonUnit.h" />
+    <ClInclude Include="Deal_Teleport.h" />
+    <ClInclude Include="EelRoadNetwork.h" />
+    <ClInclude Include="EoAbsorb.h" />
+    <ClInclude Include="EoAirBomb.h" />
+    <ClInclude Include="EoArea.h" />
+    <ClInclude Include="EoAreaDmg.h" />
+    <ClInclude Include="EoBellyEelString.h" />
+    <ClInclude Include="EoBellyEgg.h" />
+    <ClInclude Include="EoBomb.h" />
+    <ClInclude Include="EoBullet.h" />
+    <ClInclude Include="EoBulletBase.h" />
+    <ClInclude Include="EoBulletBomb.h" />
+    <ClInclude Include="EoChain.h" />
+    <ClInclude Include="EoChainedHammer.h" />
+    <ClInclude Include="EoDemonBlood.h" />
+    <ClInclude Include="EoEnv.h" />
+    <ClInclude Include="EoHolyOrb.h" />
+    <ClInclude Include="EoInvoke.h" />
+    <ClInclude Include="EoLanternRoute.h" />
+    <ClInclude Include="EoLichen.h" />
+    <ClInclude Include="EoLichenSpread.h" />
+    <ClInclude Include="EoLink.h" />
+    <ClInclude Include="EoMagnetBall.h" />
+    <ClInclude Include="EoMassSpline.h" />
+    <ClInclude Include="EoMissile.h" />
+    <ClInclude Include="EoObjDeal.h" />
+    <ClInclude Include="EoObliterater.h" />
+    <ClInclude Include="EoOwnerDeal.h" />
+    <ClInclude Include="EoPush.h" />
+    <ClInclude Include="EoPushAdv.h" />
+    <ClInclude Include="EoRavens.h" />
+    <ClInclude Include="EoShards.h" />
+    <ClInclude Include="EoShootBullet.h" />
+    <ClInclude Include="EoSignal.h" />
+    <ClInclude Include="EoSplineBullet.h" />
+    <ClInclude Include="EoStep.h" />
+    <ClInclude Include="EoStripe.h" />
+    <ClInclude Include="EoSwing.h" />
+    <ClInclude Include="EoSwingBullet.h" />
+    <ClInclude Include="EoToeStoneThrusts.h" />
+    <ClInclude Include="EoTongue.h" />
+    <ClInclude Include="EoTornado.h" />
+    <ClInclude Include="EoTrap.h" />
+    <ClInclude Include="EoMagicCircuitRailAbsorb.h" />
+    <ClInclude Include="EoUtumAttack.h" />
+    <ClInclude Include="EoUtumRepairBridge.h" />
+    <ClInclude Include="EoWave.h" />
+    <ClInclude Include="GestureFlyDown.h" />
+    <ClInclude Include="GestureFlyUp.h" />
+    <ClInclude Include="Level.h" />
+    <ClInclude Include="LevelAbility.h" />
+    <ClInclude Include="LevelAgentBrief.h" />
+    <ClInclude Include="LevelAIContext.h" />
+    <ClInclude Include="LevelAIs.h" />
+    <ClInclude Include="LevelAovMap.h" />
+    <ClInclude Include="LevelArtifactUpgrade.h" />
+    <ClInclude Include="LevelAttrs.h" />
+    <ClInclude Include="LevelAttrs_DamageAttr.h" />
+    <ClInclude Include="LevelAttrs_Weak.h" />
+    <ClInclude Include="LevelBasis.h" />
+    <ClInclude Include="LevelBehavior.h" />
+    <ClInclude Include="LevelBGs.h" />
+    <ClInclude Include="LevelBlocking.h" />
+    <ClInclude Include="LevelBuff.h" />
+    <ClInclude Include="LevelChancer.h" />
+    <ClInclude Include="LevelClasses.h" />
+    <ClInclude Include="LevelCoSkill.h" />
+    <ClInclude Include="LevelCost.h" />
+    <ClInclude Include="LevelCounter.h" />
+    <ClInclude Include="LevelData.h" />
+    <ClInclude Include="LevelDeal.h" />
+    <ClInclude Include="LevelDebugDraw.h" />
+    <ClInclude Include="LevelDecider.h" />
+    <ClInclude Include="LevelDefines.h" />
+    <ClInclude Include="LevelDetectTargetFlags.h" />
+    <ClInclude Include="LevelDetectWeights.h" />
+    <ClInclude Include="LevelDropper.h" />
+    <ClInclude Include="LevelEventMap.h" />
+    <ClInclude Include="LevelEvents.h" />
+    <ClInclude Include="LevelEventSrc.h" />
+    <ClInclude Include="LevelExploreMap.h" />
+    <CustomBuild Include="LevelFlock.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseD|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseFFP|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseMax2024|x64'">true</ExcludedFromBuild>
+    </CustomBuild>
+    <ClInclude Include="LevelGesture.h" />
+    <ClInclude Include="LevelGesture_FlyThrust.h" />
+    <ClInclude Include="LevelGesture_Jump.h" />
+    <ClInclude Include="LevelHookDefines.h" />
+    <ClInclude Include="LevelHooks.h" />
+    <ClInclude Include="LevelIDs.h" />
+    <ClInclude Include="LevelInactives.h" />
+    <ClInclude Include="LevelItem.h" />
+    <ClInclude Include="LevelItemBuffType.h" />
+    <ClInclude Include="LevelItemState.h" />
+    <ClInclude Include="LevelLockers.h" />
+    <ClInclude Include="LevelMsgBuf.h" />
+    <ClInclude Include="LevelNPCs.h" />
+    <ClInclude Include="LevelObj.h" />
+    <ClInclude Include="LevelObjHistory.h" />
+    <ClInclude Include="LevelObjMap.h" />
+    <ClInclude Include="LevelObjMiscFlags.h" />
+    <ClInclude Include="LevelObjMove.h" />
+    <ClInclude Include="LevelObjPauser.h" />
+    <ClInclude Include="LevelObjResidable.h" />
+    <ClInclude Include="LevelObjSrc.h" />
+    <ClInclude Include="LevelObliterateArg.h" />
+    <ClInclude Include="LevelOp.h" />
+    <ClInclude Include="LevelOps.h" />
+    <ClInclude Include="LevelOSB.h" />
+    <ClInclude Include="LevelPersistData.h" />
+    <ClInclude Include="LevelPlayer.h" />
+    <ClInclude Include="LevelPlayerSlatesData.h" />
+    <ClInclude Include="LevelPlayerStates.h" />
+    <ClInclude Include="LevelPoem.h" />
+    <ClInclude Include="LevelReactor.h" />
+    <ClInclude Include="LevelRecordAgent.h" />
+    <ClInclude Include="LevelRecordBuff.h" />
+    <ClInclude Include="LevelRecordEffectSet.h" />
+    <ClInclude Include="LevelRecordEO.h" />
+    <ClInclude Include="LevelRecordFlock.h" />
+    <ClInclude Include="LevelRecordGesture.h" />
+    <ClInclude Include="LevelRecordGlobal.h" />
+    <ClInclude Include="LevelRecordGoods.h" />
+    <ClInclude Include="LevelRecordItem.h" />
+    <ClInclude Include="LevelRecordItemClass.h" />
+    <ClInclude Include="LevelRecordItemSeed.h" />
+    <ClInclude Include="LevelRecordMagicBoard.h" />
+    <ClInclude Include="LevelRecordMagicTile.h" />
+    <ClInclude Include="LevelRecordMap.h" />
+    <ClInclude Include="LevelRecordNPC.h" />
+    <ClInclude Include="LevelRecordPosture.h" />
+    <ClInclude Include="LevelRecordRegion.h" />
+    <ClInclude Include="LevelRecordRes.h" />
+    <ClInclude Include="LevelRecords.h" />
+    <ClInclude Include="LevelRecordSkill.h" />
+    <ClInclude Include="LevelRecordSlateType.h" />
+    <ClInclude Include="LevelRecordUnit.h" />
+    <ClInclude Include="LevelRecordUpgrade.h" />
+    <ClInclude Include="LevelRelationMatrix.h" />
+    <ClInclude Include="LevelResources.h" />
+    <ClInclude Include="LevelResPiles.h" />
+    <ClInclude Include="LevelRtnuCircum.h" />
+    <ClInclude Include="LevelRtnuCmds.h" />
+    <ClInclude Include="LevelRtnuDefines.h" />
+    <ClInclude Include="LevelRtnus.h" />
+    <ClInclude Include="LevelSensor.h" />
+    <ClInclude Include="LevelService.h" />
+    <ClInclude Include="LevelSkill.h" />
+    <ClInclude Include="LevelSkillCDs.h" />
+    <ClInclude Include="LevelSkillDriver.h" />
+    <ClInclude Include="LevelSkills.h" />
+    <ClInclude Include="LevelSlateDefines.h" />
+    <ClInclude Include="LevelSlateDefinesA.h" />
+    <ClInclude Include="LevelSlateDefinesB.h" />
+    <ClInclude Include="LevelSlatesBasis.h" />
+    <ClInclude Include="LevelSpell.h" />
+    <ClInclude Include="LevelStrike.h" />
+    <ClInclude Include="LevelTalks.h" />
+    <ClInclude Include="LevelTech.h" />
+    <ClInclude Include="LevelTileMap.h" />
+    <ClInclude Include="LevelTroops.h" />
+    <ClInclude Include="LevelUnitArg.h" />
+    <ClInclude Include="LevelUpgradableValue.h" />
+    <ClInclude Include="LevelUpgrade.h" />
+    <ClInclude Include="LevelUtil.h" />
+    <ClInclude Include="LoAgent.h" />
+    <ClInclude Include="LoAgentRef.h" />
+    <ClInclude Include="LoBelly.h" />
+    <ClInclude Include="LoCentipede.h" />
+    <ClInclude Include="LoDormantSpawner.h" />
+    <ClInclude Include="LoEffectObj.h" />
+    <ClInclude Include="LoGeneralAgent.h" />
+    <ClInclude Include="LoHole.h" />
+    <ClInclude Include="LoItem.h" />
+    <ClInclude Include="LoLifeFlies.h" />
+    <ClInclude Include="LoLoc.h" />
+    <ClInclude Include="LoMagicBoard.h" />
+    <ClInclude Include="LoMagicCircuit.h" />
+    <ClInclude Include="LoNPCLoc.h" />
+    <ClInclude Include="LoPerches.h" />
+    <ClInclude Include="LoRoute.h" />
+    <ClInclude Include="LoSlate.h" />
+    <ClInclude Include="LoSlates.h" />
+    <ClInclude Include="LoSlatesA.h" />
+    <CustomBuild Include="LoSlatesB.h" />
+    <ClInclude Include="LoSlideway.h" />
+    <ClInclude Include="LoSnailP1.h" />
+    <ClInclude Include="LoSpawner.h" />
+    <ClInclude Include="LoSPStone.h" />
+    <ClInclude Include="LoStarPlate.h" />
+    <ClInclude Include="LoStartLoc.h" />
+    <ClInclude Include="LoTeleporter.h" />
+    <ClInclude Include="LoTeleportSite.h" />
+    <ClInclude Include="LoUnit.h" />
+    <ClInclude Include="LoWatchTower.h" />
+    <ClInclude Include="MagicBoardAI.h" />
+    <ClInclude Include="MagicBoardDefines.h" />
+    <ClInclude Include="MBUtil.h" />
+    <ClInclude Include="NPCPendings.h" />
+    <ClInclude Include="Poem_ChartI.h" />
+    <ClInclude Include="Poem_ChartII.h" />
+    <ClInclude Include="Poem_ChartIII.h" />
+    <ClInclude Include="Protocal.h" />
+    <ClInclude Include="Reactor_Damage.h" />
+    <ClInclude Include="Reactor_DamageImmune.h" />
+    <ClInclude Include="Reactor_Hit.h" />
+    <ClInclude Include="Reactor_PostDamage.h" />
+    <ClInclude Include="Reactor_PreKill.h" />
+    <ClInclude Include="Reactor_Stun.h" />
+    <ClInclude Include="Skill_CastSignal.h" />
+    <ClInclude Include="Skill_ChainSpurt.h" />
+    <ClInclude Include="Skill_ChainSummon.h" />
+    <ClInclude Include="Skill_Charge.h" />
+    <ClInclude Include="Skill_Dive.h" />
+    <ClInclude Include="Skill_FlyUp.h" />
+    <ClInclude Include="Skill_General.h" />
+    <CustomBuild Include="Skill_GeneralAdvS.h" />
+    <ClInclude Include="Skill_GeneralC.h" />
+    <ClInclude Include="Skill_GeneralS.h" />
+    <ClInclude Include="Skill_Gesture.h" />
+    <ClInclude Include="Skill_Guard.h" />
+    <ClInclude Include="Skill_InvokeAgent.h" />
+    <ClInclude Include="Skill_InvokeItem.h" />
+    <ClInclude Include="Skill_JumpAttack.h" />
+    <ClInclude Include="Skill_MeleeAbsorb.h" />
+    <ClInclude Include="Skill_MeleeAttack.h" />
+    <ClInclude Include="Skill_MIssileSP.h" />
+    <ClInclude Include="Skill_PhantomAttack.h" />
+    <ClInclude Include="Skill_Plunge.h" />
+    <ClInclude Include="Skill_PounceMount.h" />
+    <ClInclude Include="Skill_PushSlideway.h" />
+    <ClInclude Include="Skill_RavenBullet.h" />
+    <ClInclude Include="Skill_RavenSummon.h" />
+    <ClInclude Include="Skill_Reside.h" />
+    <ClInclude Include="Skill_Roll.h" />
+    <ClInclude Include="Skill_SpitAttack.h" />
+    <ClInclude Include="Skill_Spray.h" />
+    <ClInclude Include="Skill_Summon.h" />
+    <ClInclude Include="Skill_Sweep.h" />
+    <ClInclude Include="Skill_TeleportAttack.h" />
+    <ClInclude Include="Skill_ThrowEo.h" />
+    <ClInclude Include="Skill_UtumSummon.h" />
+    <ClInclude Include="Skill_Zeal.h" />
+    <ClInclude Include="SlatesBuilderB.h" />
+    <ClInclude Include="Spell_FireBall.h" />
+    <ClInclude Include="stdh.h" />
+    <ClInclude Include="Tech_Fury.h" />
+    <ClInclude Include="TonguePhys.h" />
+    <ClInclude Include="Upgrade_ArmorOfVigor.h" />
+    <ClInclude Include="Upgrade_ShieldOfVigor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

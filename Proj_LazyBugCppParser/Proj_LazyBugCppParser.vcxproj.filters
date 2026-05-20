@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="commons">
+      <UniqueIdentifier>{cb1a09d6-58c8-4621-979f-e5710123fc48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="commons\_datapacket">
+      <UniqueIdentifier>{14aa3cb5-594b-4d32-820a-ec840cf927d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="commons\_stringparser">
+      <UniqueIdentifier>{15cd4604-8a65-48ca-bd13-66fff9ca178a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="commons\_timer">
+      <UniqueIdentifier>{786c6c16-2904-443a-9f96-641e7311af0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{87c82331-2660-47ae-8cc2-fdecea05ea66}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Proj_LazyBugCppParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\datapacket\ChunkPacket.cpp">
+      <Filter>commons\_datapacket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\datapacket\DataPacket.cpp">
+      <Filter>commons\_datapacket</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\stringparser\stringparser.cpp">
+      <Filter>commons\_stringparser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\profiler.cpp">
+      <Filter>commons\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\timer\timer.cpp">
+      <Filter>commons\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdh.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\ChunkPacket.h">
+      <Filter>commons\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\DataPacket.h">
+      <Filter>commons\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\datapacket\FileCacher.h">
+      <Filter>commons\_datapacket</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\stringparser\stringparser.h">
+      <Filter>commons\_stringparser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\profiler.h">
+      <Filter>commons\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\timer\timer.h">
+      <Filter>commons\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_File.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

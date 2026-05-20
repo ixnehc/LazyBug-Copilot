@@ -1,0 +1,7 @@
+﻿; LazyBugPlugIn.def : Declares the module parameters.
+
+LIBRARY      "LazyBugPlugIn.DLL"
+
+EXPORTS
+	DllCanUnloadNow            PRIVATE
+	DllGetClassObject          PRIVATE

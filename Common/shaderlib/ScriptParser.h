@@ -1,0 +1,353 @@
+// ScriptParser.h: interface for the CScriptParser class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(AFX_SCRIPTPARSER_H__A290D663_CC73_4239_8159_236F7CFC2140__INCLUDED_)
+#define AFX_SCRIPTPARSER_H__A290D663_CC73_4239_8159_236F7CFC2140__INCLUDED_
+
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
+#include <string>
+#include <vector>
+
+////////////////////////////////////////////////////////////////////
+//TStack
+
+template<class TYPE>
+class CTStack
+{
+public:
+	int m_top;
+	TYPE *m_aBuffer;
+	int m_max;
+	bool m_bUsePool;
+
+	CTStack()
+	{
+		m_top=0;
+		m_aBuffer=NULL;
+	}
+	
+	void Initialize(int buffersize,BOOL bUsePool=TRUE);
+	
+	inline void Uninitialize();
+	
+	inline void Clear()
+	{
+		m_top=0;
+	}
+	
+	//return FALSE if overflowed
+	inline BOOL Push(TYPE &pt)
+	{
+		if (m_top>=m_max)
+			return FALSE;
+		m_aBuffer[m_top]=pt;
+		m_top++;
+		return TRUE;
+	}
+
+	
+	//Return value indicates whether empty,FALSE indicates empty
+	BOOL Pop(TYPE &pt)
+	{
+		if (IsEmpty())
+			return FALSE;
+		m_top--;
+		pt=m_aBuffer[m_top];
+		return TRUE;
+	}
+
+	
+	inline BOOL IsEmpty()
+	{
+		return (m_top==0);
+	}
+	
+	int GetBufferSize(){return m_max;}
+	
+};
+
+template<class TYPE>
+void  CTStack<TYPE>::Initialize(int buffersize,BOOL bUsePool)
+{
+	Clear();
+	m_max=buffersize;
+//	if (bUsePool)
+//		m_aBuffer=(TYPE *)g_MemSlicePool.Alloc(buffersize*sizeof(TYPE));
+//	else
+	m_aBuffer=new TYPE[buffersize];
+	m_bUsePool=bUsePool?true:false;
+}
+
+template<class TYPE>
+void  CTStack<TYPE>::Uninitialize()
+{
+	if (m_aBuffer)
+	{
+//		if (m_bUsePool)
+//			g_MemSlicePool.Free(m_aBuffer);
+//		else
+		delete []m_aBuffer;
+	}
+
+	m_aBuffer=NULL;
+}
+//TStack
+////////////////////////////////////////////////////////////////////
+
+
+//Grammer Item Type
+#define GIT_NULL 0
+#define GIT_NODE 1
+#define GIT_CODE 2
+#define GIT_AF 3
+
+#define MAX_FUNCTION_ARGS 24
+
+
+#define MAX_SCRIPT_ERROR 100
+
+#define SCRIPT_EXECUTE_TOOMANYERROR 1
+#define SCRIPT_EXECUTE_REST 2
+#define SCRIPT_EXECUTE_FINISHED 3
+
+#define GRAMMER_ITEM_STACK_SIZE 512
+#define CONTINUE_TARGET_STACK_SIZE 128
+
+
+
+class CScriptParser;
+
+extern CScriptParser *g_pScriptParser;
+
+class CScriptProcesser;
+
+
+class CWordCode;
+typedef int (*SCRIPT_PARSE_ACTIONFUNC)(CScriptParser *pParser,CScriptProcesser *pProcesser,CWordCode &wcRecent);
+
+
+enum WordCodeType
+{
+	C_Start,
+		
+		//Reserved Word
+		C_Rend,C_Rtype,C_RVertexIn,C_RPixelIn,C_RVertexShader,C_RPixelShader,C_RPixelOut,C_REffectParam,C_RFeatureGroup,
+		C_Rdeclare,C_Rassign,C_Rfeature,C_Rpriority,C_Rglobal,C_Rstate,
+		C_Rvs_ver,C_Rps_ver,C_Rcap
+
+
+		//Grammer control symbols
+		,C_LBrace,C_RBrace,C_LSqBrace,C_RSqBrace
+		,C_Semicolon,C_Colon,C_Dot,C_Sharp,C_Dollar,
+
+		C_PosPos,C_NegNeg,CAddAss,C_MnsAss,C_MulAss,C_DivAss,C_ModAss,
+
+		//Operator
+		C_Comma,C_LCurve,C_RCurve,
+		C_Tilde,C_Excla,C_Neg,C_Pos,C_And,C_Asterisk,C_Slant,C_Per
+		,C_Caret,C_Or,C_Equ,C_LT,C_GT,C_LE,C_GE,C_NE,C_Quest,C_AndAnd,C_OrOr,C_EQ
+		
+		//Identifier & constant
+		,C_ID,C_Number,C_Str,CFloatID
+
+		
+		,C_PStr,C_PChar,C_UStr,C_UChar,C_ALL,
+		C_End,
+		C_NULL
+};
+enum OperatorType
+{
+	O_Comma,W0,O_LSQBR,O_Array,O_LCurve,O_FuncRef
+		,O_Comp,O_Not,O_Sub,O_Add,O_And,O_Mul,O_Div,O_Mod
+		,O_Xor,O_Or,O_Ass,O_LT,O_GT
+		,W1,W2,W3,W4
+		,O_RPP,O_RMM,O_Shl,O_Shr,O_LE,O_GE,O_EQ,O_NE,O_LOr,O_LAnd,O_MulAss
+		,O_DivAss,O_ModAss,O_AddAss,O_SubAss,O_ShrAss,O_ShlAss,O_AndAss
+		,O_OrAss,O_XorAss
+		,O_LPP,O_LMM,O_Neg,O_Pos,O_Addr,O_Contnt,
+		O_None
+};
+
+enum ErrorType
+{
+	Err_FailToOpenFile,
+	Err_Unknown,Err_UnknownSymbol,Err_UnsupportedVarType,Err_InvalidVariableName,
+	Err_VariableRedefined,Err_ExpressionSyntaxError,Err_UnknownIdentifier,Err_UnsupportedOperator,
+	Err_LeftCurveNeeded,Err_RightCurveMissed,Err_RightBraceMissed,Err_UnexpectedEndOfFile,
+	Err_CalculateExpression,Err_WrongGrammer,Err_GrammerStackOverFlow,
+	Err_InvalidJumpTarget,Err_CannotEvalJudgement,Err_CannotBreak,Err_CannotContinue,
+	Err_InvalidArraySize,
+	Err_InvalidInitExpression,
+	Err_InvalidPriority,Err_InvalidCapName,Err_InvalidFeatureFlagName,
+	Err_EmptyFile,
+};
+
+enum GrammerNodeType
+{
+	N_Start,N_BlockStart,N_Expression,N_VarType,N_VarList,N_VarName,
+	N_ArraySize,N_Sementic,N_Annotation,N_AnnotationContent,N_InitValue,
+	N_Assign,N_AssignContent,N_Priority,N_Global,N_GlobalContent,N_StateValue,
+	N_FeatureGroupBlock,N_FeatureGroup,N_GroupFeature,N_CapPriority,N_FeatureFlagBlock,N_FeatureFlag,
+
+};
+
+class CGrammerItemInfo;
+struct RuleExtendType       /*Rule Extend */
+{
+	GrammerNodeType InGn;
+	WordCodeType InCode;
+	CGrammerItemInfo *OutRl;
+};
+
+
+struct RWtype /*Reserved word */
+{
+	const char *s;
+	WordCodeType Code;
+};
+
+
+struct CodeStatusConvInfo//Status convertor
+{
+	WordCodeType m_InStatus;
+	char m_InCode;
+	WordCodeType m_OutStatus;
+};
+
+
+
+class CWordCodePos
+{
+public:
+	CWordCodePos()
+	{
+		m_iLine=-1;
+		m_iPosInLine=-1;
+	}
+	int m_iLine;
+	int m_iPosInLine;
+};
+
+class CErrorInfo
+{
+public:
+	ErrorType m_et;
+	CWordCodePos m_ErrorPos;
+
+	CErrorInfo &operator=(CErrorInfo &src)
+	{
+		m_et=src.m_et;
+		m_ErrorPos=src.m_ErrorPos;
+		return *this;
+	}
+};
+
+
+class CWordCode
+{
+public:
+	WordCodeType m_WordCode;
+
+	std::string m_String;
+	int m_Value;
+
+	CWordCodePos m_pos;
+
+	CWordCode &operator =(CWordCode &src)
+	{
+		m_WordCode=src.m_WordCode;
+		m_String=src.m_String;
+		m_Value=src.m_Value;
+		memcpy(&m_pos,&src.m_pos,sizeof(CWordCodePos));
+		return *this;
+	}
+
+};
+
+class CGrammerItemInfo
+{
+public:
+	int m_type;
+	union
+	{
+		__int64 m_GrammerNode;
+		__int64 m_Code;
+		SCRIPT_PARSE_ACTIONFUNC m_ActionFunction;
+	};
+};
+
+class CStringLib;
+class CErrorInfo;
+
+class CScriptParser  
+{
+public:
+	CScriptParser();
+	virtual ~CScriptParser();
+	void Clear();
+
+	int m_ID;
+	void SetID(int id)
+	{
+		m_ID=id;
+	}
+
+	//Word Codes 
+	CWordCode *m_pWordCodes;
+	int m_nWordCodes;
+	BOOL m_bTranslateFlag;
+	BOOL ConvertWordCodeStatus(CWordCode &wc,char c);
+	BOOL LoadRawScript(std::vector<std::string>&);
+
+	//Error management
+	std::vector<CErrorInfo> m_aErrors;
+	void ClearError();
+	void AddError(ErrorType et,CWordCodePos &pos);
+	BOOL HasError();
+	DWORD GetErrorCount();
+	CErrorInfo *GetError(DWORD idx);
+	const char *GetErrorString(ErrorType et);
+
+	//Recent word code
+	CWordCode m_wcRecent;
+	BOOL GetRecentWordCode(CWordCode &wc);
+
+	//Unique Serial
+	int m_UniqueSerial;
+	int GetUniqueSerial() 
+	{
+		return m_UniqueSerial++;
+	}
+
+	//Script Execute
+	int m_iExecutePos;
+	CGrammerItemInfo m_stackGrammerItem[GRAMMER_ITEM_STACK_SIZE];
+	int m_topGrammerItemStack;
+	BOOL m_bFinished;
+	BOOL PushGrammerItem(CGrammerItemInfo &gi);
+	BOOL PopGrammerItem(CGrammerItemInfo &gi);
+	void ClearGrammerItemStack();
+	BOOL IsGrammerItemStackEmpty();
+
+	CGrammerItemInfo *SearchRule(GrammerNodeType node,WordCodeType wc);
+	BOOL ExtendRule(CGrammerItemInfo * rule);
+
+
+	virtual BOOL BeginExecute();
+	virtual int Execute();
+	virtual void EndExecute();
+	void End(){m_bFinished=TRUE;}
+	BOOL IsFinished()
+	{
+		return m_bFinished;
+	}
+	
+};
+
+
+
+#endif // !defined(AFX_SCRIPTPARSER_H__A290D663_CC73_4239_8159_236F7CFC2140__INCLUDED_)

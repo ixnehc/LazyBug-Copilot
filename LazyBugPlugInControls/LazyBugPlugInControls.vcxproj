@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Retail|Win32">
+      <Configuration>Retail</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Retail|x64">
+      <Configuration>Retail</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{FA52C169-7832-0A87-83D1-2EB24B6B920F}</ProjectGuid>
+    <Keyword>MFCDLLProj</Keyword>
+    <RootNamespace>LazyBugPlugInControls</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_USRDLL;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;LazyBugPlugInControls_EXPORT;VS_EXTENSION;GUILIB_IGNORE_IMPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>..\extlib\curl\lib;..\extlib\LLVM\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl.lib;Wldap32.lib;ws2_32.lib;crypt32.lib;tree-sitter.lib;tree-sitter-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_USRDLL;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;LazyBugPlugInControls_EXPORT;VS_EXTENSION;GUILIB_IGNORE_IMPORT;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include</AdditionalIncludeDirectories>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
+      <AdditionalLibraryDirectories>..\extlib\curl\lib;..\extlib\LLVM\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl_mt.lib;Wldap32.lib;ws2_32.lib;crypt32.lib;tree-sitter.lib;tree-sitter-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Common\class\class.cpp" />
+    <ClCompile Include="..\Common\codediff\CodeDiff.cpp" />
+    <ClCompile Include="..\Common\codediff\CodeDiff2.cpp" />
+    <ClCompile Include="..\Common\config\config.cpp" />
+    <ClCompile Include="..\Common\datapacket\ChunkPacket.cpp" />
+    <ClCompile Include="..\Common\datapacket\DataPacket.cpp" />
+    <ClCompile Include="..\Common\editor\editor.cpp" />
+    <ClCompile Include="..\Common\encrypt\encrypt.cpp" />
+    <ClCompile Include="..\Common\errorreport\ErrorReport.cpp" />
+    <ClCompile Include="..\Common\filewatcher\FileWatcher.cpp" />
+    <ClCompile Include="..\Common\filewatcher\FoldersWatcher.cpp" />
+    <ClCompile Include="..\Common\gds\GProp.cpp" />
+    <ClCompile Include="..\Common\gds\GVar.cpp" />
+    <ClCompile Include="..\Common\interface\interface.cpp" />
+    <ClCompile Include="..\Common\interface\InterfaceInstantiate.cpp" />
+    <ClCompile Include="..\Common\Log\LastError.cpp" />
+    <ClCompile Include="..\Common\Log\LogDump.cpp" />
+    <ClCompile Include="..\Common\Log\LogFile.cpp" />
+    <ClCompile Include="..\Common\mempool\mempool.cpp" />
+    <ClCompile Include="..\Common\mod\ModBase.cpp" />
+    <ClCompile Include="..\Common\MultiTree\NodeTree.cpp" />
+    <ClCompile Include="..\Common\Registry\Registry.cpp" />
+    <ClCompile Include="..\Common\stringparser\stringparser.cpp" />
+    <ClCompile Include="..\Common\strlib\strlib.cpp" />
+    <ClCompile Include="..\Common\timer\profiler.cpp" />
+    <ClCompile Include="..\Common\timer\timer.cpp" />
+    <ClCompile Include="..\Common\xml\tinyxml.cpp" />
+    <ClCompile Include="..\Common\xml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\Common\xml\tinyxmlparser.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\BackupDepot.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Changelists.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChangelistsDialog.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChangelistsEdit.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatAgent.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatBriefA.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatDialogA.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatDialogSplitter.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatFileWriter.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatHistory.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInput.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACItemTip.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACList.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACListBuilder.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputACWindow.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputHistory.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputImageTip.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputTag.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputTagMenuWindow.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatLlmMenu.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatOpsCompress.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatOpsCtrl.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatSettingMenu.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatSettingPage.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatSkillsTree.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTaskMgr.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_CLI.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_CreateSkill.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_FastApply.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_FindInFiles.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_QueryFinish.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_Question.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_ReadFile.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_ReplaceInFile.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_ResolveSymbolLinks.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_SearchFile.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_VerifyLlmApiProvider.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTitleMenu.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTokenStats.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatUi.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Checkpoints.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CheckpointsFileChange.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CliWhitelist.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CodingHistory.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CoreDefines.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\FileChange.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\FileLocator.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\GuiActor_Changelists.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\GuiAgent_Changelists.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\GuiData_Changelists.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\GuiView_Changelists.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmChat.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmFormatter.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmLib.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmLibLoader.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmProcessors.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmSession.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmTools.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LspClient.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\RepairWnd.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\RepairWndG.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ReplaceChunks.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SmartRepair.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SmartRepairRefCollector.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SmartRepairTrigger.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBApi.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\SymbolRefsCache.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterFiles.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\UnifiedDiff.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_CliWhitelist.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_Context.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_Image.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp" />
+    <ClCompile Include="LazyBugPlugInControls.cpp" />
+    <ClCompile Include="LazyBugPlugInControlsExport.cpp" />
+    <ClCompile Include="stdh.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Proj_LazyBug\ChatCtrl.html" />
+    <None Include="..\Proj_LazyBug\ChatInput.html" />
+    <None Include="..\Proj_LazyBug\ChatSettingMenu.html" />
+    <None Include="..\Proj_LazyBug\ChatSettingPage.html" />
+    <None Include="..\Proj_LazyBug\ChatSkillsTree.html" />
+    <None Include="..\Proj_LazyBug\RepairWnd.html" />
+    <None Include="LazyBugPlugInControls.def" />
+    <None Include="packages.config" />
+    <None Include="res\LazyBugPlugInControls.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Common\class\class.h" />
+    <ClInclude Include="..\Common\codediff\CodeDiff.h" />
+    <ClInclude Include="..\Common\codediff\dmp_diff.h" />
+    <ClInclude Include="..\Common\config\config.h" />
+    <ClInclude Include="..\Common\datapacket\ChunkPacket.h" />
+    <ClInclude Include="..\Common\datapacket\DataPacket.h" />
+    <ClInclude Include="..\Common\datapacket\FileCacher.h" />
+    <ClInclude Include="..\Common\editor\editor.h" />
+    <ClInclude Include="..\Common\encrypt\encrypt.h" />
+    <ClInclude Include="..\Common\errorreport\ErrorReport.h" />
+    <ClInclude Include="..\Common\filewatcher\FileWatcher.h" />
+    <ClInclude Include="..\Common\filewatcher\FoldersWatcher.h" />
+    <ClInclude Include="..\Common\gds\GDefines.h" />
+    <ClInclude Include="..\Common\gds\GObj.h" />
+    <ClInclude Include="..\Common\gds\GProp.h" />
+    <ClInclude Include="..\Common\gds\GStub.h" />
+    <ClInclude Include="..\Common\gds\GVar.h" />
+    <ClInclude Include="..\Common\interface\interface.h" />
+    <ClInclude Include="..\Common\interface\InterfaceInstantiate.h" />
+    <ClInclude Include="..\Common\Log\LastError.h" />
+    <ClInclude Include="..\Common\Log\LogDump.h" />
+    <ClInclude Include="..\Common\Log\LogFile.h" />
+    <ClInclude Include="..\Common\mempool\mempool.h" />
+    <ClInclude Include="..\Common\mod\ModBase.h" />
+    <ClInclude Include="..\Common\MultiTree\MultiTree.h" />
+    <ClInclude Include="..\Common\MultiTree\NodeTree.h" />
+    <ClInclude Include="..\Common\Registry\Registry.h" />
+    <ClInclude Include="..\Common\stringparser\stringparser.h" />
+    <ClInclude Include="..\Common\strlib\strlib.h" />
+    <ClInclude Include="..\Common\timer\profiler.h" />
+    <ClInclude Include="..\Common\timer\timer.h" />
+    <ClInclude Include="..\Common\xml\tinyxml.h" />
+    <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
+    <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2.h" />
+    <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2EnvironmentOptions.h" />
+    <ClInclude Include="..\Proj_LazyBug\BackupDepot.h" />
+    <ClInclude Include="..\Proj_LazyBug\Changelists.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChangelistsDialog.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChangelistsEdit.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatAgent.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatAgentDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatBriefA.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatDialogA.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatDialogSplitter.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatFileWriter.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatHistory.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInput.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACItem.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACItemTip.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACList.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACListBuilder.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputACWindow.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputHistory.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputImageTip.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputTag.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputTagMenuWindow.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatLlmMenu.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatOpsCompress.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatOpsCtrl.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatSettingMenu.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatSettingPage.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatSkillsTree.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTaskMgr.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_CLI.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_CreateSkill.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_FastApply.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_FindInFiles.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_QueryFinish.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_Question.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_ReadFile.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_ReplaceInFile.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_ResolveSymbolLinks.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_SearchFile.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_VerifyLlmApiProvider.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTitleMenu.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTokenStats.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatUi.h" />
+    <ClInclude Include="..\Proj_LazyBug\Checkpoints.h" />
+    <ClInclude Include="..\Proj_LazyBug\CheckpointsFileChange.h" />
+    <ClInclude Include="..\Proj_LazyBug\CliWhitelist.h" />
+    <ClInclude Include="..\Proj_LazyBug\CodingHistory.h" />
+    <ClInclude Include="..\Proj_LazyBug\CoreDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\FileChange.h" />
+    <ClInclude Include="..\Proj_LazyBug\FileLocator.h" />
+    <ClInclude Include="..\Proj_LazyBug\GuiActor_Changelists.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\GuiAgent_Changelists.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\GuiData_Changelists.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\GuiView_Changelists.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LazyBugConfig.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmChat.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmFormatter.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmLib.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmLibLoader.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmProcessors.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmSession.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmSkills.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmTools.h" />
+    <ClInclude Include="..\Proj_LazyBug\NameIndexer.h" />
+    <ClInclude Include="..\Proj_LazyBug\PipeMsg.h" />
+    <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h" />
+    <ClInclude Include="..\Proj_LazyBug\RepairWnd.h" />
+    <ClInclude Include="..\Proj_LazyBug\RepairWndG.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ReplaceChunks.h" />
+    <ClInclude Include="..\Proj_LazyBug\SmartRepair.h" />
+    <ClInclude Include="..\Proj_LazyBug\SmartRepairDefines.h" />
+    <ClInclude Include="..\Proj_LazyBug\SmartRepairRefCollector.h" />
+    <ClInclude Include="..\Proj_LazyBug\SmartRepairTrigger.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBApi.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h" />
+    <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h" />
+    <ClInclude Include="..\Proj_LazyBug\SymbolRefsCache.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterFiles.h" />
+    <ClInclude Include="..\Proj_LazyBug\UnifiedDiff.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_CliWhitelist.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_Context.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_File.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_Image.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h" />
+    <ClInclude Include="framework.h" />
+    <ClInclude Include="LazyBugPlugInControls.h" />
+    <ClInclude Include="LazyBugPlugInControlsExport.h" />
+    <ClInclude Include="stdh.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LazyBugPlugInControls.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Proj_FileSystem\Proj_FileSystem.vcxproj">
+      <Project>{271041da-cbe6-4a77-8622-c1f7d3aeff66}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\lazybugplugin\lazybugpluginvsix\rules\chatrules_kimi_k2.txt" />
+    <Text Include="..\Proj_LazyBug\chatquestion_default.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules - 副本 (3).txt" />
+    <Text Include="..\Proj_LazyBug\chatrules - 副本.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_deepseek.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_deepseek_v2.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_deepseek_v3.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_difffile.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_existingcode _ov01.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_existingcode.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_existingcode_ov02.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_patchfile.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_repair.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_repair_fim.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_repair_rewrite.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_repair_v2.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_replace_in_file.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_replace_in_file_use_json.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_rewritefile.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_usingtools.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_ver2.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_ver3.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_ver4.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_ver5.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_ver6.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_ver8.txt" />
+    <Text Include="..\Proj_LazyBug\chatrules_warmup.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\Microsoft.Web.WebView2.targets')" />
+  </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\Microsoft.Web.WebView2.targets'))" />
+  </Target>
+</Project>

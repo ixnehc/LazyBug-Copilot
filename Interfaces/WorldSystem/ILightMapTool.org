@@ -1,0 +1,215 @@
+#pragma once
+
+#include "class/class.h"
+
+#include "WorldSystem/IBake.h"
+
+#include "datapacket/DataPacket.h"
+
+#include "RenderSystem/IRenderSystem.h"
+
+#include "fvfex/fvfex_type.h"
+
+#define LIGHTMAP_SCALE  2.0f        // signed:[-LIGHTMAP_SCALE,LIGHTMAP_SCALE] ,unsigned:[0,LIGHTMAP_SCALE]
+
+enum LightMapType
+{
+	LMT_None=0,// no light map
+	LMT_G,     //global
+	LMT_L,     //local
+	LMT_UL,	   //uniform local
+	LMT_GL,	   //global & local
+	LMT_GUL,   //global & uniform local
+	LMT_D_G,   //global,dot3
+	LMT_D_L,   //local,dot3
+	LMT_D_UL,  //uniform local,dot3
+	LMT_D_GL,  //global & local,dot3
+	LMT_D_GUL, //global & uniform local,dot3
+	
+	LMT_Zero,  //zero
+	LMT_Max,
+};
+
+class ILightMapTool;
+
+#define LIGHTMAPDATA_VER 1
+struct LightMapData
+{
+public:
+	DEFINE_CLASS(LightMapData);
+	LightMapData(){ 	Zero();	}
+	void Zero(){	memset(&header,0,sizeof(header));}
+	void Init(LightMapType lgtType,WORD width,WORD height,i_math::vector3df& colUL_)
+	{
+		i_math::u32 colL;
+		colUL_.toDwordColor(colL);
+
+		header.bTex=1;
+		header.lt=(DWORD)lgtType;
+		header.w = width;
+		header.h = height;
+		header.colUL=colL;
+	}
+	void Init(LightMapType lgtType,DWORD nVtx,i_math::vector3df& colUL_)
+	{
+		i_math::u32 colL;
+		colUL_.toDwordColor(colL);
+
+		header.bTex =0;
+		header.lt=(DWORD)lgtType;
+		header.n=nVtx;
+		header.colUL=colL;
+	}
+	void Clean()
+	{
+		data.clear();
+		Zero();
+	}
+	void Save(CDataPacket &dp)
+	{
+		dp.Data_NextByte()=LIGHTMAPDATA_VER;
+		DP_WriteVar(dp,header);
+		DP_WriteVector(dp,data);
+	}
+	void Load(CDataPacket &dp)
+	{
+		BYTE ver=dp.Data_NextByte();
+		DP_ReadVar(dp,header);
+		DP_ReadVector(dp,data);
+	}
+
+	LightMapType GetLightMapType() const {return LightMapType(header.lt);}
+	
+	BOOL IsSupportDot3() const {return (header.bSupportDot3);}
+	DWORD GetNumberOfVerts() const { return (header.bTex)? DWORD(header.w*header.h):DWORD(header.n);}
+	struct Header
+	{
+		DWORD lt:4;
+		DWORD bSupportDot3:1;
+		DWORD bTex:1;//
+		DWORD colUL:24;//uniform的local的light map需要的颜色,这个只在lt为LMT_UL或者LMT_D_UL时有效
+
+		union
+		{
+			struct //贴图的大小,只在bTex为TRUE时有效
+			{
+				WORD w,h;
+			};
+			DWORD n;//顶点个数,只在bTex为FALSE时有效
+		};
+	};
+	BOOL IsEmpty()const { return (0==data.size());}
+	Header header;
+	std::vector<BYTE> data;
+};
+
+struct LightMap
+{
+	virtual void Clean() = 0;
+	virtual void Zero() = 0;
+	virtual BOOL IsSupportDot3() const= 0;
+	virtual DWORD GetNumberOfVerts() const = 0;
+	// 确定最终的绘制光照类型
+	LightMapType GetLightType(BOOL bDot3,DWORD nVert = -1) const
+	{
+		if(nVert!=-1&&nVert!=GetNumberOfVerts())
+			return LMT_None;
+			
+		LightMapType retType = lgtType;
+		
+		if(!bDot3)
+			return retType;
+
+		switch(lgtType)
+		{
+		case LMT_G:
+			retType = LMT_D_G;
+			break;
+		case LMT_UL:
+			retType = LMT_D_UL;
+			break;
+		case LMT_L:
+			retType = LMT_D_L;
+			break;
+		case LMT_GUL:
+			retType = LMT_D_GUL;
+			break;
+		case LMT_GL:
+			retType = LMT_D_GL;
+			break;
+		default:
+			break;
+		}
+		return retType;
+	}
+
+	i_math::vector3df colUL;//uniform的local的light map需要的颜色,这个只在lt为LMT_UL或者LMT_D_UL时有效
+	LightMapType lgtType;
+};
+struct LightMapVB :public LightMap
+{
+	LightMapVB(){ Zero();}
+	void Zero(){ memset(vb,0,sizeof(vb));lgtType = LMT_None;}
+	void Clean(){SAFE_RELEASE(vb[0]);SAFE_RELEASE(vb[1]);Zero();}
+	BOOL Init(const FVFEx * fvf_,int n=3){if(n<3) return FALSE; memcpy(fvf,fvf_,sizeof(fvf)); return TRUE;}
+	BOOL IsSupportDot3() const {return (vb[1]!=NULL);}
+	virtual DWORD GetNumberOfVerts() const {DWORD n = 0;if(vb[0]) n = vb[0]->GetCount(); return n;}
+	inline IVertexBuffer * GetVB(BOOL bDot3) const{return (bDot3)?vb[0]:vb[1];}
+	IVertexBuffer * vb[2]; // 0: 用于dot3的方式绘制  1:用于非dot3 方式绘制
+	FVFEx fvf[3];  
+};
+struct LightMapTex:public LightMap
+{
+	DEFINE_CLASS(LightMapTex);
+	LightMapTex(){Zero();}
+	
+	void Zero(){memset(texDot3,0,sizeof(texDot3)); tex = NULL;nTexDot3 = 0;lgtType = LMT_None;}
+	void Clean(){SAFE_RELEASE(tex);for(int i = 0;i<3;i++)SAFE_RELEASE(texDot3[i]);Zero();}
+	BOOL IsSupportDot3()const{return (nTexDot3>0);}
+	virtual DWORD GetNumberOfVerts() const{
+							DWORD n = 0;if(tex)n = tex->GetHeight()*tex->GetWidth(); return n;}
+	DWORD nTexDot3;
+	ITexture *tex;
+	ITexture *texDot3[3];
+};
+
+class ILightMapTool 
+{
+public:
+
+	//results的格式:
+	//对于有dot3的light map来说,每个采样点有4个BakeResult,其中前三个为basis方向上的result,第四个为法线方向上的result,
+	//注意,这四个result是连续存放的,
+	
+	//results的存放形式: 
+	//BakeResult results[h][w][4]					(当bDot3为TRUE)  
+	//BakeResult results[h][w][1]					(当bDot3为FALSE)  
+	virtual BOOL BuildLightMap(BakeResult *results,DWORD w,DWORD h,BOOL bDot3,LightMapData &dataLM)=0;
+
+	//results的存放形式: 
+	//BakeResult results[nVtx][4]					(当bDot3为TRUE)  
+	//BakeResult results[nVtx][1]					(当bDot3为FALSE)  
+	virtual BOOL BuildLightMap(BakeResult *results,DWORD nVtx,BOOL bDot3,LightMapData &dataLM)=0;
+
+	//
+	virtual LightMapType DecideLightMapType(BOOL bGlobal,BOOL bLocal,BOOL bUniform,BOOL bDot3,DWORD &stride) = 0;
+
+	virtual void Begin(LightMapData &data,BOOL bSupportDot3 = TRUE,BOOL Tex = FALSE,WORD w =0) = 0;
+
+	//两种情况:
+	//1.如果有dot3 的light map,前三个为basis方向的result,最后一个为法线方向的result,n为4
+	//2.如果没有dot3的light map,第一个为法线方向的result,n为1
+	virtual BOOL Put(BakeResult *results,DWORD n) = 0;
+
+	virtual BOOL End() = 0;
+	
+	// 获得该次Bake 平均的能量值 有效期到下次Bake
+	virtual const i_math::vector3df * GetAverageEnergy() = 0;
+
+	// create d3d resource
+	virtual BOOL BuildVB(const LightMapData  &data,LightMapVB &lmvb) = 0;
+	virtual BOOL BuildTex(const LightMapData &data,LightMapTex &lmtex) = 0;
+};
+
+
+

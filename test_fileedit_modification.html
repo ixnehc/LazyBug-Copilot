@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileEdit 修改状态测试</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        /* 复制ChatCtrl.html中的相关样式 */
+        .file-edit-window {
+            margin: 10px 0;
+            border: 1px solid #333;
+            border-radius: 6px;
+            background-color: #1e1e1e;
+            overflow: hidden;
+        }
+
+        .file-edit-titlebar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px;
+            background-color: #151b1f;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .file-edit-titlebar:hover {
+            background-color: #2f3e46;
+        }
+
+        .file-edit-titlebar-left-controls {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .file-edit-title {
+            font-weight: 600;
+            font-size: 0.8em;
+            color: #e0e0e0;
+            flex-grow: 1;
+            line-height: 1.2;
+            margin-left: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .file-edit-button {
+            padding: 2px 6px;
+            font-size: 0.7em;
+            background-color: #404040;
+            color: #e0e0e0;
+            border: 1px solid #606060;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            line-height: 1.2;
+        }
+
+        .file-edit-button:hover {
+            background-color: #505050;
+        }
+
+        .file-edit-buttons {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        /* FileEdit 旋转圆环修改状态指示器 */
+        .file-edit-modification-icon {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #007acc;
+            border-top: 1.5px solid transparent;
+            border-radius: 50%;
+            animation: fileEditSpin 2s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .file-edit-modification-icon.active {
+            opacity: 1;
+        }
+
+        @keyframes fileEditSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-edit-content {
+            padding: 12px;
+            background-color: #1e1e1e;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            min-height: 100px;
+        }
+
+        .control-buttons {
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background: #007acc;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #005a9e;
+        }
+
+        .control-btn.stop {
+            background: #d73a49;
+        }
+
+        .control-btn.stop:hover {
+            background: #b31d28;
+        }
+    </style>
+</head>
+<body>
+    <h1>FileEdit 修改状态测试</h1>
+    <p>测试ChatCtrl.html中的旋转圆环效果整合：</p>
+
+    <div class="file-edit-window">
+        <div class="file-edit-titlebar">
+            <div class="file-edit-titlebar-left-controls">
+                <button class="file-edit-button">▼</button>
+                <div class="file-edit-title">
+                    <span>📄 src/main.cpp</span>
+                    <div class="file-edit-modification-icon" id="test-modification-icon"></div>
+                </div>
+            </div>
+            <div class="file-edit-buttons">
+                <button class="file-edit-button">⚡</button>
+                <button class="file-edit-button">...</button>
+            </div>
+        </div>
+        <div class="file-edit-content">int main() {
+    // 这个文件正在被修改...
+    std::cout << "Hello World!" << std::endl;
+    return 0;
+}</div>
+    </div>
+
+    <div class="control-buttons">
+        <button class="control-btn" onclick="startModification()">开始修改</button>
+        <button class="control-btn stop" onclick="stopModification()">停止修改</button>
+    </div>
+
+    <script>
+        function startModification() {
+            const icon = document.getElementById('test-modification-icon');
+            if (icon) {
+                icon.classList.add('active');
+                console.log('Started modification animation');
+            }
+        }
+
+        function stopModification() {
+            const icon = document.getElementById('test-modification-icon');
+            if (icon) {
+                icon.classList.remove('active');
+                console.log('Stopped modification animation');
+            }
+        }
+    </script>
+</body>
+</html> 

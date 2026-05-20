@@ -1,0 +1,23 @@
+//Do a physics ray check
+bool CExoticDeathDetector::CanReach(const MC_Vector3f& aStartPos, const MC_Vector3f& anEndPos, MC_Vector3f& outHitPos, MC_Vector3f& outHitNormal)
+{
+	if (!myPhysicsWorld)
+	{
+		return false;
+	}
+
+	// Execute raycast
+	RShared_RayCastResult rayCastResult;
+	if (myPhysicsWorld->RayCast(aStartPos, anEndPos, myCastInput, rayCastResult) && rayCastResult.IsHit())
+	{
+		// Hit an obstacle, cannot reach
+		outHitPos = rayCastResult.GetHitPoint();
+		outHitNormal = rayCastResult.GetHitNormal();
+		return false;
+	}
+
+	// No obstacles found, can reach
+	outHitPos = anEndPos;
+	outHitNormal = MC_Vector3f::Zero;
+	return true;
+}

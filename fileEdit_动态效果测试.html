@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileEdit 旋转圆环效果测试</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #cccccc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .demo-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #252526;
+        }
+
+        .demo-title {
+            color: #ffffff;
+            font-size: 18px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .file-edit-container {
+            border: 1px solid #3c3c3c;
+            border-radius: 6px;
+            background-color: #2d2d30;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        /* 基础 title bar 样式 */
+        .file-edit-titlebar {
+            background-color: #2d2d30;
+            border-bottom: 1px solid #3c3c3c;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            position: relative;
+        }
+
+        .file-edit-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-edit-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .file-edit-button {
+            background: #3c3c3c;
+            border: none;
+            border-radius: 3px;
+            color: #cccccc;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .file-edit-button:hover {
+            background: #4c4c4c;
+        }
+
+        .file-edit-content {
+            padding: 12px;
+            background-color: #1e1e1e;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            min-height: 100px;
+        }
+
+        /* 旋转圆环图标 */
+        .modification-icon {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #007acc;
+            border-top: 1.5px solid transparent;
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 控制按钮 */
+        .control-buttons {
+            margin-top: 15px;
+        }
+
+        .control-btn {
+            background: #007acc;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .control-btn:hover {
+            background: #005a9e;
+        }
+
+        .control-btn.stop {
+            background: #d73a49;
+        }
+
+        .control-btn.stop:hover {
+            background: #b31d28;
+        }
+    </style>
+</head>
+<body>
+    <h1>FileEdit 旋转圆环效果测试</h1>
+    <p>文字右侧的旋转圆环表示文件正在被修改：</p>
+
+    <div class="demo-section">
+        <div class="demo-title">旋转圆环效果</div>
+        <div class="file-edit-container">
+            <div class="file-edit-titlebar">
+                <div class="file-edit-title">
+                    📄 src/main.cpp
+                    <div class="modification-icon"></div>
+                </div>
+                <div class="file-edit-buttons">
+                    <button class="file-edit-button">⚡</button>
+                    <button class="file-edit-button">...</button>
+                </div>
+            </div>
+            <div class="file-edit-content">int main() {
+    // 修改中...
+    return 0;
+}</div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <div class="demo-title">交互演示</div>
+        <div class="file-edit-container" id="interactiveDemo">
+            <div class="file-edit-titlebar" id="interactiveTitlebar">
+                <div class="file-edit-title" id="interactiveTitle">
+                    📄 src/main.cpp
+                </div>
+                <div class="file-edit-buttons">
+                    <button class="file-edit-button">⚡</button>
+                    <button class="file-edit-button">...</button>
+                </div>
+            </div>
+            <div class="file-edit-content">int main() {
+    // 正常状态
+    return 0;
+}</div>
+        </div>
+        <div class="control-buttons">
+            <button class="control-btn" onclick="startModification()">开始修改</button>
+            <button class="control-btn stop" onclick="stopModification()">停止修改</button>
+        </div>
+    </div>
+
+    <script>
+        let isModifying = false;
+
+        function startModification() {
+            if (isModifying) return;
+            
+            isModifying = true;
+            const title = document.getElementById('interactiveTitle');
+            
+            // 添加旋转圆环图标到文字右侧
+            title.innerHTML = '📄 src/main.cpp (修改中) <div class="modification-icon"></div>';
+        }
+
+        function stopModification() {
+            if (!isModifying) return;
+            
+            isModifying = false;
+            const title = document.getElementById('interactiveTitle');
+            
+            // 恢复普通标题
+            title.innerHTML = '📄 src/main.cpp';
+        }
+    </script>
+</body>
+</html> 

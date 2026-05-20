@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        :root {
+            --body-bg: #121212; /* 黑色背景 */
+            --text-color: #e0e0e0; /* 浅灰色文字 */
+            --primary-color: #004d40; /* 深青色主色调 */
+            --primary-color-hover: #00796b; /* 青色悬停 */
+            --secondary-bg: #1e1e1e; /* 深灰色次要背景 */
+            --border-color: #404040; /* 边框颜色 */
+            --tab-active-bg: #004d40; /* 激活Tab背景 */
+            --tab-inactive-bg: #303030; /* 非激活Tab背景 */
+            --hover-bg: #3a3a3a; /* 悬停背景 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 设置容器 */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 标题栏 */
+        .settings-header {
+            background-color: var(--secondary-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* 标题栏右侧按钮区域 */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 退出按钮样式 */
+        .exit-button {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .exit-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .exit-button:active {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+
+        /* 退出按钮图标 */
+        .exit-button::before {
+            content: "✕";
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Tab导航区 */
+        .tab-navigation {
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .tab-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            min-width: 100%;
+        }
+
+        .tab-item {
+            flex-shrink: 0;
+        }
+
+        .tab-button {
+            display: block;
+            padding: 12px 20px;
+            background-color: var(--tab-inactive-bg);
+            color: var(--text-color);
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            font-size: 0.9em;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .tab-button.active {
+            background-color: var(--tab-active-bg);
+            border-bottom-color: var(--primary-color-hover);
+            color: #e0f2f1;
+        }
+
+        /* 内容区域 */
+        .content-area {
+            flex: 1;
+            overflow: hidden; /* 改为hidden，不让content-area本身滚动 */
+            padding: 0; /* 移除padding，让子容器自己处理 */
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none;
+            height: 100%; /* 占满父容器高度 */
+            overflow: hidden; /* 不让tab-content本身滚动 */
+        }
+
+        .tab-content.active {
+            display: flex; /* 改为flex布局 */
+            flex-direction: column; /* 垂直布局 */
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            flex: 1; /* 占满剩余空间 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .empty-state-subtext {
+            font-size: 0.95em;
+            opacity: 0.6;
+            line-height: 1.5;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 5px;
+            }
+
+            .settings-header {
+                padding: 12px 15px;
+            }
+
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+
+            .empty-state {
+                padding: 40px 15px;
+            }
+
+            .empty-state-icon {
+                font-size: 3em;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #202020;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        /* Provider列表样式 */
+        .providers-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 0; /* 为整个容器添加padding */
+        }
+
+        /* Capability状态标签样式 */
+        .capability-status-bar {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-align: center;
+            border: 1px solid;
+            transition: all 0.3s ease;
+            flex-shrink: 0; /* 不允许压缩 */
+        }
+
+        .capability-status-bar.cannot-work {
+            background-color: rgba(244, 67, 54, 0.1);
+            border-color: rgba(244, 67, 54, 0.3);
+            color: #ff6b6b;
+        }
+
+        .capability-status-bar.partial {
+            background-color: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.3);
+            color: #ffc107;
+        }
+
+        .capability-status-bar.full {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-color: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        /* Provider列表区域 */
+        .providers-list-area {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0; /* 重要：允许flex子项缩小到内容以下 */
+            padding: 5px;
+        }
+
+        .provider-item {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            padding: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .provider-item:hover {
+            border-color: var(--primary-color);
+        }
+
+        .provider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .provider-name-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .provider-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .provider-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .provider-status-dot.available {
+            background: radial-gradient(circle at 25% 25%, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.5) 10%,
+                rgba(200, 230, 201, 0.8) 15%,
+                rgba(76, 175, 80, 0.7) 30%,
+                rgba(56, 142, 60, 0.8) 60%,
+                rgba(46, 125, 50, 0.9) 85%,
+                rgba(27, 94, 32, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(0.5px);
+            box-shadow: 
+                /* 外阴影 - 增强水晶投影 */
+                0 3px 6px rgba(46, 125, 50, 0.4),
+                0 1px 12px rgba(76, 175, 80, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(76, 175, 80, 0.1),
+                /* 内高光 - 更亮的水晶反射 */
+                inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                inset 1px 0 1px rgba(255, 255, 255, 0.7),
+                inset 0.5px 0.5px 1px rgba(255, 255, 255, 0.5),
+                /* 内阴影 - 增强水晶深度 */
+                inset 0 -1px 1px rgba(27, 94, 32, 0.5),
+                inset -1px 0 1px rgba(27, 94, 32, 0.4),
+                inset -0.5px -0.5px 0.5px rgba(27, 94, 32, 0.3);
+            position: relative;
+            opacity: 0.95;
+        }
+
+        /* 绿色水晶反光效果 */
+        .provider-status-dot.available::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            width: 2.5px;
+            height: 2.5px;
+            background: radial-gradient(ellipse at 40% 40%, 
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 0.8) 30%,
+                rgba(255, 255, 255, 0.4) 60%,
+                transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        /* 绿色次级反光点 */
+        .provider-status-dot.available::after {
+            content: '';
+            position: absolute;
+            top: 6.5px;
+            left: 6.5px;
+            width: 1.5px;
+            height: 1.5px;
+            background: radial-gradient(circle, 
+                rgba(255, 255, 255, 0.8) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .provider-status-dot.unavailable {
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at 25% 25%, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.5) 10%,
+                rgba(255, 182, 193, 0.8) 15%,
+                rgba(244, 67, 54, 0.7) 30%,
+                rgba(211, 47, 47, 0.8) 60%,
+                rgba(183, 28, 28, 0.9) 85%,
+                rgba(136, 14, 79, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(0.5px);
+            box-shadow: 
+                /* 外阴影 - 增强水晶投影 */
+                0 3px 6px rgba(183, 28, 28, 0.4),
+                0 1px 12px rgba(244, 67, 54, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(244, 67, 54, 0.1),
+                /* 内高光 - 更亮的水晶反射 */
+                inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                inset 1px 0 1px rgba(255, 255, 255, 0.7),
+                inset 0.5px 0.5px 1px rgba(255, 255, 255, 0.5),
+                /* 内阴影 - 增强水晶深度 */
+                inset 0 -1px 1px rgba(136, 14, 79, 0.5),
+                inset -1px 0 1px rgba(136, 14, 79, 0.4),
+                inset -0.5px -0.5px 0.5px rgba(136, 14, 79, 0.3);
+            position: relative;
+            opacity: 0.95;
+        }
+
+        /* 验证中的旋转进度指示器 */
+        .provider-status-dot.validating {
+            width: 12px;
+            height: 12px;
+            background: transparent;
+            border: none;
+            backdrop-filter: none;
+            box-shadow: none;
+            position: relative;
+            opacity: 1;
+        }
+
+        /* 验证中的旋转圆环 */
+        .provider-status-dot.validating::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border: 3px solid rgba(244, 67, 54, 0.8);
+            border-radius: 50%;
+            border-top: 3px solid transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        /* 旋转动画 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 避免provider-item的hover效果影响输入体验 */
+        .provider-item:hover .provider-key-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .provider-key-section {
+            margin-top: 8px;
+            cursor: text;
+        }
+
+        .provider-key-input {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 0.9em;
+            font-family: monospace;
+            transition: border-color 0.2s ease;
+        }
+
+        .provider-key-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 77, 64, 0.2);
+            background-color: #252525;
+        }
+
+        .provider-key-input::placeholder {
+            color: #666;
+        }
+
+        .provider-separator {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border-color), transparent);
+            margin: 24px 0;
+        }
+
+        /* 空Provider状态 */
+        .providers-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        /* Tab内容容器 */
+        #tab-contents {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Edit Models按钮样式 */
+        .edit-models-button {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 0.95em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .edit-models-button:hover {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 77, 64, 0.3);
+        }
+
+        .edit-models-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0, 77, 64, 0.2);
+        }
+
+        /* 按钮容器 */
+        .button-container {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+
+        .button-container .edit-models-button {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        /* 帮助按钮样式 */
+        .help-button {
+            width: 42px;
+            height: 42px;
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--primary-color);
+            border-radius: 6px;
+            color: var(--text-color);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .help-button:hover {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 77, 64, 0.3);
+        }
+
+        .help-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0, 77, 64, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- 标题栏 -->
+        <div class="settings-header">
+            <h1 class="settings-title">Settings</h1>
+            <div class="header-actions">
+                <button class="exit-button" onclick="handleExitButtonClick()"></button>
+            </div>
+        </div>
+
+        <!-- Tab导航 -->
+        <nav class="tab-navigation">
+            <ul class="tab-list" id="tab-list">
+                <!-- Tab项将通过JavaScript动态添加 -->
+            </ul>
+        </nav>
+
+        <!-- 内容区域 -->
+        <div class="content-area">
+            <div id="tab-contents">
+                <!-- Tab内容将通过JavaScript动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let currentTabs = [];
+        let activeTabId = 'providers';
+
+        // DOM元素
+        const tabList = document.getElementById('tab-list');
+        const tabContents = document.getElementById('tab-contents');
+
+        // 设置Tab数据
+        function setTabs(tabs) {
+            currentTabs = tabs;
+            renderTabs();
+            renderTabContents();
+        }
+
+        // 渲染Tab导航
+        function renderTabs() {
+            tabList.innerHTML = '';
+            
+            currentTabs.forEach(tab => {
+                const li = document.createElement('li');
+                li.className = 'tab-item';
+                
+                const button = document.createElement('button');
+                button.className = 'tab-button' + (tab.id === activeTabId ? ' active' : '');
+                button.textContent = tab.title;
+                button.onclick = () => switchTab(tab.id);
+                
+                li.appendChild(button);
+                tabList.appendChild(li);
+            });
+        }
+
+        // 渲染Tab内容
+        function renderTabContents() {
+            tabContents.innerHTML = '';
+            
+            currentTabs.forEach(tab => {
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'tab-content' + (tab.id === activeTabId ? ' active' : '');
+                contentDiv.id = `tab-content-${tab.id}`;
+                
+                if (tab.id === 'providers') {
+                    // Providers tab的特殊内容 - 创建容器结构
+                    const providersContainer = document.createElement('div');
+                    providersContainer.className = 'providers-container';
+                    
+                    // 创建capability状态标签
+                    const capabilityBar = document.createElement('div');
+                    capabilityBar.className = 'capability-status-bar';
+                    capabilityBar.id = 'capability-status-bar';
+                    capabilityBar.textContent = 'Loading capability status...';
+                    providersContainer.appendChild(capabilityBar);
+                    
+                    // 创建按钮容器
+                    const buttonContainer = document.createElement('div');
+                    buttonContainer.className = 'button-container';
+                    
+                    // 创建"Open Setting File..."按钮
+                    const editModelsButton = document.createElement('button');
+                    editModelsButton.className = 'edit-models-button';
+                    editModelsButton.textContent = 'Open Setting File...';
+                    editModelsButton.onclick = () => handleEditModels();
+                    buttonContainer.appendChild(editModelsButton);
+                    
+                    // 创建"?"帮助按钮
+                    const helpButton = document.createElement('button');
+                    helpButton.className = 'help-button';
+                    helpButton.textContent = '?';
+                    helpButton.onclick = () => handleHelpButtonClick();
+                    buttonContainer.appendChild(helpButton);
+                    
+                    providersContainer.appendChild(buttonContainer);
+                    
+                    // 创建provider列表区域
+                    const providersListArea = document.createElement('div');
+                    providersListArea.className = 'providers-list-area';
+                    providersListArea.id = 'providers-list';
+                    providersContainer.appendChild(providersListArea);
+                    
+                    contentDiv.appendChild(providersContainer);
+                    
+                    // 请求Provider数据和Capability状态
+                    requestProviderData();
+                    requestCapabilityStatus();
+                } else {
+                    // 其他tab显示空状态
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    
+                    let icon = '⚙️';
+                    let title = 'Settings Coming Soon';
+                    let subtitle = 'This section will contain configuration options in the future.';
+                    
+                    if (tab.id === 'general') {
+                        icon = '🔧';
+                        title = 'General Settings';
+                        subtitle = 'Basic application preferences and interface options will be available here.';
+                    }
+                    
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">${icon}</div>
+                        <div class="empty-state-text">${title}</div>
+                        <div class="empty-state-subtext">${subtitle}</div>
+                    `;
+                    
+                    contentDiv.appendChild(emptyState);
+                }
+                
+                tabContents.appendChild(contentDiv);
+            });
+        }
+
+        // 处理退出按钮点击
+        function handleExitButtonClick() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'exitSettings'
+                });
+            }
+        }
+
+        // 处理Edit Extension Models按钮点击
+        function handleEditModels() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'editModels'
+                });
+            }
+        }
+
+        // 处理帮助按钮点击
+        function handleHelpButtonClick() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'openSettingHelp'
+                });
+            }
+        }
+
+        // 请求Provider数据
+        function requestProviderData() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'requestProviderData'
+                });
+            }
+        }
+
+        // 请求Capability状态
+        function requestCapabilityStatus() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'requestCapabilityStatus'
+                });
+            }
+        }
+
+        // 设置Capability状态
+        function setCapabilityStatus(capability) {
+            const capabilityBar = document.getElementById('capability-status-bar');
+            if (!capabilityBar) {
+                return;
+            }
+            
+            // 移除所有状态类
+            capabilityBar.classList.remove('cannot-work', 'partial', 'full');
+            
+            let statusClass = '';
+            let statusText = '';
+            
+            switch (capability) {
+                case 0: // CannotWork
+                    statusClass = 'cannot-work';
+                    statusText = 'LazyBug plugin cannot start working due to lack of necessary models';
+                    break;
+                case 1: // Partial
+                    statusClass = 'partial';
+                    statusText = 'LazyBug can only work partially as some important models are still missing';
+                    break;
+                case 2: // Full
+                    statusClass = 'full';
+                    statusText = 'All required models are available, LazyBug is 100% functional';
+                    break;
+                default:
+                    statusClass = 'cannot-work';
+                    statusText = 'Unknown capability status';
+                    break;
+            }
+            
+            capabilityBar.className = `capability-status-bar ${statusClass}`;
+            capabilityBar.textContent = statusText;
+        }
+
+        // 设置Provider数据
+        function setProviderData(providers) {
+            const providersContainer = document.getElementById('providers-list');
+            if (!providersContainer) {
+                return;
+            }
+            
+            providersContainer.innerHTML = '';
+            
+            if (!providers || providers.length === 0) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'providers-empty';
+                emptyDiv.innerHTML = `
+                    <div class="empty-state-icon">🔌</div>
+                    <div class="empty-state-text">No Providers Available</div>
+                    <div class="empty-state-subtext">No AI service providers found.</div>
+                `;
+                providersContainer.appendChild(emptyDiv);
+                return;
+            }
+            
+            providers.forEach((provider, index) => {
+                const providerDiv = document.createElement('div');
+                providerDiv.className = 'provider-item';
+                
+                const isAvailable = provider.isAvailable;
+                const statusClass = isAvailable ? 'available' : 'unavailable';
+                
+                providerDiv.innerHTML = `
+                    <div class="provider-header">
+                        <div class="provider-name-section">
+                            <div class="provider-status-dot ${statusClass}" data-provider-type="${provider.type}"></div>
+                            <h3 class="provider-name">${provider.name}</h3>
+                        </div>
+                    </div>
+                    <div class="provider-key-section">
+                        <input 
+                            type="password" 
+                            id="provider-key-${index}"
+                            class="provider-key-input"
+                            placeholder="Enter API key..."
+                            value="${provider.key || ''}"
+                            data-provider-type="${provider.type}"
+                        />
+                    </div>
+                `;
+                
+                providersContainer.appendChild(providerDiv);
+                
+                // 如果不是最后一个项目，添加分隔线
+                if (index < providers.length - 1) {
+                    const separator = document.createElement('div');
+                    separator.className = 'provider-separator';
+                    providersContainer.appendChild(separator);
+                }
+            });
+            
+            // 为所有API key输入框添加事件监听器
+            providersContainer.querySelectorAll('.provider-key-input').forEach(input => {
+                // 记录上一次的值
+                let lastValue = input.value;
+                
+                // 获得焦点时自动全选
+                input.addEventListener('focus', function() {
+                    this.select();
+                });
+                
+                // 使用blur事件代替change事件，无论内容是否改变都发送更新
+                input.addEventListener('blur', function() {
+                    const currentValue = this.value;
+                    const providerType = this.getAttribute('data-provider-type');
+                    
+                    // 无论值是否变化都发送API key更新消息到C++
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage({
+                            action: 'updateProviderKey',
+                            providerType: providerType,
+                            key: currentValue
+                        });
+                    }
+                    
+                    // 更新lastValue
+                    lastValue = currentValue;
+                });
+                
+                // 防止焦点问题 - 使用mousedown事件确保焦点
+                input.addEventListener('mousedown', function(e) {
+                    // 防止事件冒泡到父元素
+                    e.stopPropagation();
+                });
+                
+                // 点击时确保获得焦点
+                input.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.focus();
+                });
+                
+                // 处理键盘事件
+                input.addEventListener('keydown', function(e) {
+                    // Enter键时保存并失焦
+                    if (e.key === 'Enter') {
+                        this.blur();
+                    }
+                    // Escape键时恢复原值并失焦
+                    else if (e.key === 'Escape') {
+                        this.value = lastValue;
+                        this.blur();
+                    }
+                });
+                
+                // 实时显示/隐藏密码 - 使用dblclick
+                input.addEventListener('dblclick', function(e) {
+                    e.stopPropagation();
+                    this.type = this.type === 'password' ? 'text' : 'password';
+                });
+                
+                // 阻止provider-item的点击事件影响输入框
+                input.closest('.provider-item').addEventListener('click', function(e) {
+                    // 如果点击的是输入框，不阻止
+                    if (e.target.classList.contains('provider-key-input')) {
+                        return;
+                    }
+                    // 其他点击不影响输入框焦点
+                    e.stopPropagation();
+                });
+                
+                // 点击label区域时聚焦到输入框
+                const keySection = input.closest('.provider-key-section');
+                keySection.addEventListener('click', function(e) {
+                    // 如果点击的不是输入框本身，则聚焦到输入框
+                    if (!e.target.classList.contains('provider-key-input')) {
+                        input.focus();
+                        e.stopPropagation();
+                    }
+                });
+            });
+        }
+
+        // 切换Tab
+        function switchTab(tabId) {
+            if (tabId === activeTabId) return;
+            
+            activeTabId = tabId;
+            
+            // 更新Tab按钮状态
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 找到对应的按钮并添加active类
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => {
+                if (btn.textContent === currentTabs.find(t => t.id === tabId)?.title) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新Tab内容显示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-content-${tabId}`).classList.add('active');
+            
+            // 如果切换到providers tab，重新请求数据
+            if (tabId === 'providers') {
+                requestProviderData();
+                requestCapabilityStatus();
+            }
+            
+            // 发送Tab变更消息到C++
+            window.chrome.webview.postMessage({
+                action: 'tabChanged',
+                tabId: tabId
+            });
+        }
+
+        // 设置激活Tab
+        function setActiveTab(tabId) {
+            switchTab(tabId);
+        }
+
+        // 清空Tab
+        function clearTabs() {
+            currentTabs = [];
+            tabList.innerHTML = '';
+            tabContents.innerHTML = '';
+        }
+
+        // 监听来自C++的消息
+        window.chrome.webview.addEventListener('message', event => {
+            try {
+                const message = event.data;
+                
+                if (typeof message !== 'object' || message === null) {
+                    console.error('Received non-object message:', event.data);
+                    return;
+                }
+
+                switch (message.action) {
+                    case 'initializeComplete':
+                        console.log('Setting UI initialized');
+                        break;
+                        
+                    case 'setTabs':
+                        setTabs(message.data);
+                        break;
+                        
+                    case 'setActiveTab':
+                        setActiveTab(message.data);
+                        break;
+                        
+                    case 'clearTabs':
+                        clearTabs();
+                        break;
+                        
+                    case 'setProviderData':
+                        setProviderData(message.data);
+                        break;
+                        
+                    case 'setCapabilityStatus':
+                        setCapabilityStatus(message.capability);
+                        break;
+                        
+                    case 'startValidatingProvider':
+                        startValidatingProvider(message.providerType);
+                        break;
+                        
+                    case 'endValidatingProvider':
+                        endValidatingProvider(message.providerType, message.available);
+                        break;
+                        
+                    default:
+                        console.warn('Unknown message action:', message.action);
+                        break;
+                }
+            } catch (e) {
+                console.error('Error processing message from C++:', e, 'Raw data:', event.data);
+            }
+        });
+
+        // 开始验证Provider
+        function startValidatingProvider(providerType) {
+            const statusDot = document.querySelector(`.provider-status-dot[data-provider-type="${providerType}"]`);
+            if (statusDot) {
+                statusDot.className = 'provider-status-dot validating';
+            }
+        }
+        
+        // 结束验证Provider
+        function endValidatingProvider(providerType, available) {
+            const statusDot = document.querySelector(`.provider-status-dot[data-provider-type="${providerType}"]`);
+            if (statusDot) {
+                statusDot.className = `provider-status-dot ${available ? 'available' : 'unavailable'}`;
+            }
+        }
+
+        // 初始化完成通知
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage({ action: 'jsInitialized' });
+        } else {
+            console.error('window.chrome.webview not available for initialization message.');
+        }
+    </script>
+</body>
+</html>

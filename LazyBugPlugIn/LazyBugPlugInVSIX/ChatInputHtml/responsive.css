@@ -1,0 +1,21 @@
+/* 响应式设计 */
+@media (max-width: 400px) {
+    .toolbar {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .toolbar-left {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .toolbar-right {
+        flex-shrink: 0;
+    }
+    
+    .tool-button {
+        font-size: 11px;
+        padding: 2px 4px;
+    }
+}

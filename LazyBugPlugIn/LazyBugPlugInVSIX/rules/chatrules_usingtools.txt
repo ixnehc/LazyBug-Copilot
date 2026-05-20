@@ -1,0 +1,7 @@
+﻿*. When possible, always prefer using FindSymbol(instead of using Grep or ReadFile) to get the file content you want to know. Note currently FindSymbol only works for c/c++/c# codes.
+
+*. When handling a task that matches an available Skill, follow these rules:
+   - If a matching Skill is found, read its "SKILL.md" first to understand the workflow, constraints, and allowed tools before proceeding.
+   - If the SKILL.md references additional files under "references/" or "scripts/", load them as needed using read_file.
+   - Always follow the steps and output format described in the SKILL.md strictly.
+   - If no matching Skill is found, fall back to general reasoning and available tools to complete the task.
