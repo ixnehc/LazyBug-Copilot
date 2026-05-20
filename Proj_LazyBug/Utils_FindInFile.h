@@ -9,6 +9,7 @@
 #include "timer/timer.h"
 
 #include "Utils_File.h"
+#include "nlohmann/json.hpp"
 
 struct FindInFileResults;
 
@@ -21,6 +22,15 @@ extern bool SearchWithRipGrep(const char* key, std::vector<std::string>& folderP
 extern void DumpFindInFileResult(const char *key, const FindInFileResults& results,std::string &resultString, int maxResult);
 
 int FindMatchingLines(const std::string& filePath, const std::string& key, const std::string& content, FindInFileResults& results, int maxLines);
+
+// Build JSON from find-in-files results map
+extern void BuildFindInFilesResultJson(nlohmann::json& json, const std::unordered_map<std::string, FindInFileResults>& resultsList, int maxResult);
+
+// Build error JSON
+extern void BuildFindInFilesErrorJson(nlohmann::json& json, const char* errorMessage);
+
+// Dump formatted text from JSON
+extern void DumpFindInFileResultsFromJson(nlohmann::json& json, std::string& outText);
 
 
 }

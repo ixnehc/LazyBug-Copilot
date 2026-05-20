@@ -415,6 +415,145 @@ void DumpFindInFileResult(const char* key, const FindInFileResults& results, std
 	resultString += "========================================\n";
 }
 
+void BuildFindInFilesResultJson(nlohmann::json& j, const std::unordered_map<std::string, FindInFileResults>& resultsList, int maxResult)
+{
+	j["error"] = nullptr;
+	j["maxResult"] = maxResult;
+	j["keywords"] = nlohmann::json::array();
+	j["totalMatches"] = 0;
+	j["totalFiles"] = 0;
+	j["results"] = nlohmann::json::array();
 
+	size_t totalMatchesAll = 0;
+	size_t totalFilesAll = 0;
+
+	for (const auto& pair : resultsList)
+	{
+		const std::string& keyword = pair.first;
+		const FindInFileResults& results = pair.second;
+
+		j["keywords"].push_back(keyword);
+
+		nlohmann::json resultItem;
+		resultItem["keyword"] = keyword;
+		resultItem["totalMatches"] = results.GetTotalResults();
+		resultItem["totalFiles"] = results.fileInfos.size();
+		resultItem["files"] = nlohmann::json::array();
+
+		for (const auto& fileInfo : results.fileInfos)
+		{
+			nlohmann::json fileItem;
+			fileItem["filePath"] = fileInfo.filePath;
+			fileItem["matchedLines"] = fileInfo.lineInfos.size();
+			fileItem["lines"] = nlohmann::json::array();
+
+			for (const auto& lineInfo : fileInfo.lineInfos)
+			{
+				nlohmann::json lineItem;
+				lineItem["lineNumber"] = lineInfo.lineNumber;
+				lineItem["symbolName"] = lineInfo.symbolName;
+				lineItem["lineContent"] = lineInfo.lineContent;
+				fileItem["lines"].push_back(lineItem);
+			}
+
+			resultItem["files"].push_back(fileItem);
+		}
+
+		j["results"].push_back(resultItem);
+
+		totalMatchesAll += results.GetTotalResults();
+		totalFilesAll += results.fileInfos.size();
+	}
+
+	j["totalMatches"] = totalMatchesAll;
+	j["totalFiles"] = totalFilesAll;
+}
+
+void BuildFindInFilesErrorJson(nlohmann::json& j, const char* errorMessage)
+{
+	j["error"] = errorMessage ? errorMessage : "";
+	j["keywords"] = nlohmann::json::array();
+	j["maxResult"] = 0;
+	j["totalMatches"] = 0;
+	j["totalFiles"] = 0;
+	j["results"] = nlohmann::json::array();
+}
+
+void DumpFindInFileResultsFromJson(nlohmann::json& j, std::string& outText)
+{
+	outText.clear();
+
+	// Check for error
+	if (j.contains("error") && !j["error"].is_null())
+	{
+		outText = j["error"].get<std::string>();
+		return;
+	}
+
+	// Check for results
+	if (!j.contains("results") || !j["results"].is_array())
+	{
+		return;
+	}
+
+	int maxResult = j.value("maxResult", 0);
+	const auto& results = j["results"];
+
+	for (size_t i = 0; i < results.size(); ++i)
+	{
+		const auto& resultItem = results[i];
+
+		// Add separator between keywords
+		if (i > 0)
+		{
+			outText += "\n";
+			outText += "========================================\n";
+			outText += "\n";
+		}
+
+		// Add keyword header
+		std::string keyword = resultItem.value("keyword", "");
+		outText += "[Search Keyword: \"";
+		outText += keyword;
+		outText += "\"]\n";
+		outText += "----------------------------------------\n";
+
+		// Check if there are files
+		if (!resultItem.contains("files") || !resultItem["files"].is_array() || resultItem["files"].empty())
+		{
+			outText += "No results found for keyword: \"";
+			outText += keyword;
+			outText += "\"\n";
+			continue;
+		}
+
+		// Build a temporary FindInFileResults to reuse DumpFindInFileResult
+		FindInFileResults tempResults;
+		for (const auto& fileItem : resultItem["files"])
+		{
+			FindInFileResults::FileInfo fi;
+			fi.filePath = fileItem.value("filePath", "");
+
+			if (fileItem.contains("lines") && fileItem["lines"].is_array())
+			{
+				for (const auto& lineItem : fileItem["lines"])
+				{
+					FindInFileResults::FileLineInfo li;
+					li.lineNumber = lineItem.value("lineNumber", 0);
+					li.lineContent = lineItem.value("lineContent", "");
+					li.symbolName = lineItem.value("symbolName", "");
+					fi.lineInfos.push_back(li);
+				}
+			}
+
+			tempResults.fileInfos.push_back(fi);
+		}
+
+		// Reuse existing DumpFindInFileResult
+		std::string keywordResult;
+		DumpFindInFileResult(keyword.c_str(), tempResults, keywordResult, maxResult);
+		outText += keywordResult;
+	}
+}
 
 }
