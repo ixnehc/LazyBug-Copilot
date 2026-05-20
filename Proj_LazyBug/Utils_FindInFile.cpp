@@ -17,6 +17,8 @@
 #include <sys/stat.h>
 #include <string>
 
+#include "utils_findinfile.h"
+
 // 引入 local_to_utf8 函数声明
 extern std::string local_to_utf8(const std::string& ansi_str);
 extern std::wstring utf8_to_widechar(const char* utf8_str);

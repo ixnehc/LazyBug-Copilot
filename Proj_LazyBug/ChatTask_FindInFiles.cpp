@@ -10,6 +10,8 @@
 
 #include "SolutionDBApi.h"
 #include <sstream>
+#include "nlohmann/json.hpp"
+#include "Utils_FindInFile.h"
 
 extern const char* GetOpenedDBFolderPath_utf8();
 
@@ -174,10 +176,13 @@ void CChatTask_FindInFiles::_TestCases()
 
 void CChatTask_FindInFiles::_ThreadFunc()
 {
+	nlohmann::json resultJson;
+	
 	if (_dbFolderPath.empty())
 	{
 		std::lock_guard<std::mutex> lock(_resultMutex);
-		_threadResult = "Error: No solution opened";
+		Utils::BuildFindInFilesErrorJson(resultJson, "No solution opened");
+		_threadResult = resultJson.dump();
 		_threadMessage = "Found 0 match as solution is not opened!";
 		_threadSuccess = false;
 		_threadFinished = true;
@@ -188,7 +193,8 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	if (!_toolCall.GetStringParam("keywords", keyword))
 	{
 		std::lock_guard<std::mutex> lock(_resultMutex);
-		_threadResult = "Error: Missing keyword parameter";
+		Utils::BuildFindInFilesErrorJson(resultJson, "Missing keyword parameter");
+		_threadResult = resultJson.dump();
 		_threadMessage = "";
 		_threadSuccess = false;
 		_threadFinished = true;
@@ -203,7 +209,8 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	if (keywords.empty())
 	{
 		std::lock_guard<std::mutex> lock(_resultMutex);
-		_threadResult = "Error: No valid keywords provided";
+		Utils::BuildFindInFilesErrorJson(resultJson, "No valid keywords provided");
+		_threadResult = resultJson.dump();
 		_threadMessage = "";
 		_threadSuccess = false;
 		_threadFinished = true;
@@ -211,12 +218,7 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	}
 	
 	// 存储每个关键字的结果
-	struct KeywordResult
-	{
-		std::string keyword;
-		FindInFileResults results;
-	};
-	std::vector<KeywordResult> allResults;
+	std::unordered_map<std::string, FindInFileResults> resultsMap;
 	
 	// 对每个关键字进行查找
 	for (const auto& kw : keywords)
@@ -225,7 +227,8 @@ void CChatTask_FindInFiles::_ThreadFunc()
 		if (_shouldStop)
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
-			_threadResult = "Task interrupted";
+			Utils::BuildFindInFilesErrorJson(resultJson, "Task interrupted");
+			_threadResult = resultJson.dump();
 			_threadMessage = "";
 			_threadSuccess = false;
 			_threadFinished = true;
@@ -236,65 +239,27 @@ void CChatTask_FindInFiles::_ThreadFunc()
 		SolutionDBMsg_FindInFilesResults result;
 		SolutionDB_FindInFiles(_dbFolderPath.c_str(), kw.c_str(), maxResult, result);
 		
-		KeywordResult kr;
-		kr.keyword = kw;
-		kr.results = result.results;
-		allResults.push_back(std::move(kr));
+		resultsMap[kw] = std::move(result.results);
 	}
 
 	// 检查是否被中断
 	if (_shouldStop)
 	{
 		std::lock_guard<std::mutex> lock(_resultMutex);
-		_threadResult = "Task interrupted";
+		Utils::BuildFindInFilesErrorJson(resultJson, "Task interrupted");
+		_threadResult = resultJson.dump();
 		_threadMessage = "";
 		_threadSuccess = false;
 		_threadFinished = true;
 		return;
 	}
 	
-	// 构建返回结果 - 每个关键字独立显示
-	std::string resultStr;
-	bool hasAnyResult = false;
-	size_t totalMatchesAll = 0;
-	size_t totalFilesAll = 0;
+	// 使用BuildFindInFilesResultJson构建结果JSON
+	Utils::BuildFindInFilesResultJson(resultJson, resultsMap, maxResult);
 	
-	for (size_t i = 0; i < allResults.size(); ++i)
-	{
-		const auto& kr = allResults[i];
-		
-		// 添加分隔符
-		if (i > 0)
-		{
-			resultStr += "\n";
-			resultStr += "========================================\n";
-			resultStr += "\n";
-		}
-		
-		// 添加关键字标题
-		resultStr += "[Search Keyword: \"";
-		resultStr += kr.keyword;
-		resultStr += "\"]\n";
-		resultStr += "----------------------------------------\n";
-		
-		// 添加该关键字的结果
-		if (kr.results.fileInfos.empty())
-		{
-			resultStr += "No results found for keyword: \"";
-			resultStr += kr.keyword;
-			resultStr += "\"\n";
-		}
-		else
-		{
-			hasAnyResult = true;
-			std::string keywordResult;
-			Utils::DumpFindInFileResult(kr.keyword.c_str(), kr.results, keywordResult, maxResult);
-			resultStr += keywordResult;
-			
-			totalMatchesAll += kr.results.GetTotalResults();
-			totalFilesAll += kr.results.fileInfos.size();
-		}
-	}
+	// 从JSON中直接提取总计数
+	size_t totalMatchesAll = resultJson["totalMatches"].get<size_t>();
+	size_t totalFilesAll = resultJson["totalFiles"].get<size_t>();
 	
 	// 构建总结消息
 	std::string keywordsDisplay;
@@ -307,19 +272,22 @@ void CChatTask_FindInFiles::_ThreadFunc()
 		keywordsDisplay += "\"" + keywords[i] + "\"";
 	}
 	
+	bool hasAnyResult = totalMatchesAll > 0;
+	
 	if (keywords.size() == 1)
 	{
 		// 单个关键字的显示格式
-		const auto& kr = allResults[0];
-		if (kr.results.fileInfos.empty())
+		const auto& results = resultsMap.begin()->second;
+		const std::string& kw = resultsMap.begin()->first;
+		if (results.fileInfos.empty())
 		{
-			_threadMessage = "Found 0 match(es) for keyword \"" + kr.keyword + "\" in files!";
+			_threadMessage = "Found 0 match(es) for keyword \"" + kw + "\" in files!";
 		}
 		else
 		{
-			size_t totalMatches = kr.results.GetTotalResults();
-			size_t fileCount = kr.results.fileInfos.size();
-			_threadMessage = "Found " + std::to_string(totalMatches) + " match(es) for keyword \"" + kr.keyword + 
+			size_t totalMatches = results.GetTotalResults();
+			size_t fileCount = results.fileInfos.size();
+			_threadMessage = "Found " + std::to_string(totalMatches) + " match(es) for keyword \"" + kw + 
 			                 "\" in " + std::to_string(fileCount) + " file(s)!";
 		}
 	}
@@ -339,7 +307,7 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	
 	// 保存结果
 	std::lock_guard<std::mutex> lock(_resultMutex);
-	_threadResult = resultStr;
+	_threadResult = resultJson.dump();
 	_threadSuccess = true;
 	_threadFinished = true;
 }

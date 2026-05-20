@@ -2,6 +2,7 @@
 
 #include "SolutionIndexerImpl_Xapian.h"
 #include "Utils.h"
+#include "utils_findinfile.h"
 #include "SolutionDB.h"
 
 #include <xapian.h>

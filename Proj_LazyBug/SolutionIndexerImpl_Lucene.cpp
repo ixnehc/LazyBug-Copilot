@@ -1,6 +1,7 @@
 ﻿#include "stdh.h"
 #include "SolutionIndexerImpl_Lucene.h"
 #include "Utils.h"
+#include "utils_findinfile.h"
 #include "SolutionDB.h"
 
 #include <sstream>
