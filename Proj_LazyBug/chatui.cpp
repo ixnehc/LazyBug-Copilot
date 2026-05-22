@@ -352,7 +352,7 @@ HRESULT CChatUi::InitializeWebView()
                                                             }
                                                         }
                                                     }
-                                                    catch (const std::exception& e)
+                                                    catch (const std::exception& )
                                                     {
                                                         // JSON parsing error - silently ignore
                                                     }
@@ -797,33 +797,6 @@ void CChatUi::SetSymbolLinkClickedCallback(SymbolLinkClickedCallback callback)
 void CChatUi::SetQuerySymbolLocationsCallback(QuerySymbolLocationsCallback callback)
 {
 	_querySymbolLocationsCallback = callback;
-}
-
-// 设置发送到 LLM 前回调
-void CChatUi::SetBeforeSendToLlmCallback(BeforeSendToLlmCallback callback)
-{
-	_beforeSendToLlmCallback = callback;
-}
-
-// 发送到 LLM 前通知
-bool CChatUi::OnBeforeSendToLlm(bool isUserMessage)
-{
-	if (_beforeSendToLlmCallback)
-		return _beforeSendToLlmCallback(isUserMessage);
-	return true; // 默认允许请求
-}
-
-// 设置从 LLM 接收完成后回调
-void CChatUi::SetAfterReceiveFromLlmCallback(AfterReceiveFromLlmCallback callback)
-{
-	_afterReceiveFromLlmCallback = callback;
-}
-
-// 从 LLM 接收完成后通知
-void CChatUi::OnAfterReceiveFromLlm()
-{
-	if (_afterReceiveFromLlmCallback)
-		_afterReceiveFromLlmCallback();
 }
 
 // 发送 CLI 输入

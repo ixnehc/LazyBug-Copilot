@@ -31,6 +31,9 @@
 #include "ChatSkillsTree.h"
 #include "ChatSettingMenu.h"
 
+#include "ChatNotify.h"
+
+
 struct RequestSwitchChatA
 {
 	RequestSwitchChatA()
@@ -120,6 +123,7 @@ protected:
 	void _InitAgent(const char* fileName);
 	CChatAgent _agent;
 	CChatUi _ui;
+	CChatNotify _notify;
 
 	CChatFileWriter _chatFileWriter;
 	CChatTaskMgr _chatTaskMgrBg;//background
@@ -161,8 +165,6 @@ protected:
 
 	// WebView消息处理
 	void _OnWebViewMessage(const std::wstring& message);
-	bool _OnBeforeSendToLlm(bool isUserMessage);
-	void _OnAfterReceiveFromLlm();
 	void _HandleTitlebarMenuItemClicked(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp);
 	void _HandleUserMessageRestoreClicked(const std::wstring& messageId);
 	void _RestoreUserMessageToInput(const std::wstring& messageId);
@@ -184,6 +186,11 @@ protected:
 	void _HandleSymbolLinkClicked(const std::wstring& symbol, const std::vector<std::pair<std::wstring, int>>& results);
 	std::wstring _currentSymbolLink; // 当前点击的symbol
 	int _symbolLinkClickIndex; // 当前symbol的点击索引，用于循环多个结果
+
+	//Notify
+	bool _OnBeforeSendToLlm(bool isUserMessage);
+	void _OnAfterReceiveFromLlm();
+	int _OnCheckCompress();
 
 	// 自定义消息处理函数
 	afx_msg LRESULT OnHandleUserMessageRestore(WPARAM wParam, LPARAM lParam);

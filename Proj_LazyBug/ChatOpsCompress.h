@@ -55,20 +55,6 @@ public:
 
 	void Init(CChatOpsCtrl* opsCtrl);
 
-	// === 压缩触发机制 ===
-	// 设置压缩比率阈值（当 token > balance * ratio 时触发压缩）
-	// 压缩目标为 balance * ratio 的倒数（即 1/ratio）
-	void SetCompressRatio(float ratio) { _compressRatio = ratio; }
-	float GetCompressRatio() const { return _compressRatio; }
-
-	// 设置/获取 balance 值
-	void SetBalance(int balance) { _balance = balance; }
-	int GetBalance() const { return _balance; }
-
-	// 尝试触发压缩，返回是否触发了压缩
-	// 在发送请求前调用，如果触发则自动启动压缩
-	bool TryTriggerCompress();
-
 	// 发起压缩请求，传入要减少的 token 数
 	void StartCompress(int reduceTokenCount);
 
@@ -140,10 +126,6 @@ private:
 
 	AbsTick _updateStartTime = 0;     // Update 开始时间
 	static constexpr int _updateTimeLimitMs = 20;  // 每次 Update 时间限制（毫秒）
-
-	// === 压缩触发机制 ===
-	int _balance = 0;                 // balance 值（基准 token 数）
-	float _compressRatio = 2.0f;      // 压缩比率阈值（token > balance * ratio 时触发）
 
 	// 判断是否超时
 	bool _IsUpdateTimeout() const;

@@ -52,6 +52,7 @@ public:
 	void Zero()
 	{
 		_ui = nullptr;
+		_notify = nullptr;
 		_requestInterrupt = false;
 		_requestSendToolCallResult = false;
 		_requestSave = false;
@@ -64,7 +65,7 @@ public:
 	}
 
     // 初始化
-    void Init(const char *chatFilePath, ChatAgentContext &ctx, IChatUi* ui);
+    void Init(const char *chatFilePath, ChatAgentContext &ctx, IChatUi* ui,IChatNotify *notify);
 
     // 反初始化（中断所有任务、清理状态）
     void Shutdown();
@@ -97,15 +98,6 @@ public:
     // 通知 CChatAgent 在下一次 Update() 里发送 ToolCallResult
     // 由宿主在 ToolCall 处理完毕后调用
     void RequestSendToolCallResult();
-
-    // ─────────────────────────────────────────────────────────────────────
-    //  压缩设置
-    // ─────────────────────────────────────────────────────────────────────
-
-    // 设置压缩参数
-    // balance: 基准 token 数
-    // ratio: 压缩比率阈值（当 token > balance * ratio 时触发压缩）
-    void SetCompressInfo(int balance, float ratio);
 
     // ─────────────────────────────────────────────────────────────────────
     //  暂停/恢复控制
@@ -245,6 +237,7 @@ private:
 	std::string _fileName;
 
 	IChatUi* _ui;
+	IChatNotify* _notify;
 
     CChatOpsCtrl       _opsCtrl;       // 对话数据层（无 UI，可独立序列化）
     CLlmChat        _llmChat;        // 底层流式 LLM HTTP 请求
@@ -275,7 +268,7 @@ private:
 	// 在发送请求前检查是否需要压缩 context，如果需要则等待压缩完成后再发送
 	struct PendingRequest
 	{
-		LlmSessionRequest request;
+		int fileAttaches = -1;
 		bool isUserMessage = false;
 		bool valid = false;
 	};

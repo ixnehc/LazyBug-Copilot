@@ -4,7 +4,7 @@
 #include "llmlib.h"
 
 
-void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *ui)
+void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *ui,IChatNotify *notify)
 {
 	_ctx = ctx;
 	_fileName = chatFileName;
@@ -17,6 +17,8 @@ void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *
 	_ui = ui;
 	if (ui)
 		_opsCtrl.AttachUI(ui);
+
+	_notify = notify;
 
 	std::string path = _MakeFilePath();
 	_opsCtrl.Load(path.c_str());
@@ -78,6 +80,8 @@ void CChatAgent::Update()
 		_taskMgr.Interrupt();
 	_taskMgr.Update();
 
+	_compressor.Update();
+
 	// 处理挂起的请求（等待 context 压缩完成）
 	if (_pendingRequest.valid)
 	{
@@ -96,7 +100,10 @@ void CChatAgent::Update()
 			PendingRequest pending = _pendingRequest;
 			_pendingRequest.valid = false;
 
-			if (_DoRequest(pending.request, pending.isUserMessage))
+			LlmSessionRequest request;
+			_opsCtrl.MakeSessionRequest(request, pending.fileAttaches);
+
+			if (_DoRequest(request, pending.isUserMessage))
 			{
 				_workingMode = WorkingMode::Chat;
 				if (pending.isUserMessage)
@@ -147,8 +154,8 @@ void CChatAgent::Update()
 				_chatUsage.Accumulate(output.usage);
 				_opsCtrl.NotifyPromptCache(output.usage);
 
-				if (_ui)
-					_ui->OnAfterReceiveFromLlm();
+				if (_notify)
+					_notify->OnAfterReceiveFromLlm();
 
 				// 处理错误
 				if (output.hasError && !output.errorMessage.empty())
@@ -335,25 +342,28 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 	// 添加用户消息
 	_opsCtrl.AddUserMessage(widechar_to_utf8(content.c_str()));
 
-	// 构建请求
-	LlmSessionRequest request;
-	_opsCtrl.MakeSessionRequest(request, _lastCtx.fileAttaches);
-
 	// 检查是否需要 context 压缩
-	_compressor.TryTriggerCompress();
+	if (_notify)
+	{
+		int reduceToken = _notify->OnCheckCompress();
+		if (reduceToken > 0)
+			_compressor.StartCompress(reduceToken);
+	}
 
 	if (_compressor.IsCompressing())
 	{
 		// 需要压缩，将请求挂起
-		_pendingRequest.request = request;
+		_pendingRequest.fileAttaches = _lastCtx.fileAttaches;
 		_pendingRequest.isUserMessage = true;
 		_pendingRequest.valid = true;
 		_workingMode = WorkingMode::Chat;
-		// 开始 AI 流式消息（提前创建，因为用户消息已添加）
-		_aiMessageId = _opsCtrl.StartStreamingAIMessage();
-		_chatUsage.Zero();
+
 		return;
 	}
+
+	// 构建请求
+	LlmSessionRequest request;
+	_opsCtrl.MakeSessionRequest(request, _lastCtx.fileAttaches);
 
 	// 发送请求
 	if (_DoRequest(request, true))
@@ -412,8 +422,8 @@ bool CChatAgent::_DoRequest(const LlmSessionRequest& request, bool isUserMessage
 		return false;
 
 	// 通知 UI 即将发送请求
-	if (_ui)
-		_ui->OnBeforeSendToLlm(false);
+	if (_notify)
+		_notify->OnBeforeSendToLlm(isUserMessage);
 
 	// 添加 _ctx 中的 rulesFiles
 	for (const auto& ruleFile : _ctx.rulesFiles)
@@ -504,17 +514,6 @@ void CChatAgent::_ExecuteSendToolCallResult()
 	LlmSessionRequest request;
 	_opsCtrl.MakeSessionRequest(request, _lastCtx.fileAttaches);
 
-	// 检查是否需要 context 压缩
-	if (_compressor.IsCompressing())
-	{
-		// 需要压缩，将请求挂起
-		_pendingRequest.request = request;
-		_pendingRequest.isUserMessage = false;
-		_pendingRequest.valid = true;
-		_workingMode = WorkingMode::Chat;
-		return;
-	}
-
 	// 发送请求
 	if (_DoRequest(request, false))
 	{
@@ -537,11 +536,6 @@ void CChatAgent::RequestSendToolCallResult()
 	_requestSendToolCallResult = true;
 }
 
-void CChatAgent::SetCompressInfo(int balance, float ratio)
-{
-	_compressor.SetBalance(balance);
-	_compressor.SetCompressRatio(ratio);
-}
 
 // 显示文件编辑进度标签
 void CChatAgent::ShowFileEditProgressLabel(const std::wstring& fileName)

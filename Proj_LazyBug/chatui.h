@@ -25,8 +25,6 @@ using FileEditTitleClickedCallback = std::function<void(const std::wstring&)>; /
 using FileSummarizeClickedCallback = std::function<void(const std::wstring&, const std::wstring&)>; // messageId, filePath
 using SymbolLinkClickedCallback = std::function<void(const std::wstring&)>; // symbol
 using QuerySymbolLocationsCallback = std::function<void(const std::wstring&, const std::vector<std::wstring>&)>; // messageId, symbols
-using BeforeSendToLlmCallback = std::function<bool(bool)>; // isUserMessage, 返回 false 取消请求
-using AfterReceiveFromLlmCallback = std::function<void()>;
 
 
 // 操作记录文件版本定义
@@ -63,14 +61,6 @@ public:
 	void SetFileSummarizeClickedCallback(FileSummarizeClickedCallback callback);
 	void SetSymbolLinkClickedCallback(SymbolLinkClickedCallback callback);
 	void SetQuerySymbolLocationsCallback(QuerySymbolLocationsCallback callback);
-	void SetBeforeSendToLlmCallback(BeforeSendToLlmCallback callback);
-	void SetAfterReceiveFromLlmCallback(AfterReceiveFromLlmCallback callback);
-
-	// 发送到 LLM 前通知
-	bool OnBeforeSendToLlm(bool isUserMessage) override;
-
-	// 从 LLM 接收完成后通知
-	void OnAfterReceiveFromLlm() override;
 
 	// CLI 输入相关方法
 	void SendCliInput(const std::wstring& cliId, const std::wstring& input);
@@ -179,8 +169,6 @@ private:
     FileSummarizeClickedCallback _fileSummarizeClickedCallback;
     SymbolLinkClickedCallback _symbolLinkClickedCallback;
     QuerySymbolLocationsCallback _querySymbolLocationsCallback;
-    BeforeSendToLlmCallback _beforeSendToLlmCallback;
-    AfterReceiveFromLlmCallback _afterReceiveFromLlmCallback;
     
     // 脚本执行回调映射
     std::map<int, std::function<void(const std::wstring&)>> _scriptCallbacks;

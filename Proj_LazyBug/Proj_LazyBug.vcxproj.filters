@@ -171,6 +171,9 @@
     <Filter Include="GUI\ChatDialog\ChatTaskMgr\ChatTask_Cli">
       <UniqueIdentifier>{30721c32-435d-4c4a-afc9-fc96a76d4f80}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ChatDialog\ChatNotify">
+      <UniqueIdentifier>{c1dbc819-cf21-415d-9214-8e92009fc12f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DockPaneWnd.h">
@@ -593,6 +596,9 @@
     <ClInclude Include="TokenCalibrate.h">
       <Filter>GUI\ChatDialog</Filter>
     </ClInclude>
+    <ClInclude Include="ChatNotify.h">
+      <Filter>GUI\ChatDialog\ChatNotify</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBug.cpp">
@@ -975,6 +981,9 @@
     </ClCompile>
     <ClCompile Include="TokenCalibrate.cpp">
       <Filter>GUI\ChatDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatNotify.cpp">
+      <Filter>GUI\ChatDialog\ChatNotify</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

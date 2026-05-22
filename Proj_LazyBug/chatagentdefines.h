@@ -20,14 +20,6 @@ public:
 
 	virtual void PostJsonMessage(const std::wstring& jsonMessage)	{	}
 
-	// 发送到 LLM 前通知
-	// isUserMessage: true = 用户发送消息, false = 发送 ToolCall 结果
-	// 返回 false 可取消请求
-	virtual bool OnBeforeSendToLlm(bool isUserMessage) { return true; }
-
-	// 从 LLM 接收完成后通知
-	virtual void OnAfterReceiveFromLlm() { }
-
 	// 应用 Symbol 链接样式
 	// symbolsWithResults: vector<pair<symbol, resultsJson>>
 	// resultsJson 格式: [{"filePath":"xxx","lineNumber":123},...]
@@ -60,6 +52,21 @@ public:
 	virtual CliStatus GetCliStatus(const std::wstring& cliId) { return CliStatus::None; }
 	virtual void SetCliStatus(const std::wstring& cliId, CliStatus status) { }
 
+};
+
+class IChatNotify
+{
+public:
+	// 发送到 LLM 前通知
+	// isUserMessage: true = 用户发送消息, false = 发送 ToolCall 结果
+	// 返回 false 可取消请求
+	virtual bool OnBeforeSendToLlm(bool isUserMessage) { return true; }
+
+	// 从 LLM 接收完成后通知
+	virtual void OnAfterReceiveFromLlm() {}
+
+	//返回要压缩的token数,返回0表示不需要压缩
+	virtual int OnCheckCompress()	{		return 0;	}
 };
 
 struct ChatAgentContext

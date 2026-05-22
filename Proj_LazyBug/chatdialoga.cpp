@@ -94,7 +94,18 @@ void CChatDialogA::_InitAgent(const char* fileName)
 			ctx.rulesFiles.push_back(path);
 	}
 
-	_agent.Init(fileName, ctx, &_ui);
+	// 设置 CChatNotify 的回调
+	_notify.SetBeforeSendToLlmCallback([this](bool isUserMessage) {
+		return _OnBeforeSendToLlm(isUserMessage);
+	});
+	_notify.SetAfterReceiveFromLlmCallback([this]() {
+		_OnAfterReceiveFromLlm();
+	});
+	_notify.SetCheckCompressCallback([this]() {
+		return _OnCheckCompress();
+	});
+
+	_agent.Init(fileName, ctx, &_ui, &_notify);
 	_chatFileVer = _agent.GetFileVer();
 
 	// 初始化 TokenStats
@@ -195,16 +206,6 @@ BOOL CChatDialogA::OnInitDialog()
 	// 设置WebView导航完成回调
 	_ui.SetNavigationCompletedCallback([this](bool success) {
 		UpdateSettingMenuButton();
-	});
-
-	// 设置发送到 LLM 前回调
-	_ui.SetBeforeSendToLlmCallback([this](bool isUserMessage) {
-		return _OnBeforeSendToLlm(isUserMessage);
-	});
-
-	// 设置从 LLM 接收完成后回调
-	_ui.SetAfterReceiveFromLlmCallback([this]() {
-		_OnAfterReceiveFromLlm();
 	});
 
 	_chatInput.SetSendCallback([this](const std::wstring& content, const std::wstring& plainText) {
@@ -1265,15 +1266,6 @@ void CChatDialogA::_UpdateContextUsage()
 		snprintf(tooltip, sizeof(tooltip), "( %.1f%% )", 100.0f);
 	}
 
-	if (true)
-	{
-		int balance = 120000;
-		float factor = _tokenStats.GetCalibrationFactor();
-		if (factor > 0.0001f)
-			balance = ((float)balance) / (factor);
-		_agent.SetCompressInfo(balance, 1.7f);
-	}
-	
 	// 设置上下文使用率到chat input
 	_chatInput.SetContextUsage(progress, tooltip);
 
@@ -1320,4 +1312,28 @@ void CChatDialogA::UpdateSettingMenuButton()
 	
 	// 如果没有打开的数据库文件夹，禁用 project_rules.md 菜单项
 	_settingMenuWindow.SetItemEnabled(L"project_rules.md", hasDbFolder);
+}
+
+
+int CChatDialogA::_OnCheckCompress()
+{
+
+	int balance = 15000;
+	float compressRatio = 1.7f;
+
+	if (balance <= 0 || compressRatio <= 1.0f)
+		return 0;
+
+	int currentTokens = _tokenStats.GetCalibratedTokens();
+	int threshold = static_cast<int>(balance * compressRatio);
+
+	// 当前 token 未超过阈值，不需要压缩
+	if (currentTokens <= threshold)
+		return 0;
+
+	// 计算目标 token 数（balance / ratio 的倒数，即压缩到 balance）
+	int targetTokens = (int)(((float)balance)/ compressRatio);
+	int reduceTokens = currentTokens - targetTokens;
+
+	return reduceTokens;
 }

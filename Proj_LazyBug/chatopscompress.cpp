@@ -61,33 +61,6 @@ void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl)
 	_opsCtrl = opsCtrl;
 }
 
-bool CChatOpsCompress::TryTriggerCompress()
-{
-	if (!_opsCtrl || _state == State_Compressing)
-		return false;
-
-	if (_balance <= 0 || _compressRatio <= 1.0f)
-		return false;
-
-	int currentTokens = _opsCtrl->GetEstimateTokens();
-	int threshold = static_cast<int>(_balance * _compressRatio);
-
-	// 当前 token 未超过阈值，不需要压缩
-	if (currentTokens <= threshold)
-		return false;
-
-	// 计算目标 token 数（balance / ratio 的倒数，即压缩到 balance）
-	int targetTokens = _balance;
-	int reduceTokens = currentTokens - targetTokens;
-
-	if (reduceTokens <= 0)
-		return false;
-
-	// 启动压缩
-	StartCompress(reduceTokens);
-	return true;
-}
-
 void CChatOpsCompress::StartCompress(int reduceTokenCount)
 {
 	if (!_opsCtrl || reduceTokenCount <= 0)
