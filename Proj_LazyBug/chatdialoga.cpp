@@ -1228,17 +1228,15 @@ void CChatDialogA::_UpdateContextUsage()
 	_tokenStats.Update();
 
 	// 获取当前使用的API名称
-	std::wstring currentApiNameW = _chatInput.GetCurrentMajorChatApi();
+	std::string currentApiName = g_llmLib.GetMajorChatApi();
 
 	// 没有变化则直接返回
-	if (!_tokenStats.HasAnyChanged())
+	if ((!_tokenStats.HasAnyChanged())&&(currentApiName==_apiNameOfContextUsage))
 		return;
 
 	// 获取总 Token 数
 	int totalTokens = _tokenStats.GetCalibratedTokens();
 
-	std::string currentApiName = widechar_to_utf8(currentApiNameW.c_str());
-	
 	// 获取API的context capacity
 	int contextCapacity = 0;
 	const LlmApi* api = g_llmLib.GetApi(currentApiName);
@@ -1266,9 +1264,20 @@ void CChatDialogA::_UpdateContextUsage()
 	{
 		snprintf(tooltip, sizeof(tooltip), "( %.1f%% )", 100.0f);
 	}
+
+	if (true)
+	{
+		int balance = 120000;
+		float factor = _tokenStats.GetCalibrationFactor();
+		if (factor > 0.0001f)
+			balance = ((float)balance) / (factor);
+		_agent.SetCompressInfo(balance, 1.7f);
+	}
 	
 	// 设置上下文使用率到chat input
 	_chatInput.SetContextUsage(progress, tooltip);
+
+	_apiNameOfContextUsage = currentApiName;
 }
 
 void CChatDialogA::_OnInputContentChanged(const std::wstring& content)

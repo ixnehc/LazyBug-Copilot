@@ -47,6 +47,40 @@ private:
 	// 追加输出到 CLI 显示区域
 	void _AppendOutputToDisplay(const std::string& output);
 
+	class COutputBuffer {
+	public:
+		COutputBuffer(size_t headLimit = 16000, size_t tailLimit = 100);
+		
+		void Append(const char* data, size_t length);
+		bool Fetch(std::string &output);
+		void Finish();
+		std::string GetFullResult() const;
+		void Reset();
+		void SetHeadLimit(size_t headLimit);
+
+	private:
+		void _ProcessUtf8Data(const std::string& utf8Data);
+
+		size_t _headLimit;
+		size_t _tailLimit;
+		
+		size_t _totalUtf8BytesProcessed;
+		size_t _omittedBytesCount;
+		size_t _dotCounter;
+		size_t _dotsPrintedInLine;
+
+		std::string _headBuffer;
+		std::string _tailBuffer;
+		
+		std::string _rawInputBuffer;
+		std::string _incrementalBuffer;
+		
+		bool _isEncodingDecided;
+		bool _isUtf8;
+		
+		mutable std::mutex _mutex;
+	};
+
 	std::wstring _cliId;  // CLI 显示元素的 ID
 	bool _isPending;      // 是否为 pending 状态（等待用户点击播放按钮）
 	bool _executionStarted;  // 是否已经启动执行
@@ -62,12 +96,12 @@ private:
 	std::string _threadMessage;
 	bool _threadSuccess;
 	
-	// 实时输出相关
-	std::vector<std::string> _outputChunks;  // 增量输出队列
-	std::mutex _outputMutex;  // 保护输出队列的互斥锁
+	// 输出缓冲区
+	COutputBuffer _outputBuffer;
 	
 	// 输入框显示控制
 	std::atomic<__int64> _lastOutputTime;  // 上次收到输出的时间戳（毫秒）
+
 	std::atomic<bool> _inputAreaShown;  // 输入框是否已显示
 	
 	// 进程句柄，用于中断

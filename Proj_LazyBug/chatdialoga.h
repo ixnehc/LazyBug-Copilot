@@ -147,6 +147,7 @@ protected:
 
 	void _UpdateContextUsage();
 	CChatTokenStats _tokenStats;
+	std::string _apiNameOfContextUsage;
 
 	void _UpdateSaveChatCtrl();
 	void _UpdateLoadChatCtrl();

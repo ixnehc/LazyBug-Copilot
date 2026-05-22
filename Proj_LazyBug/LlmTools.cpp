@@ -375,7 +375,7 @@ void CLlmTools::Init()
 	AddToolPara_String("command", "The command line command to execute.", true);
 	AddToolPara_String("desc", "A brief description of what this command does.", true);
 	AddToolPara_String("workingDir", "The working directory for the command execution. If not specified, uses the current directory.", false);
-	AddToolPara_Integer("timeout", "Timeout in milliseconds for the command execution (default: 30000).", false);
+	AddToolPara_Integer("maxOutput", "Maximum output bytes allowed (default: 16000). Exceeding bytes will be truncated", false);
 	EndTool();
 
 	// 定义 CLI_Bash 工具
@@ -384,7 +384,7 @@ void CLlmTools::Init()
 	AddToolPara_String("command", "The bash command to execute.", true);
 	AddToolPara_String("desc", "A brief description of what this command does.", true);
 	AddToolPara_String("workingDir", "The working directory for the command execution. If not specified, uses the current directory.", false);
-	AddToolPara_Integer("timeout", "Timeout in milliseconds for the command execution (default: 30000).", false);
+	AddToolPara_Integer("maxOutput", "Maximum output bytes allowed (default: 16000). Exceeding bytes will be truncated", false);
 	EndTool();
 
 	// 定义 CLI_RunScript 工具
@@ -393,7 +393,7 @@ void CLlmTools::Init()
 	AddToolPara_String("command", "The python script content to execute.", true);
 	AddToolPara_String("desc", "A brief description of what this script does.", true);
 	AddToolPara_String("workingDir", "The working directory for the script execution. If not specified, uses the current directory.", false);
-	AddToolPara_Integer("timeout", "Timeout in milliseconds for the script execution (default: 30000).", false);
+	AddToolPara_Integer("maxOutput", "Maximum output bytes allowed (default: 16000). Exceeding bytes will be truncated", false);
 	EndTool();
 
 	// 定义 ReplaceInFile 工具

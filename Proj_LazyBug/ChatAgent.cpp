@@ -537,6 +537,12 @@ void CChatAgent::RequestSendToolCallResult()
 	_requestSendToolCallResult = true;
 }
 
+void CChatAgent::SetCompressInfo(int balance, float ratio)
+{
+	_compressor.SetBalance(balance);
+	_compressor.SetCompressRatio(ratio);
+}
+
 // 显示文件编辑进度标签
 void CChatAgent::ShowFileEditProgressLabel(const std::wstring& fileName)
 {

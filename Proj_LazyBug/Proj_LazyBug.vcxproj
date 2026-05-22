@@ -1566,6 +1566,7 @@ c:\sound.exe
     <ClInclude Include="SymbolRefsCache.h" />
     <ClInclude Include="SmartRepairRefCollector.h" />
     <ClInclude Include="SmartRepairDefines.h" />
+    <ClInclude Include="TokenCalibrate.h" />
     <ClInclude Include="TreeSitterFiles.h" />
     <ClInclude Include="RepairWnd.h" />
     <ClInclude Include="CoreDefines.h" />
@@ -1704,6 +1705,7 @@ c:\sound.exe
     <ClCompile Include="SolutionDump.cpp" />
     <ClCompile Include="SymbolRefsCache.cpp" />
     <ClCompile Include="SmartRepairRefCollector.cpp" />
+    <ClCompile Include="TokenCalibrate.cpp" />
     <ClCompile Include="TreeSitterFiles.cpp" />
     <ClCompile Include="RepairWnd.cpp" />
     <ClCompile Include="FileLocator.cpp" />

@@ -298,3 +298,48 @@
 .cli-output-content::-webkit-scrollbar-thumb:hover {
     background: #555555;
 }
+
+/* ====== CLI Copy Button 样式 ====== */
+.cli-content-wrapper {
+    position: relative;
+}
+
+.cli-copy-button {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(64, 64, 64, 0.6);
+    color: #cccccc;
+    border: 1px solid #444444;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+    z-index: 10;
+}
+
+.cli-content-wrapper:hover .cli-copy-button {
+    opacity: 1;
+}
+
+.cli-copy-button:hover {
+    background-color: rgba(80, 80, 80, 0.8);
+    border-color: #606060;
+    color: #ffffff;
+}
+
+.cli-copy-button:active {
+    background-color: rgba(96, 96, 96, 1);
+    transform: scale(0.95);
+}
+
+.cli-copy-button.copied {
+    background-color: rgba(0, 128, 0, 0.8);
+    border-color: #00a000;
+}

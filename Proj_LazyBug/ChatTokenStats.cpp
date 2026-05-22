@@ -576,26 +576,20 @@ const CChatTokenStats::CachedSection* CChatTokenStats::_GetSection(TokenStats::S
 
 void CChatTokenStats::BeginCalibration()
 {
-	// 记录当前的估计 token 数
-	_calibrationEstimatedTokens = GetTotalTokens();
+	_tokenCalibrate.BeginCalibration(GetTotalTokens());
 }
 
 void CChatTokenStats::ApplyCalibration(int actualTokens)
 {
-	// 避免除零
-	if (_calibrationEstimatedTokens <= 0)
-		return;
-
-	if (actualTokens > 100)
-	{
-		// 计算矫正因子 = 真实token数 / 估计token数
-		_correctionFactor = static_cast<float>(actualTokens) / static_cast<float>(_calibrationEstimatedTokens);
-	}
-	_calibrationEstimatedTokens = 0;
+	_tokenCalibrate.ApplyCalibration(actualTokens);
 }
 
 int CChatTokenStats::GetCalibratedTokens() const
 {
-	// 返回矫正后的 token 数
-	return static_cast<int>(GetTotalTokens() * _correctionFactor);
+	return static_cast<int>(GetTotalTokens() * _tokenCalibrate.GetCalibrationFactor());
+}
+
+float CChatTokenStats::GetCalibrationFactor() const
+{
+	return _tokenCalibrate.GetCalibrationFactor();
 }

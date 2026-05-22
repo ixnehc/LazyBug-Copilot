@@ -594,15 +594,48 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
         cliContent.style.display = 'block';  // 自动展开
         expandIcon.textContent = '-';  // 展开状态显示 -
         
-        // 创建命令内容
+        // 创建命令内容容器
+        const commandContentWrapper = document.createElement('div');
+        commandContentWrapper.className = 'cli-content-wrapper';
+        
         const commandContent = document.createElement('div');
         commandContent.className = 'cli-command-content';
         commandContent.textContent = command;
         
-        // 创建输出内容（初始为空）
+        // 创建命令复制按钮
+        const commandCopyBtn = document.createElement('button');
+        commandCopyBtn.className = 'cli-copy-button';
+        commandCopyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        commandCopyBtn.title = 'Copy command';
+        commandCopyBtn.onclick = function(e) {
+            e.stopPropagation();
+            copyCliContent(commandCopyBtn, command);
+        };
+        
+        commandContentWrapper.appendChild(commandContent);
+        commandContentWrapper.appendChild(commandCopyBtn);
+        
+        // 创建输出内容容器
+        const outputContentWrapper = document.createElement('div');
+        outputContentWrapper.className = 'cli-content-wrapper';
+        
         const outputContent = document.createElement('div');
         outputContent.className = 'cli-output-content';
         outputContent.id = `${cliId}-output`;
+        
+        // 创建输出复制按钮
+        const outputCopyBtn = document.createElement('button');
+        outputCopyBtn.className = 'cli-copy-button';
+        outputCopyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        outputCopyBtn.title = 'Copy output';
+        outputCopyBtn.onclick = function(e) {
+            e.stopPropagation();
+            const outputText = outputContent.textContent || '';
+            copyCliContent(outputCopyBtn, outputText);
+        };
+        
+        outputContentWrapper.appendChild(outputContent);
+        outputContentWrapper.appendChild(outputCopyBtn);
         
         // 创建输入区域（默认隐藏）
         const inputArea = document.createElement('div');
@@ -637,11 +670,15 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
         inputArea.appendChild(inputField);
         inputArea.appendChild(sendBtn);
         
-        cliContent.appendChild(commandContent);
-        cliContent.appendChild(outputContent);
+        cliContent.appendChild(commandContentWrapper);
+        cliContent.appendChild(outputContentWrapper);
         cliContent.appendChild(inputArea);
         cliContainer.appendChild(cliHeader);
         cliContainer.appendChild(cliContent);
+        
+        // 更新复制按钮的 SVG 大小为 12x12
+        commandCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        outputCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
     } else {
         // none 状态：只显示白名单按钮（停止按钮在点击 accept 后显示）
         
@@ -662,18 +699,51 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
         cliContent.id = `${cliId}-content`;
         cliContent.style.display = 'none';  // 初始隐藏
         
-        // 创建命令内容
+        // 创建命令内容容器
+        const commandContentWrapper = document.createElement('div');
+        commandContentWrapper.className = 'cli-content-wrapper';
+        
         const commandContent = document.createElement('div');
         commandContent.className = 'cli-command-content';
         commandContent.textContent = command;
         
-        // 创建输出内容（初始为空）
+        // 创建命令复制按钮
+        const commandCopyBtn = document.createElement('button');
+        commandCopyBtn.className = 'cli-copy-button';
+        commandCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        commandCopyBtn.title = 'Copy command';
+        commandCopyBtn.onclick = function(e) {
+            e.stopPropagation();
+            copyCliContent(commandCopyBtn, command);
+        };
+        
+        commandContentWrapper.appendChild(commandContent);
+        commandContentWrapper.appendChild(commandCopyBtn);
+        
+        // 创建输出内容容器
+        const outputContentWrapper = document.createElement('div');
+        outputContentWrapper.className = 'cli-content-wrapper';
+        
         const outputContent = document.createElement('div');
         outputContent.className = 'cli-output-content';
         outputContent.id = `${cliId}-output`;
         
-        cliContent.appendChild(commandContent);
-        cliContent.appendChild(outputContent);
+        // 创建输出复制按钮
+        const outputCopyBtn = document.createElement('button');
+        outputCopyBtn.className = 'cli-copy-button';
+        outputCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        outputCopyBtn.title = 'Copy output';
+        outputCopyBtn.onclick = function(e) {
+            e.stopPropagation();
+            const outputText = outputContent.textContent || '';
+            copyCliContent(outputCopyBtn, outputText);
+        };
+        
+        outputContentWrapper.appendChild(outputContent);
+        outputContentWrapper.appendChild(outputCopyBtn);
+        
+        cliContent.appendChild(commandContentWrapper);
+        cliContent.appendChild(outputContentWrapper);
         cliContainer.appendChild(cliHeader);
         cliContainer.appendChild(cliContent);
     }

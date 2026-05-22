@@ -168,6 +168,9 @@
     <Filter Include="GUI\ChatDialog\ChatSettingMenu">
       <UniqueIdentifier>{0ce1e637-91b1-44ca-abff-29222b1c7489}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ChatDialog\ChatTaskMgr\ChatTask_Cli">
+      <UniqueIdentifier>{30721c32-435d-4c4a-afc9-fc96a76d4f80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DockPaneWnd.h">
@@ -548,9 +551,6 @@
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2EnvironmentOptions.h">
       <Filter>GUI\ChatDialog\ChatUi</Filter>
     </ClInclude>
-    <ClInclude Include="ChatTask_CLI.h">
-      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
-    </ClInclude>
     <ClInclude Include="LlmSkills.h">
       <Filter>Core\Llm</Filter>
     </ClInclude>
@@ -586,6 +586,12 @@
     </ClInclude>
     <ClInclude Include="ChatOpsCompress.h">
       <Filter>Core\ChatAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatTask_CLI.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_Cli</Filter>
+    </ClInclude>
+    <ClInclude Include="TokenCalibrate.h">
+      <Filter>GUI\ChatDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -928,9 +934,6 @@
     <ClCompile Include="ChatTitleMenu.cpp">
       <Filter>GUI\ChatDialog\ChatUi</Filter>
     </ClCompile>
-    <ClCompile Include="ChatTask_CLI.cpp">
-      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
-    </ClCompile>
     <ClCompile Include="LlmSkills.cpp">
       <Filter>Core\Llm</Filter>
     </ClCompile>
@@ -966,6 +969,12 @@
     </ClCompile>
     <ClCompile Include="ChatOpsCompress.cpp">
       <Filter>Core\ChatAgent</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatTask_CLI.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_Cli</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenCalibrate.cpp">
+      <Filter>GUI\ChatDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

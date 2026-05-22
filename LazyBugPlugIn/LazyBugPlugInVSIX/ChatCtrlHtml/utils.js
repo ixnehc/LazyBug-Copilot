@@ -282,3 +282,31 @@ function calculateContentHeight(content) {
     // 添加 5px 的缓冲区域，避免边界情况导致高度计算误差
     return height + 5;
 }
+
+// ====== CLI Copy 功能 ======
+
+/**
+ * 复制 CLI 内容到剪贴板
+ * @param {HTMLElement} button - 复制按钮元素
+ * @param {string} text - 要复制的文本
+ */
+async function copyCliContent(button, text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        // 显示复制成功反馈
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00ff00" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+            button.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+            button.classList.remove('copied');
+        }, 2000);
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        button.innerHTML = '✗';
+        setTimeout(() => {
+            button.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        }, 2000);
+    }
+}

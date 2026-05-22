@@ -244,28 +244,6 @@ void CChatOpsCompress::_BuildWorkingOps()
 	}
 }
 
-void CChatOpsCompress::_ExecutePass(int pass)
-{
-	// 按列表顺序依次对应 pass 序号，可通过参数控制作用范围
-	int currentPassIndex = 0;
-
-#define _PASS(expr) \
-	if (pass == currentPassIndex) { expr; return; } \
-	currentPassIndex++;
-
-	_PASS( _Pass_RemoveFailureFileEdit(0, 999) )     // 删除失败的 File Edit（所有 session）
-	_PASS( _Pass_RemoveFailureCMD(0, 999) )          // 删除失败或空的 CLI（所有 session）
-	_PASS( _Pass_RemoveCoveredLines(1, 999) )        // 删除被后续 ReadFile 覆盖的行（sessionAge >= 1）
-	_PASS( _Pass_RemoveIrrelavantSearchResult(1, 999) ) // 删除不相关的搜索结果（sessionAge >= 1）
-	_PASS( _Pass_ClearThinking(1, 999) )             // 清除思考过程（sessionAge >= 1）
-	_PASS( _Pass_TruncateSearchResults(1, 999) )     // 截断搜索结果（sessionAge >= 1）
-	_PASS( _Pass_TruncateCmdResults(1, 999) )        // 截断命令结果（sessionAge >= 1）
-	_PASS( _Pass_ClearSearchOps(3, 999) )            // 清除搜索操作（sessionAge >= 3）
-	_PASS( _Pass_ClearToolCalls(2, 999) )            // 清除工具调用（sessionAge >= 2）
-	_PASS( _Pass_ClearMessages(3, 999) )             // 清除消息（sessionAge >= 3）
-
-#undef _PASS
-}
 
 void CChatOpsCompress::_SyncBackToOps()
 {
@@ -378,12 +356,11 @@ std::wstring CChatOpsCompress::_TruncateSearchResult(const std::wstring& content
 	}
 }
 
-std::wstring CChatOpsCompress::_TruncateCmdResult(const std::wstring& content, int maxLines)
+std::string CChatOpsCompress::_TruncateCmdResult(const std::string& content, int maxLines)
 {
 	try
 	{
-		std::string utf8Content = widechar_to_utf8(content.c_str());
-		nlohmann::json parsed = nlohmann::json::parse(utf8Content);
+		nlohmann::json parsed = nlohmann::json::parse(content);
 
 		if (!parsed.is_array() || parsed.size() < 2)
 			return content;
@@ -410,14 +387,14 @@ std::wstring CChatOpsCompress::_TruncateCmdResult(const std::wstring& content, i
 
 		// 截断（保留尾部）
 		std::string truncated;
-		truncated += "... [output truncated, showing first " + std::to_string(maxLines) + " lines]\n";
+		truncated += "... [output truncated, showing last " + std::to_string(maxLines) + " lines]\n";
 		for (int i = static_cast<int>(lines.size()) - maxLines; i < static_cast<int>(lines.size()); i++)
 		{
 			truncated += lines[i] + "\n";
 		}
 
 		toolResultMsg["content"] = truncated;
-		return utf8_to_widechar(parsed.dump().c_str());
+		return parsed.dump();
 	}
 	catch (...)
 	{
@@ -551,7 +528,170 @@ void CChatOpsCompress::_Pass_RemoveFailureCMD(int startSessionAge, int endSessio
 
 void CChatOpsCompress::_Pass_RemoveCoveredLines(int startSessionAge, int endSessionAge)
 {
-	// TODO: 删除被后续 ReadFile 覆盖的行
+	// 删除被后续 ReadFile 覆盖的行
+	// 规则1: 如果一个 ReadFile 只读取了文件的部分行，但之后有一个 ReadFile 读取了整个文件，则清除
+	// 规则2: 同一个 session 内，如果一个 ReadFile 的行范围被后续 ReadFile 的行范围包含，
+	//        且两者之间没有 ReplaceInFile，则清除
+
+	// 首先收集所有 ReadFile 的 Op 索引和信息
+	struct ReadFileInfo
+	{
+		int index;              // 在 _workingOps 中的索引
+		int sessionAge;         // session 年龄
+		std::string filePath;   // 文件路径
+		int startLine;          // 起始行（-1 表示未指定，从头开始）
+		int endLine;            // 结束行（-1 表示未指定，读到末尾）
+		bool isFullFile;        // 是否读取整个文件
+
+		// 判断 this 的范围是否包含 other 的范围
+		bool ContainsRange(int otherStart, int otherEnd) const
+		{
+			int thisStart = startLine;
+			int thisEnd = endLine;  // -1 表示到末尾，能包含任何有限值
+
+			if (otherStart < thisStart)
+				return false;
+
+			if (thisEnd < 0)
+				return true;  // this 读到末尾，能包含任何 otherEnd
+
+			if (otherEnd < 0)
+				return false;  // other 读到末尾，this 无法包含
+
+			return otherEnd <= thisEnd;
+		}
+	};
+	std::vector<ReadFileInfo> readFileOps;
+
+	for (int i = 0; i < static_cast<int>(_workingOps.size()); i++)
+	{
+		auto& op = _workingOps[i];
+
+		// 检查 sessionAge 范围
+		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
+			continue;
+
+		if (op.type != ChatOp::Op_AddToolCallResult)
+			continue;
+		if (op.toolType != LlmToolType::ReadFile)
+			continue;
+		if (op.currentLevel != Level_None)
+			continue;
+
+		// 解析 JSON 获取文件路径和行范围
+		try
+		{
+			nlohmann::json parsed = nlohmann::json::parse(op.originalContent);
+			if (!parsed.is_array() || parsed.size() < 1)
+				continue;
+
+			auto& firstMsg = parsed[0];
+			if (!firstMsg.contains("tool_calls") || !firstMsg["tool_calls"].is_array())
+				continue;
+
+			auto& toolCalls = firstMsg["tool_calls"];
+			if (toolCalls.empty() || !toolCalls[0].contains("function"))
+				continue;
+
+			auto& func = toolCalls[0]["function"];
+			if (!func.contains("arguments"))
+				continue;
+
+			// 解析 arguments JSON 字符串
+			std::string argsStr = func["arguments"].get<std::string>();
+			nlohmann::json args = nlohmann::json::parse(argsStr);
+
+			if (!args.contains("filePath"))
+				continue;
+
+			std::string filePath = args["filePath"].get<std::string>();
+			StringLower(filePath);
+
+			// 解析行范围
+			int startLine = -1;  // -1 表示未指定，默认为 1
+			int endLine = -1;    // -1 表示未指定，读到末尾
+
+			if (args.contains("startLine") && args["startLine"].is_number())
+				startLine = args["startLine"].get<int>();
+
+			if (args.contains("endLine") && args["endLine"].is_number())
+				endLine = args["endLine"].get<int>();
+
+			// 判断是否读取整个文件
+			bool isFullFile = (!args.contains("startLine") && !args.contains("endLine"));
+
+			ReadFileInfo info;
+			info.index = i;
+			info.sessionAge = op.sessionAge;
+			info.filePath = filePath;
+			info.startLine = startLine;
+			info.endLine = endLine;
+			info.isFullFile = isFullFile;
+			readFileOps.push_back(info);
+		}
+		catch (...)
+		{
+			// JSON 解析失败，跳过
+		}
+	}
+
+	// 辅助函数：检查两个索引之间是否有 ReplaceInFile
+	auto hasReplaceInFileBetween = [this](int fromIdx, int toIdx) -> bool
+	{
+		for (int i = fromIdx + 1; i < toIdx; i++)
+		{
+			if (_workingOps[i].toolType == LlmToolType::ReplaceInFile)
+				return true;
+		}
+		return false;
+	};
+
+	// 对于每个 ReadFile Op，检查是否应该被清除
+	for (const auto& info : readFileOps)
+	{
+		// 检查是否已达到目标
+		if (_reducedTokens >= _reduceTokenCount)
+			return;
+
+		bool shouldRemove = false;
+
+		// 检查之后的所有 ReadFile Op
+		for (const auto& laterInfo : readFileOps)
+		{
+			// 必须在当前 Op 之后
+			if (laterInfo.index <= info.index)
+				continue;
+
+			// 必须是同一个文件
+			if (laterInfo.filePath != info.filePath)
+				continue;
+
+			// 规则1: 之后有读取整个文件的 Op
+			if (laterInfo.isFullFile)
+			{
+				shouldRemove = true;
+				break;
+			}
+
+			// 规则2: 同一个 session 内，行范围被包含，且中间没有 ReplaceInFile
+			if (laterInfo.sessionAge == info.sessionAge)
+			{
+				if (laterInfo.ContainsRange(info.startLine, info.endLine))
+				{
+					if (!hasReplaceInFileBetween(info.index, laterInfo.index))
+					{
+						shouldRemove = true;
+						break;
+					}
+				}
+			}
+		}
+
+		if (shouldRemove)
+		{
+			_ApplyCompressToOp(_workingOps[info.index], Level_Full, "");
+		}
+	}
 }
 
 void CChatOpsCompress::_Pass_RemoveIrrelavantSearchResult(int startSessionAge, int endSessionAge)
@@ -578,7 +718,7 @@ void CChatOpsCompress::_Pass_ClearThinking(int startSessionAge, int endSessionAg
 			continue;  // 已压缩过
 
 		// 完全清除 thinking 内容
-		_ApplyCompressToOp(op, Level_Full, "...");
+		_ApplyCompressToOp(op, Level_Partial, ".");
 	}
 }
 
@@ -589,7 +729,34 @@ void CChatOpsCompress::_Pass_TruncateSearchResults(int startSessionAge, int endS
 
 void CChatOpsCompress::_Pass_TruncateCmdResults(int startSessionAge, int endSessionAge)
 {
-	// TODO: 截断命令结果
+	constexpr int MAX_LINES = 100;
+
+	for (auto& op : _workingOps)
+	{
+		if (_reducedTokens >= _reduceTokenCount)
+			return;
+
+		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
+			continue;
+
+		if (op.type != ChatOp::Op_AddToolCallResult)
+			continue;
+
+		if (op.toolType != LlmToolType::CLI_Cmd &&
+			op.toolType != LlmToolType::CLI_Bash &&
+			op.toolType != LlmToolType::CLI_RunScript)
+			continue;
+
+		if (op.currentLevel != Level_None)
+			continue;
+
+		std::string truncated = _TruncateCmdResult(op.originalContent, MAX_LINES);
+
+		if (truncated != op.originalContent)
+		{
+			_ApplyCompressToOp(op, Level_Partial, truncated);
+		}
+	}
 }
 
 void CChatOpsCompress::_Pass_ClearToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes)
@@ -665,4 +832,33 @@ void CChatOpsCompress::_Pass_ClearToolCalls(int startSessionAge, int endSessionA
 void CChatOpsCompress::_Pass_ClearMessages(int startSessionAge, int endSessionAge)
 {
 	// TODO: 清除消息
+}
+
+
+void CChatOpsCompress::_ExecutePass(int pass)
+{
+	// 按列表顺序依次对应 pass 序号，可通过参数控制作用范围
+	int currentPassIndex = 0;
+
+#define _PASS(expr) \
+	if (pass == currentPassIndex) { expr; return; } \
+	currentPassIndex++;
+
+	_PASS( _Pass_RemoveFailureFileEdit(0, 999) )     // 删除失败的 File Edit（所有 session）
+	_PASS( _Pass_RemoveFailureCMD(0, 999) )          // 删除失败或空的 CLI（所有 session）
+	_PASS( _Pass_RemoveCoveredLines(0, 999) )        // 删除被后续 ReadFile 覆盖的行（sessionAge >= 1）
+//	_PASS( _Pass_RemoveIrrelavantSearchResult(1, 999) ) // 删除不相关的搜索结果（sessionAge >= 1）
+	_PASS( _Pass_ClearThinking(1, 999) )             // 清除思考过程（sessionAge >= 1）
+//	_PASS( _Pass_TruncateSearchResults(1, 999) )     // 截断搜索结果（sessionAge >= 1）
+	_PASS( _Pass_ClearSearchOps(3, 999) )            // 清除搜索操作（sessionAge >= 3）
+	_PASS(_Pass_ClearFindSymbol(3, 999))            // 清除搜索操作（sessionAge >= 3）
+	_PASS( _Pass_TruncateCmdResults(3, 999) )        // 截断命令结果（sessionAge >= 1）
+	_PASS( _Pass_ClearSearchOps(2, 999) )            // 清除搜索操作（sessionAge >= 3）
+	_PASS(_Pass_ClearFindSymbol(2, 999))            // 清除搜索操作（sessionAge >= 3）
+	_PASS( _Pass_TruncateCmdResults(2, 999) )        // 截断命令结果（sessionAge >= 1）
+
+// 	_PASS( _Pass_ClearToolCalls(2, 999) )            // 清除工具调用（sessionAge >= 2）
+// 	_PASS( _Pass_ClearMessages(3, 999) )             // 清除消息（sessionAge >= 3）
+
+#undef _PASS
 }

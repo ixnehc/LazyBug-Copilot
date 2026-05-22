@@ -121,11 +121,11 @@ private:
 	void _Pass_ClearMessages(int startSessionAge, int endSessionAge);
 
 	// Pass 总数
-	static constexpr int _passCount = 10;
+	static constexpr int _passCount = 50;
 
 	// 截断工具
 	std::wstring _TruncateSearchResult(const std::wstring& content, int maxLines);
-	std::wstring _TruncateCmdResult(const std::wstring& content, int maxLines);
+	std::string _TruncateCmdResult(const std::string& content, int maxLines);
 
 private:
 	CChatOpsCtrl* _opsCtrl = nullptr;

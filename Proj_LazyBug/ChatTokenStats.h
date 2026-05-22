@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <cstdint>
+#include "TokenCalibrate.h"
 
 // 前向声明
 class CChatOpsCtrl;
@@ -235,15 +236,14 @@ public:
 	// 开始矫正：记录当前的估计 token 数
 	void BeginCalibration();
 	
-	// 应用矫正：传入真实的 token 数，计算矫正因子
-	// 矫正因子 = 真实token数 / 估计token数
+	// 应用矫正：传入真实的 token 数，累加到注册表
 	void ApplyCalibration(int actualTokens);
 	
 	// 获取矫正后的 token 数
 	int GetCalibratedTokens() const;
 	
 	// 获取当前矫正因子
-	float GetCorrectionFactor() const { return _correctionFactor; }
+	float GetCalibrationFactor() const;
 
 private:
 	// 内部缓存的结构
@@ -277,9 +277,8 @@ private:
 	// 初始化 sections 映射
 	void _InitSections();
 
-	// Token 矫正相关
-	float _correctionFactor = 1.0f;           // 矫正因子，初始为 1.0
-	int _calibrationEstimatedTokens = 0;      // 矫正开始时的估计 token 数
+	// Token 矫正器
+	CTokenCalibrate _tokenCalibrate;
 };
 
 

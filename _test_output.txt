@@ -1,0 +1,54 @@
+ Volume in drive D is New Volume
+ Volume Serial Number is B43A-90C2
+
+ Directory of D:\LazyBug
+
+05/21/2026  08:21 PM    <DIR>          .
+05/20/2026  11:30 AM             2,581 .gitattributes
+05/20/2026  11:44 AM             6,621 .gitignore
+08/11/2025  11:57 AM    <DIR>          .vscode
+05/11/2026  07:57 PM    <DIR>          bin
+01/14/2026  02:59 PM    <DIR>          Common
+04/11/2026  03:27 PM             3,052 CopyFileToFolder.bat
+08/11/2025  11:57 AM    <DIR>          data
+05/25/2025  06:27 PM             3,710 Debug_WebView.cpp
+05/21/2026  08:21 PM    <DIR>          enc_temp_folder
+03/16/2026  07:32 AM    <DIR>          extlib
+05/26/2025  08:01 PM             6,292 FileEditExample.cpp
+05/26/2025  08:00 PM             6,809 FileEdit_README.md
+06/03/2025  03:55 AM             5,831 fileEdit_??????.html
+06/03/2025  03:59 AM             3,186 FileEdit????????.md
+08/11/2025  12:01 PM    <DIR>          Interfaces
+04/19/2026  10:07 AM           176,968 LazyBug.sln
+08/11/2025  12:01 PM    <DIR>          LazyBugCSharp
+05/09/2026  05:04 PM    <DIR>          LazyBugPlugIn
+05/07/2025  12:39 PM             5,214 LazyBugPlugIn.sln
+05/09/2026  05:04 PM    <DIR>          LazyBugPlugInControls
+04/01/2026  07:28 AM    <DIR>          LazyBugPlugInCSharp
+08/11/2025  12:01 PM    <DIR>          LazyBugPlugInLoader
+03/18/2026  01:45 PM    <DIR>          LazyBugPlugInUi
+08/11/2025  12:01 PM    <DIR>          Lib_Common
+08/11/2025  12:02 PM    <DIR>          Lib_Jj
+04/19/2026  09:56 AM    <DIR>          Lib_TreeSitterCSharp
+08/11/2025  12:02 PM    <DIR>          packages
+04/12/2026  06:19 PM    <DIR>          Proj_FileSystem
+05/09/2026  08:45 AM    <DIR>          Proj_GuiLib
+05/21/2026  08:21 PM    <DIR>          Proj_LazyBug
+05/09/2026  11:55 AM    <DIR>          Proj_LazyBugCppParser
+05/05/2026  12:28 PM    <DIR>          Proj_LazyBugService
+05/07/2026  07:48 AM    <DIR>          retail
+05/11/2026  07:59 PM             2,155 SyncPlugin.bat
+05/06/2026  07:03 AM                17 test.py
+05/06/2026  07:04 AM                20 test2.py
+05/09/2026  08:44 AM               140 test_compile.cpp
+05/06/2026  07:06 AM               569 test_cp.cpp
+05/25/2025  06:27 PM             1,248 Test_FileEdit.cpp
+06/03/2025  03:59 AM             5,600 test_fileedit_modification.html
+08/11/2025  12:23 PM            23,993 UpgradeLog.htm
+05/07/2025  12:39 PM             3,914 VsSDK.props
+05/25/2025  06:28 PM             5,356 WebView_Troubleshooting.md
+08/11/2025  12:04 PM    <DIR>          x64
+05/19/2026  07:10 PM    <DIR>          _gbg
+05/21/2026  08:21 PM                 0 _test_output.txt
+              21 File(s)        263,276 bytes
+              26 Dir(s)  2,980,719,468,544 bytes free

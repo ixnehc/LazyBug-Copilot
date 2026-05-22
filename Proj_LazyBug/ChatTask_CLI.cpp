@@ -196,6 +196,334 @@ void CChatTask_CLI::_AppendOutputToDisplay(const std::string& output)
 	}
 }
 
+extern std::string local_to_utf8(const std::string& ansi_str);
+
+CChatTask_CLI::COutputBuffer::COutputBuffer(size_t headLimit, size_t tailLimit)
+	: _headLimit(headLimit), _tailLimit(tailLimit), 
+	  _totalUtf8BytesProcessed(0), _omittedBytesCount(0), 
+	  _dotCounter(0), _dotsPrintedInLine(0), 
+	  _isEncodingDecided(false), _isUtf8(false)
+{
+}
+
+void CChatTask_CLI::COutputBuffer::Reset()
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	_totalUtf8BytesProcessed = 0;
+	_omittedBytesCount = 0;
+	_dotCounter = 0;
+	_dotsPrintedInLine = 0;
+	_headBuffer.clear();
+	_tailBuffer.clear();
+	_rawInputBuffer.clear();
+	_incrementalBuffer.clear();
+	_isEncodingDecided = false;
+	_isUtf8 = false;
+}
+
+void CChatTask_CLI::COutputBuffer::SetHeadLimit(size_t headLimit)
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	_headLimit = headLimit;
+}
+
+void CChatTask_CLI::COutputBuffer::_ProcessUtf8Data(const std::string& utf8Data)
+{
+	if (utf8Data.empty()) return;
+	
+	size_t currentLen = utf8Data.length();
+	std::string toAppendInc;
+	
+	for (size_t i = 0; i < currentLen; ++i)
+	{
+		char c = utf8Data[i];
+		_totalUtf8BytesProcessed++;
+		
+		if (_totalUtf8BytesProcessed <= _headLimit)
+		{
+			_headBuffer.push_back(c);
+			toAppendInc.push_back(c);
+		}
+		else
+		{
+			// 超出部分进入尾部缓冲区
+			_tailBuffer.push_back(c);
+			
+			// 如果超出则统计 omitted
+			if (_totalUtf8BytesProcessed > _headLimit + _tailLimit)
+			{
+				_omittedBytesCount++;
+				_dotCounter++;
+				
+				// 保持尾部缓冲区不超过 _tailLimit
+				// 但为了不截断 utf8 字符，我们只进行粗略截断，等 Finish() 时再做精确裁剪
+				// 也可以逐字符剔除，这里我们简单使用 erase 并在 Finish 修复
+				if (_tailBuffer.length() > _tailLimit + 1024) 
+				{
+					_tailBuffer.erase(0, 1024);
+				}
+				
+				if (_dotCounter >= 1000)
+				{
+					_dotCounter = 0;
+					toAppendInc.push_back('.');
+					_dotsPrintedInLine++;
+					if (_dotsPrintedInLine >= 10)
+					{
+						toAppendInc.push_back('\n');
+						_dotsPrintedInLine = 0;
+					}
+				}
+			}
+		}
+	}
+	
+	if (!toAppendInc.empty())
+	{
+		_incrementalBuffer += toAppendInc;
+	}
+}
+
+void CChatTask_CLI::COutputBuffer::Append(const char* data, size_t length)
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	
+	_rawInputBuffer.append(data, length);
+	std::string processStr;
+	
+	size_t i = 0;
+	while (i < _rawInputBuffer.length())
+	{
+		unsigned char c = static_cast<unsigned char>(_rawInputBuffer[i]);
+		
+		// 如果还没决定编码，并且遇到了非 ASCII 字符
+		if (!_isEncodingDecided && c > 0x7F)
+		{
+			// 尝试判断是否是合法的 UTF-8 序列起始
+			if ((c & 0xE0) == 0xC0) // 2-byte
+			{
+				if (i + 1 < _rawInputBuffer.length())
+				{
+					unsigned char next = static_cast<unsigned char>(_rawInputBuffer[i+1]);
+					if ((next & 0xC0) == 0x80)
+					{
+						_isUtf8 = true;
+						_isEncodingDecided = true;
+					}
+					else
+					{
+						_isUtf8 = false;
+						_isEncodingDecided = true;
+					}
+				}
+				else
+				{
+					// 数据不够，等待下次 append
+					break;
+				}
+			}
+			else if ((c & 0xF0) == 0xE0) // 3-byte
+			{
+				if (i + 2 < _rawInputBuffer.length())
+				{
+					unsigned char next1 = static_cast<unsigned char>(_rawInputBuffer[i+1]);
+					unsigned char next2 = static_cast<unsigned char>(_rawInputBuffer[i+2]);
+					if ((next1 & 0xC0) == 0x80 && (next2 & 0xC0) == 0x80)
+					{
+						_isUtf8 = true;
+						_isEncodingDecided = true;
+					}
+					else
+					{
+						_isUtf8 = false;
+						_isEncodingDecided = true;
+					}
+				}
+				else
+				{
+					// 数据不够，等待下次 append
+					break;
+				}
+			}
+			else if ((c & 0xF8) == 0xF0) // 4-byte
+			{
+				if (i + 3 < _rawInputBuffer.length())
+				{
+					unsigned char next1 = static_cast<unsigned char>(_rawInputBuffer[i+1]);
+					unsigned char next2 = static_cast<unsigned char>(_rawInputBuffer[i+2]);
+					unsigned char next3 = static_cast<unsigned char>(_rawInputBuffer[i+3]);
+					if ((next1 & 0xC0) == 0x80 && (next2 & 0xC0) == 0x80 && (next3 & 0xC0) == 0x80)
+					{
+						_isUtf8 = true;
+						_isEncodingDecided = true;
+					}
+					else
+					{
+						_isUtf8 = false;
+						_isEncodingDecided = true;
+					}
+				}
+				else
+				{
+					// 数据不够，等待下次 append
+					break;
+				}
+			}
+			else
+			{
+				// 非法的 UTF-8 起始字节（比如 10xxxxxx 或者 11111xxx），必然是 local
+				_isUtf8 = false;
+				_isEncodingDecided = true;
+			}
+		}
+		
+		// 判断当前字符长度
+		size_t charLen = 1;
+		if (c <= 0x7F)
+		{
+			charLen = 1; // ASCII
+		}
+		else if (_isEncodingDecided)
+		{
+			if (_isUtf8)
+			{
+				if ((c & 0xE0) == 0xC0) charLen = 2;
+				else if ((c & 0xF0) == 0xE0) charLen = 3;
+				else if ((c & 0xF8) == 0xF0) charLen = 4;
+				else charLen = 1; // 容错：非法字节当单字节处理
+			}
+			else // local (MBCS, e.g. GBK)
+			{
+				// 对于本地 MBCS 编码，大于 0x7F 的字节通常是前导字节，占用 2 字节
+				// 此处使用 IsDBCSLeadByte 确保在当前 Windows locale 下的准确性
+				if (IsDBCSLeadByte(c))
+					charLen = 2;
+				else
+					charLen = 1; // 有些单字节扩展字符或非法字节
+			}
+		}
+		else
+		{
+			// c > 0x7F 但没决定编码（上面 break 了，说明数据不够），跳出等待
+			break;
+		}
+		
+		// 检查是否有足够的字节构成完整的字符
+		if (i + charLen > _rawInputBuffer.length())
+		{
+			break; // 不完整，保留在缓冲区
+		}
+		
+		// 如果确定了是 local，且当前处理的是非 ASCII
+		if (_isEncodingDecided && !_isUtf8 && c > 0x7F)
+		{
+			// 取出这个多字节序列并转换
+			std::string mbcsChar = _rawInputBuffer.substr(i, charLen);
+			processStr += local_to_utf8(mbcsChar);
+		}
+		else
+		{
+			// UTF-8 或 ASCII，直接追加
+			processStr.append(_rawInputBuffer, i, charLen);
+		}
+		
+		i += charLen;
+	}
+	
+	// 从 buffer 中移除已处理的部分
+	_rawInputBuffer.erase(0, i);
+	
+	if (!processStr.empty())
+	{
+		_ProcessUtf8Data(processStr);
+	}
+}
+
+bool CChatTask_CLI::COutputBuffer::Fetch(std::string &output)
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	if (_incrementalBuffer.empty())
+		return false;
+		
+	output = _incrementalBuffer;
+	_incrementalBuffer.clear();
+	return true;
+}
+
+void CChatTask_CLI::COutputBuffer::Finish()
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	
+	// 处理剩余的 raw buffer
+	if (!_rawInputBuffer.empty())
+	{
+		std::string processStr;
+		if (!_isEncodingDecided)
+		{
+			// 如果到最后也没决定编码，尝试判断（此时可能只有很少或残缺字节）
+			_isUtf8 = Utils::is_valid_utf8(_rawInputBuffer);
+			_isEncodingDecided = true;
+		}
+		
+		if (_isUtf8)
+		{
+			processStr = _rawInputBuffer; // 已经是最后了，不管完整与否，直接加入
+		}
+		else
+		{
+			processStr = local_to_utf8(_rawInputBuffer);
+		}
+		_rawInputBuffer.clear();
+		_ProcessUtf8Data(processStr);
+	}
+	
+	// 修正 _tailBuffer 到精确的 _tailLimit 并保持 UTF-8 完整性
+	if (_tailBuffer.length() > _tailLimit)
+	{
+		size_t excess = _tailBuffer.length() - _tailLimit;
+		// 寻找 excess 之后第一个合法的 UTF-8 起始字符
+		while (excess < _tailBuffer.length() && (_tailBuffer[excess] & 0xC0) == 0x80)
+		{
+			excess++;
+		}
+		_tailBuffer.erase(0, excess);
+	}
+	
+	// 如果发生了截断
+	if (_totalUtf8BytesProcessed > _headLimit + _tailBuffer.length())
+	{
+		size_t actualOmitted = _totalUtf8BytesProcessed - _headLimit - _tailBuffer.length();
+		std::string omitMsg = "\n\n... (" + std::to_string(actualOmitted) + " bytes truncated) ...\n\n";
+		
+		_incrementalBuffer += omitMsg;
+		_incrementalBuffer += _tailBuffer;
+	}
+	else if (!_tailBuffer.empty())
+	{
+		// 如果没有截断，但有 tail（例如刚好长度等于 limit+tail 甚至更小），
+		// 这里在 _ProcessUtf8Data 中其实 _incrementalBuffer 已经输出了
+		// 但由于我们在 ProcessUtf8Data 里如果超出 headLimit 就把后续的直接放入了 _tailBuffer，
+		// 所以即使没有省略，如果总长度大于 headLimit，超出的部分并未发给 UI，
+		// 这里要把它们补上。
+		if (_totalUtf8BytesProcessed > _headLimit)
+		{
+			_incrementalBuffer += _tailBuffer;
+		}
+	}
+}
+
+std::string CChatTask_CLI::COutputBuffer::GetFullResult() const
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	if (_totalUtf8BytesProcessed > _headLimit + _tailBuffer.length())
+	{
+		size_t actualOmitted = _totalUtf8BytesProcessed - _headLimit - _tailBuffer.length();
+		std::string omitMsg = "\n\n... (" + std::to_string(actualOmitted) + " bytes truncated) ...\n\n";
+		return _headBuffer + omitMsg + _tailBuffer;
+	}
+	return _headBuffer + _tailBuffer; // 如果未超出 headLimit，_tailBuffer 是空的
+}
+
 void CChatTask_CLI::_ThreadFunc()
 {
 	// 获取命令参数
@@ -216,25 +544,10 @@ void CChatTask_CLI::_ThreadFunc()
 		_toolCall.GetStringParam("workingDir", workingDir);
 	}
 
-	// 获取超时时间（可选，默认30秒）
-	int timeout = 30000;
-	if (_toolCall.ExistParam("timeout"))
-	{
-		_toolCall.GetIntParam("timeout", timeout);
-		if (timeout < 1000)
-			timeout = 1000; // 最小1秒
-		else if (timeout > 300000)
-			timeout = 300000; // 最大5分钟
-	}
-
 	// 检查是否被中断
 	if (_shouldStop)
 	{
-		std::lock_guard<std::mutex> lock(_resultMutex);
-		_threadResult = "Task interrupted";
-		_threadMessage = "";
-		_threadSuccess = false;
-		_threadFinished = true;
+		_SetThreadResult("Task interrupted", "", false);
 		return;
 	}
 
@@ -348,6 +661,9 @@ void CChatTask_CLI::_ThreadFunc()
 			_SetThreadResult("Error: cmd.exe does not support multi-line commands", "", false);
 			return;
 		}
+
+		//可能需要加上 /u,使输出unicode字符,避免某些cmd命令(比如dir)无法正确在英文windows上输出中文时出现"???"的问题
+		//需要同时在COutputBuffer里添加检测unicode编码的逻辑
 		cmdLine = "cmd.exe /c " + command;
 	}
 	char* pCmdLine = &cmdLine[0];
@@ -437,7 +753,11 @@ void CChatTask_CLI::_ThreadFunc()
 				DeleteFileW(tempFilePath.c_str());
 			}
 			
-			_SetThreadResult("Task interrupted", "", false);
+			// 处理最终输出和截断（中断时也需要输出已有内容）
+			_outputBuffer.Finish();
+			std::string fullResult = _outputBuffer.GetFullResult();
+			
+			_SetThreadResult(fullResult, "", false);
 			return;
 		}
 
@@ -480,15 +800,8 @@ void CChatTask_CLI::_ThreadFunc()
 		// 有数据可读
 		if (ReadFile(hReadPipe, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0)
 		{
-			buffer[bytesRead] = '\0';
-			
-			// 将增量输出添加到队列
-			{
-				std::lock_guard<std::mutex> lock(_outputMutex);
-				_outputChunks.push_back(std::string(buffer, bytesRead));
-			}
-			
-			output.append(buffer, bytesRead);
+			// 使用 _outputBuffer 处理增量和截断
+			_outputBuffer.Append(buffer, bytesRead);
 			
 			// 更新最后输出时间戳
 			_lastOutputTime = GetAbsTick();
@@ -542,17 +855,10 @@ void CChatTask_CLI::_ThreadFunc()
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 
-	// 处理输出编码：尝试判断编码并转换为 UTF-8
-	extern std::string local_to_utf8(const std::string& ansi_str);
+	// 处理最终输出和截断
+	_outputBuffer.Finish();
 	
-	if (!output.empty())
-	{
-		if (!Utils::is_valid_utf8(output))
-		{
-			// 不是有效的 UTF-8，假设是本地编码 (GBK)，转换为 UTF-8
-			output = local_to_utf8(output);
-		}
-	}
+	std::string fullResult = _outputBuffer.GetFullResult();
 
 	// 构建返回结果
 	std::string resultStr;
@@ -560,13 +866,13 @@ void CChatTask_CLI::_ThreadFunc()
 
 	if (exitCode == 0)
 	{
-		resultStr = output;
+		resultStr = fullResult;
 		messageStr = "Successfully executed command: \"" + command + "\"";
 		_threadSuccess = true;
 	}
 	else
 	{
-		resultStr = "Command failed with exit code " + std::to_string(exitCode) + "\nOutput:\n" + output;
+		resultStr = "Command failed with exit code " + std::to_string(exitCode) + "\nOutput:\n" + fullResult;
 		messageStr = "Command failed: \"" + command + "\" (exit code: " + std::to_string(exitCode) + ")";
 		_threadSuccess = false;
 	}
@@ -578,10 +884,7 @@ void CChatTask_CLI::_ThreadFunc()
 	}
 
 	// 保存结果
-	std::lock_guard<std::mutex> lock(_resultMutex);
-	_threadResult = resultStr;
-	_threadMessage = messageStr;
-	_threadFinished = true;
+	_SetThreadResult(resultStr, messageStr, _threadSuccess);
 }
 
 void CChatTask_CLI::Start()
@@ -600,6 +903,20 @@ void CChatTask_CLI::Start()
 	_lastOutputTime = 0;
 	_inputAreaShown = false;
 	_executionStarted = false;
+	
+	_outputBuffer.Reset();
+
+	// 解析maxOutput参数（可选，默认8000）
+	if (_toolCall.ExistParam("maxOutput"))
+	{
+		int maxOutput = 16000;
+		_toolCall.GetIntParam("maxOutput", maxOutput);
+		if (maxOutput < 100)
+			maxOutput = 100; // 最小100
+		else if (maxOutput > 1000000)
+			maxOutput = 1000000; // 最大100万
+		_outputBuffer.SetHeadLimit(static_cast<size_t>(maxOutput));
+	}
 
 	// 检查是否有 pending 参数
 	g_cliWhitelist.UpdateReload();
@@ -709,6 +1026,13 @@ void CChatTask_CLI::Update()
 			// 等待线程结束并清理
 			_CleanupWorkerThread();
 			
+			// 把可能的残余界面输出先发送出来
+			std::string chunksToProcess;
+			if (_outputBuffer.Fetch(chunksToProcess) && !chunksToProcess.empty())
+			{
+				_AppendOutputToDisplay(chunksToProcess);
+			}
+			
 			// 获取之前的输出结果，构建最终结果
 			std::string previousResult = _GetThreadResult();
 			std::string finalResult = previousResult.empty() 
@@ -740,32 +1064,12 @@ void CChatTask_CLI::Update()
 	if (_context && _context->chatOpsCtrl && _context->chatAgent)
 	{
 		std::string chunksToProcess;
-		
-		// 从队列中取出所有待处理的输出块并合并
-		{
-			std::lock_guard<std::mutex> lock(_outputMutex);
-			if (!_outputChunks.empty())
-			{
-				for (const auto& s : _outputChunks) chunksToProcess += s;
-				_outputChunks.clear();
-			}
-
-			// 完整性处理：将不完整的尾部移到_outputChunks保留
-			if (!chunksToProcess.empty())
-			{
-				std::string tail;
-				Utils::make_complete_utf8(chunksToProcess, tail);
-				if (!tail.empty())
-					_outputChunks.push_back(std::move(tail));
-			}
-		}
-		
+		_outputBuffer.Fetch(chunksToProcess);
 		
 		// 处理增量输出（现在chunksToProcess为完整的UTF-8字符串或为空）
 		if (!chunksToProcess.empty())
 		{
-			std::wstring messageId = _context->chatAgent->GetCurrentAIMessageId();
-			_context->chatOpsCtrl->AppendOutputToLastCliDisplay(messageId, chunksToProcess);
+			_AppendOutputToDisplay(chunksToProcess);
 
 			// 收到新输出，如果输入框已显示，则隐藏它
 			if (_inputAreaShown)
@@ -794,6 +1098,13 @@ void CChatTask_CLI::Update()
 	// 检查线程是否完成
 	if (_threadFinished)
 	{
+		// 确保将最后可能的剩余输出刷新到界面
+		std::string chunksToProcess;
+		if (_outputBuffer.Fetch(chunksToProcess) && !chunksToProcess.empty())
+		{
+			_AppendOutputToDisplay(chunksToProcess);
+		}
+
 		// 等待线程结束并清理
 		_CleanupWorkerThread();
 
@@ -820,6 +1131,9 @@ void CChatTask_CLI::Interrupt()
 	// 终止进程并清理句柄
 	_TerminateProcessAndCleanupHandles();
 
+	// 清理工作线程
+	_CleanupWorkerThread();
+
 	// 设置为 None 状态
 	if (_context && _context->chatUi && !_cliId.empty())
 	{
@@ -827,9 +1141,6 @@ void CChatTask_CLI::Interrupt()
 	}
 
 	_CompleteCliAndCleanup(-1);
-
-	// 清理工作线程
-	_CleanupWorkerThread();
 
 	_status = TaskStatus::Failure;
 }
