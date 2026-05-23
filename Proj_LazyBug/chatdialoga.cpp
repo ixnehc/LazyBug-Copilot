@@ -1318,7 +1318,7 @@ void CChatDialogA::UpdateSettingMenuButton()
 int CChatDialogA::_OnCheckCompress()
 {
 
-	int balance = 15000;
+	int balance = 100;
 	float compressRatio = 1.7f;
 
 	if (balance <= 0 || compressRatio <= 1.0f)

@@ -231,6 +231,7 @@ void CChatOpsCompress::_SyncBackToOps()
 		dstOp.currentCompressionLevel = static_cast<int>(workOp.currentLevel);
 		dstOp.compressedContents = workOp.compressedContents;
 	}
+	_opsCtrl->_ver++;
 }
 
 int CChatOpsCompress::_EstimateOpTokens(const ChatOp& op) const

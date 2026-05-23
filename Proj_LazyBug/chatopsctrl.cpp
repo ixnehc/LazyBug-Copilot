@@ -1150,6 +1150,7 @@ void CChatOpsCtrl::_SetSessionCostDisplay(const std::string& costText, const std
 // 从操作记录还原内容
 void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 {
+	int newOpIndex = _ops.size();
 	switch (op.type)
 	{
 	case ChatOp::Op_AddUserMessage:
@@ -1271,6 +1272,15 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 	default:
 		// 未知操作类型，跳过
 		break;
+	}
+
+	if (newOpIndex + 1 == _ops.size())
+	{
+		if (_ops[newOpIndex].type == op.type)
+		{
+			_ops[newOpIndex].compressedContents = op.compressedContents;
+			_ops[newOpIndex].currentCompressionLevel = op.currentCompressionLevel;
+		}
 	}
 }
 
