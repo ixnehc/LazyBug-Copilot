@@ -15,11 +15,9 @@ struct ChatOp;
 enum class ChatOpCompressIntensity
 {
 	None,
-	Lowest,
 	Low,
 	Medium,
 	High,
-	Highest,
 };
 
 class CChatOpsCompress
@@ -39,8 +37,6 @@ public:
 	{
 		State_Idle,         // 空闲
 		State_Compressing,  // 正在压缩
-		State_Finished,     // 压缩完成
-		State_Failed        // 压缩失败
 	};
 
 	// 工作 Op 结构：与 CChatOpsCtrl 中的 Op 一一对应
@@ -72,8 +68,12 @@ public:
 	void SetTokenCalibrate(float v)	{		_tokenCalibrate = v;	}
 
 	// 压缩强度
-	void SetIntensity(ChatOpCompressIntensity intensity) { _intensity = intensity; }
+	void SetIntensity(ChatOpCompressIntensity intensity);
 	ChatOpCompressIntensity GetIntensity() const { return _intensity; }
+
+	// 从注册表读写当前 API 对应的压缩强度
+	static ChatOpCompressIntensity LoadIntensityForCurrentApi();
+	static void SaveIntensityForCurrentApi(ChatOpCompressIntensity intensity);
 
 	// 发起压缩请求，传入要减少的 token 数
 	void StartCompress(int reduceTokenCount);
@@ -84,7 +84,6 @@ public:
 	// 获取当前状态
 	State GetState() const { return _state; }
 	bool IsCompressing() const { return _state == State_Compressing; }
-	bool IsFinished() const { return _state == State_Finished; }
 
 	// 取消压缩
 	void Cancel();

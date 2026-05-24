@@ -6,6 +6,34 @@
 #include "Utils_Context.h"
 #include "ChatInputTag.h"
 #include "LlmTools.h"
+#include "LlmLib.h"
+#include "Registry/Registry.h"
+
+extern CLlmLib g_llmLib;
+extern CCurrentUserRegistry g_reg;
+
+
+//////////////////////////////////////////////////////////////////////////
+// CChatOpsCompress - static functions
+
+ChatOpCompressIntensity CChatOpsCompress::LoadIntensityForCurrentApi()
+{
+	std::string apiName = g_llmLib.GetMajorChatApi();
+	if (apiName.empty())
+		return ChatOpCompressIntensity::Low;
+
+	int value = g_reg.ReadInt("CompressIntensities", apiName.c_str(), static_cast<int>(ChatOpCompressIntensity::None));
+	return static_cast<ChatOpCompressIntensity>(value);
+}
+
+void CChatOpsCompress::SaveIntensityForCurrentApi(ChatOpCompressIntensity intensity)
+{
+	std::string apiName = g_llmLib.GetMajorChatApi();
+	if (apiName.empty())
+		return;
+
+	g_reg.WriteInt("CompressIntensities", apiName.c_str(), static_cast<int>(intensity));
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,7 +94,7 @@ void CChatOpsCompress::StartCompress(int reduceTokenCount)
 {
 	if (!_opsCtrl || reduceTokenCount <= 0)
 	{
-		_state = State_Failed;
+		_state = State_Idle;
 		return;
 	}
 
@@ -81,7 +109,7 @@ void CChatOpsCompress::StartCompress(int reduceTokenCount)
 	// 检查是否有可压缩的内容
 	if (_workingOps.empty())
 	{
-		_state = State_Finished;
+		_state = State_Idle;
 		return;
 	}
 }
@@ -116,13 +144,13 @@ void CChatOpsCompress::Update()
 	{
 		// 同步回原数组
 		_SyncBackToOps();
-		_state = State_Finished;
+		_state = State_Idle;
 	}
 }
 
 void CChatOpsCompress::Cancel()
 {
-	if (_state == State_Idle || _state == State_Finished)
+	if (_state == State_Idle )
 		return;
 
 	_state = State_Idle;
@@ -138,6 +166,7 @@ void CChatOpsCompress::DecompressAll()
 	{
 		op.currentCompressionLevel = 0;
 	}
+	_opsCtrl->_ver++;
 	_state = State_Idle;
 }
 
@@ -149,36 +178,21 @@ void CChatOpsCompress::_BuildWorkingOps()
 	if (!_opsCtrl || _opsCtrl->_ops.empty())
 		return;
 
-	// 获取当前 Session 的起始索引
-	int currentSessionBegin = _opsCtrl->_GetLastNotDisabledSessionBegin();
-	if (currentSessionBegin < 0)
-		currentSessionBegin = static_cast<int>(_opsCtrl->_ops.size());
+	// 获取 disable 边界，忽略 disabled 的 op
+	int disableAfterIndex = _opsCtrl->_GetDisableAfterIndex();
 
 	// 计算每个 Op 的 sessionAge
-	// 遍历找出所有 session 边界
-	std::vector<int> sessionBoundaries; // 每个 session 的起始索引
-	for (int i = 0; i < static_cast<int>(_opsCtrl->_ops.size()); i++)
+	// 基于 Op_EndSession 划分：最后一个 EndSession 之前的 op age=1，倒数第二 age=2，以此类推
+	std::vector<int> endSessionIndices; // 所有 Op_EndSession 的索引（忽略 disabled）
+	for (int i = 0; i < disableAfterIndex; i++)
 	{
-		if (_opsCtrl->_ops[i].type == ChatOp::Op_BeginSession)
-			sessionBoundaries.push_back(i);
+		if (_opsCtrl->_ops[i].type == ChatOp::Op_EndSession)
+			endSessionIndices.push_back(i);
 	}
 
-	// 为每个 Op 分配 sessionAge
-	int sessionCount = static_cast<int>(sessionBoundaries.size());
-	int currentSessionIndex = sessionCount - 1; // 最后一个 session 的索引
-
-	for (int i = 0; i < static_cast<int>(sessionBoundaries.size()); i++)
-	{
-		if (sessionBoundaries[i] >= currentSessionBegin)
-		{
-			currentSessionIndex = i;
-			break;
-		}
-	}
-
-	// 构建工作数组
-	_workingOps.reserve(_opsCtrl->_ops.size());
-	for (int i = 0; i < static_cast<int>(_opsCtrl->_ops.size()); i++)
+	// 构建工作数组（忽略 disabled 的 op）
+	_workingOps.reserve(disableAfterIndex);
+	for (int i = 0; i < disableAfterIndex; i++)
 	{
 		const ChatOp& srcOp = _opsCtrl->_ops[i];
 
@@ -189,21 +203,18 @@ void CChatOpsCompress::_BuildWorkingOps()
 		workOp.currentLevel = static_cast<CompressLevel>(srcOp.currentCompressionLevel);
 		workOp.compressedContents = srcOp.compressedContents;
 
-		// 计算 sessionAge
-		int opSessionIndex = -1;
-		for (int j = static_cast<int>(sessionBoundaries.size()) - 1; j >= 0; j--)
+		// 计算 sessionAge：基于 Op_EndSession
+		// 最后一个 EndSession 之前的 op age=1，倒数第二 age=2，以此类推
+		int endCount = static_cast<int>(endSessionIndices.size());
+		int age = 0; // 默认值：在所有 EndSession 之后（当前进行中的 session）
+		for (int j = endCount - 1; j >= 0; j--)
 		{
-			if (i >= sessionBoundaries[j])
+			if (i <= endSessionIndices[j])
 			{
-				opSessionIndex = j;
-				break;
+				age = endCount - j; // 倒数第 (endCount-j) 个 EndSession
 			}
 		}
-
-		if (opSessionIndex >= 0)
-			workOp.sessionAge = currentSessionIndex - opSessionIndex;
-		else
-			workOp.sessionAge = 999; // 不在任何 session 中，设为很大
+		workOp.sessionAge = age;
 
 		// 解析 ToolCall 类型
 		if (srcOp.type == ChatOp::Op_AddToolCallResult)
@@ -221,10 +232,15 @@ void CChatOpsCompress::_BuildWorkingOps()
 
 void CChatOpsCompress::_SyncBackToOps()
 {
-	if (!_opsCtrl || _workingOps.size() != _opsCtrl->_ops.size())
+	if (!_opsCtrl)
 		return;
 
-	for (size_t i = 0; i < _workingOps.size(); i++)
+	// 获取 disable 边界，只同步未被 disabled 的 op
+	int disableAfterIndex = _opsCtrl->_GetDisableAfterIndex();
+	if (static_cast<int>(_workingOps.size()) != disableAfterIndex)
+		return;
+
+	for (int i = 0; i < disableAfterIndex; i++)
 	{
 		ChatOp& dstOp = _opsCtrl->_ops[i];
 		const Op& workOp = _workingOps[i];
@@ -842,18 +858,32 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	if (pass == currentPassIndex) { expr; return; } \
 	currentPassIndex++;
 
-	_PASS( _Pass_RemoveFailureFileEdit(0, 999) )     // 删除失败的 File Edit（所有 session）
-	_PASS( _Pass_RemoveFailureCMD(0, 999) )          // 删除失败或空的 CLI（所有 session）
-	_PASS( _Pass_RemoveCoveredLines(0, 999) )        // 删除被后续 ReadFile 覆盖的行（sessionAge >= 1）
-//	_PASS( _Pass_RemoveIrrelavantSearchResult(1, 999) ) // 删除不相关的搜索结果（sessionAge >= 1）
-	_PASS( _Pass_ClearThinking(1, 999) )             // 清除思考过程（sessionAge >= 1）
-//	_PASS( _Pass_TruncateSearchResults(1, 999) )     // 截断搜索结果（sessionAge >= 1）
-	_PASS( _Pass_RemoveSearchOps(3, 999) )            // 清除搜索操作（sessionAge >= 3）
-	_PASS(_Pass_RemoveFindSymbol(3, 999))            // 清除搜索操作（sessionAge >= 3）
-	_PASS( _Pass_TruncateCmdResults(3, 999) )        // 截断命令结果（sessionAge >= 1）
-	_PASS( _Pass_RemoveSearchOps(2, 999) )            // 清除搜索操作（sessionAge >= 3）
-	_PASS(_Pass_RemoveFindSymbol(2, 999))            // 清除搜索操作（sessionAge >= 3）
-	_PASS( _Pass_TruncateCmdResults(2, 999) )        // 截断命令结果（sessionAge >= 1）
+	_PASS(_Pass_RemoveFailureFileEdit(0, 999));
+	_PASS(_Pass_RemoveFailureCMD(0, 999));
+	_PASS(_Pass_RemoveCoveredLines(0, 999));
+
+	_PASS(_Pass_ClearThinking(1, 999));
+
+	_PASS(_Pass_TruncateCmdResults(3, 999));
+	_PASS(_Pass_TruncateFindSymbol(3, 999));
+	_PASS(_Pass_TruncateFindInFiles(3, 999));
+	_PASS(_Pass_TruncateReadFile(3, 999));
+
+	_PASS(_Pass_TruncateCmdResults(2, 999));
+	_PASS(_Pass_TruncateFindSymbol(2, 999));
+	_PASS(_Pass_TruncateFindInFiles(2, 999));
+	_PASS(_Pass_TruncateReadFile(2, 999));
+
+	_PASS(_Pass_RemoveFindSymbol(3, 999));
+	_PASS(_Pass_RemoveSearchOps(3, 999));
+
+	_PASS(_Pass_TruncateCmdResults(1, 999));
+	_PASS(_Pass_TruncateFindSymbol(1, 999));
+	_PASS(_Pass_TruncateFindInFiles(1, 999));
+	_PASS(_Pass_TruncateReadFile(1, 999));
+
+	_PASS(_Pass_RemoveSearchOps(2, 999));
+	_PASS(_Pass_RemoveFindSymbol(2, 999));
 
 
 #undef _PASS
@@ -874,7 +904,6 @@ bool CChatOpsCompress::TryTrigger()
 
 	switch (_intensity)
 	{
-	case ChatOpCompressIntensity::Lowest:
 	case ChatOpCompressIntensity::Low:
 		balance = 50000;
 		ratio = 1.7f;
@@ -884,7 +913,6 @@ bool CChatOpsCompress::TryTrigger()
 		ratio = 1.7f;
 		break;
 	case ChatOpCompressIntensity::High:
-	case ChatOpCompressIntensity::Highest:
 		balance = 5000;
 		ratio = 1.7f;
 		break;
@@ -895,6 +923,9 @@ bool CChatOpsCompress::TryTrigger()
 	if (balance <= 0 || ratio <= 1.0f)
 		return false;
 
+	if (_tokenCalibrate <= 0.0f)
+		return false;
+
 	int currentTokens = _opsCtrl->GetEstimateTokens()*_tokenCalibrate;
 	int threshold = static_cast<int>(balance * ratio);
 
@@ -903,10 +934,23 @@ bool CChatOpsCompress::TryTrigger()
 
 	int targetTokens = static_cast<int>(balance / ratio);
 	int reduceTokens = currentTokens - targetTokens;
+	reduceTokens = (int)(((float)reduceTokens) / _tokenCalibrate);
 
 	if (reduceTokens <= 0)
 		return false;
 
 	StartCompress(reduceTokens);
 	return true;
+}
+
+
+void CChatOpsCompress::SetIntensity(ChatOpCompressIntensity intensity)
+{
+	if (_intensity == intensity)
+		return;
+	_intensity = intensity;
+	DecompressAll();
+	TryTrigger();
+	Update();//立即更新一次
+
 }

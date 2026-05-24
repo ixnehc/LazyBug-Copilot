@@ -23,6 +23,8 @@
 
 #include "LlmLib.h"
 
+#include "ChatOpsCompress.h"
+
 #include "nlohmann/json.hpp"
 
 #include "ChatTask_ResolveSymbolLinks.h"
@@ -248,6 +250,11 @@ BOOL CChatDialogA::OnInitDialog()
 	// 设置Skill按钮点击回调
 	_chatInput.SetSkillButtonClickedCallback([this](const RECT& btnRect) {
 		_HandleSkillButtonClicked(btnRect);
+	});
+
+	// 设置压缩强度改变回调
+	_chatInput.SetCompressIntensityChangedCallback([this](int intensity) {
+		CChatOpsCompress::SaveIntensityForCurrentApi(static_cast<ChatOpCompressIntensity>(intensity));
 	});
 
 	// 创建Skills弹出窗口
@@ -1228,6 +1235,14 @@ void CChatDialogA::_UpdateContextUsage()
 	// 更新统计（检测变化）
 	_tokenStats.Update();
 
+	ChatOpCompressIntensity intensity = CChatOpsCompress::LoadIntensityForCurrentApi();
+
+	if (!_agent.IsWorking())
+	{
+		_agent.GetCompressor().SetTokenCalibrate(_tokenStats.GetCalibrationFactor());
+		_agent.GetCompressor().SetIntensity(intensity);
+	}
+
 	// 获取当前使用的API名称
 	std::string currentApiName = g_llmLib.GetMajorChatApi();
 
@@ -1235,30 +1250,59 @@ void CChatDialogA::_UpdateContextUsage()
 	if ((!_tokenStats.HasAnyChanged()) && (currentApiName == _apiNameOfContextUsage))
 		return;
 
-	// 获取总 Token 数
-	int totalTokens = _tokenStats.GetCalibratedTokens();
+	if (!_chatInput.IsReady())
+		return;
 
-	// 格式化 token 数量显示
-	std::wstring sizeText;
-	const int K = 1024;
-	const int M = K*K;
+	// 更新压缩强度
+	if (currentApiName != _apiNameOfContextUsage)
+	{
+		// 映射: None->0, Lowest/Low->1, Medium->2, High/Highest->3
+		int jsIntensity = 0;
+		switch (intensity)
+		{
+		case ChatOpCompressIntensity::None:
+			jsIntensity = 0;
+			break;
+		case ChatOpCompressIntensity::Low:
+			jsIntensity = 1;
+			break;
+		case ChatOpCompressIntensity::Medium:
+			jsIntensity = 2;
+			break;
+		case ChatOpCompressIntensity::High:
+			jsIntensity = 3;
+			break;
+		}
+		_chatInput.SetCompressIntensity(jsIntensity);
+	}
 
-	if (totalTokens < 10*K) {
-		// < 1k: xxxB
-		sizeText = std::to_wstring(totalTokens) + L" B";
+	if (true)
+	{
+		// 获取总 Token 数
+		int totalTokens = _tokenStats.GetCalibratedTokens();
+
+		// 格式化 token 数量显示
+		std::wstring sizeText;
+		const int K = 1024;
+		const int M = K * K;
+
+		if (totalTokens < 10 * K) {
+			// < 1k: xxxB
+			sizeText = std::to_wstring(totalTokens) + L" Tokens";
+		}
+		else if (totalTokens < M) {
+			// < 1m: xxxK
+			sizeText = std::to_wstring(totalTokens / K) + L" kT";
+		}
+		else {
+			// > 1m: x.xxM
+			double mValue = static_cast<double>(totalTokens) / M;
+			wchar_t buf[32];
+			swprintf_s(buf, L"%.2f mT", mValue);
+			sizeText = buf;
+		}
+		_chatInput.SetCompressedSize(sizeText);
 	}
-	else if (totalTokens < M) {
-		// < 1m: xxxK
-		sizeText = std::to_wstring(totalTokens / K) + L" K";
-	}
-	else {
-		// > 1m: x.xxM
-		double mValue = static_cast<double>(totalTokens) / M;
-		wchar_t buf[32];
-		swprintf_s(buf, L"%.2f M", mValue);
-		sizeText = buf;
-	}
-	_chatInput.SetCompressedSize(sizeText);
 
 	_apiNameOfContextUsage = currentApiName;
 }

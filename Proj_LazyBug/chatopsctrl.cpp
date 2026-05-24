@@ -13,6 +13,8 @@
 #include "utils_image.h"
 #include "Utils_Context.h"
 
+#include "chatopscompress.h"
+
 // JSON 库
 #include "nlohmann/json.hpp"
 
@@ -2580,6 +2582,9 @@ bool CChatOpsCtrl::MakeSessionRequest(LlmSessionRequest& request, int fileAttach
 	{
 		const ChatOp& op = _ops[i];
 
+		if (op.currentCompressionLevel == CChatOpsCompress::Level_Remove)
+			continue;
+
 		switch (op.type)
 		{
 		case ChatOp::Op_FileAttaches:
@@ -2857,6 +2862,8 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex)
 	{
 		const ChatOp& op = _ops[i];
 		std::string effectiveContent = _GetEffectiveOpContent(op);
+		if (op.currentCompressionLevel == CChatOpsCompress::Level_Remove)
+			continue;
 
 		switch (op.type)
 		{
@@ -2915,3 +2922,4 @@ int CChatOpsCtrl::GetEstimateTokens()
 
 	return _estimateTokensCache;
 }
+

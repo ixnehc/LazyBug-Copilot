@@ -198,6 +198,8 @@ public:
 	void SetTitle(const std::wstring& title) { _opsCtrl.SetTitle(title); }
 	const std::vector<ChatOp>& GetOps() const { return _opsCtrl.GetOps(); }
 
+	CChatOpsCompress& GetCompressor()	{		return _compressor;	}
+
 private:
     // ─────────────────────────────────────────────────────────────────────
     //  内部流程

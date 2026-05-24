@@ -153,6 +153,9 @@
     <Filter Include="GUI\ChatDialog\ChatSettingMenu">
       <UniqueIdentifier>{e3b1db4f-5d67-4f37-b4f1-f21d18cd3c8f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ChatDialog\ChatNotify">
+      <UniqueIdentifier>{d8483330-5e68-4bbf-ac9d-350495a4a8b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBugPlugInControls.cpp">
@@ -502,6 +505,12 @@
     </ClCompile>
     <ClCompile Include="..\Proj_LazyBug\ChatOpsCompress.cpp">
       <Filter>Core\ChatAgent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatNotify.cpp">
+      <Filter>GUI\ChatDialog\ChatNotify</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TokenCalibrate.cpp">
+      <Filter>GUI\ChatDialog</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -916,6 +925,12 @@
     </ClInclude>
     <ClInclude Include="..\Proj_LazyBug\ChatOpsCompress.h">
       <Filter>Core\ChatAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatNotify.h">
+      <Filter>GUI\ChatDialog\ChatNotify</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TokenCalibrate.h">
+      <Filter>GUI\ChatDialog</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

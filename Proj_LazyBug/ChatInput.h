@@ -49,6 +49,8 @@ public:
     // 创建WebView2控件
     BOOL Create(const RECT& rect, CWnd* pParentWnd, UINT nID);
 
+	bool IsReady()	{		return _IsReady();	}
+
 	void Update();
     
     // 导航方法

@@ -163,7 +163,7 @@
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;_USRDLL;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;LazyBugPlugInControls_EXPORT;VS_EXTENSION;GUILIB_IGNORE_IMPORT;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include</AdditionalIncludeDirectories>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -351,6 +351,7 @@
     <ClCompile Include="..\Proj_LazyBug\ChatInputTag.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatInputTagMenuWindow.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatLlmMenu.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatNotify.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatOpsCompress.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatOpsCtrl.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatSettingMenu.cpp" />
@@ -440,6 +441,7 @@
     <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp" />
     <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp" />
     <ClCompile Include="..\Proj_LazyBug\SymbolRefsCache.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TokenCalibrate.cpp" />
     <ClCompile Include="..\Proj_LazyBug\TreeSitterFiles.cpp" />
     <ClCompile Include="..\Proj_LazyBug\UnifiedDiff.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils.cpp" />
@@ -551,6 +553,7 @@
     <ClInclude Include="..\Proj_LazyBug\ChatInputTag.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatInputTagMenuWindow.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatLlmMenu.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatNotify.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatOpsCompress.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatOpsCtrl.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatSettingMenu.h" />
@@ -642,6 +645,7 @@
     <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h" />
     <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h" />
     <ClInclude Include="..\Proj_LazyBug\SymbolRefsCache.h" />
+    <ClInclude Include="..\Proj_LazyBug\TokenCalibrate.h" />
     <ClInclude Include="..\Proj_LazyBug\TreeSitterFiles.h" />
     <ClInclude Include="..\Proj_LazyBug\UnifiedDiff.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils.h" />
