@@ -460,7 +460,11 @@ void CChatOpsCtrl::AddStreamingAIMessage(const std::wstring& messageId, const st
 		{
 			if (lastOp->messageId == messageId)
 			{
+				size_t oldChunk = lastOp->contentUtf8.size() / 256;
 				lastOp->contentUtf8 += incrementalContentUtf8;
+				size_t newChunk = lastOp->contentUtf8.size() / 256;
+				if (newChunk != oldChunk)
+					_ver++;
 				break;
 			}
 		}
@@ -500,7 +504,11 @@ void CChatOpsCtrl::AddStreamingAIMessage_Thinking(const std::wstring& messageId,
 		{
 			if (lastOp->messageId == messageId)
 			{
+				size_t oldChunk = lastOp->contentUtf8.size() / 256;
 				lastOp->contentUtf8 += incrementalContentUtf8;
+				size_t newChunk = lastOp->contentUtf8.size() / 256;
+				if (newChunk != oldChunk)
+					_ver++;
 				break;
 			}
 		}

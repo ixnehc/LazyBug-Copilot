@@ -28,27 +28,30 @@ static std::string _MakeSimplifiedCode(const std::string& codeContent)
 	}
 	
 	// 如果行数不超过10行，直接返回原内容
-	if (lines.size() <= 10)
+	if (lines.size() <= 15)
 		return codeContent;
 	
 	// 构建简化版本：头3行 + 省略提示 + 尾3行
 	std::string result;
-	size_t omittedCount = lines.size() - 6;
+	size_t omittedCount = lines.size() - 12;
 	
-	for (size_t i = 0; i < 3; ++i)
+	for (size_t i = 0; i < 6; ++i)
 	{
 		result += lines[i] + "\n";
 	}
 	result += "...";
 	result += std::to_string(omittedCount);
 	result += " lines omitted...\n";
-	for (size_t i = lines.size() - 3; i < lines.size(); ++i)
+	for (size_t i = lines.size() - 6; i < lines.size(); ++i)
 	{
 		result += lines[i] + "\n";
 	}
 	
 	return result;
 }
+
+
+
 
 CChatTask_FindSymbolDefine::CChatTask_FindSymbolDefine()
 {
@@ -210,7 +213,7 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 				resultStr += defHeader;
 				resultStrSimple += defHeader;
 				
-				// 尝试读取定义处的代码内容
+			// 尝试读取定义处的代码内容
 				std::string codeContent;
 				Utils::FileContentCodingFormat codingFmt;
 				int start = loc.lineRange.start-10;
@@ -222,9 +225,18 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 					resultStr += "Code:\n";
 					resultStr += codeContent;
 					resultStr += "\n";
-					
+				}
+				
+			// 简化版：只读取前后各1行
+				std::string codeContentSimple;
+				int startSimple = loc.lineRange.start - 1;
+				int endSimple = loc.lineRange.end + 1 + 1;
+				if (startSimple < 0)
+					startSimple = 0;
+				if (Utils::GetFilePartIntoUTF8(loc.filePath.c_str(), startSimple, endSimple, codeContentSimple, codingFmt))
+				{
 					resultStrSimple += "Code:\n";
-					resultStrSimple += _MakeSimplifiedCode(codeContent);
+					resultStrSimple += _MakeSimplifiedCode(codeContentSimple);
 					resultStrSimple += "\n";
 				}
 				

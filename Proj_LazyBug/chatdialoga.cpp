@@ -1284,21 +1284,24 @@ void CChatDialogA::_UpdateContextUsage()
 		// 格式化 token 数量显示
 		std::wstring sizeText;
 		const int K = 1024;
-		const int M = K * K;
+		const int M = K*K;
 
-		if (totalTokens < 10 * K) {
+		if (totalTokens < K) {
 			// < 1k: xxxB
 			sizeText = std::to_wstring(totalTokens) + L" Tokens";
 		}
 		else if (totalTokens < M) {
-			// < 1m: xxxK
-			sizeText = std::to_wstring(totalTokens / K) + L" kT";
+			// < 1m: xx.xxK
+			double kValue = static_cast<double>(totalTokens) / K;
+			wchar_t buf[32];
+			swprintf_s(buf, L"%.2f kTokens", kValue);
+			sizeText = buf;
 		}
 		else {
-			// > 1m: x.xxM
+			// >= 1m: x.xxM
 			double mValue = static_cast<double>(totalTokens) / M;
 			wchar_t buf[32];
-			swprintf_s(buf, L"%.2f mT", mValue);
+			swprintf_s(buf, L"%.2f mTokens", mValue);
 			sizeText = buf;
 		}
 		_chatInput.SetCompressedSize(sizeText);

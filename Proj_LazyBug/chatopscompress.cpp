@@ -715,37 +715,15 @@ void CChatOpsCompress::_Pass_ClearThinking(int startSessionAge, int endSessionAg
 
 void CChatOpsCompress::_Pass_TruncateCmdResults(int startSessionAge, int endSessionAge)
 {
-	constexpr int MAX_LINES = 100;
-
-	for (auto& op : _workingOps)
-	{
-		if (_reducedTokens >= _reduceTokenCount)
-			return;
-
-		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
-			continue;
-
-		if (op.type != ChatOp::Op_AddToolCallResult)
-			continue;
-
-		if (op.toolType != LlmToolType::CLI_Cmd &&
-			op.toolType != LlmToolType::CLI_Bash &&
-			op.toolType != LlmToolType::CLI_RunScript)
-			continue;
-
-		if (op.currentLevel != Level_None)
-			continue;
-
-		std::string truncated = _TruncateCmdResult(op.originalContent, MAX_LINES);
-
-		if (truncated != op.originalContent)
-		{
-			_ApplyCompressToOp(op, Level_Partial, truncated);
-		}
-	}
+	std::vector<LlmToolType> cliTypes = {
+		LlmToolType::CLI_Cmd,
+		LlmToolType::CLI_Bash,
+		LlmToolType::CLI_RunScript
+	};
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, cliTypes);
 }
 
-void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, LlmToolType toolType)
+void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes)
 {
 	for (auto& op : _workingOps)
 	{
@@ -758,7 +736,17 @@ void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int end
 		if (op.type != ChatOp::Op_AddToolCallResult)
 			continue;
 
-		if (op.toolType != toolType)
+		// 检查是否匹配任一 toolType
+		bool matched = false;
+		for (LlmToolType toolType : toolTypes)
+		{
+			if (op.toolType == toolType)
+			{
+				matched = true;
+				break;
+			}
+		}
+		if (!matched)
 			continue;
 
 		if (op.currentLevel != Level_None)
@@ -779,17 +767,17 @@ void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int end
 
 void CChatOpsCompress::_Pass_TruncateFindSymbol(int startSessionAge, int endSessionAge)
 {
-	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, LlmToolType::FindSymbolDefine);
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::FindSymbolDefine });
 }
 
 void CChatOpsCompress::_Pass_TruncateReadFile(int startSessionAge, int endSessionAge)
 {
-	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, LlmToolType::ReadFile);
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::ReadFile });
 }
 
 void CChatOpsCompress::_Pass_TruncateFindInFiles(int startSessionAge, int endSessionAge)
 {
-	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, LlmToolType::FindInFiles);
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::FindInFiles });
 }
 
 
@@ -877,13 +865,16 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_RemoveFindSymbol(3, 999));
 	_PASS(_Pass_RemoveSearchOps(3, 999));
 
-	_PASS(_Pass_TruncateCmdResults(1, 999));
-	_PASS(_Pass_TruncateFindSymbol(1, 999));
-	_PASS(_Pass_TruncateFindInFiles(1, 999));
-	_PASS(_Pass_TruncateReadFile(1, 999));
+	if (_intensity >= ChatOpCompressIntensity::High)
+	{
+		_PASS(_Pass_TruncateCmdResults(1, 999));
+		_PASS(_Pass_TruncateFindSymbol(1, 999));
+		_PASS(_Pass_TruncateFindInFiles(1, 999));
+		_PASS(_Pass_TruncateReadFile(1, 999));
 
-	_PASS(_Pass_RemoveSearchOps(2, 999));
-	_PASS(_Pass_RemoveFindSymbol(2, 999));
+		_PASS(_Pass_RemoveSearchOps(2, 999));
+		_PASS(_Pass_RemoveFindSymbol(2, 999));
+	}
 
 
 #undef _PASS
@@ -910,11 +901,11 @@ bool CChatOpsCompress::TryTrigger()
 		break;
 	case ChatOpCompressIntensity::Medium:
 		balance = 20000;
-		ratio = 1.7f;
+		ratio = 1.5f;
 		break;
 	case ChatOpCompressIntensity::High:
-		balance = 5000;
-		ratio = 1.7f;
+		balance = 10000;
+		ratio = 1.5f;
 		break;
 	default:
 		return false;

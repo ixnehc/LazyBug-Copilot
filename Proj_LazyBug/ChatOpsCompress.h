@@ -118,7 +118,7 @@ private:
 	void _Pass_RemoveIrrelavantSearchResult(int startSessionAge, int endSessionAge);
 	void _Pass_ClearThinking(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateCmdResults(int startSessionAge, int endSessionAge);
-	void _Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, LlmToolType toolType);
+	void _Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
 	void _Pass_TruncateFindSymbol(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateReadFile(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateFindInFiles(int startSessionAge, int endSessionAge);

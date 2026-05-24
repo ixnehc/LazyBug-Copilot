@@ -21,21 +21,21 @@ static std::string _MakeSimplifiedCode(const std::string& codeContent)
 	}
 	
 	// 如果行数不超过8行，直接返回原内容
-	if (lines.size() <= 8)
+	if (lines.size() <= 15)
 		return codeContent;
 	
 	// 构建简化版本：头3行 + 省略提示 + 尾3行
 	std::string result;
-	size_t omittedCount = lines.size() - 6;
+	size_t omittedCount = lines.size() - 12;
 	
-	for (size_t i = 0; i < 3; ++i)
+	for (size_t i = 0; i < 6; ++i)
 	{
 		result += lines[i] + "\n";
 	}
 	result += "...";
 	result += std::to_string(omittedCount);
 	result += " lines omitted...\n";
-	for (size_t i = lines.size() - 3; i < lines.size(); ++i)
+	for (size_t i = lines.size() - 6; i < lines.size(); ++i)
 	{
 		result += lines[i] + "\n";
 	}

@@ -30,7 +30,7 @@ private:
 	// === 公用辅助方法 ===
 	
 	// 设置线程结果（线程安全）
-	void _SetThreadResult(const std::string& result, const std::string& message, bool success);
+	void _SetThreadResult(const std::string& result, const std::string& resultSimple, const std::string& message, bool success);
 	
 	// 获取线程结果（线程安全）
 	std::string _GetThreadResult();
@@ -93,11 +93,13 @@ private:
 	std::mutex _resultMutex;
 
 	std::string _threadResult;
+	std::string _threadResultSimple;
 	std::string _threadMessage;
 	bool _threadSuccess;
 	
 	// 输出缓冲区
 	COutputBuffer _outputBuffer;
+	COutputBuffer _outputBufferSimple;  // 简化版本，用于 partial 结果
 	
 	// 输入框显示控制
 	std::atomic<__int64> _lastOutputTime;  // 上次收到输出的时间戳（毫秒）
