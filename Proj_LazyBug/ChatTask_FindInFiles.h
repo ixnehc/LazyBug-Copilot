@@ -37,6 +37,7 @@ private:
 	std::mutex _resultMutex;
 
 	std::string _threadResult;
+	std::string _threadResultSimple;
 	std::string _threadMessage;
 	bool _threadSuccess;
 

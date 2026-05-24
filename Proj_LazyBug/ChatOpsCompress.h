@@ -12,6 +12,16 @@
 class CChatOpsCtrl;
 struct ChatOp;
 
+enum class ChatOpCompressIntensity
+{
+	None,
+	Lowest,
+	Low,
+	Medium,
+	High,
+	Highest,
+};
+
 class CChatOpsCompress
 {
 public:
@@ -20,7 +30,8 @@ public:
 	{
 		Level_None = 0,     // 无压缩
 		Level_Partial = 1,  // 部分压缩（截断/摘要）
-		Level_Full = 2      // 完全清除
+		Level_Full = 2,      // 完全清除
+		Level_Remove =3 //彻底删除这个op
 	};
 
 	// 压缩状态
@@ -54,6 +65,15 @@ public:
 	~CChatOpsCompress();
 
 	void Init(CChatOpsCtrl* opsCtrl);
+
+	int TestAAA();
+	bool TryTrigger();
+
+	void SetTokenCalibrate(float v)	{		_tokenCalibrate = v;	}
+
+	// 压缩强度
+	void SetIntensity(ChatOpCompressIntensity intensity) { _intensity = intensity; }
+	ChatOpCompressIntensity GetIntensity() const { return _intensity; }
 
 	// 发起压缩请求，传入要减少的 token 数
 	void StartCompress(int reduceTokenCount);
@@ -98,12 +118,14 @@ private:
 	void _Pass_RemoveCoveredLines(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveIrrelavantSearchResult(int startSessionAge, int endSessionAge);
 	void _Pass_ClearThinking(int startSessionAge, int endSessionAge);
-	void _Pass_TruncateSearchResults(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateCmdResults(int startSessionAge, int endSessionAge);
-	void _Pass_ClearSearchOps(int startSessionAge, int endSessionAge);
-	void _Pass_ClearFindSymbol(int startSessionAge, int endSessionAge);
-	void _Pass_ClearToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
-	void _Pass_ClearToolCalls(int startSessionAge, int endSessionAge);
+	void _Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, LlmToolType toolType);
+	void _Pass_TruncateFindSymbol(int startSessionAge, int endSessionAge);
+	void _Pass_TruncateReadFile(int startSessionAge, int endSessionAge);
+	void _Pass_TruncateFindInFiles(int startSessionAge, int endSessionAge);
+	void _Pass_RemoveSearchOps(int startSessionAge, int endSessionAge);
+	void _Pass_RemoveFindSymbol(int startSessionAge, int endSessionAge);
+	void _Pass_RemoveToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
 	void _Pass_ClearMessages(int startSessionAge, int endSessionAge);
 
 	// Pass 总数
@@ -117,7 +139,8 @@ private:
 	CChatOpsCtrl* _opsCtrl = nullptr;
 	State _state = State_Idle;
 
-
+	ChatOpCompressIntensity _intensity = ChatOpCompressIntensity::Low;
+	float _tokenCalibrate=1.0f;
 
 	std::vector<Op> _workingOps;      // 工作 Op 数组
 	int _reduceTokenCount = 0;        // 目标减少的 token 数

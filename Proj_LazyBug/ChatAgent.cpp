@@ -343,12 +343,13 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 	_opsCtrl.AddUserMessage(widechar_to_utf8(content.c_str()));
 
 	// 检查是否需要 context 压缩
-	if (_notify)
-	{
-		int reduceToken = _notify->OnCheckCompress();
-		if (reduceToken > 0)
-			_compressor.StartCompress(reduceToken);
-	}
+// 	if (_notify)
+// 	{
+// 		int reduceToken = _notify->OnCheckCompress();
+// 		if (reduceToken > 0)
+// 			_compressor.StartCompress(reduceToken);
+// 	}
+	_compressor.TryTrigger();
 
 	if (_compressor.IsCompressing())
 	{

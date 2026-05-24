@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "ChatDialogA.h"
 #include "ChatInputTag.h"
 //#include "WndBase.h"

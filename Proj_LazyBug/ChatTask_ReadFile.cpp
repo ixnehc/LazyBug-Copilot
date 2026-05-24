@@ -8,6 +8,41 @@
 
 #include <sstream>
 
+// 辅助函数：生成简化版代码内容（只保留头尾各3行）
+static std::string _MakeSimplifiedCode(const std::string& codeContent)
+{
+	// 按行分割
+	std::vector<std::string> lines;
+	std::istringstream iss(codeContent);
+	std::string line;
+	while (std::getline(iss, line))
+	{
+		lines.push_back(line);
+	}
+	
+	// 如果行数不超过8行，直接返回原内容
+	if (lines.size() <= 8)
+		return codeContent;
+	
+	// 构建简化版本：头3行 + 省略提示 + 尾3行
+	std::string result;
+	size_t omittedCount = lines.size() - 6;
+	
+	for (size_t i = 0; i < 3; ++i)
+	{
+		result += lines[i] + "\n";
+	}
+	result += "...";
+	result += std::to_string(omittedCount);
+	result += " lines omitted...\n";
+	for (size_t i = lines.size() - 3; i < lines.size(); ++i)
+	{
+		result += lines[i] + "\n";
+	}
+	
+	return result;
+}
+
 CChatTask_ReadFile::CChatTask_ReadFile()
 {
 	_workerThread = nullptr;
@@ -133,6 +168,7 @@ void CChatTask_ReadFile::_ThreadFunc()
 	
 	// 构建返回结果
 	std::string resultStr;
+	std::string resultStrSimple;
 	std::string messageStr;
 	
 	// 构建行号范围描述
@@ -147,6 +183,7 @@ void CChatTask_ReadFile::_ThreadFunc()
 	if (!readSuccess)
 	{
 		resultStr = "Error: Failed to read file: '" + filePath + "'";
+		resultStrSimple = resultStr;
 		messageStr = "Failed to read file: \"" + filePath + "\"" + lineRangeStr;
 	}
 	else
@@ -154,11 +191,13 @@ void CChatTask_ReadFile::_ThreadFunc()
 		if (fileContent.empty())
 		{
 			resultStr = "File is empty: '" + filePath + "'";
+			resultStrSimple = resultStr;
 			messageStr = "Read empty file: \"" + filePath + "\"" + lineRangeStr;
 		}
 		else
 		{
 			resultStr = fileContent;
+			resultStrSimple = _MakeSimplifiedCode(fileContent);
 			messageStr = "Successfully read file: \"" + filePath + "\"" + lineRangeStr;
 		}
 	}
@@ -166,6 +205,7 @@ void CChatTask_ReadFile::_ThreadFunc()
 	// 保存结果
 	std::lock_guard<std::mutex> lock(_resultMutex);
 	_threadResult = resultStr;
+	_threadResultSimple = resultStrSimple;
 	_threadMessage = messageStr;
 	_threadSuccess = readSuccess;
 	_threadFinished = true;
@@ -180,6 +220,7 @@ void CChatTask_ReadFile::Start()
 	_threadFinished = false;
 	_threadSuccess = false;
 	_threadResult.clear();
+	_threadResultSimple.clear();
 	_threadMessage.clear();
 	
 	// 启动工作线程
@@ -203,7 +244,7 @@ void CChatTask_ReadFile::Update()
 		// 获取结果并发送
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
-			_SendToolCallResult(_threadResult.c_str());
+			_SendToolCallResult(_threadResult.c_str(), _threadResultSimple.c_str());
 			_SendToolCallMessage(_threadMessage.c_str());
 		}
 		

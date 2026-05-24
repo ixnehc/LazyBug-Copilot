@@ -15,6 +15,41 @@
 
 extern const char* GetOpenedDBFolderPath_utf8();
 
+// 辅助函数：生成简化版代码内容（只保留头尾各3行）
+static std::string _MakeSimplifiedCode(const std::string& codeContent)
+{
+	// 按行分割
+	std::vector<std::string> lines;
+	std::istringstream iss(codeContent);
+	std::string line;
+	while (std::getline(iss, line))
+	{
+		lines.push_back(line);
+	}
+	
+	// 如果行数不超过10行，直接返回原内容
+	if (lines.size() <= 10)
+		return codeContent;
+	
+	// 构建简化版本：头3行 + 省略提示 + 尾3行
+	std::string result;
+	size_t omittedCount = lines.size() - 6;
+	
+	for (size_t i = 0; i < 3; ++i)
+	{
+		result += lines[i] + "\n";
+	}
+	result += "...";
+	result += std::to_string(omittedCount);
+	result += " lines omitted...\n";
+	for (size_t i = lines.size() - 3; i < lines.size(); ++i)
+	{
+		result += lines[i] + "\n";
+	}
+	
+	return result;
+}
+
 CChatTask_FindSymbolDefine::CChatTask_FindSymbolDefine()
 {
 	_workerThread = nullptr;
@@ -85,6 +120,7 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 	
 	// 构建返回结果
 	std::string resultStr;
+	std::string resultStrSimple;
 	std::string messageStr;
 	int totalFound = 0;
 	bool hasAnySuccess = false;
@@ -112,18 +148,21 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 		// 检查结果
 		if (result.locations.empty())
 		{
+			std::string notFoundMsg;
 			if (symbolList.size() > 1)
 			{
-				resultStr += "Symbol '";
-				resultStr += symbolNameOrg;
-				resultStr += "': No definitions found\n\n";
+				notFoundMsg = "Symbol '";
+				notFoundMsg += symbolNameOrg;
+				notFoundMsg += "': No definitions found\n\n";
 			}
 			else
 			{
-				resultStr = "No definitions found for symbol: '";
-				resultStr += symbolNameOrg;
-				resultStr += "'";
+				notFoundMsg = "No definitions found for symbol: '";
+				notFoundMsg += symbolNameOrg;
+				notFoundMsg += "'";
 			}
+			resultStr += notFoundMsg;
+			resultStrSimple += notFoundMsg;
 			
 			if (!messageStr.empty())
 				messageStr += "\n";
@@ -138,33 +177,38 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 			
 			if (symbolList.size() > 1)
 			{
-				resultStr += "========================================\n";
-				resultStr += "Symbol: ";
-				resultStr += symbolNameOrg;
-				resultStr += "\n";
-				resultStr += "========================================\n";
+				std::string symbolHeader = "========================================\nSymbol: ";
+				symbolHeader += symbolNameOrg;
+				symbolHeader += "\n========================================\n";
+				resultStr += symbolHeader;
+				resultStrSimple += symbolHeader;
 			}
 			
-			resultStr += "Found ";
-			resultStr += std::to_string(result.locations.size());
-			resultStr += " definition(s) for symbol: '";
-			resultStr += symbolNameOrg;
-			resultStr += "'\n\n";
+			{
+				std::string foundMsg = "Found ";
+				foundMsg += std::to_string(result.locations.size());
+				foundMsg += " definition(s) for symbol: '";
+				foundMsg += symbolNameOrg;
+				foundMsg += "'\n\n";
+				resultStr += foundMsg;
+				resultStrSimple += foundMsg;
+			}
 			
 			for (size_t i = 0; i < result.locations.size(); ++i)
 			{
 				const auto& loc = result.locations[i];
-				resultStr += "Definition #";
-				resultStr += std::to_string(i + 1);
-				resultStr += ":\n";
-				resultStr += "File: ";
-				resultStr += loc.filePath.c_str();
-				resultStr += "\n";
-				resultStr += "Line Range: ";
-				resultStr += std::to_string(loc.lineRange.start);
-				resultStr += "~";
-				resultStr += std::to_string(loc.lineRange.end + 1);
-				resultStr += "\n";
+				
+				std::string defHeader = "Definition #";
+				defHeader += std::to_string(i + 1);
+				defHeader += ":\nFile: ";
+				defHeader += loc.filePath.c_str();
+				defHeader += "\nLine Range: ";
+				defHeader += std::to_string(loc.lineRange.start);
+				defHeader += "~";
+				defHeader += std::to_string(loc.lineRange.end + 1);
+				defHeader += "\n";
+				resultStr += defHeader;
+				resultStrSimple += defHeader;
 				
 				// 尝试读取定义处的代码内容
 				std::string codeContent;
@@ -178,10 +222,17 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 					resultStr += "Code:\n";
 					resultStr += codeContent;
 					resultStr += "\n";
+					
+					resultStrSimple += "Code:\n";
+					resultStrSimple += _MakeSimplifiedCode(codeContent);
+					resultStrSimple += "\n";
 				}
 				
 				if (i < result.locations.size() - 1)
+				{
 					resultStr += "\n";
+					resultStrSimple += "\n";
+				}
 			}
 			
 			if (!messageStr.empty())
@@ -191,13 +242,17 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 			messageStr += "\"";
 			
 			if (s < symbolList.size() - 1)
+			{
 				resultStr += "\n\n";
+				resultStrSimple += "\n\n";
+			}
 		}
 	}
 	
 	// 保存结果
 	std::lock_guard<std::mutex> lock(_resultMutex);
 	_threadResult = resultStr;
+	_threadResultSimple = resultStrSimple;
 	_threadSuccess = true;
 	_threadMessage = messageStr;
 	_threadFinished = true;
@@ -212,6 +267,7 @@ void CChatTask_FindSymbolDefine::Start()
 	_threadFinished = false;
 	_threadSuccess = false;
 	_threadResult.clear();
+	_threadResultSimple.clear();
 
 	_dbFolderPath = GetOpenedDBFolderPath_utf8();
 	
@@ -236,7 +292,7 @@ void CChatTask_FindSymbolDefine::Update()
 		// 获取结果并发送
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
-			_SendToolCallResult(_threadResult.c_str());
+			_SendToolCallResult(_threadResult.c_str(), _threadResultSimple.c_str());
 			_SendToolCallMessage(_threadMessage.c_str());
 		}
 		

@@ -32,5 +32,8 @@ extern void BuildFindInFilesErrorJson(nlohmann::json& json, const char* errorMes
 // Dump formatted text from JSON
 extern void DumpFindInFileResultsFromJson(nlohmann::json& json, std::string& outText);
 
+// Dump simplified text from JSON (only line numbers, no line content)
+extern void DumpFindInFileSimpleResultsFromJson(nlohmann::json& json, std::string& outText);
+
 
 }

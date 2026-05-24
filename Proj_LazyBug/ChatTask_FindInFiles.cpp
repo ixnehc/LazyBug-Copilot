@@ -308,7 +308,7 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	// 保存结果
 	std::lock_guard<std::mutex> lock(_resultMutex);
 	Utils::DumpFindInFileResultsFromJson(resultJson, _threadResult);
-//	 _threadResult= resultJson.dump();
+	Utils::DumpFindInFileSimpleResultsFromJson(resultJson, _threadResultSimple);
 	_threadSuccess = true;
 	_threadFinished = true;
 }
@@ -322,6 +322,7 @@ void CChatTask_FindInFiles::Start()
 	_threadFinished = false;
 	_threadSuccess = false;
 	_threadResult.clear();
+	_threadResultSimple.clear();
 
 	_dbFolderPath = GetOpenedDBFolderPath_utf8();
 
@@ -358,7 +359,7 @@ void CChatTask_FindInFiles::Update()
 		// 获取结果并发送
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
-			_SendToolCallResult(_threadResult.c_str());
+			_SendToolCallResult(_threadResult.c_str(), _threadResultSimple.c_str());
 			_SendToolCallMessage(_threadMessage.c_str());
 		}
 		

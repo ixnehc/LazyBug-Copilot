@@ -137,17 +137,22 @@ bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::stri
 	return false;
 }
 
-void CChatTask::_SendToolCallResult(const char *result)
+void CChatTask::_SendToolCallResult(const char *result, const char* resultPartial)
 {
 	if (!_toolCall.IsValid())
 		return;
 
 	std::string jsonString = g_llmTools.MakeToolCallResultString(_toolCall,result);
+	std::string jsonStringPartial;
+	if (resultPartial != nullptr && resultPartial[0] != '\0')
+	{
+		jsonStringPartial = g_llmTools.MakeToolCallResultString(_toolCall, resultPartial);
+	}
 	
 	// 优先使用 chatOpsCtrl
 	if (_context->chatOpsCtrl)
 	{
-		_context->chatOpsCtrl->AddToolCallResult(jsonString);
+		_context->chatOpsCtrl->AddToolCallResult(jsonString, jsonStringPartial);
 	}
 	
 	// 优先使用 chatAgent

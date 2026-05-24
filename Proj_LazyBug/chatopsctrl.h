@@ -207,7 +207,7 @@ public:
 
     // ── ToolCall Result ───────────────────────────────────────────────────
 
-    void AddToolCallResult(const std::string& jsonString);
+    void AddToolCallResult(const std::string& jsonString, const std::string& jsonStringPartial = "");
 	void AddInterjectToLastToolCallResult(const std::string& interject);
 
     // ── User Interject ───────────────────────────────────────────────────

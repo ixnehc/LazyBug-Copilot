@@ -554,4 +554,76 @@ void DumpFindInFileResultsFromJson(nlohmann::json& j, std::string& outText)
 	}
 }
 
+void DumpFindInFileSimpleResultsFromJson(nlohmann::json& j, std::string& outText)
+{
+	outText.clear();
+
+	// Check for error
+	if (j.contains("error") && !j["error"].is_null())
+	{
+		outText = j["error"].get<std::string>();
+		return;
+	}
+
+	// Check for results
+	if (!j.contains("results") || !j["results"].is_array())
+	{
+		return;
+	}
+
+	const auto& results = j["results"];
+
+	for (size_t i = 0; i < results.size(); ++i)
+	{
+		const auto& resultItem = results[i];
+
+		// Add separator between keywords
+		if (i > 0)
+		{
+			outText += "\n";
+		}
+
+		// Add keyword header
+		std::string keyword = resultItem.value("keyword", "");
+		int totalMatches = resultItem.value("totalMatches", 0);
+		int totalFiles = resultItem.value("totalFiles", 0);
+
+		// Check if there are files
+		if (!resultItem.contains("files") || !resultItem["files"].is_array() || resultItem["files"].empty())
+		{
+			outText += "No results found for keyword: \"";
+			outText += keyword;
+			outText += "\"\n";
+			continue;
+		}
+
+		// Summary header
+		outText += "=====================\n";
+		outText += "Search Keyword: " + keyword + "\n";
+		outText += "Matched Files: " + std::to_string(totalFiles) + "\n";
+		outText += "Matched Lines: " + std::to_string(totalMatches) + "\n";
+		outText += "=====================\n\n";
+
+		// List files and line numbers only
+		for (const auto& fileItem : resultItem["files"])
+		{
+			std::string filePath = fileItem.value("filePath", "");
+			outText += "File: " + filePath + "\n";
+			outText += "Lines: ";
+
+			if (fileItem.contains("lines") && fileItem["lines"].is_array())
+			{
+				const auto& lines = fileItem["lines"];
+				for (size_t k = 0; k < lines.size(); ++k)
+				{
+					if (k > 0)
+						outText += ", ";
+					outText += std::to_string(lines[k].value("lineNumber", 0));
+				}
+			}
+			outText += "\n\n";
+		}
+	}
+}
+
 }

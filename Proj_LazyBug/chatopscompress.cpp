@@ -50,6 +50,7 @@ int CChatOpsCompress::Op::GetCurrentTokens() const
 
 CChatOpsCompress::CChatOpsCompress()
 {
+	_intensity = ChatOpCompressIntensity::None;
 }
 
 CChatOpsCompress::~CChatOpsCompress()
@@ -696,11 +697,6 @@ void CChatOpsCompress::_Pass_ClearThinking(int startSessionAge, int endSessionAg
 	}
 }
 
-void CChatOpsCompress::_Pass_TruncateSearchResults(int startSessionAge, int endSessionAge)
-{
-	// TODO: 截断搜索结果
-}
-
 void CChatOpsCompress::_Pass_TruncateCmdResults(int startSessionAge, int endSessionAge)
 {
 	constexpr int MAX_LINES = 100;
@@ -733,7 +729,56 @@ void CChatOpsCompress::_Pass_TruncateCmdResults(int startSessionAge, int endSess
 	}
 }
 
-void CChatOpsCompress::_Pass_ClearToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes)
+void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, LlmToolType toolType)
+{
+	for (auto& op : _workingOps)
+	{
+		if (_reducedTokens >= _reduceTokenCount)
+			return;
+
+		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
+			continue;
+
+		if (op.type != ChatOp::Op_AddToolCallResult)
+			continue;
+
+		if (op.toolType != toolType)
+			continue;
+
+		if (op.currentLevel != Level_None)
+			continue;
+
+		// 检查是否有预存的简化版内容 (level 1 = Level_Partial)
+		auto it = op.compressedContents.find(static_cast<int>(Level_Partial));
+		if (it == op.compressedContents.end())
+			continue;
+
+		const std::string& partialContent = it->second;
+		if (partialContent.empty() || partialContent == op.originalContent)
+			continue;
+
+		_ApplyCompressToOp(op, Level_Partial, partialContent);
+	}
+}
+
+void CChatOpsCompress::_Pass_TruncateFindSymbol(int startSessionAge, int endSessionAge)
+{
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, LlmToolType::FindSymbolDefine);
+}
+
+void CChatOpsCompress::_Pass_TruncateReadFile(int startSessionAge, int endSessionAge)
+{
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, LlmToolType::ReadFile);
+}
+
+void CChatOpsCompress::_Pass_TruncateFindInFiles(int startSessionAge, int endSessionAge)
+{
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, LlmToolType::FindInFiles);
+}
+
+
+
+void CChatOpsCompress::_Pass_RemoveToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes)
 {
 	if (toolTypes.empty())
 		return;
@@ -765,43 +810,22 @@ void CChatOpsCompress::_Pass_ClearToolCallResult(int startSessionAge, int endSes
 		if (op.currentLevel != Level_None)
 			continue;
 
-		_ApplyCompressToOp(op, Level_Full, "");
+		_ApplyCompressToOp(op, Level_Remove, "");
 	}
 }
 
-void CChatOpsCompress::_Pass_ClearSearchOps(int startSessionAge, int endSessionAge)
+void CChatOpsCompress::_Pass_RemoveSearchOps(int startSessionAge, int endSessionAge)
 {
 	std::vector<LlmToolType> toolTypes = { LlmToolType::FindInFiles, LlmToolType::SearchFile };
-	_Pass_ClearToolCallResult(startSessionAge, endSessionAge, toolTypes);
+	_Pass_RemoveToolCallResult(startSessionAge, endSessionAge, toolTypes);
 }
 
-void CChatOpsCompress::_Pass_ClearFindSymbol(int startSessionAge, int endSessionAge)
+void CChatOpsCompress::_Pass_RemoveFindSymbol(int startSessionAge, int endSessionAge)
 {
 	std::vector<LlmToolType> toolTypes = { LlmToolType::FindSymbolDefine };
-	_Pass_ClearToolCallResult(startSessionAge, endSessionAge, toolTypes);
+	_Pass_RemoveToolCallResult(startSessionAge, endSessionAge, toolTypes);
 }
 
-
-void CChatOpsCompress::_Pass_ClearToolCalls(int startSessionAge, int endSessionAge)
-{
-	// 清除所有 Op_AddToolCallResult 类型（不限 toolType）
-	for (auto& op : _workingOps)
-	{
-		if (_reducedTokens >= _reduceTokenCount)
-			return;
-
-		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
-			continue;
-
-		if (op.type != ChatOp::Op_AddToolCallResult)
-			continue;
-
-		if (op.currentLevel != Level_None)
-			continue;
-
-		_ApplyCompressToOp(op, Level_Full, "");
-	}
-}
 
 void CChatOpsCompress::_Pass_ClearMessages(int startSessionAge, int endSessionAge)
 {
@@ -824,15 +848,65 @@ void CChatOpsCompress::_ExecutePass(int pass)
 //	_PASS( _Pass_RemoveIrrelavantSearchResult(1, 999) ) // 删除不相关的搜索结果（sessionAge >= 1）
 	_PASS( _Pass_ClearThinking(1, 999) )             // 清除思考过程（sessionAge >= 1）
 //	_PASS( _Pass_TruncateSearchResults(1, 999) )     // 截断搜索结果（sessionAge >= 1）
-	_PASS( _Pass_ClearSearchOps(3, 999) )            // 清除搜索操作（sessionAge >= 3）
-	_PASS(_Pass_ClearFindSymbol(3, 999))            // 清除搜索操作（sessionAge >= 3）
+	_PASS( _Pass_RemoveSearchOps(3, 999) )            // 清除搜索操作（sessionAge >= 3）
+	_PASS(_Pass_RemoveFindSymbol(3, 999))            // 清除搜索操作（sessionAge >= 3）
 	_PASS( _Pass_TruncateCmdResults(3, 999) )        // 截断命令结果（sessionAge >= 1）
-	_PASS( _Pass_ClearSearchOps(2, 999) )            // 清除搜索操作（sessionAge >= 3）
-	_PASS(_Pass_ClearFindSymbol(2, 999))            // 清除搜索操作（sessionAge >= 3）
+	_PASS( _Pass_RemoveSearchOps(2, 999) )            // 清除搜索操作（sessionAge >= 3）
+	_PASS(_Pass_RemoveFindSymbol(2, 999))            // 清除搜索操作（sessionAge >= 3）
 	_PASS( _Pass_TruncateCmdResults(2, 999) )        // 截断命令结果（sessionAge >= 1）
 
-// 	_PASS( _Pass_ClearToolCalls(2, 999) )            // 清除工具调用（sessionAge >= 2）
-// 	_PASS( _Pass_ClearMessages(3, 999) )             // 清除消息（sessionAge >= 3）
 
 #undef _PASS
+}
+
+  
+bool CChatOpsCompress::TryTrigger() 
+{
+	if (!_opsCtrl || _intensity == ChatOpCompressIntensity::None)
+		return false;
+
+	if (_state != State_Idle)
+		return false;
+
+	// 根据 intensity 选择 balance 和 ratio
+	int balance = 0;
+	float ratio = 0.0f;
+
+	switch (_intensity)
+	{
+	case ChatOpCompressIntensity::Lowest:
+	case ChatOpCompressIntensity::Low:
+		balance = 50000;
+		ratio = 1.7f;
+		break;
+	case ChatOpCompressIntensity::Medium:
+		balance = 20000;
+		ratio = 1.7f;
+		break;
+	case ChatOpCompressIntensity::High:
+	case ChatOpCompressIntensity::Highest:
+		balance = 5000;
+		ratio = 1.7f;
+		break;
+	default:
+		return false;
+	}
+
+	if (balance <= 0 || ratio <= 1.0f)
+		return false;
+
+	int currentTokens = _opsCtrl->GetEstimateTokens()*_tokenCalibrate;
+	int threshold = static_cast<int>(balance * ratio);
+
+	if (currentTokens <= threshold)
+		return false;
+
+	int targetTokens = static_cast<int>(balance / ratio);
+	int reduceTokens = currentTokens - targetTokens;
+
+	if (reduceTokens <= 0)
+		return false;
+
+	StartCompress(reduceTokens);
+	return true;
 }
