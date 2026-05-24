@@ -1,4 +1,4 @@
-﻿#include "stdh.h"
+#include "stdh.h"
 #include "ChatDialogA.h"
 #include "ChatInputTag.h"
 //#include "WndBase.h"
@@ -167,7 +167,7 @@ BOOL CChatDialogA::OnInitDialog()
 	lf.lfWeight = FW_NORMAL;  // 正常粗细
 	lf.lfCharSet = DEFAULT_CHARSET;
 	_tcscpy(lf.lfFaceName, _T("微软雅黑"));
-	
+	  
 	_inputHistory.LoadFromRegistry(g_reg);
 	
 	// 初始化AI聊天
@@ -1232,45 +1232,37 @@ void CChatDialogA::_UpdateContextUsage()
 	std::string currentApiName = g_llmLib.GetMajorChatApi();
 
 	// 没有变化则直接返回
-	if ((!_tokenStats.HasAnyChanged())&&(currentApiName==_apiNameOfContextUsage))
+	if ((!_tokenStats.HasAnyChanged()) && (currentApiName == _apiNameOfContextUsage))
 		return;
 
 	// 获取总 Token 数
 	int totalTokens = _tokenStats.GetCalibratedTokens();
 
-	// 获取API的context capacity
-	int contextCapacity = 0;
-	const LlmApi* api = g_llmLib.GetApi(currentApiName);
-	if (api)
-	{
-		contextCapacity = api->contextCapacity;
-	}
-	
-	// 计算使用率进度 (0.0 - 1.0)
-	float progress = 0.0f;
-	if (contextCapacity > 0)
-	{
-		progress = static_cast<float>(totalTokens) / static_cast<float>(contextCapacity);
-		if (progress > 1.0f)
-			progress = 1.0f;
-	}
-	
-	// 格式化tooltip文本
-	char tooltip[256];
-	if (contextCapacity > 0)
-	{
-		snprintf(tooltip, sizeof(tooltip), "( %.1f%% )", progress * 100.0f);
-	}
-	else
-	{
-		snprintf(tooltip, sizeof(tooltip), "( %.1f%% )", 100.0f);
-	}
+	// 格式化 token 数量显示
+	std::wstring sizeText;
+	const int K = 1024;
+	const int M = K*K;
 
-	// 设置上下文使用率到chat input
-	_chatInput.SetContextUsage(progress, tooltip);
+	if (totalTokens < 10*K) {
+		// < 1k: xxxB
+		sizeText = std::to_wstring(totalTokens) + L" B";
+	}
+	else if (totalTokens < M) {
+		// < 1m: xxxK
+		sizeText = std::to_wstring(totalTokens / K) + L" K";
+	}
+	else {
+		// > 1m: x.xxM
+		double mValue = static_cast<double>(totalTokens) / M;
+		wchar_t buf[32];
+		swprintf_s(buf, L"%.2f M", mValue);
+		sizeText = buf;
+	}
+	_chatInput.SetCompressedSize(sizeText);
 
 	_apiNameOfContextUsage = currentApiName;
 }
+
 
 void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 {

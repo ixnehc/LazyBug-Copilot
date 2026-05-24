@@ -69,50 +69,106 @@
     opacity: 0;
 }
 
-/* Context Usage 进度条样式 */
-.context-usage-container {
+/* 压缩信息容器 */
+.compress-info-container {
     display: flex;
     align-items: center;
-    height: 100%;
-    margin-left: 0px;
-    margin-right: 6px;
-    position: relative;
-}
-
-.context-usage-bar {
-    width: 5px;
-    height: 20px;
-    background-color: var(--border-color);
-    border-radius: 2px;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    height: 28px;
     overflow: hidden;
+}
+
+/* 压缩强度按钮样式 */
+.compress-button {
+    background-color: #410e2a;
+    border: none;
+    color: var(--text-color);
+    width: 38px;
+    height: 100%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
     position: relative;
 }
 
-.context-usage-fill {
+.compress-button:hover:not(:disabled) {
+    background-color: #6b1b45;
+}
+
+.compress-button:active:not(:disabled) {
+    background-color: #2d0a1d;
+}
+
+.compress-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.compress-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-3px);
+}
+
+.compress-forbidden {
+    display: none;
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #238636;
-    transition: height 0.3s ease, background-color 0.3s ease;
-    border-radius: 2px;
+    right: 2px;
+    bottom: 2px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #ff4444;
+    min-width: 12px;
+    height: 12px;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
-.context-usage-fill.yellow {
-    background-color: #d29922;
+.compress-button.compress-none .compress-forbidden {
+    display: flex;
 }
 
-.context-usage-fill.red {
-    background-color: #da3633;
-}
-
-.context-usage-tooltip {
+.compress-level-badge {
     position: absolute;
-    left: 8px;
-    bottom: -2px;
+    right: 2px;
+    bottom: 2px;
     font-size: 9px;
+    font-weight: bold;
+    background-color: #000000;
+    color: white;
+    min-width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid #6e7681;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.compress-button.compress-none .compress-level-badge {
+    display: none;
+}
+
+/* 压缩后大小显示 */
+.compress-size {
+    font-size: 11px;
     color: var(--text-secondary);
-    opacity: 0.6;
-    white-space: nowrap;
-    pointer-events: none;
+    padding: 0 8px;
+    border-left: 1px solid var(--border-color);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    background-color: var(--toolbar-bg);
 }

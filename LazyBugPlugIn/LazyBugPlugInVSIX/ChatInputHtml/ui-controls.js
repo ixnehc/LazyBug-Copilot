@@ -143,31 +143,64 @@ function updateMajorChatApiMenu(currentApi, apis) {
     }
 }
 
-// 设置Context Usage进度条
-function setContextUsage(progress, tooltip) {
-    const usageFill = document.getElementById('contextUsageFill');
-    const tooltipElement = document.getElementById('contextUsageTooltip');
+// 压缩强度枚举值映射 (对应 ChatOpCompressIntensity)
+const CompressIntensity = {
+    None: 0,
+    Low: 1,
+    Medium: 2,
+    High: 3
+};
+
+// 当前压缩强度
+let currentCompressIntensity = CompressIntensity.Low;
+
+// 设置压缩强度 (0-3, 对应 None, Low, Medium, High)
+function setCompressIntensity(intensity) {
+    const compressButton = document.getElementById('compressButton');
+    const levelBadge = document.getElementById('compressLevelBadge');
     
-    if (!usageFill) return;
+    if (!compressButton || !levelBadge) return;
     
-    let normalizedProgress = progress;
-    if (progress > 1) {
-        normalizedProgress = progress / 100.0;
+    currentCompressIntensity = intensity;
+    
+    // 更新按钮状态
+    if (intensity === CompressIntensity.None) {
+        compressButton.classList.add('compress-none');
+        compressButton.title = 'No compression';
+    } else {
+        compressButton.classList.remove('compress-none');
+        levelBadge.textContent = intensity;
+        const levelNames = ['No compression', 'Low Compression', 'Medium Compression', 'High Compression'];
+        compressButton.title = levelNames[intensity] || 'Low Compression';
     }
-    normalizedProgress = Math.max(0, Math.min(1, normalizedProgress));
+}
+
+// 获取下一个压缩强度 (循环切换)
+function getNextCompressIntensity() {
+    const values = [CompressIntensity.None, CompressIntensity.Low, 
+                    CompressIntensity.Medium, CompressIntensity.High];
+    const currentIndex = values.indexOf(currentCompressIntensity);
+    const nextIndex = (currentIndex + 1) % values.length;
+    return values[nextIndex];
+}
+
+// 处理压缩按钮点击
+function handleCompressButtonClick() {
+    const nextIntensity = getNextCompressIntensity();
+    setCompressIntensity(nextIntensity);
     
-    usageFill.style.height = (normalizedProgress * 100) + '%';
-    
-    usageFill.classList.remove('yellow', 'red');
-    
-    if (normalizedProgress > 2/3) {
-        usageFill.classList.add('red');
-    } else if (normalizedProgress > 1/3) {
-        usageFill.classList.add('yellow');
-    }
-    
-    if (tooltipElement && tooltip) {
-        tooltipElement.textContent = tooltip;
+    // 通知C++压缩强度已改变
+    sendMessageToNative({
+        action: 'compressIntensityChanged',
+        intensity: nextIntensity
+    });
+}
+
+// 设置压缩后大小显示 (如 "18K", "1.21M", "0B" 等)
+function setCompressedSize(sizeText) {
+    const sizeElement = document.getElementById('compressSize');
+    if (sizeElement) {
+        sizeElement.textContent = sizeText || '0B';
     }
 }
 
@@ -256,7 +289,9 @@ window.hideStopButton = hideStopButton;
 window.setPlaceholder = setPlaceholder;
 window.handleApiMenuButtonClick = handleApiMenuButtonClick;
 window.updateMajorChatApiMenu = updateMajorChatApiMenu;
-window.setContextUsage = setContextUsage;
+window.setCompressIntensity = setCompressIntensity;
+window.setCompressedSize = setCompressedSize;
+window.handleCompressButtonClick = handleCompressButtonClick;
 window.handleAtButtonClick = handleAtButtonClick;
 window.handleSendClick = handleSendClick;
 window.handleStopClick = handleStopClick;

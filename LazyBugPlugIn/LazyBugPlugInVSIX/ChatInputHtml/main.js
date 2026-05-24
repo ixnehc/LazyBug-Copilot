@@ -147,6 +147,12 @@ function initializeEventListeners() {
         apiMenuButton.addEventListener('click', handleApiMenuButtonClick);
     }
 
+    // 压缩强度按钮点击
+    const compressButton = document.getElementById('compressButton');
+    if (compressButton) {
+        compressButton.addEventListener('click', handleCompressButtonClick);
+    }
+
     // 监听来自C++的消息
     if (window.chrome && window.chrome.webview) {
         window.chrome.webview.addEventListener('message', handleNativeMessage);
@@ -171,9 +177,10 @@ document.addEventListener('DOMContentLoaded', function() {
     window.getSelectedText = getSelectedText;
     window.processAutoCompleteMessage = processAutoCompleteMessage;
     window.getCursorPosition = getCursorPosition;
-    window.replaceAutoCompleteWithTag = replaceAutoCompleteWithTag;
+    window.replaceAutoCompleteWithTag = replaceAutoCompleteTag;
     window.focusEditor = focusEditor;
-    window.setContextUsage = setContextUsage;
+    window.setCompressIntensity = setCompressIntensity;
+    window.setCompressedSize = setCompressedSize;
     
     // 初始化水印显示状态
     updateWatermarkVisibility();

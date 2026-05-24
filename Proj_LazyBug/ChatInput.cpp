@@ -36,6 +36,7 @@ CChatInput::CChatInput()
 	, _lastTimeForeground(0)
 	, _wasForeground(false)
 	, _requestGainFocus(false)
+	, _compressIntensityChangedCallback(nullptr)
 {
 }
 
@@ -491,6 +492,17 @@ HRESULT CChatInput::InitializeWebView()
 									_skillButtonClickedCallback(btnRect);
 								}
 							}
+							else if (action == "compressIntensityChanged")
+							{
+								if (jsonMsg.contains("intensity") && jsonMsg["intensity"].is_number())
+								{
+									int intensity = jsonMsg["intensity"].get<int>();
+									if (_compressIntensityChangedCallback)
+									{
+										_compressIntensityChangedCallback(intensity);
+									}
+								}
+							}
 						}
 						catch (const nlohmann::json::parse_error&)
 						{
@@ -673,6 +685,11 @@ void CChatInput::SetFilePastedCallback(InputFilePastedCallback callback)
 void CChatInput::SetSkillButtonClickedCallback(InputSkillButtonClickedCallback callback)
 {
 	_skillButtonClickedCallback = callback;
+}
+
+void CChatInput::SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback)
+{
+	_compressIntensityChangedCallback = callback;
 }
 
 // 调整WebView大小
@@ -1253,23 +1270,35 @@ void CChatInput::SetPlaceholder(const std::wstring& placeholder)
 	_PostWebMessageAsJson(jsonMessage);
 }
 
-// 设置上下文使用率进度条 (progress: 0.0-1.0 或 0-100, tooltip: 鼠标悬停提示文本)
-bool CChatInput::SetContextUsage(float progress, const char* tooltip)
+// 设置压缩强度 (0=None, 1=Low, 2=Medium, 3=High)
+bool CChatInput::SetCompressIntensity(int intensity)
 {
 	if (!_IsReady())
 		return false;
 
-	// 将 char* 转换为 wstring
-	std::wstring tooltipW = tooltip ? utf8_to_widechar(tooltip) : L"";
+	// 确保强度值在有效范围内
+	if (intensity < 0 || intensity > 3)
+		return false;
 
-	// 使用 EscapeJsonString 转义 tooltip
-	std::wstring escapedTooltip = EscapeJsonString(tooltipW);
-
-	std::wstring script = L"setContextUsage(" + std::to_wstring(progress) + L", \"" + escapedTooltip + L"\")";
+	std::wstring script = L"setCompressIntensity(" + std::to_wstring(intensity) + L")";
 	ExecuteScript(script);
 
 	return true;
 }
+
+// 设置压缩后大小显示 (如 "18K", "1.21M", "0B" 等)
+bool CChatInput::SetCompressedSize(const std::wstring& sizeText)
+{
+	if (!_IsReady())
+		return false;
+
+	std::wstring escapedSize = EscapeJsonString(sizeText);
+	std::wstring script = L"setCompressedSize(\"" + escapedSize + L"\")";
+	ExecuteScript(script);
+
+	return true;
+}
+
 
 //====================== 私有辅助方法实现 ======================
 

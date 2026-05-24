@@ -26,6 +26,7 @@ using InputEscapeCallback = std::function<void()>; // Esc键按下回调
 using InputReadyCallback = std::function<void()>; // WebView和Input准备就绪回调
 using InputFilePastedCallback = std::function<void(const std::wstring&)>; // 文件粘贴回调，参数为文件类型：L"files"或L"image"
 using InputSkillButtonClickedCallback = std::function<void(const RECT&)>; // Skill按钮点击回调，参数为按钮屏幕绝对坐标
+using InputCompressIntensityChangedCallback = std::function<void(int)>; // 压缩强度改变回调，参数为强度值(0-5)
 
 // 工具栏按钮结构
 struct ChatInputToolButton
@@ -72,6 +73,7 @@ public:
     void SetReadyCallback(InputReadyCallback callback);
     void SetFilePastedCallback(InputFilePastedCallback callback);
     void SetSkillButtonClickedCallback(InputSkillButtonClickedCallback callback);
+    void SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback);
     
     // 获取WebView2环境和核心WebView
     ICoreWebView2* GetCoreWebView2() { return _webView; }
@@ -174,8 +176,11 @@ public:
     // 设置占位符文字
     void SetPlaceholder(const std::wstring& placeholder);
 
-    // 设置上下文使用率进度条 (progress: 0.0-1.0 或 0-100, tooltip: 鼠标悬停提示文本)
-	bool SetContextUsage(float progress, const char* tooltip = "");
+    // 设置压缩强度 (0=None, 1=Low, 2=Medium, 3=High)
+    bool SetCompressIntensity(int intensity);
+
+    // 设置压缩后大小显示 (如 "18K", "1.21M", "0B" 等)
+    bool SetCompressedSize(const std::wstring& sizeText);
 
     // ===== MajorChat API 相关方法 =====
     
@@ -247,6 +252,7 @@ private:
     InputReadyCallback _readyCallback;
     InputFilePastedCallback _filePastedCallback;
     InputSkillButtonClickedCallback _skillButtonClickedCallback;
+    InputCompressIntensityChangedCallback _compressIntensityChangedCallback;
     
     // 脚本执行回调映射
     std::map<int, std::function<void(const std::wstring&)>> _scriptCallbacks;

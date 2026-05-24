@@ -579,7 +579,7 @@ bool GetFileContentIntoUTF8(const char* path, std::string& content, FileContentC
 // 带重试的文件移动，应对杀毒软件等短暂锁定目标文件导致 ACCESS_DENIED
 static bool MoveFileWithRetry(const char* tempPath, const char* targetPath)
 {
-	const int maxRetries = 5;
+	const int maxRetries = 100;
 	const int retryDelayMs = 50;
 
 	for (int i = 0; i < maxRetries; ++i)

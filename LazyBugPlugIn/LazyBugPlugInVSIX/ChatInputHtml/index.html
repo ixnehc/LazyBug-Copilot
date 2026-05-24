@@ -41,12 +41,14 @@
                     <span class="api-menu-text" id="apiMenuText">选择模型</span>
                     <span class="api-menu-arrow">▼</span>
                 </button>
-                <!-- Context Usage 进度条 -->
-                <div class="context-usage-container" id="contextUsageContainer">
-                    <div class="context-usage-bar" id="contextUsageBar">
-                        <div class="context-usage-fill" id="contextUsageFill"></div>
-                    </div>
-                    <span class="context-usage-tooltip" id="contextUsageTooltip"></span>
+                <!-- 压缩信息容器 -->
+                <div class="compress-info-container" id="compressInfoContainer">
+                    <button class="compress-button" id="compressButton" title="压缩强度">
+                        <span class="compress-icon" id="compressIcon">🗜</span>
+                        <span class="compress-level-badge" id="compressLevelBadge">2</span>
+                        <span class="compress-forbidden" id="compressForbidden">⛔</span>
+                    </button>
+                    <span class="compress-size" id="compressSize">0B</span>
                 </div>
                 <!-- 工具按钮将通过JavaScript动态添加 -->
             </div>
