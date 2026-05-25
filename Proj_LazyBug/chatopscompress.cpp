@@ -22,7 +22,7 @@ ChatOpCompressIntensity CChatOpsCompress::LoadIntensityForCurrentApi()
 	if (apiName.empty())
 		return ChatOpCompressIntensity::Low;
 
-	int value = g_reg.ReadInt("CompressIntensities", apiName.c_str(), static_cast<int>(ChatOpCompressIntensity::None));
+	int value = g_reg.ReadInt("CompressIntensities", apiName.c_str(), static_cast<int>(ChatOpCompressIntensity::High));
 	return static_cast<ChatOpCompressIntensity>(value);
 }
 
@@ -865,7 +865,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_RemoveFindSymbol(3, 999));
 	_PASS(_Pass_RemoveSearchOps(3, 999));
 
-	if (_intensity >= ChatOpCompressIntensity::High)
+	if (_intensity >= ChatOpCompressIntensity::Extreme)
 	{
 		_PASS(_Pass_TruncateCmdResults(1, 999));
 		_PASS(_Pass_TruncateFindSymbol(1, 999));
@@ -881,6 +881,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 }
 
   
+  
 bool CChatOpsCompress::TryTrigger() 
 {
 	if (!_opsCtrl || _intensity == ChatOpCompressIntensity::None)
@@ -889,41 +890,43 @@ bool CChatOpsCompress::TryTrigger()
 	if (_state != State_Idle)
 		return false;
 
-	// 根据 intensity 选择 balance 和 ratio
-	int balance = 0;
-	float ratio = 0.0f;
+	// 根据 intensity 直接设置 threshold 和 targetTokens
+	int threshold = 0;
+	int targetTokens = 0;
 
 	switch (_intensity)
 	{
 	case ChatOpCompressIntensity::Low:
-		balance = 50000;
-		ratio = 1.7f;
+		threshold = 100000;
+		targetTokens = 40000;
 		break;
 	case ChatOpCompressIntensity::Medium:
-		balance = 20000;
-		ratio = 1.5f;
+		threshold = 50000;
+		targetTokens = 20000;
 		break;
 	case ChatOpCompressIntensity::High:
-		balance = 10000;
-		ratio = 1.5f;
+		threshold = 30000;
+		targetTokens = 10000;
+		break;
+	case ChatOpCompressIntensity::Extreme:
+		threshold = 15000;
+		targetTokens = 5000;
 		break;
 	default:
 		return false;
 	}
 
-	if (balance <= 0 || ratio <= 1.0f)
+	if (threshold <= 0 || targetTokens <= 0)
 		return false;
 
 	if (_tokenCalibrate <= 0.0f)
 		return false;
 
 	int currentTokens = _opsCtrl->GetEstimateTokens()*_tokenCalibrate;
-	int threshold = static_cast<int>(balance * ratio);
 
 	if (currentTokens <= threshold)
 		return false;
 
-	int targetTokens = static_cast<int>(balance / ratio);
 	int reduceTokens = currentTokens - targetTokens;
 	reduceTokens = (int)(((float)reduceTokens) / _tokenCalibrate);
 

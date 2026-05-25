@@ -1270,14 +1270,13 @@ void CChatInput::SetPlaceholder(const std::wstring& placeholder)
 	_PostWebMessageAsJson(jsonMessage);
 }
 
-// 设置压缩强度 (0=None, 1=Low, 2=Medium, 3=High)
 bool CChatInput::SetCompressIntensity(int intensity)
 {
 	if (!_IsReady())
 		return false;
 
 	// 确保强度值在有效范围内
-	if (intensity < 0 || intensity > 3)
+	if (intensity < 0 || intensity > 5)
 		return false;
 
 	std::wstring script = L"setCompressIntensity(" + std::to_wstring(intensity) + L")";

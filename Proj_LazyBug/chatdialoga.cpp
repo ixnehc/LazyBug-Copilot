@@ -1256,7 +1256,7 @@ void CChatDialogA::_UpdateContextUsage()
 	// 更新压缩强度
 	if (currentApiName != _apiNameOfContextUsage)
 	{
-		// 映射: None->0, Lowest/Low->1, Medium->2, High/Highest->3
+		// 映射: None->0, Low->1, Medium->2, High->3, Extreme->4
 		int jsIntensity = 0;
 		switch (intensity)
 		{
@@ -1271,6 +1271,9 @@ void CChatDialogA::_UpdateContextUsage()
 			break;
 		case ChatOpCompressIntensity::High:
 			jsIntensity = 3;
+			break;
+		case ChatOpCompressIntensity::Extreme:
+			jsIntensity = 4;
 			break;
 		}
 		_chatInput.SetCompressIntensity(jsIntensity);

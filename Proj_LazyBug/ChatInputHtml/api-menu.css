@@ -118,6 +118,12 @@
     transform: translateX(-3px);
 }
 
+.compress-icon svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
 .compress-forbidden {
     display: none;
     position: absolute;

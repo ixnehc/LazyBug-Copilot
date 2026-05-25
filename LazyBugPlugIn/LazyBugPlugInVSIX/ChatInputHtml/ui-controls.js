@@ -148,13 +148,14 @@ const CompressIntensity = {
     None: 0,
     Low: 1,
     Medium: 2,
-    High: 3
+    High: 3,
+    Extreme: 4
 };
 
 // 当前压缩强度
 let currentCompressIntensity = CompressIntensity.Low;
 
-// 设置压缩强度 (0-3, 对应 None, Low, Medium, High)
+// 设置压缩强度 (0-4, 对应 None, Low, Medium, High, Extreme)
 function setCompressIntensity(intensity) {
     const compressButton = document.getElementById('compressButton');
     const levelBadge = document.getElementById('compressLevelBadge');
@@ -170,7 +171,7 @@ function setCompressIntensity(intensity) {
     } else {
         compressButton.classList.remove('compress-none');
         levelBadge.textContent = intensity;
-        const levelNames = ['No compression', 'Low Compression', 'Medium Compression', 'High Compression'];
+        const levelNames = ['No compression', 'Low Compression', 'Medium Compression', 'High Compression', 'Extreme Compression'];
         compressButton.title = levelNames[intensity] || 'Low Compression';
     }
 }
@@ -178,7 +179,8 @@ function setCompressIntensity(intensity) {
 // 获取下一个压缩强度 (循环切换)
 function getNextCompressIntensity() {
     const values = [CompressIntensity.None, CompressIntensity.Low, 
-                    CompressIntensity.Medium, CompressIntensity.High];
+                    CompressIntensity.Medium, CompressIntensity.High, 
+                    CompressIntensity.Extreme];
     const currentIndex = values.indexOf(currentCompressIntensity);
     const nextIndex = (currentIndex + 1) % values.length;
     return values[nextIndex];

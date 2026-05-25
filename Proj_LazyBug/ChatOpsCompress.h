@@ -18,6 +18,7 @@ enum class ChatOpCompressIntensity
 	Low,
 	Medium,
 	High,
+	Extreme,
 };
 
 class CChatOpsCompress
