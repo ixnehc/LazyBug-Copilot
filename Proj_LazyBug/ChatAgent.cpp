@@ -44,6 +44,7 @@ void CChatAgent::Shutdown()
 	_taskMgr.Shutdown();
 	_llmChat.Clear();
 
+	_compressor.Clear();
 	_opsCtrl.Clear();
 
 	_aiMessageId.clear();
@@ -80,7 +81,7 @@ void CChatAgent::Update()
 		_taskMgr.Interrupt();
 	_taskMgr.Update();
 
-	_compressor.Update();
+	_compressor.UpdateCompress();
 
 	// 处理挂起的请求（等待 context 压缩完成）
 	if (_pendingRequest.valid)

@@ -62,8 +62,8 @@ public:
 	~CChatOpsCompress();
 
 	void Init(CChatOpsCtrl* opsCtrl);
+	void Clear();
 
-	int TestAAA();
 	bool TryTrigger();
 
 	void SetTokenCalibrate(float v)	{		_tokenCalibrate = v;	}
@@ -80,7 +80,7 @@ public:
 	void StartCompress(int reduceTokenCount);
 
 	// 每帧调用，驱动压缩任务
-	void Update();
+	void UpdateCompress();
 
 	// 获取当前状态
 	State GetState() const { return _state; }
@@ -147,10 +147,10 @@ private:
 	int _reducedTokens = 0;           // 已减少的 token 数（累加）
 	int _currentPass = 0;             // 当前执行的 Pass
 
-	AbsTick _updateStartTime = 0;     // Update 开始时间
-	static constexpr int _updateTimeLimitMs = 20;  // 每次 Update 时间限制（毫秒）
+	AbsTick _compressStartTime = 0;     // 压缩开始时间
+	static constexpr int _compressTimeLimitMs = 20;  // 每次压缩时间限制（毫秒）
 
 	// 判断是否超时
-	bool _IsUpdateTimeout() const;
+	bool _IsCompressTimeout() const;
 };
 

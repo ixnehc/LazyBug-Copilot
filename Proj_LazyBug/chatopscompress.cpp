@@ -88,6 +88,7 @@ CChatOpsCompress::~CChatOpsCompress()
 void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl)
 {
 	_opsCtrl = opsCtrl;
+	_intensity = LoadIntensityForCurrentApi();
 }
 
 void CChatOpsCompress::StartCompress(int reduceTokenCount)
@@ -114,12 +115,12 @@ void CChatOpsCompress::StartCompress(int reduceTokenCount)
 	}
 }
 
-void CChatOpsCompress::Update()
+void CChatOpsCompress::UpdateCompress()
 {
 	if (_state != State_Compressing)
 		return;
 
-	_updateStartTime = GetAbsTick();
+	_compressStartTime = GetAbsTick();
 
 	// 持续执行 Pass 直到超时、达标或完成
 	while (_currentPass < _passCount)
@@ -132,7 +133,7 @@ void CChatOpsCompress::Update()
 		_ExecutePass(_currentPass);
 
 		// Pass 执行完毕后检查是否超时
-		if (_IsUpdateTimeout())
+		if (_IsCompressTimeout())
 			break;
 
 		// 进入下一个 Pass
@@ -155,6 +156,15 @@ void CChatOpsCompress::Cancel()
 
 	_state = State_Idle;
 	_workingOps.clear();
+}
+
+void CChatOpsCompress::Clear()
+{
+	_state = State_Idle;
+	_workingOps.clear();
+	_reduceTokenCount = 0;
+	_reducedTokens = 0;
+	_currentPass = 0;
 }
 
 void CChatOpsCompress::DecompressAll()
@@ -393,10 +403,10 @@ std::string CChatOpsCompress::_TruncateCmdResult(const std::string& content, int
 	}
 }
 
-bool CChatOpsCompress::_IsUpdateTimeout() const
+bool CChatOpsCompress::_IsCompressTimeout() const
 {
-	AbsTick elapsed = GetAbsTick() - _updateStartTime;
-	return elapsed >= _updateTimeLimitMs;
+	AbsTick elapsed = GetAbsTick() - _compressStartTime;
+	return elapsed >= _compressTimeLimitMs;
 }
 
 
@@ -937,12 +947,15 @@ bool CChatOpsCompress::TryTrigger()
 	return true;
 }
 
-
 void CChatOpsCompress::SetIntensity(ChatOpCompressIntensity intensity)
 {
 	if (_intensity == intensity)
 		return;
 	_intensity = intensity;
+
+	if (_opsCtrl->_ops.size() <= 0)
+		return;
+
 	DecompressAll();
 	TryTrigger();
 	Update();//立即更新一次
