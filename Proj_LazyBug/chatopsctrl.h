@@ -357,6 +357,7 @@ public:
     DWORD GetVer() const { return _ver; }
 
 	int GetEstimateTokens();
+	int GetUncompressedEstimateTokens();
 
     // ── 序列化 ────────────────────────────────────────────────────────────
 

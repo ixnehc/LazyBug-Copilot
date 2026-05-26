@@ -254,17 +254,7 @@ BOOL CChatDialogA::OnInitDialog()
 
 	// 设置压缩强度改变回调
 	_chatInput.SetCompressIntensityChangedCallback([this](int intensity) {
-		// JS值到ChatOpCompressIntensity的映射: 0=None, 1=Extreme, 2=High, 3=Medium, 4=Low
-		ChatOpCompressIntensity cppIntensity = ChatOpCompressIntensity::None;
-		switch (intensity)
-		{
-		case 0: cppIntensity = ChatOpCompressIntensity::None; break;
-		case 1: cppIntensity = ChatOpCompressIntensity::Extreme; break;
-		case 2: cppIntensity = ChatOpCompressIntensity::High; break;
-		case 3: cppIntensity = ChatOpCompressIntensity::Medium; break;
-		case 4: cppIntensity = ChatOpCompressIntensity::Low; break;
-		}
-		CChatOpsCompress::SaveIntensityForCurrentApi(cppIntensity);
+		CChatOpsCompress::SaveIntensityForCurrentApi(static_cast<ChatOpCompressIntensity>(intensity));
 	});
 
 	// 创建Skills弹出窗口
@@ -1265,19 +1255,19 @@ void CChatDialogA::_UpdateContextUsage()
 		switch (intensity)
 		{
 		case ChatOpCompressIntensity::None:
-			jsIntensity = 0;  // Context等级Max, 显示无穷大
-			break;
-		case ChatOpCompressIntensity::Extreme:
-			jsIntensity = 1;  // Context等级1
-			break;
-		case ChatOpCompressIntensity::High:
-			jsIntensity = 2;  // Context等级2
-			break;
-		case ChatOpCompressIntensity::Medium:
-			jsIntensity = 3;  // Context等级3
+			jsIntensity = 0;
 			break;
 		case ChatOpCompressIntensity::Low:
-			jsIntensity = 4;  // Context等级4
+			jsIntensity = 1;
+			break;
+		case ChatOpCompressIntensity::Medium:
+			jsIntensity = 2;
+			break;
+		case ChatOpCompressIntensity::High:
+			jsIntensity = 3;
+			break;
+		case ChatOpCompressIntensity::Extreme:
+			jsIntensity = 4;
 			break;
 		}
 		_chatInput.SetCompressIntensity(jsIntensity);

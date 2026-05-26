@@ -188,6 +188,7 @@ void CChatOpsCompress::_UpdateCompress()
 		_SyncBackToOps();
 		_state = State_Idle;
 		_env = _workingEnv;
+		_env.opsVer = _opsCtrl->GetVer();
 		_workingEnv.Clear();
 	}
 }
@@ -963,16 +964,16 @@ bool CChatOpsCompress::_TryTrigger()
 		threshold = 15000;
 		targetTokens = 5000;
 		break;
-	default:
+	default: 
 		return false;
-	}
-
+	} 
+	  
 	if (threshold <= 0 || targetTokens <= 0)
 		return false;
 
 	if (env.tokenCalibrate <= 0.0f)
 		return false;
-
+	  
 	int currentTokens = (int)(((float)_opsCtrl->GetEstimateTokens())*env.tokenCalibrate);
 
 	if (currentTokens <= threshold)

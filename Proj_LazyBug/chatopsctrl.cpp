@@ -2914,12 +2914,11 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex)
 	return totalTokens;
 }
 
-int CChatOpsCtrl::_EstimateTokens() const
+int CChatOpsCtrl::_EstimateTokens() const 
 {
 	int endIndex = _GetDisableAfterIndex();
 	return const_cast<CChatOpsCtrl*>(this)->_EstimateTokenCountBetweenOps(0, endIndex);
 }
-
 
 int CChatOpsCtrl::GetEstimateTokens()
 {
@@ -2930,4 +2929,8 @@ int CChatOpsCtrl::GetEstimateTokens()
 
 	return _estimateTokensCache;
 }
+ 
+int CChatOpsCtrl::GetUncompressedEstimateTokens() 
+{
 
+}

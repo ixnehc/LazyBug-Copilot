@@ -144,19 +144,19 @@ function updateMajorChatApiMenu(currentApi, apis) {
 }
 
 // 压缩强度枚举值映射 (对应 ChatOpCompressIntensity)
-// 数值代表Context等级: None=Max(显示∞), Extreme=1, High=2, Medium=3, Low=4
 const CompressIntensity = {
     None: 0,
-    Extreme: 1,
-    High: 2,
-    Medium: 3,
-    Low: 4
+    Low: 1,
+    Medium: 2,
+    High: 3,
+    Extreme: 4
 };
 
 // 当前压缩强度
 let currentCompressIntensity = CompressIntensity.Low;
 
-// 设置压缩强度 (Context等级: 0=Max(∞), 1-4)
+// 设置压缩强度 (0-4, 对应 None, Low, Medium, High, Extreme)
+// 显示下标: None=∞, Low=4, Medium=3, High=2, Extreme=1
 function setCompressIntensity(intensity) {
     const compressButton = document.getElementById('compressButton');
     const levelBadge = document.getElementById('compressLevelBadge');
@@ -172,9 +172,11 @@ function setCompressIntensity(intensity) {
         compressButton.title = 'Context Level Max';
     } else {
         compressButton.classList.remove('compress-none');
-        levelBadge.textContent = intensity;
+        // 显示下标转换: Low(1)->4, Medium(2)->3, High(3)->2, Extreme(4)->1
+        const displayLevel = 5 - intensity;
+        levelBadge.textContent = displayLevel;
         const levelNames = ['', 'Context Level 1', 'Context Level 2', 'Context Level 3', 'Context Level 4'];
-        compressButton.title = levelNames[intensity] || 'Context Level 1';
+        compressButton.title = levelNames[displayLevel] || 'Context Level 1';
     }
 }
 
