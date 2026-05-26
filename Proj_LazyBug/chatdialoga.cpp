@@ -1237,12 +1237,6 @@ void CChatDialogA::_UpdateContextUsage()
 
 	ChatOpCompressIntensity intensity = CChatOpsCompress::LoadIntensityForCurrentApi();
 
-	if (!_agent.IsWorking())
-	{
-		_agent.GetCompressor().SetTokenCalibrate(_tokenStats.GetCalibrationFactor());
-		_agent.GetCompressor().SetIntensity(intensity);
-	}
-
 	// 获取当前使用的API名称
 	std::string currentApiName = g_llmLib.GetMajorChatApi();
 

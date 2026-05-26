@@ -7,6 +7,7 @@
 #include "ChatInputTag.h"
 #include "LlmTools.h"
 #include "LlmLib.h"
+#include "TokenCalibrate.h"
 #include "Registry/Registry.h"
 
 extern CLlmLib g_llmLib;
@@ -78,7 +79,7 @@ int CChatOpsCompress::Op::GetCurrentTokens() const
 
 CChatOpsCompress::CChatOpsCompress()
 {
-	_intensity = ChatOpCompressIntensity::None;
+	Zero();
 }
 
 CChatOpsCompress::~CChatOpsCompress()
@@ -88,10 +89,25 @@ CChatOpsCompress::~CChatOpsCompress()
 void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl)
 {
 	_opsCtrl = opsCtrl;
-	_intensity = LoadIntensityForCurrentApi();
 }
 
-void CChatOpsCompress::StartCompress(int reduceTokenCount)
+void CChatOpsCompress::Clear()
+{
+	_CancelCompress();
+	_env.Clear();
+	Zero();
+}
+
+void CChatOpsCompress::_CollectEnv(Env& env)
+{
+	env.intensity = LoadIntensityForCurrentApi();
+	env.tokenCalibrate = CTokenCalibrate::GetCalibrationFactor();
+	env.opsVer = _opsCtrl->GetVer();
+	env.isValid = true;
+}
+
+
+void CChatOpsCompress::_StartCompress(int reduceTokenCount)
 {
 	if (!_opsCtrl || reduceTokenCount <= 0)
 	{
@@ -108,14 +124,39 @@ void CChatOpsCompress::StartCompress(int reduceTokenCount)
 	_BuildWorkingOps();
 
 	// 检查是否有可压缩的内容
-	if (_workingOps.empty())
+	if (_workingOps.empty()) 
 	{
 		_state = State_Idle;
 		return;
 	}
+
+	_CollectEnv(_workingEnv);
 }
 
+void CChatOpsCompress::UpdateCompressTriggering()
+{
+	if (IsCompressing())
+		return;
+
+	Env env;
+	_CollectEnv(env);
+	if (env.Equals(_env))
+		return;
+
+	_DecompressAll();
+	_TryTrigger();
+	_UpdateCompress();//立即更新一次
+
+}
+
+
 void CChatOpsCompress::UpdateCompress()
+{
+	_UpdateCompress();
+}
+
+
+void CChatOpsCompress::_UpdateCompress()
 {
 	if (_state != State_Compressing)
 		return;
@@ -146,28 +187,22 @@ void CChatOpsCompress::UpdateCompress()
 		// 同步回原数组
 		_SyncBackToOps();
 		_state = State_Idle;
+		_env = _workingEnv;
+		_workingEnv.Clear();
 	}
 }
 
-void CChatOpsCompress::Cancel()
+void CChatOpsCompress::_CancelCompress()
 {
 	if (_state == State_Idle )
 		return;
 
 	_state = State_Idle;
 	_workingOps.clear();
+	_workingEnv.Clear();
 }
 
-void CChatOpsCompress::Clear()
-{
-	_state = State_Idle;
-	_workingOps.clear();
-	_reduceTokenCount = 0;
-	_reducedTokens = 0;
-	_currentPass = 0;
-}
-
-void CChatOpsCompress::DecompressAll()
+void CChatOpsCompress::_DecompressAll()
 {
 	if (!_opsCtrl)
 		return;
@@ -177,7 +212,6 @@ void CChatOpsCompress::DecompressAll()
 		op.currentCompressionLevel = 0;
 	}
 	_opsCtrl->_ver++;
-	_state = State_Idle;
 }
 
 
@@ -456,7 +490,7 @@ void CChatOpsCompress::_Pass_RemoveFailureFileEdit(int startSessionAge, int endS
 			if (resultContent.find(SUCCESS_MARKER) == std::string::npos)
 			{
 				// 失败的 FileEdit，完全清除
-				_ApplyCompressToOp(op, Level_Full, "");
+				_ApplyCompressToOp(op, Level_Remove, "");
 			}
 		}
 		catch (...)
@@ -517,7 +551,7 @@ void CChatOpsCompress::_Pass_RemoveFailureCMD(int startSessionAge, int endSessio
 			if (isFailure)
 			{
 				// 失败的 CLI，完全清除
-				_ApplyCompressToOp(op, Level_Full, "");
+				_ApplyCompressToOp(op, Level_Remove, "");
 			}
 		}
 		catch (...)
@@ -690,7 +724,7 @@ void CChatOpsCompress::_Pass_RemoveCoveredLines(int startSessionAge, int endSess
 
 		if (shouldRemove)
 		{
-			_ApplyCompressToOp(_workingOps[info.index], Level_Full, "");
+			_ApplyCompressToOp(_workingOps[info.index], Level_Remove, "");
 		}
 	}
 }
@@ -875,7 +909,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_RemoveFindSymbol(3, 999));
 	_PASS(_Pass_RemoveSearchOps(3, 999));
 
-	if (_intensity >= ChatOpCompressIntensity::Extreme)
+	if (_workingEnv.intensity >= ChatOpCompressIntensity::Extreme)
 	{
 		_PASS(_Pass_TruncateCmdResults(1, 999));
 		_PASS(_Pass_TruncateFindSymbol(1, 999));
@@ -891,20 +925,22 @@ void CChatOpsCompress::_ExecutePass(int pass)
 }
 
   
-  
-bool CChatOpsCompress::TryTrigger() 
+bool CChatOpsCompress::_TryTrigger() 
 {
-	if (!_opsCtrl || _intensity == ChatOpCompressIntensity::None)
+	if (!_opsCtrl)
 		return false;
 
-	if (_state != State_Idle)
+	if (IsCompressing())
 		return false;
+
+	Env env;
+	_CollectEnv(env);
 
 	// 根据 intensity 直接设置 threshold 和 targetTokens
 	int threshold = 0;
 	int targetTokens = 0;
 
-	switch (_intensity)
+	switch (env.intensity)
 	{
 	case ChatOpCompressIntensity::Low:
 		threshold = 100000;
@@ -929,35 +965,21 @@ bool CChatOpsCompress::TryTrigger()
 	if (threshold <= 0 || targetTokens <= 0)
 		return false;
 
-	if (_tokenCalibrate <= 0.0f)
+	if (env.tokenCalibrate <= 0.0f)
 		return false;
 
-	int currentTokens = _opsCtrl->GetEstimateTokens()*_tokenCalibrate;
+	int currentTokens = (int)(((float)_opsCtrl->GetEstimateTokens())*env.tokenCalibrate);
 
 	if (currentTokens <= threshold)
 		return false;
 
 	int reduceTokens = currentTokens - targetTokens;
-	reduceTokens = (int)(((float)reduceTokens) / _tokenCalibrate);
+	reduceTokens = (int)(((float)reduceTokens) / env.tokenCalibrate);
 
 	if (reduceTokens <= 0)
 		return false;
 
-	StartCompress(reduceTokens);
+	_StartCompress(reduceTokens);
 	return true;
 }
 
-void CChatOpsCompress::SetIntensity(ChatOpCompressIntensity intensity)
-{
-	if (_intensity == intensity)
-		return;
-	_intensity = intensity;
-
-	if (_opsCtrl->_ops.size() <= 0)
-		return;
-
-	DecompressAll();
-	TryTrigger();
-	Update();//立即更新一次
-
-}

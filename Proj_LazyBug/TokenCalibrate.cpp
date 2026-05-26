@@ -55,7 +55,7 @@ void CTokenCalibrate::ApplyCalibration(int actualTokens)
 	_calibrationApiName.clear();
 }
 
-float CTokenCalibrate::GetCalibrationFactor() const
+float CTokenCalibrate::GetCalibrationFactor()
 {
 	std::string apiName = g_llmLib.GetMajorChatApi();
 	if (apiName.empty())
@@ -71,7 +71,7 @@ float CTokenCalibrate::GetCalibrationFactor() const
 	return static_cast<float>(totalActual) / static_cast<float>(totalEstimated);
 }
 
-void CTokenCalibrate::_LoadAccumulated(const std::string& apiName, uint64_t& estimated, uint64_t& actual) const
+void CTokenCalibrate::_LoadAccumulated(const std::string& apiName, uint64_t& estimated, uint64_t& actual)
 {
 	std::string keyEstimated = apiName + "_estimated";
 	std::string keyActual = apiName + "_actual";

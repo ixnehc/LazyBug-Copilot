@@ -40,6 +40,31 @@ public:
 		State_Compressing,  // 正在压缩
 	};
 
+	struct Env
+	{
+		Env()
+		{
+			isValid = false;
+		}
+		void Clear()
+		{
+			isValid = false;
+		}
+		bool Equals(const Env& other)
+		{
+			if (!isValid)
+				return false;
+			return isValid == other.isValid &&
+				   intensity == other.intensity &&
+				   std::fabs(tokenCalibrate - other.tokenCalibrate) < 1e-6f &&
+				   opsVer == other.opsVer;
+		}
+		bool isValid;
+		ChatOpCompressIntensity intensity;
+		float tokenCalibrate;
+		DWORD opsVer;
+	};
+
 	// 工作 Op 结构：与 CChatOpsCtrl 中的 Op 一一对应
 	struct Op
 	{
@@ -61,43 +86,50 @@ public:
 	CChatOpsCompress();
 	~CChatOpsCompress();
 
+	void Zero()
+	{
+		_opsCtrl = nullptr;
+		_state = State_Idle;
+
+		_reduceTokenCount = 0;        // 目标减少的 token 数
+		_reducedTokens = 0;           // 已减少的 token 数（累加）
+		_currentPass = 0;             // 当前执行的 Pass
+
+		_compressStartTime = 0;     // 压缩开始时间
+	}
+
 	void Init(CChatOpsCtrl* opsCtrl);
 	void Clear();
-
-	bool TryTrigger();
-
-	void SetTokenCalibrate(float v)	{		_tokenCalibrate = v;	}
-
-	// 压缩强度
-	void SetIntensity(ChatOpCompressIntensity intensity);
-	ChatOpCompressIntensity GetIntensity() const { return _intensity; }
 
 	// 从注册表读写当前 API 对应的压缩强度
 	static ChatOpCompressIntensity LoadIntensityForCurrentApi();
 	static void SaveIntensityForCurrentApi(ChatOpCompressIntensity intensity);
 
-	// 发起压缩请求，传入要减少的 token 数
-	void StartCompress(int reduceTokenCount);
-
-	// 每帧调用，驱动压缩任务
+	void UpdateCompressTriggering();
 	void UpdateCompress();
 
 	// 获取当前状态
 	State GetState() const { return _state; }
 	bool IsCompressing() const { return _state == State_Compressing; }
 
-	// 取消压缩
-	void Cancel();
+	void CancelCompress()	{		_CancelCompress();	}
+	bool TryTrigger()	{		return _TryTrigger();	}
 
-	// 一键解压：将所有 Op 的压缩等级重置为 Level_None
-	void DecompressAll();
 
 	// 获取已减少的 token 数
 	int GetReducedTokens() const { return _reducedTokens; }
 
 private:
-	// 构建工作 Op 数组
+
+	void _StartCompress(int reduceTokenCount);
 	void _BuildWorkingOps();
+
+	void _CollectEnv(Env &env);
+
+	void _UpdateCompress();
+	void _CancelCompress();
+	void _DecompressAll();
+	bool _TryTrigger();
 
 	// 执行指定 Pass，返回是否达到目标
 	// 执行指定 Pass
@@ -139,9 +171,9 @@ private:
 	CChatOpsCtrl* _opsCtrl = nullptr;
 	State _state = State_Idle;
 
-	ChatOpCompressIntensity _intensity = ChatOpCompressIntensity::Low;
-	float _tokenCalibrate=1.0f;
+	Env _env;
 
+	Env _workingEnv;
 	std::vector<Op> _workingOps;      // 工作 Op 数组
 	int _reduceTokenCount = 0;        // 目标减少的 token 数
 	int _reducedTokens = 0;           // 已减少的 token 数（累加）

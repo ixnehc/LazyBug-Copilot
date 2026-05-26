@@ -22,14 +22,14 @@ public:
 
 	// 获取当前 apiName 对应的矫正因子
 	// = 累计 actualTokens / 累计 estimatedTokens
-	float GetCalibrationFactor() const;
+	static float GetCalibrationFactor();
 
 private:
 	// 从注册表加载累计值（estimated 和 actual）
-	void _LoadAccumulated(const std::string& apiName, uint64_t& estimated, uint64_t& actual) const;
+	static void _LoadAccumulated(const std::string& apiName, uint64_t& estimated, uint64_t& actual);
 
 	// 保存累计值到注册表（estimated 和 actual）
-	void _SaveAccumulated(const std::string& apiName, uint64_t estimated, uint64_t actual);
+	static void _SaveAccumulated(const std::string& apiName, uint64_t estimated, uint64_t actual);
 
 	// 注册表相关
 	static constexpr const char* REG_SECTION = "TokenCalibration";

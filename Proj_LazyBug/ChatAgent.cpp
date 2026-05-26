@@ -82,6 +82,8 @@ void CChatAgent::Update()
 	_taskMgr.Update();
 
 	_compressor.UpdateCompress();
+	if (!IsWorking())
+		_compressor.UpdateCompressTriggering();
 
 	// 处理挂起的请求（等待 context 压缩完成）
 	if (_pendingRequest.valid)
@@ -350,6 +352,7 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 // 		if (reduceToken > 0)
 // 			_compressor.StartCompress(reduceToken);
 // 	}
+	_compressor.CancelCompress();
 	_compressor.TryTrigger();
 
 	if (_compressor.IsCompressing())
@@ -595,6 +598,8 @@ bool CChatAgent::RestoreUserMessage(const std::wstring& messageId, RestoreUserMe
 	std::vector<FilesCheckpointUID> checkpointIds;
 	if (!_opsCtrl.GetRestoreCheckpoints(messageId, checkpointIds))
 		return false;
+
+	_compressor.CancelCompress();
 
 	if (checkpointIds.empty())
 	{
