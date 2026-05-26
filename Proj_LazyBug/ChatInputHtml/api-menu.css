@@ -140,7 +140,7 @@
 }
 
 .compress-button.compress-none .compress-forbidden {
-    display: flex;
+    display: none;
 }
 
 .compress-level-badge {
@@ -162,7 +162,9 @@
 }
 
 .compress-button.compress-none .compress-level-badge {
-    display: none;
+    display: flex;
+    font-size: 14px;
+    font-family: 'Segoe UI Symbol', 'Arial Unicode MS', 'DejaVu Sans', sans-serif;
 }
 
 /* 压缩后大小显示 */

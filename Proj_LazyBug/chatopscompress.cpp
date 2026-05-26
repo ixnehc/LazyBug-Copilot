@@ -211,7 +211,9 @@ void CChatOpsCompress::_DecompressAll()
 	{
 		op.currentCompressionLevel = 0;
 	}
-	_opsCtrl->_ver++;
+
+	if (!_opsCtrl->_ops.empty())
+		_opsCtrl->_ver++;
 }
 
 
@@ -277,6 +279,9 @@ void CChatOpsCompress::_BuildWorkingOps()
 void CChatOpsCompress::_SyncBackToOps()
 {
 	if (!_opsCtrl)
+		return;
+
+	if (_workingOps.size()<=0)
 		return;
 
 	// 获取 disable 边界，只同步未被 disabled 的 op
