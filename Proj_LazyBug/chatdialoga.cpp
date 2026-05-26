@@ -1285,20 +1285,20 @@ void CChatDialogA::_UpdateContextUsage()
 
 		if (totalTokens < K) {
 			// < 1k: xxxB
-			sizeText = std::to_wstring(totalTokens) + L" Tokens";
+			sizeText = std::to_wstring(totalTokens) + L" tokens";
 		}
 		else if (totalTokens < M) {
 			// < 1m: xx.xxK
 			double kValue = static_cast<double>(totalTokens) / K;
 			wchar_t buf[32];
-			swprintf_s(buf, L"%.2f kTokens", kValue);
+			swprintf_s(buf, L"%.2fk tokens", kValue);
 			sizeText = buf;
 		}
 		else {
 			// >= 1m: x.xxM
 			double mValue = static_cast<double>(totalTokens) / M;
 			wchar_t buf[32];
-			swprintf_s(buf, L"%.2f mTokens", mValue);
+			swprintf_s(buf, L"%.2fm tokens", mValue);
 			sizeText = buf;
 		}
 		_chatInput.SetCompressedSize(sizeText);
