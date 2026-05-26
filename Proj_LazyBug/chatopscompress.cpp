@@ -40,34 +40,54 @@ void CChatOpsCompress::SaveIntensityForCurrentApi(ChatOpCompressIntensity intens
 //////////////////////////////////////////////////////////////////////////
 // CChatOpsCompress::Op
 
-int CChatOpsCompress::Op::GetCurrentTokens() const
+const ChatOp& CChatOpsCompress::_GetSrcOp(const Op& op) const
+{
+	static const ChatOp s_empty;
+	if (!_opsCtrl || op.srcIndex < 0 || op.srcIndex >= (int)_opsCtrl->_ops.size())
+		return s_empty;
+	return _opsCtrl->_ops[op.srcIndex];
+}
+
+int CChatOpsCompress::_GetOpCurrentTokens(const Op& op) const
 {
 	// 根据当前压缩等级获取有效内容
-	std::string effectiveContent;
-	if (currentLevel == Level_None)
+	const ChatOp& srcOp = _GetSrcOp(op);
+	static const std::string s_empty;
+	const std::string* effectiveContent = &s_empty;
+	if (op.currentLevel == Level_None)
 	{
-		effectiveContent = originalContent;
+		effectiveContent = &srcOp.contentUtf8;
 	}
-	else if (currentLevel > Level_None)
+	else if (op.currentLevel > Level_None)
 	{
-		auto it = compressedContents.find(static_cast<int>(currentLevel));
-		if (it != compressedContents.end())
-			effectiveContent = it->second;
-		// Level_Full 时可能没有内容，effectiveContent 为空
+		// 优先查本次新增的压缩内容
+		auto it = op.newCompressedContents.find(static_cast<int>(op.currentLevel));
+		if (it != op.newCompressedContents.end())
+		{
+			effectiveContent = &it->second;
+		}
+		else
+		{
+			// 再查原始 ChatOp 中已有的历史压缩内容
+			auto it2 = srcOp.compressedContents.find(static_cast<int>(op.currentLevel));
+			if (it2 != srcOp.compressedContents.end())
+				effectiveContent = &it2->second;
+			// Level_Full / Level_Remove 时可能没有内容，effectiveContent 指向空串
+		}
 	}
 
 	// 根据类型估算 token
-	switch (type)
+	switch (op.type)
 	{
 	case ChatOp::Op_AddUserMessage:
 	{
-		std::string plainText = ExtractPlainTextUtf8(effectiveContent);
+		std::string plainText = ExtractPlainTextUtf8(*effectiveContent);
 		return Utils::EstimateTokenCount(plainText);
 	}
 	case ChatOp::Op_AddStreamingAIMessage:
 	case ChatOp::Op_AddStreamingAIMessage_Thinking:
 	case ChatOp::Op_AddToolCallResult:
-		return Utils::EstimateTokenCount(effectiveContent);
+		return Utils::EstimateTokenCount(*effectiveContent);
 	default:
 		return 0;
 	}
@@ -146,6 +166,7 @@ void CChatOpsCompress::UpdateCompressTriggering()
 	_TryTrigger();
 	_UpdateCompress();//立即更新一次
 
+	_CollectEnv(_env);
 }
 
 
@@ -244,10 +265,9 @@ void CChatOpsCompress::_BuildWorkingOps()
 
 		Op workOp;
 		workOp.type = srcOp.type;
-		workOp.originalContent = srcOp.contentUtf8;
+		workOp.srcIndex = i;
 		workOp.initialTokens = _EstimateOpTokens(srcOp,true);
 		workOp.currentLevel = static_cast<CompressLevel>(0);
-		workOp.compressedContents = srcOp.compressedContents;
 
 		// 计算 sessionAge：基于 Op_EndSession
 		// 最后一个 EndSession 之前的 op age=1，倒数第二 age=2，以此类推
@@ -295,7 +315,8 @@ void CChatOpsCompress::_SyncBackToOps()
 		const Op& workOp = _workingOps[i];
 
 		dstOp.currentCompressionLevel = static_cast<int>(workOp.currentLevel);
-		dstOp.compressedContents = workOp.compressedContents;
+		for (const auto& kv : workOp.newCompressedContents)
+			dstOp.compressedContents.insert_or_assign(kv.first, kv.second);
 	}
 	_opsCtrl->_ver++;
 }
@@ -330,17 +351,17 @@ int CChatOpsCompress::_EstimateOpTokens(const ChatOp& op, bool useUncompressed) 
 int CChatOpsCompress::_ApplyCompressToOp(Op& op, CompressLevel level, const std::string& content)
 {
 	// 计算压缩前的 token 数
-	int tokensBefore = op.GetCurrentTokens();
+	int tokensBefore = _GetOpCurrentTokens(op);
 
 	// 应用压缩
 	op.currentLevel = level;
 	if (!content.empty())
 	{
-		op.compressedContents[static_cast<int>(level)] = content;
+		op.newCompressedContents[static_cast<int>(level)] = content;
 	}
 
 	// 计算压缩后的 token 数
-	int tokensAfter = op.GetCurrentTokens();
+	int tokensAfter = _GetOpCurrentTokens(op);
 	int reduced = tokensBefore - tokensAfter;
 
 	// 累加到总减少量
@@ -479,7 +500,7 @@ void CChatOpsCompress::_Pass_RemoveFailureFileEdit(int startSessionAge, int endS
 		// 解析 JSON 检查是否失败
 		try
 		{
-			nlohmann::json parsed = nlohmann::json::parse(op.originalContent);
+			nlohmann::json parsed = nlohmann::json::parse(_GetSrcOp(op).contentUtf8);
 
 			if (!parsed.is_array() || parsed.size() < 2)
 				continue;
@@ -530,7 +551,7 @@ void CChatOpsCompress::_Pass_RemoveFailureCMD(int startSessionAge, int endSessio
 		// 解析 JSON 检查是否失败
 		try
 		{
-			nlohmann::json parsed = nlohmann::json::parse(op.originalContent);
+			nlohmann::json parsed = nlohmann::json::parse(_GetSrcOp(op).contentUtf8);
 
 			if (!parsed.is_array() || parsed.size() < 2)
 				continue;
@@ -541,6 +562,7 @@ void CChatOpsCompress::_Pass_RemoveFailureCMD(int startSessionAge, int endSessio
 				continue;
 
 			std::string resultContent = toolResultMsg["content"].get<std::string>();
+
 
 			// 检查是否失败：以 Error: 开头、包含 Command failed、或 Task interrupted
 			bool isFailure = false;
@@ -621,7 +643,7 @@ void CChatOpsCompress::_Pass_RemoveCoveredLines(int startSessionAge, int endSess
 		// 解析 JSON 获取文件路径和行范围
 		try
 		{
-			nlohmann::json parsed = nlohmann::json::parse(op.originalContent);
+			nlohmann::json parsed = nlohmann::json::parse(_GetSrcOp(op).contentUtf8);
 			if (!parsed.is_array() || parsed.size() < 1)
 				continue;
 
@@ -802,15 +824,25 @@ void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int end
 			continue;
 
 		// 检查是否有预存的简化版内容 (level 1 = Level_Partial)
-		auto it = op.compressedContents.find(static_cast<int>(Level_Partial));
-		if (it == op.compressedContents.end())
+		// 优先查本次新增，再查原始 ChatOp 历史内容
+		const std::string* partialContent = nullptr;
+		auto it = op.newCompressedContents.find(static_cast<int>(Level_Partial));
+		if (it != op.newCompressedContents.end())
+		{
+			partialContent = &it->second;
+		}
+		else
+		{
+			const ChatOp& srcOp = _GetSrcOp(op);
+			auto it2 = srcOp.compressedContents.find(static_cast<int>(Level_Partial));
+			if (it2 != srcOp.compressedContents.end())
+				partialContent = &it2->second;
+		}
+
+		if (!partialContent || partialContent->empty() || *partialContent == _GetSrcOp(op).contentUtf8)
 			continue;
 
-		const std::string& partialContent = it->second;
-		if (partialContent.empty() || partialContent == op.originalContent)
-			continue;
-
-		_ApplyCompressToOp(op, Level_Partial, partialContent);
+		_ApplyCompressToOp(op, Level_Partial, *partialContent);
 	}
 }
 
@@ -976,7 +1008,10 @@ bool CChatOpsCompress::_TryTrigger()
 	int currentTokens = (int)(((float)_opsCtrl->GetUncompressedEstimateTokens())*env.tokenCalibrate);
 
 	if (currentTokens <= threshold)
+	{
+		_DecompressAll();
 		return false;
+	}
 
 	int reduceTokens = currentTokens - targetTokens;
 	reduceTokens = (int)(((float)reduceTokens) / env.tokenCalibrate);

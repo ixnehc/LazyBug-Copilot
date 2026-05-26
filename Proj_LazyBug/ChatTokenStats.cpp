@@ -488,10 +488,6 @@ void CChatTokenStats::Update()
 			section.hasChanged = true;
 			section.isDirty = false;
 		}
-		else
-		{
-			section.hasChanged = false;
-		}
 	}
 }
 
@@ -541,6 +537,14 @@ bool CChatTokenStats::HasAnyChanged() const
 			return true;
 	}
 	return false;
+}
+
+void CChatTokenStats::ClearAllChanged()
+{
+	for (auto& pair : _sections)
+	{
+		pair.second.hasChanged = false;
+	}
 }
 
 void CChatTokenStats::MarkSectionDirty(TokenStats::SectionType type)

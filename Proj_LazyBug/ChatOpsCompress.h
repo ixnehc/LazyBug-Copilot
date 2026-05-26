@@ -71,15 +71,12 @@ public:
 		ChatOp::Type type;                          // Op 类型
 		LlmToolType toolType = LlmToolType::None;   // ToolCall 类型（仅 Op_AddToolCallResult 等有效）
 
+		int srcIndex = -1;              // 对应 CChatOpsCtrl::_ops 的原始索引
 		int initialTokens = 0;          // 初始 token 数
 		int sessionAge = 0;             // Session 年龄：0=当前session, 1=上一轮...
-		std::string originalContent;   // 原始内容副本,utf8
 
 		CompressLevel currentLevel = Level_None;    // 当前压缩等级
-		std::map<int, std::string> compressedContents; // 各 level 的压缩内容,utf8
-
-		// 计算当前实际占用的 token 数
-		int GetCurrentTokens() const;
+		std::map<int, std::string> newCompressedContents; // 本次压缩过程中新增的压缩内容,utf8
 	};
 
 public:
@@ -137,6 +134,12 @@ private:
 
 	// 将压缩结果同步回 ChatOp 数组
 	void _SyncBackToOps();
+
+	// 获取 Op 对应的原始 ChatOp
+	const ChatOp& _GetSrcOp(const Op& op) const;
+
+	// 获取 Op 当前实际占用的 token 数
+	int _GetOpCurrentTokens(const Op& op) const;
 
 	// 估算单个 Op 的 token 数
 	int _EstimateOpTokens(const ChatOp& op, bool useUncompressed = false) const;

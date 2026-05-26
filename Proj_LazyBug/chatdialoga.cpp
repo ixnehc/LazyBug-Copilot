@@ -1305,6 +1305,7 @@ void CChatDialogA::_UpdateContextUsage()
 	}
 
 	_apiNameOfContextUsage = currentApiName;
+	_tokenStats.ClearAllChanged();
 }
 
 
