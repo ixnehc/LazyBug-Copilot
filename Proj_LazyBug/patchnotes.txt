@@ -38,3 +38,5 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 0.17
 - Fix a CLI tool output crash issue
 - Limit CLI tool output size
+- Better 中文字符支持 in CLI output
+- Fix an issue that sometimes the code database service will fail to detect a modified file

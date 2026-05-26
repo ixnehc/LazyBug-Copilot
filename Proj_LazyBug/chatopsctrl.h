@@ -414,7 +414,7 @@ private:
     void _SendFileEditMsg(const std::wstring& action, const FileEdit& window);
     std::wstring _BuildButtonsJson(const std::vector<FileEditBtn>& buttons);
 
-	int _EstimateTokenCountBetweenOps(int startIndex, int endIndex);
+	int _EstimateTokenCountBetweenOps(int startIndex, int endIndex, bool useUncompressed = false);
 
 	void _ExecuteOp(const ChatOp& op);
 
@@ -446,6 +446,11 @@ private:
 	int _EstimateTokens() const;
 	DWORD _verEstimateTokens;
 	int _estimateTokensCache;
+
+	// 估算未压缩的 Token 总数
+	int _EstimateUncompressedTokens() const;
+	DWORD _verUncompressedEstimateTokens;
+	int _uncompressedEstimateTokensCache;
 
     std::wstring _currentStreamingMessageId;  // 当前正在流式写入的 AI 消息 ID
     

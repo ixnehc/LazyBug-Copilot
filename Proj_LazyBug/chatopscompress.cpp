@@ -143,7 +143,6 @@ void CChatOpsCompress::UpdateCompressTriggering()
 	if (env.Equals(_env))
 		return;
 
-	_DecompressAll();
 	_TryTrigger();
 	_UpdateCompress();//立即更新一次
 
@@ -246,8 +245,8 @@ void CChatOpsCompress::_BuildWorkingOps()
 		Op workOp;
 		workOp.type = srcOp.type;
 		workOp.originalContent = srcOp.contentUtf8;
-		workOp.initialTokens = _EstimateOpTokens(srcOp);
-		workOp.currentLevel = static_cast<CompressLevel>(srcOp.currentCompressionLevel);
+		workOp.initialTokens = _EstimateOpTokens(srcOp,true);
+		workOp.currentLevel = static_cast<CompressLevel>(0);
 		workOp.compressedContents = srcOp.compressedContents;
 
 		// 计算 sessionAge：基于 Op_EndSession
@@ -301,11 +300,11 @@ void CChatOpsCompress::_SyncBackToOps()
 	_opsCtrl->_ver++;
 }
 
-int CChatOpsCompress::_EstimateOpTokens(const ChatOp& op) const
+int CChatOpsCompress::_EstimateOpTokens(const ChatOp& op, bool useUncompressed) const
 {
 	// 获取有效内容（考虑压缩级别）
 	std::string effectiveContent = op.contentUtf8;
-	if (op.currentCompressionLevel > 0)
+	if (!useUncompressed && op.currentCompressionLevel > 0)
 	{
 		auto it = op.compressedContents.find(op.currentCompressionLevel);
 		if (it != op.compressedContents.end())
@@ -974,7 +973,7 @@ bool CChatOpsCompress::_TryTrigger()
 	if (env.tokenCalibrate <= 0.0f)
 		return false;
 	  
-	int currentTokens = (int)(((float)_opsCtrl->GetEstimateTokens())*env.tokenCalibrate);
+	int currentTokens = (int)(((float)_opsCtrl->GetUncompressedEstimateTokens())*env.tokenCalibrate);
 
 	if (currentTokens <= threshold)
 		return false;

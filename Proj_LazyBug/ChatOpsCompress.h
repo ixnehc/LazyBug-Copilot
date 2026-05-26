@@ -139,7 +139,7 @@ private:
 	void _SyncBackToOps();
 
 	// 估算单个 Op 的 token 数
-	int _EstimateOpTokens(const ChatOp& op) const;
+	int _EstimateOpTokens(const ChatOp& op, bool useUncompressed = false) const;
 
 	// 应用压缩到单个工作 Op，返回减少的 token 数
 	int _ApplyCompressToOp(Op& op, CompressLevel level, const std::string& content);

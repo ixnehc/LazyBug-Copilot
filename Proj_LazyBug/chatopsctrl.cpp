@@ -243,6 +243,7 @@ void CChatOpsCtrl::Zero()
 	_recentPrompToken = 0;
 	_cliCounter = 0;
 	_verEstimateTokens = 0xffffffff;
+	_verUncompressedEstimateTokens = 0xffffffff;
 	_estimateTokensCache = 0;
 
 }
@@ -2859,7 +2860,8 @@ bool CChatOpsCtrl::_GetLastFileTimeInCheckpoint(const std::string& fullPath, int
 
 // 估算 [startIndex, endIndex) 之间的op里包含的需要发送的消息的token数
 // 只包含在 MakeSessionRequest 中会搜集的消息，不包含 attached file
-int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex)
+// useUncompressed: 是否强制使用未压缩的原始内容
+int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bool useUncompressed)
 {
 	if (startIndex < 0 || endIndex <= startIndex || endIndex > static_cast<int>(_ops.size()))
 		return 0;
@@ -2869,7 +2871,7 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex)
 	for (int i = startIndex; i < endIndex; i++)
 	{
 		const ChatOp& op = _ops[i];
-		std::string effectiveContent = _GetEffectiveOpContent(op);
+		std::string effectiveContent = useUncompressed ? op.contentUtf8 : _GetEffectiveOpContent(op);
 		if (op.currentCompressionLevel == CChatOpsCompress::Level_Remove)
 			continue;
 
@@ -2930,7 +2932,20 @@ int CChatOpsCtrl::GetEstimateTokens()
 	return _estimateTokensCache;
 }
  
+
+int CChatOpsCtrl::_EstimateUncompressedTokens() const 
+{
+	int endIndex = _GetDisableAfterIndex();
+	return const_cast<CChatOpsCtrl*>(this)->_EstimateTokenCountBetweenOps(0, endIndex, true);
+}
+
 int CChatOpsCtrl::GetUncompressedEstimateTokens() 
 {
+	if (_verUncompressedEstimateTokens == _ver)
+		return _uncompressedEstimateTokensCache;
+	_uncompressedEstimateTokensCache = _EstimateUncompressedTokens();
+	_verUncompressedEstimateTokens = _ver;
 
+	return _uncompressedEstimateTokensCache;
 }
+
