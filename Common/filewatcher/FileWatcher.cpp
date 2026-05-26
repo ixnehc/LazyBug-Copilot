@@ -17,7 +17,8 @@ int CFileNotifyInformations::GetChangedFiles(CChangedFileList& files)
 		ChangedFileInformation2 cfi2;
 		cfi2.action = ChangedFileAction(pNotifyInfo->Action);
 
-		cfi2.name = widechar_to_utf8(pNotifyInfo->FileName);
+		int charCount = pNotifyInfo->FileNameLength / sizeof(wchar_t);
+		cfi2.name = widechar_to_utf8(pNotifyInfo->FileName, charCount);
 
 		files.Add(cfi2);
 

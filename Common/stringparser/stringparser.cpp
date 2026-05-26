@@ -1404,6 +1404,26 @@ std::string widechar_to_utf8(const wchar_t* str)
 	return utf8_str;
 }
 
+std::string widechar_to_utf8(const wchar_t* str, int charCount)
+{
+	// 如果输入为空或长度为0，直接返回
+	if (!str || charCount <= 0)
+	{
+		return "";
+	}
+
+	// UTF-16 → UTF-8 (指定字符数，不要求null终止)
+	int utf8_len = WideCharToMultiByte(CP_UTF8, 0, str, charCount, nullptr, 0, nullptr, nullptr);
+	if (utf8_len == 0)
+	{
+		return "";
+	}
+	std::string utf8_str(utf8_len, 0);
+	WideCharToMultiByte(CP_UTF8, 0, str, charCount, &utf8_str[0], utf8_len, nullptr, nullptr);
+
+	return utf8_str;
+}
+
 std::string widechar_to_local(const wchar_t* str)
 {
 	// 如果输入为空，直接返回

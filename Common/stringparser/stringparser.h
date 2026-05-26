@@ -180,6 +180,7 @@ extern std::string utf8_to_local(const std::string& utf8_str);
 extern std::wstring local_to_widechar(const char* str);
 extern std::string local_to_utf8(const std::string& ansi_str);
 extern std::string widechar_to_utf8(const wchar_t* str);
+extern std::string widechar_to_utf8(const wchar_t* str, int charCount);
 extern std::string widechar_to_local(const wchar_t* str);
 
 
