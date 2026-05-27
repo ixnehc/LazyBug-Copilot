@@ -1270,29 +1270,46 @@ void CChatInput::SetPlaceholder(const std::wstring& placeholder)
 	_PostWebMessageAsJson(jsonMessage);
 }
 
-bool CChatInput::SetCompressIntensity(int intensity)
+bool CChatInput::SetCompressIntensity(int intensity, const std::wstring& tooltip)
 {
 	if (!_IsReady())
 		return false;
 
 	// 确保强度值在有效范围内
-	if (intensity < 0 || intensity > 5)
+	if (intensity < 0 || intensity > 4)
 		return false;
 
-	std::wstring script = L"setCompressIntensity(" + std::to_wstring(intensity) + L")";
+	std::wstring escapedTooltip = tooltip;
+	// 转义换行符
+	size_t pos = 0;
+	while ((pos = escapedTooltip.find(L'\n', pos)) != std::wstring::npos)
+	{
+		escapedTooltip.replace(pos, 1, L"\\n");
+		pos += 2;
+	}
+	// 转义双引号
+	pos = 0;
+	while ((pos = escapedTooltip.find(L'"', pos)) != std::wstring::npos)
+	{
+		escapedTooltip.replace(pos, 1, L"\\\"");
+		pos += 2;
+	}
+
+	std::wstring script = L"setCompressIntensity(" + std::to_wstring(intensity) + L", \"" + escapedTooltip + L"\")";
 	ExecuteScript(script);
 
 	return true;
 }
 
 // 设置压缩后大小显示 (如 "18K", "1.21M", "0B" 等)
-bool CChatInput::SetCompressedSize(const std::wstring& sizeText)
+bool CChatInput::SetCompressedSize(const std::wstring& sizeText, const std::wstring& tooltip)
 {
 	if (!_IsReady())
 		return false;
 
 	std::wstring escapedSize = EscapeJsonString(sizeText);
-	std::wstring script = L"setCompressedSize(\"" + escapedSize + L"\")";
+	std::wstring escapedTooltip = EscapeJsonString(tooltip);
+	std::wstring script = L"setCompressedSize(\"" + escapedSize + L"\", \"" + escapedTooltip + L"\")";
 	ExecuteScript(script);
 
 	return true;

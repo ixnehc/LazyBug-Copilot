@@ -1270,7 +1270,29 @@ void CChatDialogA::_UpdateContextUsage()
 			jsIntensity = 4;
 			break;
 		}
-		_chatInput.SetCompressIntensity(jsIntensity);
+		
+		// 生成 tooltip
+		std::wstring tooltip;
+		if (jsIntensity == 0)
+		{
+			tooltip = L"Context Level Max\nMax context usage will be controlled below 500k tokens";
+		}
+		else
+		{
+			int displayLevel = 5 - jsIntensity;
+			int maxTokens = 0;
+			switch (jsIntensity)
+			{
+			case 1: maxTokens = 160; break;  // Low
+			case 2: maxTokens = 80; break;   // Medium
+			case 3: maxTokens = 40; break;   // High
+			case 4: maxTokens = 20; break;   // Extreme
+			}
+			tooltip = L"Context Level " + std::to_wstring(displayLevel) + 
+				L"\nMax context usage will be controlled around " + std::to_wstring(maxTokens) + L"k tokens";
+		}
+		
+		_chatInput.SetCompressIntensity(jsIntensity, tooltip);
 	}
 
 	if (true)
@@ -1301,7 +1323,9 @@ void CChatDialogA::_UpdateContextUsage()
 			swprintf_s(buf, L"%.2fm tokens", mValue);
 			sizeText = buf;
 		}
-		_chatInput.SetCompressedSize(sizeText);
+		
+		std::wstring sizeTooltip = L"Current context usage: " + sizeText;
+		_chatInput.SetCompressedSize(sizeText, sizeTooltip);
 	}
 
 	_apiNameOfContextUsage = currentApiName;

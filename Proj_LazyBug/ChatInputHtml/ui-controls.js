@@ -157,7 +157,7 @@ let currentCompressIntensity = CompressIntensity.Low;
 
 // 设置压缩强度 (0-4, 对应 None, Low, Medium, High, Extreme)
 // 显示下标: None=∞, Low=4, Medium=3, High=2, Extreme=1
-function setCompressIntensity(intensity) {
+function setCompressIntensity(intensity, tooltip) {
     const compressButton = document.getElementById('compressButton');
     const levelBadge = document.getElementById('compressLevelBadge');
     
@@ -169,20 +169,16 @@ function setCompressIntensity(intensity) {
     if (intensity === CompressIntensity.None) {
         compressButton.classList.add('compress-none');
         levelBadge.textContent = '∞';
-        compressButton.title = 'Context Level Max\nMax context usage will be controlled below 500k tokens';
     } else {
         compressButton.classList.remove('compress-none');
         // 显示下标转换: Low(1)->4, Medium(2)->3, High(3)->2, Extreme(4)->1
         const displayLevel = 5 - intensity;
         levelBadge.textContent = displayLevel;
-        const levelNames = [
-            '',
-            'Context Level 1\nMax context usage will be controlled around 20k tokens',
-            'Context Level 2\nMax context usage will be controlled around 40k tokens',
-            'Context Level 3\nMax context usage will be controlled around 80k tokens',
-            'Context Level 4\nMax context usage will be controlled around 160k tokens'
-        ];
-        compressButton.title = levelNames[displayLevel] || 'Context Level 1: Max context usage will be controlled around 20k tokens';
+    }
+    
+    // 设置 tooltip
+    if (tooltip) {
+        compressButton.title = tooltip;
     }
 }
 
@@ -209,11 +205,13 @@ function handleCompressButtonClick() {
 }
 
 // 设置压缩后大小显示 (如 "18K", "1.21M", "0B" 等)
-function setCompressedSize(sizeText) {
+function setCompressedSize(sizeText, tooltip) {
     const sizeElement = document.getElementById('compressSize');
     if (sizeElement) {
         sizeElement.textContent = sizeText || '0B';
-        sizeElement.title = 'Current context usage: ' + (sizeText || '0B');
+        if (tooltip) {
+            sizeElement.title = tooltip;
+        }
     }
 }
 

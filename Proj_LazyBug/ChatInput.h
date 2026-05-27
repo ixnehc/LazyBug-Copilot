@@ -178,11 +178,11 @@ public:
     // 设置占位符文字
     void SetPlaceholder(const std::wstring& placeholder);
 
-    // 设置压缩强度 (0=None, 1=Low, 2=Medium, 3=High)
-    bool SetCompressIntensity(int intensity);
+    // 设置压缩强度 (0=None, 1=Low, 2=Medium, 3=High, 4=Extreme)
+    bool SetCompressIntensity(int intensity, const std::wstring& tooltip);
 
     // 设置压缩后大小显示 (如 "18K", "1.21M", "0B" 等)
-    bool SetCompressedSize(const std::wstring& sizeText);
+    bool SetCompressedSize(const std::wstring& sizeText, const std::wstring& tooltip);
 
     // ===== MajorChat API 相关方法 =====
     

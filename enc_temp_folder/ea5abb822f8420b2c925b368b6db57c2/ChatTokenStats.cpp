@@ -44,14 +44,6 @@ int HistoryTokenProvider::CalculateTokens()
 	return _ctx.opsCtrl->GetEstimateTokens();
 }
 
-int HistoryTokenProvider::CalculateUncompressedTokens()
-{
-	if (!_ctx.opsCtrl)
-		return 0;
-
-	return _ctx.opsCtrl->GetUncompressedEstimateTokens();
-}
-
 // ============================================================================
 // InputTokenProvider 实现
 // ============================================================================
