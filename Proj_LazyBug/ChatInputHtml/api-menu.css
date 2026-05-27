@@ -98,6 +98,10 @@
     position: relative;
 }
 
+.compress-button * {
+    pointer-events: none;
+}
+
 .compress-button:hover:not(:disabled) {
     background-color: #6b1b45;
 }

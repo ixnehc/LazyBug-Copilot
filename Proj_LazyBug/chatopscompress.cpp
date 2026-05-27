@@ -23,7 +23,7 @@ ChatOpCompressIntensity CChatOpsCompress::LoadIntensityForCurrentApi()
 	if (apiName.empty())
 		return ChatOpCompressIntensity::Low;
 
-	int value = g_reg.ReadInt("CompressIntensities", apiName.c_str(), static_cast<int>(ChatOpCompressIntensity::High));
+	int value = g_reg.ReadInt("CompressIntensities", apiName.c_str(), static_cast<int>(ChatOpCompressIntensity::Extreme));
 	return static_cast<ChatOpCompressIntensity>(value);
 }
 
@@ -979,21 +979,25 @@ bool CChatOpsCompress::_TryTrigger()
 
 	switch (env.intensity)
 	{
+	case ChatOpCompressIntensity::None:
+		threshold = 500000;
+		targetTokens = 200000;
+		break;
 	case ChatOpCompressIntensity::Low:
-		threshold = 100000;
-		targetTokens = 40000;
+		threshold = 200000;
+		targetTokens = 100000;
 		break;
 	case ChatOpCompressIntensity::Medium:
-		threshold = 50000;
-		targetTokens = 20000;
+		threshold = 100000;
+		targetTokens = 50000;
 		break;
 	case ChatOpCompressIntensity::High:
-		threshold = 30000;
-		targetTokens = 10000;
+		threshold = 50000;
+		targetTokens = 30000;
 		break;
 	case ChatOpCompressIntensity::Extreme:
-		threshold = 15000;
-		targetTokens = 5000;
+		threshold = 30000;
+		targetTokens = 10000;
 		break;
 	default: 
 		return false;

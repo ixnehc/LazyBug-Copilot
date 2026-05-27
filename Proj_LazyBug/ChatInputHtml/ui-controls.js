@@ -169,14 +169,20 @@ function setCompressIntensity(intensity) {
     if (intensity === CompressIntensity.None) {
         compressButton.classList.add('compress-none');
         levelBadge.textContent = '∞';
-        compressButton.title = 'Context Level Max';
+        compressButton.title = 'Context Level Max\nMax context usage will be controlled below 500k tokens';
     } else {
         compressButton.classList.remove('compress-none');
         // 显示下标转换: Low(1)->4, Medium(2)->3, High(3)->2, Extreme(4)->1
         const displayLevel = 5 - intensity;
         levelBadge.textContent = displayLevel;
-        const levelNames = ['', 'Context Level 1', 'Context Level 2', 'Context Level 3', 'Context Level 4'];
-        compressButton.title = levelNames[displayLevel] || 'Context Level 1';
+        const levelNames = [
+            '',
+            'Context Level 1\nMax context usage will be controlled around 20k tokens',
+            'Context Level 2\nMax context usage will be controlled around 40k tokens',
+            'Context Level 3\nMax context usage will be controlled around 80k tokens',
+            'Context Level 4\nMax context usage will be controlled around 160k tokens'
+        ];
+        compressButton.title = levelNames[displayLevel] || 'Context Level 1: Max context usage will be controlled around 20k tokens';
     }
 }
 
@@ -207,6 +213,7 @@ function setCompressedSize(sizeText) {
     const sizeElement = document.getElementById('compressSize');
     if (sizeElement) {
         sizeElement.textContent = sizeText || '0B';
+        sizeElement.title = 'Current context usage: ' + (sizeText || '0B');
     }
 }
 
