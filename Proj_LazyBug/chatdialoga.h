@@ -152,6 +152,7 @@ protected:
 	void _UpdateContextUsage();
 	CChatTokenStats _tokenStats;
 	std::string _apiNameOfContextUsage;
+	ChatOpCompressIntensity _compressLevelOfContextUsage;
 
 	void _UpdateSaveChatCtrl();
 	void _UpdateLoadChatCtrl();

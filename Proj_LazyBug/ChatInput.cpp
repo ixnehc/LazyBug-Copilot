@@ -765,6 +765,8 @@ void CChatInput::_ProcessPastedFilePath(const wchar_t* filePath)
 		canAddInline = true;
 		canAttach = true;
 		if (Utils::CheckFileBinary(actualPath.c_str()))
+			canAttach = false;
+		else
 			showAttach = true;
 	}
 	else

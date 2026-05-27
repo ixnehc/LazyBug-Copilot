@@ -71,9 +71,6 @@ public:
 
 	// 计算 Token 数（仅在版本变化时调用）
 	virtual int CalculateTokens() = 0;
-	
-	// 计算未压缩的 Token 数（默认与 CalculateTokens 相同）
-	virtual int CalculateUncompressedTokens() { return CalculateTokens(); }
 };
 
 // ============================================================================
@@ -87,7 +84,9 @@ public:
 
 	uint64_t GetVersion() const override;
 	int CalculateTokens() override;
-	int CalculateUncompressedTokens() override;
+
+	// 获取未压缩 Token 数
+	int GetUncompressedTokens() const;
 
 private:
 	const ChatTokenStatsContext& _ctx;
@@ -209,8 +208,8 @@ public:
 	
 	// 获取总 Token 数（快速，无计算开销）
 	int GetTotalTokens() const;
-	
-	// 获取总未压缩 Token 数
+
+	// 获取总未压缩 Token 数（仅 History 部分使用未压缩值，其他使用已缓存值）
 	int GetTotalUncompressedTokens() const;
 
 	// 获取指定部分的 Token 数
@@ -250,6 +249,9 @@ public:
 	// 获取矫正后的 token 数
 	int GetCalibratedTokens() const;
 	
+	// 获取矫正后的未压缩 token 数
+	int GetUncompressedCalibratedTokens() const;
+	
 	// 获取当前矫正因子
 	float GetCalibrationFactor() const;
 
@@ -260,7 +262,6 @@ private:
 		ITokenProvider* provider = nullptr;
 		uint64_t lastVersion = 0;
 		int cachedTokens = 0;
-		int cachedUncompressedTokens = 0;
 		bool hasChanged = false;  // 上次 Update 是否变化
 		bool isDirty = false;     // 是否需要强制重新计算
 	};

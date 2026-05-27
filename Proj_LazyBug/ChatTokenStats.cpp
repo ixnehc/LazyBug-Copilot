@@ -44,7 +44,7 @@ int HistoryTokenProvider::CalculateTokens()
 	return _ctx.opsCtrl->GetEstimateTokens();
 }
 
-int HistoryTokenProvider::CalculateUncompressedTokens()
+int HistoryTokenProvider::GetUncompressedTokens() const
 {
 	if (!_ctx.opsCtrl)
 		return 0;
@@ -492,7 +492,6 @@ void CChatTokenStats::Update()
 		{
 			// 重新计算 token 数
 			section.cachedTokens = section.provider->CalculateTokens();
-			section.cachedUncompressedTokens = section.provider->CalculateUncompressedTokens();
 			section.lastVersion = currentVersion;
 			section.hasChanged = true;
 			section.isDirty = false;
@@ -515,8 +514,17 @@ int CChatTokenStats::GetTotalUncompressedTokens() const
 	int total = 0;
 	for (const auto& pair : _sections)
 	{
-		total += pair.second.cachedUncompressedTokens;
+		total += pair.second.cachedTokens;
 	}
+	
+	// History 部分使用未压缩值替换已缓存值
+	const CachedSection* historySection = _GetSection(TokenStats::SectionType::History);
+	if (historySection)
+	{
+		total -= historySection->cachedTokens;
+		total += _historyProvider.GetUncompressedTokens();
+	}
+	
 	return total;
 }
 
@@ -610,6 +618,11 @@ void CChatTokenStats::ApplyCalibration(int actualTokens)
 int CChatTokenStats::GetCalibratedTokens() const
 {
 	return static_cast<int>(GetTotalTokens() * _tokenCalibrate.GetCalibrationFactor());
+}
+
+int CChatTokenStats::GetUncompressedCalibratedTokens() const
+{
+	return static_cast<int>(GetTotalUncompressedTokens() * _tokenCalibrate.GetCalibrationFactor());
 }
 
 float CChatTokenStats::GetCalibrationFactor() const

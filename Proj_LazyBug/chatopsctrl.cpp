@@ -2872,8 +2872,11 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 	{
 		const ChatOp& op = _ops[i];
 		std::string effectiveContent = useUncompressed ? op.contentUtf8 : _GetEffectiveOpContent(op);
-		if (op.currentCompressionLevel == CChatOpsCompress::Level_Remove)
-			continue;
+		if (!useUncompressed)
+		{
+			if (op.currentCompressionLevel == CChatOpsCompress::Level_Remove)
+				continue;
+		}
 
 		switch (op.type)
 		{

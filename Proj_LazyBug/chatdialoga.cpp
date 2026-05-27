@@ -61,6 +61,7 @@ CChatDialogA::CChatDialogA( CWnd* pParent /* = NULL  */ )
 	_splitterRatio = 0.67; // 默认上部分占67%
 
 	_chatFileVer = 0;
+	_compressLevelOfContextUsage = ChatOpCompressIntensity::None;
 }
 
 CChatDialogA::~CChatDialogA()
@@ -1248,7 +1249,7 @@ void CChatDialogA::_UpdateContextUsage()
 		return;
 
 	// 更新压缩强度
-	if (currentApiName != _apiNameOfContextUsage)
+	if (intensity!= _compressLevelOfContextUsage)
 	{
 		// 映射: None->0, Low->1, Medium->2, High->3, Extreme->4
 		int jsIntensity = 0;
@@ -1325,10 +1326,35 @@ void CChatDialogA::_UpdateContextUsage()
 		}
 		
 		std::wstring sizeTooltip = L"Current context usage: " + sizeText;
+		
+		// 如果有压缩，显示原始 token 数
+		int uncompressedTokens = _tokenStats.GetUncompressedCalibratedTokens();
+		if (uncompressedTokens > totalTokens)
+		{
+			std::wstring uncompressedText;
+			if (uncompressedTokens < K) {
+				uncompressedText = std::to_wstring(uncompressedTokens) + L" tokens";
+			}
+			else if (uncompressedTokens < M) {
+				double kValue = static_cast<double>(uncompressedTokens) / K;
+				wchar_t buf[32];
+				swprintf_s(buf, L"%.2fk tokens", kValue);
+				uncompressedText = buf;
+			}
+			else {
+				double mValue = static_cast<double>(uncompressedTokens) / M;
+				wchar_t buf[32];
+				swprintf_s(buf, L"%.2fm tokens", mValue);
+				uncompressedText = buf;
+			}
+			sizeTooltip += L"\n(uncompressed: " + uncompressedText + L")";
+		}
+		
 		_chatInput.SetCompressedSize(sizeText, sizeTooltip);
 	}
 
 	_apiNameOfContextUsage = currentApiName;
+	_compressLevelOfContextUsage = intensity;
 	_tokenStats.ClearAllChanged();
 }
 
