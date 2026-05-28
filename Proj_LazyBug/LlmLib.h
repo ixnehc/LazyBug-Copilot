@@ -128,6 +128,7 @@ class CCurrentUserRegistry;
 
 class CLlmLib
 {
+	friend class CLlmLibLoader;
 public:
 	CLlmLib()
 	{
@@ -142,6 +143,8 @@ public:
 	};
 	void Init();
 	void Clear();
+
+	static void EnsureJson();
 
     bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, LlmApiProviderTypeName providerTypeName, bool allowUnavailable,const char* ruleName);
 	bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, const char* ruleName);
@@ -192,6 +195,8 @@ private:
 	void _Save(CCurrentUserRegistry &reg);
 	void _Load(CCurrentUserRegistry& reg);
 
+	void _EnsureDefApis();
+
 	void _LoadLlmSessionSetting(LlmSessionSetting& setting, const LlmApi &api, const char* ruleName);
 	 
 	LlmApi* _FindApi(const char* apiName);
@@ -200,11 +205,12 @@ private:
 	std::vector<LlmApi> _apis;
 
 	std::string _majorChatApi;
+	std::string _briefApi;
 
 	WorkingCapability _cap;
 
 	// 记录 llm.ini 文件的最后修改时间
-	AbsTick _llmIniLastTick;
+	AbsTick _llmFileLastTick;
 
 	// 版本号，每次reload后+1
 	int _version;

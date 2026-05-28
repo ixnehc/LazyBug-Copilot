@@ -81,8 +81,9 @@ void CLlmLib::_Save(CCurrentUserRegistry &reg)
 {
 	const char* mainSection = "LazyBugLlmLib";
 
-	// 保存 _majorChatApi
+	// 保存 _majorChatApi 和 _briefApi
 	reg.WriteString(mainSection, "majorChatApi", _majorChatApi.c_str());
+	reg.WriteString(mainSection, "briefApi", _briefApi.c_str());
 
 	// 保存API提供商的动态数据到注册表
 	for (int i = 0; i < (int)_providers.size(); i++)
@@ -111,24 +112,12 @@ void CLlmLib::_Load(CCurrentUserRegistry& reg)
 {
 	const char* mainSection = "LazyBugLlmLib";
 
-	// 加载 _majorChatApi
+	// 从注册表加载 _majorChatApi 和 _briefApi
 	_majorChatApi = reg.ReadString(mainSection, "majorChatApi", "");
-	if (_majorChatApi.empty())
-	{
-		for (int i = 0;i < _apis.size();i++)
-		{
-			for(int j = 0;j < _apis[i].purpose.size();j++)
-			{
-				if(_apis[i].purpose[j] == LlmApiPurpose::MajorChat)
-				{
-					_majorChatApi = _apis[i].name;
-					break;
-				}
-			}
-			if (!_majorChatApi.empty())
-				break;
-		}
-	}
+	_briefApi = reg.ReadString(mainSection, "briefApi", "");
+
+	// 确保默认API被设置
+	_EnsureDefApis();
 
 	// 从注册表读取API提供商的动态数据
 	for (int i = 0; i < (int)_providers.size(); i++)
@@ -192,24 +181,15 @@ void CLlmLib::Init()
 {
 	// 初始化API提供商数组和API列表
 
-	// 检查 db root folder 下是否有 llm.ini，如果没有则从 llm_default.ini 复制
+	// 确保 llm.json 文件存在，如果不存在则从 ini 文件迁移
+	EnsureJson();
+
+	// 读取 db root folder 下的 llm.json
 	{
-		extern const char* GetCurModuleFolderPath_utf8();
 		std::string dbFolder = Utils::GetDBRootFolder_utf8();
-		std::string dbLlmIni = dbFolder + "\\llm.ini";
-
-		if (!Utils::IsFileExist(dbLlmIni.c_str()))
-		{
-			// 文件不存在，从 CurModuleFolder 的 llm_default.ini 复制
-			std::string moduleFolder = GetCurModuleFolderPath_utf8();
-			std::string defaultLlmIni = moduleFolder + "\\llm_default.ini";
-
-			Utils::CopyFile(defaultLlmIni.c_str(), dbLlmIni.c_str());
-		}
-
-		// 读取 db root folder 下的 llm.ini
-		CLlmLibLoader::LoadInto(_providers, _apis, dbLlmIni.c_str());
-		_llmIniLastTick = Utils::GetFileTick(dbLlmIni.c_str());
+		std::string jsonPath = dbFolder + "\\llm.json";
+		CLlmLibLoader::LoadJsonFile(*this, jsonPath.c_str());
+		_llmFileLastTick = Utils::GetFileTick(jsonPath.c_str());
 	}
 
 	// 从注册表加载动态数据
@@ -230,6 +210,76 @@ void CLlmLib::Clear()
 
 	// 重置工作能力
 	_cap = WorkingCapability::CannotWork;
+}
+
+void CLlmLib::_EnsureDefApis()
+{
+	// 确保 _majorChatApi 有值
+	if (_majorChatApi.empty())
+	{
+		for (const auto& api : _apis)
+		{
+			for (const auto& purpose : api.purpose)
+			{
+				if (purpose == LlmApiPurpose::MajorChat)
+				{
+					_majorChatApi = api.name;
+					break;
+				}
+			}
+			if (!_majorChatApi.empty())
+				break;
+		}
+	}
+
+	// 确保 _briefApi 有值
+	if (_briefApi.empty())
+	{
+		for (const auto& api : _apis)
+		{
+			for (const auto& purpose : api.purpose)
+			{
+				if (purpose == LlmApiPurpose::MinorChat)
+				{
+					_briefApi = api.name;
+					break;
+				}
+			}
+			if (!_briefApi.empty())
+				break;
+		}
+	}
+}
+
+void CLlmLib::EnsureJson()
+{
+	std::string dbFolder = Utils::GetDBRootFolder_utf8();
+	std::string jsonPath = dbFolder + "\\llm.json";
+	
+	// 如果llm.json已存在，什么都不做
+	if (Utils::IsFileExist(jsonPath.c_str()))
+		return;
+	
+	CLlmLib tempLib;
+	
+	// 检查是否有llm.ini文件
+	std::string iniPath = dbFolder + "\\llm.ini";
+	if (Utils::IsFileExist(iniPath.c_str()))
+	{
+		// 从llm.ini加载
+		CLlmLibLoader::LoadInto(tempLib._providers, tempLib._apis, iniPath.c_str());
+	}
+	else
+	{
+		// 从llm_default.ini加载
+		extern const char* GetCurModuleFolderPath_utf8();
+		std::string moduleFolder = GetCurModuleFolderPath_utf8();
+		std::string defaultIniPath = moduleFolder + "\\llm_default.ini";
+		CLlmLibLoader::LoadInto(tempLib._providers, tempLib._apis, defaultIniPath.c_str());
+	}
+	
+	// 保存为llm.json
+	CLlmLibLoader::SaveJsonFile(tempLib, jsonPath.c_str());
 }
 
 bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, LlmApiProviderTypeName providerTypeName, bool allowUnavailable, const char* ruleName)
@@ -451,13 +501,13 @@ void CLlmLib::SaveSettings()
 
 bool CLlmLib::UpdateReload()
 {
-	// 检查 db root folder 下的 llm.ini 是否变化
+	// 检查 db root folder 下的 llm.json 是否变化
 	std::string dbFolder = Utils::GetDBRootFolder_utf8();
-	std::string dbLlmIni = dbFolder + "\\llm.ini";
-	AbsTick tick1 = Utils::GetFileTick(dbLlmIni.c_str());
+	std::string dbLlmJson = dbFolder + "\\llm.json";
+	AbsTick tick1 = Utils::GetFileTick(dbLlmJson.c_str());
 
 	// 如果文件发生变化，则重新加载
-	if (tick1 != _llmIniLastTick)
+	if (tick1 != _llmFileLastTick)
 	{
 		// 清空现有数据
 		Clear();
