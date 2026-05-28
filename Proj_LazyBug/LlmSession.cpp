@@ -1031,8 +1031,8 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		}
 
 		// 处理 skills
-		std::string skillStr;
-		g_llmSkills.Dump(skillStr);
+		static const std::string emptyStr;
+		const std::string& skillStr = settings.skillsDump ? *settings.skillsDump : emptyStr;
 		if (!skillStr.empty())
 		{
 			if (!context.empty())

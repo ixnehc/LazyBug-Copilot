@@ -83,7 +83,7 @@ public:
     // ─────────────────────────────────────────────────────────────────────
 
     // 发起一轮新的用户消息
-    bool StartSession(const std::wstring& content,const std::string &apiName, const std::vector<ChatInputTag>& tags);
+    bool StartSession(const std::wstring& content,const std::string &apiName, const std::vector<ChatInputTag>& tags, const char* skillsDump);
 
 	// 请求中断当前对话（异步，在下一次 Update() 里处理）
 	void RequestInterrupt()	
@@ -249,6 +249,7 @@ private:
 
     LlmSessionContext _lastCtx;     // 上一次/当前会话上下文
     LlmSessionUsage   _chatUsage;   // 本轮对话累积的 Token 用量
+	std::shared_ptr<std::string> _skillsDump;  // working 周期开始时 dump 一次，整个周期复用
 
     std::wstring    _aiMessageId;   // 当前流式 AI 消息 ID
 

@@ -41,6 +41,7 @@ struct LlmSessionSetting
 	LlmApiFormat apiFormat;
 	LlmApiCacheControlType apiCacheControlType;
 	std::vector<std::string> rulesFiles;
+	std::shared_ptr<const std::string> skillsDump;  // 预先 dump 好的 skills 字符串，由外部传入
 	int timeoutSeconds;      // 请求超时时间（秒）
 
 	LlmSessionSetting() : timeoutSeconds(3000)

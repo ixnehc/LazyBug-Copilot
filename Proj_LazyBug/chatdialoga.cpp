@@ -314,7 +314,10 @@ BOOL CChatDialogA::OnInitDialog()
 
 	Utils::SyncBuiltInSkills();
 
+	Utils::LoadLlmSkills(g_llmSkills, "");
+
 	_InitAgent("");
+
 
 	if (g_llmLib.GetWorkingCapability() == CLlmLib::WorkingCapability::CannotWork)
 		ShowChatSettingPage();
@@ -560,6 +563,8 @@ void CChatDialogA::_UpdateLoadChatCtrl()
 		_chatHistory.Clear();
 		if (!chatsFolder.empty())
 			_chatHistory.Init(chatsFolder.c_str());
+
+		Utils::LoadLlmSkills(g_llmSkills, GetOpenedDBFolderPath_utf8());
 
 		_ShutdownAgent();
 
@@ -1140,7 +1145,12 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 
 		_agent.RemoveDisabledSessions();
 
-		_agent.StartSession(content, g_llmLib.GetMajorChatApi(), _chatInput.GetTags());
+		// dump skills 并通过 StartSession 传入，working 周期内复用
+		extern CLlmSkills g_llmSkills;
+		std::string skillsDump;
+		Utils::LoadLlmSkills(g_llmSkills, GetOpenedDBFolderPath_utf8());
+		g_llmSkills.Dump(skillsDump);
+		_agent.StartSession(content, g_llmLib.GetMajorChatApi(), _chatInput.GetTags(), skillsDump.c_str());
 
 		// 显示stop按钮
 		_chatInput.ShowStopButton();

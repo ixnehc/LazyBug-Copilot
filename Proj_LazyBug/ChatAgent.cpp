@@ -2,6 +2,7 @@
 
 #include "ChatAgent.h"
 #include "llmlib.h"
+#include "llmskills.h"
 
 
 void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *ui,IChatNotify *notify)
@@ -227,7 +228,7 @@ std::string CChatAgent::_MakeFilePath() const
 	return _ctx.dbFolderPath + "\\_chats\\" + _fileName;
 }
 
-bool CChatAgent::StartSession(const std::wstring& content, const std::string& apiName, const std::vector<ChatInputTag>& tags)
+bool CChatAgent::StartSession(const std::wstring& content, const std::string& apiName, const std::vector<ChatInputTag>& tags, const char* skillsDump)
 {
 	// 检查内容是否为空
 	std::wstring plainText = ExtractPlainText(content);
@@ -263,6 +264,9 @@ bool CChatAgent::StartSession(const std::wstring& content, const std::string& ap
 
 	// 更新上下文
 	_lastCtx = newCtx;
+
+	// 保存 skills dump（整个 working 周期复用）
+	_skillsDump = skillsDump ? std::make_shared<std::string>(skillsDump) : nullptr;
 
 	// 执行发送用户消息流程（传入完整的 tags，包括 visible 和非 visible）
 	_ExecuteSendUserMessage(content, tags);
@@ -440,6 +444,8 @@ bool CChatAgent::_DoRequest(const LlmSessionRequest& request, bool isUserMessage
 	bool solutionLoaded = !_ctx.dbFolderPath.empty();
 	if (!solutionLoaded)
 		setting.api.tools.clear();
+
+	setting.skillsDump = _skillsDump;
 
 	// 发起请求
 	return _llmChat.Request(request, setting);
