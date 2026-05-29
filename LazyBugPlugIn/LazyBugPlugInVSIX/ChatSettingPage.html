@@ -283,23 +283,30 @@
         }
 
         .provider-item {
-            background-color: var(--secondary-bg);
-            border: 1px solid var(--border-color);
+            background: #020a06;
+            border: 1px solid #0a301d;
             border-radius: 8px;
-            margin-bottom: 16px;
-            padding: 16px;
-            transition: border-color 0.2s ease;
+            margin-bottom: 4px;
+            padding: 8px 12px;
+            transition: box-shadow 0.2s ease;
         }
 
         .provider-item:hover {
-            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .provider-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            padding: 6px 8px;
+            margin: -8px -12px 8px -12px;
+            background: #0a1f12;
+            border-radius: 8px 8px 0 0;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .provider-header:hover {
+            background: #0c2818;
         }
 
         .provider-name-section {
@@ -311,8 +318,9 @@
         .provider-name {
             font-size: 1.1em;
             font-weight: 600;
-            color: var(--text-color);
+            color: #ffffff;
             margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .provider-status-dot {
@@ -571,6 +579,288 @@
             transform: scale(0.98);
             box-shadow: 0 1px 4px rgba(0, 77, 64, 0.2);
         }
+
+        /* ===== Provider / API 树形编辑样式 ===== */
+
+        /* 展开区域暗色背景 */
+        .provider-expanded-area {
+            background-color: #141414;
+            margin: 8px -10px -10px -10px;
+            padding: 10px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        /* API展开区域 */
+        .api-expanded-area {
+            background-color: #141414;
+            margin: 6px -8px -8px -8px;
+            padding: 8px;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* API标题栏 - 文字区域绿色渐变，其余深灰色 */
+        .api-header-bar {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            background-color: #1a1a1a;
+            border-radius: 4px;
+            margin: -4px -8px 8px -8px;
+            height: 28px;
+        }
+        .api-header-bar:hover {
+            background-color: #252525;
+        }
+        .api-header-bar span {
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+            padding: 0 16px 0 10px;
+            height: 100%;
+            line-height: 28px;
+            border-radius: 3px 0 0 3px;
+            display: inline-block;
+        }
+        .api-header-bar:hover span {
+            background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+        }
+
+        /* 统一行高 */
+        .provider-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            margin-bottom: 4px;
+        }
+        .provider-edit-row:last-child {
+            margin-bottom: 0;
+        }
+        .provider-edit-label {
+            font-size: 0.78em;
+            color: #888;
+            flex-shrink: 0;
+            min-width: 65px;
+            text-align: right;
+        }
+        .provider-edit-input {
+            flex: 1;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.85em;
+            font-family: inherit;
+            height: 24px;
+            box-sizing: border-box;
+        }
+        .provider-edit-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* 通用内联编辑输入框 */
+        .inline-input {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
+            padding: 1px 4px;
+            min-width: 60px;
+            max-width: 100%;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .inline-input:hover {
+            border-color: var(--border-color);
+            background: #252525;
+        }
+        .inline-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* Provider 折叠按钮 */
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 0 4px;
+            font-size: 0.85em;
+            line-height: 1;
+            transition: color 0.15s;
+            flex-shrink: 0;
+        }
+        .expand-btn:hover { color: var(--text-color); }
+
+        .provider-name-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .provider-name {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* endpoint 行 */
+        .provider-endpoint-section {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .provider-endpoint-label {
+            font-size: 0.78em;
+            color: #888;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .provider-endpoint-input {
+            flex: 1;
+            min-width: 0;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.82em;
+            font-family: monospace;
+        }
+        .provider-endpoint-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* API 列表区域 */
+        .provider-apis-section {
+            margin-top: 10px;
+            border-top: 1px solid #2e2e2e;
+            padding-top: 8px;
+        }
+        .provider-apis-label {
+            font-size: 0.75em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        /* API 条目 */
+        .api-item {
+            margin: 2px 0;
+            border-radius: 4px;
+            background: #181818;
+            border: 1px solid #2a2a2a;
+            overflow: hidden;
+        }
+        .api-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+        }
+        .api-name-input {
+            flex: 1;
+            min-width: 0;
+            font-size: 0.88em;
+            font-weight: 500;
+        }
+
+        /* API 参数面板 */
+        .api-params {
+            padding: 8px 10px 10px 10px;
+            border-top: 1px solid #242424;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 12px;
+        }
+        .param-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .param-row.full-width {
+            grid-column: 1 / -1;
+        }
+        .param-label {
+            font-size: 0.72em;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .param-input {
+            padding: 3px 7px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.83em;
+            font-family: monospace;
+            width: 100%;
+        }
+        .param-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* 隐藏 number input 的上下箭头 */
+        .param-input[type="number"]::-webkit-outer-spin-button,
+        .param-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .param-input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Select */
+        .param-select {
+            padding: 3px 7px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.83em;
+            width: 100%;
+            cursor: pointer;
+        }
+        .param-select:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+        }
+
+        /* Checkbox 组 */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8em;
+            color: #aaa;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .checkbox-label input[type=checkbox] {
+            accent-color: var(--primary-color-hover);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -793,15 +1083,192 @@
             capabilityBar.textContent = statusText;
         }
 
-        // 设置Provider数据
+        // ===== Provider / API 树形展开状态 =====
+        let expandedProvider = null; // 当前展开的 provider name
+        let expandedApi = null;      // 当前展开的 api name
+
+        // 辅助：发送消息到C++
+        function postMsg(obj) {
+            if (window.chrome && window.chrome.webview)
+                window.chrome.webview.postMessage(obj);
+        }
+
+        // 辅助：绑定内联编辑输入框（失焦/Enter提交，Escape还原）
+        function bindInlineInput(input, onCommit) {
+            let lastValue = input.value;
+            input.addEventListener('focus', function() { lastValue = this.value; this.select(); });
+            input.addEventListener('blur', function() { onCommit(this.value, lastValue); });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = lastValue; this.blur(); }
+            });
+            input.addEventListener('click', e => e.stopPropagation());
+            input.addEventListener('mousedown', e => e.stopPropagation());
+        }
+
+        // 辅助：绑定普通参数输入框（失焦提交数值/字符串）
+        function bindParamInput(input, apiName, field, isNumber) {
+            let last = input.value;
+            input.addEventListener('focus', function() { last = this.value; });
+            input.addEventListener('blur', function() {
+                let val = this.value.trim();
+                if (val === last) return;
+                postMsg({ action: 'updateApiField', apiName, field, value: isNumber ? (parseFloat(val) || 0) : val });
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = last; this.blur(); }
+            });
+        }
+
+        // 辅助：绑定浮点数输入框（显示两位小数，无上下箭头）
+        function bindFloatInput(input, apiName, field) {
+            let lastValue = input.value;
+            input.addEventListener('focus', function() { 
+                lastValue = this.value; 
+                this.select(); 
+            });
+            input.addEventListener('blur', function() {
+                let val = this.value.trim();
+                // 格式化为两位小数显示
+                let numVal = parseFloat(val);
+                if (isNaN(numVal)) numVal = 0;
+                this.value = numVal.toFixed(2);
+                if (val !== lastValue) {
+                    postMsg({ action: 'updateApiField', apiName, field, value: numVal });
+                }
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = lastValue; this.blur(); }
+            });
+        }
+
+        // 构建 API 参数面板
+        function buildApiParams(api) {
+            const panel = document.createElement('div');
+            panel.className = 'api-params';
+
+            // 辅助：创建一行参数
+            function makeRow(label, el, fullWidth) {
+                const row = document.createElement('div');
+                row.className = 'param-row' + (fullWidth ? ' full-width' : '');
+                const lbl = document.createElement('div');
+                lbl.className = 'param-label';
+                lbl.textContent = label;
+                row.appendChild(lbl);
+                row.appendChild(el);
+                return row;
+            }
+
+            // model
+            const modelInput = document.createElement('input');
+            modelInput.className = 'param-input';
+            modelInput.value = api.model || '';
+            modelInput.placeholder = 'model id';
+            bindParamInput(modelInput, api.name, 'model', false);
+            panel.appendChild(makeRow('Model', modelInput));
+
+            // maxToken
+            const maxTokenInput = document.createElement('input');
+            maxTokenInput.className = 'param-input';
+            maxTokenInput.type = 'number';
+            maxTokenInput.value = api.maxToken || 0;
+            bindParamInput(maxTokenInput, api.name, 'maxToken', true);
+            panel.appendChild(makeRow('Max Token', maxTokenInput));
+
+            // priceInputToken（浮点数，显示两位小数）
+            const priceInInput = document.createElement('input');
+            priceInInput.className = 'param-input';
+            priceInInput.type = 'text';
+            priceInInput.value = (api.priceInputToken || 0).toFixed(2);
+            bindFloatInput(priceInInput, api.name, 'priceInputToken');
+            panel.appendChild(makeRow('Price/Input Token', priceInInput));
+
+            // priceOutputToken（浮点数，显示两位小数）
+            const priceOutInput = document.createElement('input');
+            priceOutInput.className = 'param-input';
+            priceOutInput.type = 'text';
+            priceOutInput.value = (api.priceOutputToken || 0).toFixed(2);
+            bindFloatInput(priceOutInput, api.name, 'priceOutputToken');
+            panel.appendChild(makeRow('Price/Output Token', priceOutInput));
+
+            // priceCacheRead（浮点数，显示两位小数）
+            const priceCRInput = document.createElement('input');
+            priceCRInput.className = 'param-input';
+            priceCRInput.type = 'text';
+            priceCRInput.value = (api.priceCacheRead || 0).toFixed(2);
+            bindFloatInput(priceCRInput, api.name, 'priceCacheRead');
+            panel.appendChild(makeRow('Price/Cache Read', priceCRInput));
+
+            // priceCacheWrite（浮点数，显示两位小数）
+            const priceCWInput = document.createElement('input');
+            priceCWInput.className = 'param-input';
+            priceCWInput.type = 'text';
+            priceCWInput.value = (api.priceCacheWrite || 0).toFixed(2);
+            bindFloatInput(priceCWInput, api.name, 'priceCacheWrite');
+            panel.appendChild(makeRow('Price/Cache Write', priceCWInput));
+
+            // thinkingMode
+            const thinkSel = document.createElement('select');
+            thinkSel.className = 'param-select';
+            ['Auto','Enable','Disable'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.thinkingMode === v) opt.selected = true;
+                thinkSel.appendChild(opt);
+            });
+            thinkSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'thinkingMode', value: this.value });
+            });
+            panel.appendChild(makeRow('Thinking Mode', thinkSel));
+
+            // cacheControl
+            const cacheSel = document.createElement('select');
+            cacheSel.className = 'param-select';
+            ['Auto','None','Anthropic'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.cacheControl === v) opt.selected = true;
+                cacheSel.appendChild(opt);
+            });
+            cacheSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'cacheControl', value: this.value });
+            });
+            panel.appendChild(makeRow('Cache Control', cacheSel));
+
+            // purpose checkboxes (full width)
+            const purposeOptions = ['MajorChat','MinorChat','FastApply_Dedicated','FastApply_Adaptive','Embedding','Complete'];
+            const purposeGroup = document.createElement('div');
+            purposeGroup.className = 'checkbox-group';
+            purposeOptions.forEach(p => {
+                const lbl = document.createElement('label');
+                lbl.className = 'checkbox-label';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = (api.purpose || []).includes(p);
+                cb.addEventListener('change', function() {
+                    const current = Array.from(purposeGroup.querySelectorAll('input[type=checkbox]'))
+                        .map((c, i) => c.checked ? purposeOptions[i] : null)
+                        .filter(Boolean);
+                    postMsg({ action: 'updateApiField', apiName: api.name, field: 'purpose', value: current });
+                });
+                lbl.appendChild(cb);
+                lbl.appendChild(document.createTextNode(p));
+                purposeGroup.appendChild(lbl);
+            });
+            panel.appendChild(makeRow('Purpose', purposeGroup, true));
+
+            return panel;
+        }
+
+        // 设置Provider数据（全量重建，保持展开状态）
         function setProviderData(providers) {
             const providersContainer = document.getElementById('providers-list');
-            if (!providersContainer) {
-                return;
-            }
-            
+            if (!providersContainer) return;
+
             providersContainer.innerHTML = '';
-            
+
             if (!providers || providers.length === 0) {
                 const emptyDiv = document.createElement('div');
                 emptyDiv.className = 'providers-empty';
@@ -813,121 +1280,247 @@
                 providersContainer.appendChild(emptyDiv);
                 return;
             }
-            
+
             providers.forEach((provider, index) => {
                 const providerDiv = document.createElement('div');
                 providerDiv.className = 'provider-item';
-                
+
                 const isAvailable = provider.isAvailable;
                 const statusClass = isAvailable ? 'available' : 'unavailable';
-                
-                providerDiv.innerHTML = `
-                    <div class="provider-header">
-                        <div class="provider-name-section">
-                            <div class="provider-status-dot ${statusClass}" data-provider-type="${provider.type}"></div>
-                            <h3 class="provider-name">${provider.name}</h3>
-                        </div>
-                    </div>
-                    <div class="provider-key-section">
-                        <input 
-                            type="password" 
-                            id="provider-key-${index}"
-                            class="provider-key-input"
-                            placeholder="Enter API key..."
-                            value="${provider.key || ''}"
-                            data-provider-type="${provider.type}"
-                        />
-                    </div>
-                `;
-                
-                providersContainer.appendChild(providerDiv);
-                
-                // 如果不是最后一个项目，添加分隔线
-                if (index < providers.length - 1) {
-                    const separator = document.createElement('div');
-                    separator.className = 'provider-separator';
-                    providersContainer.appendChild(separator);
-                }
-            });
-            
-            // 为所有API key输入框添加事件监听器
-            providersContainer.querySelectorAll('.provider-key-input').forEach(input => {
-                // 记录上一次的值
-                let lastValue = input.value;
-                
-                // 获得焦点时自动全选
-                input.addEventListener('focus', function() {
-                    this.select();
-                });
-                
-                // 使用blur事件代替change事件，无论内容是否改变都发送更新
-                input.addEventListener('blur', function() {
-                    const currentValue = this.value;
-                    const providerType = this.getAttribute('data-provider-type');
-                    
-                    // 无论值是否变化都发送API key更新消息到C++
-                    if (window.chrome && window.chrome.webview) {
-                        window.chrome.webview.postMessage({
-                            action: 'updateProviderKey',
-                            providerType: providerType,
-                            key: currentValue
-                        });
+                const isProviderExpanded = (expandedProvider === provider.name);
+
+                // ── Provider 标题栏（折叠/展开均可点击）──
+                const header = document.createElement('div');
+                header.className = 'provider-header';
+                const headerId = 'provider-header-' + index;
+                header.id = headerId;
+                header.style.cursor = 'pointer';
+                header.title = isProviderExpanded ? 'Click to collapse' : 'Click to expand';
+                header.addEventListener('click', () => {
+                    const rectBefore = header.getBoundingClientRect();
+                    const topBefore = rectBefore.top;
+
+                    if (isProviderExpanded) {
+                        expandedProvider = null;
+                    } else {
+                        expandedProvider = provider.name;
+                        expandedApi = null;
                     }
-                    
-                    // 更新lastValue
-                    lastValue = currentValue;
-                });
-                
-                // 防止焦点问题 - 使用mousedown事件确保焦点
-                input.addEventListener('mousedown', function(e) {
-                    // 防止事件冒泡到父元素
-                    e.stopPropagation();
-                });
-                
-                // 点击时确保获得焦点
-                input.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.focus();
-                });
-                
-                // 处理键盘事件
-                input.addEventListener('keydown', function(e) {
-                    // Enter键时保存并失焦
-                    if (e.key === 'Enter') {
-                        this.blur();
-                    }
-                    // Escape键时恢复原值并失焦
-                    else if (e.key === 'Escape') {
-                        this.value = lastValue;
-                        this.blur();
+                    setProviderData(providers);
+
+                    const newHeader = document.getElementById(headerId);
+                    if (newHeader) {
+                        const rectAfter = newHeader.getBoundingClientRect();
+                        const diff = rectAfter.top - topBefore;
+                        if (diff !== 0) {
+                            const scrollContainer = document.getElementById('providers-list');
+                            if (scrollContainer) {
+                                scrollContainer.scrollTop += diff;
+                            }
+                        }
                     }
                 });
-                
-                // 实时显示/隐藏密码 - 使用dblclick
-                input.addEventListener('dblclick', function(e) {
-                    e.stopPropagation();
-                    this.type = this.type === 'password' ? 'text' : 'password';
-                });
-                
-                // 阻止provider-item的点击事件影响输入框
-                input.closest('.provider-item').addEventListener('click', function(e) {
-                    // 如果点击的是输入框，不阻止
-                    if (e.target.classList.contains('provider-key-input')) {
-                        return;
-                    }
-                    // 其他点击不影响输入框焦点
-                    e.stopPropagation();
-                });
-                
-                // 点击label区域时聚焦到输入框
-                const keySection = input.closest('.provider-key-section');
-                keySection.addEventListener('click', function(e) {
-                    // 如果点击的不是输入框本身，则聚焦到输入框
-                    if (!e.target.classList.contains('provider-key-input')) {
-                        input.focus();
+
+                const nameSection = document.createElement('div');
+                nameSection.className = 'provider-name-section';
+
+                // 状态点
+                const dot = document.createElement('div');
+                dot.className = `provider-status-dot ${statusClass}`;
+                nameSection.appendChild(dot);
+
+                // 名称（始终静态，点击标题栏折叠/展开）
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'provider-name';
+                nameSpan.textContent = provider.name;
+                nameSection.appendChild(nameSpan);
+                header.appendChild(nameSection);
+                providerDiv.appendChild(header);
+
+                // ── 展开状态：显示详细内容（暗色背景区域）──
+                if (isProviderExpanded) {
+                    const expandedArea = document.createElement('div');
+                    expandedArea.className = 'provider-expanded-area';
+
+                    // Name行
+                    const nameRow = document.createElement('div');
+                    nameRow.className = 'provider-edit-row';
+                    const nameLabel = document.createElement('span');
+                    nameLabel.className = 'provider-edit-label';
+                    nameLabel.textContent = 'Name:';
+                    nameRow.appendChild(nameLabel);
+                    const nameInput = document.createElement('input');
+                    nameInput.className = 'provider-edit-input';
+                    nameInput.value = provider.name;
+                    bindInlineInput(nameInput, (newVal, oldVal) => {
+                        newVal = newVal.trim();
+                        if (newVal && newVal !== oldVal) {
+                            if (expandedProvider === oldVal) expandedProvider = newVal;
+                            postMsg({ action: 'updateProviderName', oldName: oldVal, newName: newVal });
+                        } else {
+                            nameInput.value = oldVal;
+                        }
+                    });
+                    nameInput.addEventListener('click', e => e.stopPropagation());
+                    nameInput.addEventListener('mousedown', e => e.stopPropagation());
+                    nameRow.appendChild(nameInput);
+                    expandedArea.appendChild(nameRow);
+
+                    // Endpoint行
+                    const endpointRow = document.createElement('div');
+                    endpointRow.className = 'provider-edit-row';
+                    const endpointLabel = document.createElement('span');
+                    endpointLabel.className = 'provider-edit-label';
+                    endpointLabel.textContent = 'Endpoint:';
+                    endpointRow.appendChild(endpointLabel);
+                    const endpointInput = document.createElement('input');
+                    endpointInput.className = 'provider-edit-input';
+                    endpointInput.value = provider.endpoint || '';
+                    endpointInput.placeholder = 'https://api.example.com/v1';
+                    let lastEndpoint = endpointInput.value;
+                    endpointInput.addEventListener('focus', function() { lastEndpoint = this.value; this.select(); });
+                    endpointInput.addEventListener('blur', function() {
+                        const v = this.value.trim();
+                        postMsg({ action: 'updateProviderEndpoint', providerName: provider.name, endpoint: v });
+                    });
+                    endpointInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                        else if (e.key === 'Escape') { this.value = lastEndpoint; this.blur(); }
+                    });
+                    endpointInput.addEventListener('click', e => e.stopPropagation());
+                    endpointInput.addEventListener('mousedown', e => e.stopPropagation());
+                    endpointRow.appendChild(endpointInput);
+                    expandedArea.appendChild(endpointRow);
+
+                    // Api Key行
+                    const keyRow = document.createElement('div');
+                    keyRow.className = 'provider-edit-row';
+                    const keyLabel = document.createElement('span');
+                    keyLabel.className = 'provider-edit-label';
+                    keyLabel.textContent = 'Api Key:';
+                    keyRow.appendChild(keyLabel);
+                    const keyInput = document.createElement('input');
+                    keyInput.type = 'password';
+                    keyInput.className = 'provider-edit-input';
+                    keyInput.placeholder = 'Enter API key...';
+                    keyInput.value = provider.key || '';
+                    keyInput.setAttribute('data-provider-type', provider.type);
+                    let lastKey = keyInput.value;
+                    keyInput.addEventListener('focus', function() { lastKey = this.value; this.select(); });
+                    keyInput.addEventListener('blur', function() {
+                        postMsg({ action: 'updateProviderKey', providerType: provider.type, key: this.value });
+                        lastKey = this.value;
+                    });
+                    keyInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                        else if (e.key === 'Escape') { this.value = lastKey; this.blur(); }
+                    });
+                    keyInput.addEventListener('dblclick', function(e) {
                         e.stopPropagation();
+                        this.type = this.type === 'password' ? 'text' : 'password';
+                    });
+                    keyInput.addEventListener('click', e => e.stopPropagation());
+                    keyInput.addEventListener('mousedown', e => e.stopPropagation());
+                    keyRow.appendChild(keyInput);
+                    expandedArea.appendChild(keyRow);
+
+                    // API 列表
+                    if (provider.apis && provider.apis.length > 0) {
+                        const apisSection = document.createElement('div');
+                        apisSection.className = 'provider-apis-section';
+                        const apisLabel = document.createElement('div');
+                        apisLabel.className = 'provider-apis-label';
+                        apisLabel.textContent = 'APIs';
+                        apisSection.appendChild(apisLabel);
+
+                        provider.apis.forEach((api, apiIndex) => {
+                            const isApiExpanded = (expandedApi === api.name);
+
+                            const apiItem = document.createElement('div');
+                            apiItem.className = 'api-item';
+
+                            // API 标题栏（单击展开/折叠）
+                            const apiHeader = document.createElement('div');
+                            apiHeader.className = 'api-header-bar';
+                            const apiHeaderId = 'api-header-' + index + '-' + apiIndex;
+                            apiHeader.id = apiHeaderId;
+                            apiHeader.title = isApiExpanded ? 'Click to collapse' : 'Click to expand';
+                            apiHeader.addEventListener('click', () => {
+                                const rectBefore = apiHeader.getBoundingClientRect();
+                                const topBefore = rectBefore.top;
+
+                                expandedApi = isApiExpanded ? null : api.name;
+                                setProviderData(providers);
+
+                                const newApiHeader = document.getElementById(apiHeaderId);
+                                if (newApiHeader) {
+                                    const rectAfter = newApiHeader.getBoundingClientRect();
+                                    const diff = rectAfter.top - topBefore;
+                                    if (diff !== 0) {
+                                        const scrollContainer = document.getElementById('providers-list');
+                                        if (scrollContainer) {
+                                            scrollContainer.scrollTop += diff;
+                                        }
+                                    }
+                                }
+                            });
+
+                            // API 名称（静态，不可编辑）
+                            const apiNameSpan = document.createElement('span');
+                            apiNameSpan.style.cssText = 'font-size:0.9em;font-weight:500;color:var(--text-color);';
+                            apiNameSpan.textContent = api.name;
+                            apiHeader.appendChild(apiNameSpan);
+
+                            apiItem.appendChild(apiHeader);
+
+                            // API 展开区域（暗色背景）
+                            if (isApiExpanded) {
+                                const apiExpandedArea = document.createElement('div');
+                                apiExpandedArea.className = 'api-expanded-area';
+
+                                // Name编辑行
+                                const apiNameRow = document.createElement('div');
+                                apiNameRow.className = 'provider-edit-row';
+                                apiNameRow.style.height = '28px';
+                                const apiNameLabel = document.createElement('span');
+                                apiNameLabel.className = 'provider-edit-label';
+                                apiNameLabel.style.minWidth = '50px';
+                                apiNameLabel.textContent = 'Name:';
+                                apiNameRow.appendChild(apiNameLabel);
+                                const apiNameInput = document.createElement('input');
+                                apiNameInput.className = 'provider-edit-input';
+                                apiNameInput.style.fontSize = '0.82em';
+                                apiNameInput.value = api.name;
+                                bindInlineInput(apiNameInput, (newVal, oldVal) => {
+                                    newVal = newVal.trim();
+                                    if (newVal && newVal !== oldVal) {
+                                        if (expandedApi === oldVal) expandedApi = newVal;
+                                        postMsg({ action: 'updateApiName', oldName: oldVal, newName: newVal });
+                                    } else {
+                                        apiNameInput.value = oldVal;
+                                    }
+                                });
+                                apiNameInput.addEventListener('click', e => e.stopPropagation());
+                                apiNameInput.addEventListener('mousedown', e => e.stopPropagation());
+                                apiNameRow.appendChild(apiNameInput);
+                                apiExpandedArea.appendChild(apiNameRow);
+
+                                // 其他参数面板
+                                apiExpandedArea.appendChild(buildApiParams(api));
+
+                                apiItem.appendChild(apiExpandedArea);
+                            }
+
+                            apisSection.appendChild(apiItem);
+                        });
+
+                        expandedArea.appendChild(apisSection);
                     }
-                });
+
+                    providerDiv.appendChild(expandedArea);
+                }
+
+                providersContainer.appendChild(providerDiv);
             });
         }
 

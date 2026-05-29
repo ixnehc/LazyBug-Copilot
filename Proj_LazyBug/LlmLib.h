@@ -180,6 +180,10 @@ public:
 	const LlmApiProvider* GetProviderByApiName(const std::string& apiName) const;
 	bool SetProviderKey(const LlmApiProviderTypeName& name, const std::string& key);
 	bool SetProviderStatus(const LlmApiProviderTypeName& name, LlmApiProvider::Status status);
+	bool SetProviderName(const LlmApiProviderTypeName& oldName, const LlmApiProviderTypeName& newName);
+	bool SetProviderEndpoint(const LlmApiProviderTypeName& name, const std::string& endpoint);
+	bool SetApiName(const std::string& oldName, const std::string& newName);
+	LlmApi* GetApiMutable(const std::string& apiName);
 	void SaveSettings(); // 保存设置到注册表
 
 

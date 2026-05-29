@@ -499,6 +499,61 @@ void CLlmLib::SaveSettings()
 	_Save(g_reg);
 }
 
+bool CLlmLib::SetProviderName(const LlmApiProviderTypeName& oldName, const LlmApiProviderTypeName& newName)
+{
+	if (oldName.empty() || newName.empty() || oldName == newName)
+		return false;
+	for (auto& p : _providers)
+	{
+		if (p.name == oldName)
+		{
+			p.name = newName;
+			// 同步更新所有引用该 provider 的 api
+			for (auto& api : _apis)
+				if (api.providerTypeName == oldName)
+					api.providerTypeName = newName;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CLlmLib::SetProviderEndpoint(const LlmApiProviderTypeName& name, const std::string& endpoint)
+{
+	for (auto& p : _providers)
+	{
+		if (p.name == name)
+		{
+			p.endpoint = endpoint;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CLlmLib::SetApiName(const std::string& oldName, const std::string& newName)
+{
+	if (oldName.empty() || newName.empty() || oldName == newName)
+		return false;
+	for (auto& api : _apis)
+	{
+		if (api.name == oldName)
+		{
+			api.name = newName;
+			return true;
+		}
+	}
+	return false;
+}
+
+LlmApi* CLlmLib::GetApiMutable(const std::string& apiName)
+{
+	for (auto& api : _apis)
+		if (api.name == apiName)
+			return &api;
+	return nullptr;
+}
+
 bool CLlmLib::UpdateReload()
 {
 	// 检查 db root folder 下的 llm.json 是否变化

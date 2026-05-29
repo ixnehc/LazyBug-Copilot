@@ -5,6 +5,7 @@
 #include <functional>
 #include <wrl.h>
 #include <WebView2.h>
+#include <nlohmann/json.hpp>
 
 #include "LlmLib.h"
 
@@ -71,6 +72,10 @@ public:
     void SendProviderDataToWebView();
     void SendCapabilityStatusToWebView();
     void UpdateProviderKey(const std::wstring& providerTypeName, const std::wstring& key);
+    void UpdateProviderName(const std::wstring& oldName, const std::wstring& newName);
+    void UpdateProviderEndpoint(const std::wstring& providerName, const std::wstring& endpoint);
+    void UpdateApiName(const std::wstring& oldName, const std::wstring& newName);
+    void UpdateApiField(const std::wstring& apiName, const std::wstring& field, const nlohmann::json& value);
     
     // Provider验证方法
     void StartValidatingProvider(const LlmApiProviderTypeName& providerTypeName);
@@ -140,6 +145,9 @@ private:
     // JSON辅助方法
     std::wstring _EscapeJsonString(const std::wstring& str);
     std::wstring _BuildTabsJson();
+    
+    // 保存g_llmLib到llm.json
+    void _SaveLlmJson();
     
     // 查找Tab
     SettingTab* _FindTab(const std::wstring& tabId);

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "timer/wuid.h"
 #include <nlohmann/json.hpp>
+#include "llmlibloader.h"
 
 // 外部函数声明
 extern std::string widechar_to_utf8(const wchar_t* str);
@@ -479,6 +480,7 @@ SettingTab* CChatSettingPage::_FindTab(const std::wstring& tabId)
     return (it != _tabs.end()) ? &(*it) : nullptr;
 }
 
+
 // 处理来自JavaScript的消息
 void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
 {
@@ -518,6 +520,42 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
                 std::string key = jsonMsg["key"];
                 
                 UpdateProviderKey(utf8_to_widechar(providerTypeStr), utf8_to_widechar(key));
+            }
+        }
+        else if (action == "updateProviderName")
+        {
+            if (jsonMsg.contains("oldName") && jsonMsg.contains("newName"))
+            {
+                std::string oldName = jsonMsg["oldName"];
+                std::string newName = jsonMsg["newName"];
+                UpdateProviderName(utf8_to_widechar(oldName), utf8_to_widechar(newName));
+            }
+        }
+        else if (action == "updateProviderEndpoint")
+        {
+            if (jsonMsg.contains("providerName") && jsonMsg.contains("endpoint"))
+            {
+                std::string providerName = jsonMsg["providerName"];
+                std::string endpoint = jsonMsg["endpoint"];
+                UpdateProviderEndpoint(utf8_to_widechar(providerName), utf8_to_widechar(endpoint));
+            }
+        }
+        else if (action == "updateApiName")
+        {
+            if (jsonMsg.contains("oldName") && jsonMsg.contains("newName"))
+            {
+                std::string oldName = jsonMsg["oldName"];
+                std::string newName = jsonMsg["newName"];
+                UpdateApiName(utf8_to_widechar(oldName), utf8_to_widechar(newName));
+            }
+        }
+        else if (action == "updateApiField")
+        {
+            if (jsonMsg.contains("apiName") && jsonMsg.contains("field") && jsonMsg.contains("value"))
+            {
+                std::string apiName = jsonMsg["apiName"];
+                std::string field = jsonMsg["field"];
+                UpdateApiField(utf8_to_widechar(apiName), utf8_to_widechar(field), jsonMsg["value"]);
             }
         }
         else if (action == "tabChanged")
@@ -572,44 +610,121 @@ void CChatSettingPage::LoadProviderData()
     // 这里不需要特别的操作，因为我们直接从g_llmLib读取
 }
 
+
 // 发送Provider数据到WebView
 void CChatSettingPage::SendProviderDataToWebView()
 {
     if (!_IsReady())
         return;
     
-    // 构建Provider数据JSON
-    std::wstring providersJson = L"[";
-    
+    using json = nlohmann::json;
+
+    // 收集所有 purpose/tool/thinkingMode/cacheControl 枚举的字符串映射
+    // （复用 llmlibloader 中已有的字符串，直接在此拼装 json）
+    auto purposeToStr = [](LlmApiPurpose p) -> std::string {
+        switch (p) {
+        case LlmApiPurpose::MajorChat:           return "MajorChat";
+        case LlmApiPurpose::MinorChat:           return "MinorChat";
+        case LlmApiPurpose::FastApply_Dedicated: return "FastApply_Dedicated";
+        case LlmApiPurpose::FastApply_Adaptive:  return "FastApply_Adaptive";
+        case LlmApiPurpose::Embedding:           return "Embedding";
+        case LlmApiPurpose::Complete:            return "Complete";
+        default:                                 return "None";
+        }
+    };
+    auto toolToStr = [](LlmToolType t) -> std::string {
+        switch (t) {
+        case LlmToolType::ReplaceInFile:    return "ReplaceInFile";
+        case LlmToolType::FindSymbolDefine: return "FindSymbolDefine";
+        case LlmToolType::FindInFiles:      return "FindInFiles";
+        case LlmToolType::SearchFile:       return "SearchFile";
+        case LlmToolType::ReadFile:         return "ReadFile";
+        case LlmToolType::CLI_Cmd:          return "CLI_Cmd";
+        case LlmToolType::CLI_Bash:         return "CLI_Bash";
+        case LlmToolType::CLI_RunScript:    return "CLI_RunScript";
+        case LlmToolType::Question:         return "Question";
+        case LlmToolType::QueryFinish:      return "QueryFinish";
+        case LlmToolType::CreateSkill:      return "CreateSkill";
+        default:                            return "None";
+        }
+    };
+    auto thinkingToStr = [](LlmThinkingMode m) -> std::string {
+        switch (m) {
+        case LlmThinkingMode::Enable:  return "Enable";
+        case LlmThinkingMode::Disable: return "Disable";
+        default:                       return "Auto";
+        }
+    };
+    auto cacheToStr = [](LlmApiCacheControlType c) -> std::string {
+        switch (c) {
+        case LlmApiCacheControlType::Anthropic_: return "Anthropic";
+        case LlmApiCacheControlType::None_:      return "None";
+        default:                                 return "Auto";
+        }
+    };
+
+    const auto& allApis = g_llmLib.GetApis();
     int providerCount = g_llmLib.GetProviderCount();
-    bool first = true;
-    
+
+    json jProviders = json::array();
     for (int i = 0; i < providerCount; i++)
     {
-        const LlmApiProvider* provider = g_llmLib.GetProvider(i);
-        if (provider && !provider->name.empty())
+        const LlmApiProvider* p = g_llmLib.GetProvider(i);
+        if (!p || p->name.empty())
+            continue;
+
+        json jProvider;
+        jProvider["name"]        = p->name;
+        jProvider["endpoint"]    = p->endpoint;
+        jProvider["key"]         = p->key;
+        jProvider["type"]        = p->name;
+        jProvider["isAvailable"] = p->IsAvailable();
+
+        // 收集属于这个 provider 的所有 api
+        json jApis = json::array();
+        for (const auto& api : allApis)
         {
-            if (!first) providersJson += L",";
-            first = false;
-            
-            // 转义字符串
-            std::wstring safeName = _EscapeJsonString(utf8_to_widechar(provider->name));
-            std::wstring safeKey = _EscapeJsonString(utf8_to_widechar(provider->key));
-            
-            providersJson += L"{";
-            providersJson += L"\"name\":\"" + safeName + L"\",";
-            providersJson += L"\"key\":\"" + safeKey + L"\",";
-            providersJson += L"\"type\":\"" + safeName + L"\",";
-			providersJson += L"\"isAvailable\":";
-			providersJson += (provider->IsAvailable() ? L"true" : L"false");
-            providersJson += L"}";
+            if (api.providerTypeName != p->name)
+                continue;
+
+            json jApi;
+            jApi["name"]             = api.name;
+            jApi["model"]            = api.model;
+            jApi["rule"]             = api.rule;
+            jApi["maxToken"]         = api.maxToken;
+            jApi["contextCapacity"]  = api.contextCapacity;
+            jApi["priceInputToken"]  = api.priceInputToken;
+            jApi["priceOutputToken"] = api.priceOutputToken;
+            jApi["priceCacheRead"]   = api.priceCacheRead;
+            jApi["priceCacheWrite"]  = api.priceCacheWrite;
+            jApi["thinkingMode"]     = thinkingToStr(api.thinkingMode);
+            jApi["cacheControl"]     = cacheToStr(api.cacheControlType);
+            jApi["providerTypeName"] = api.providerTypeName;
+
+            json jPurpose = json::array();
+            for (auto pu : api.purpose)
+                jPurpose.push_back(purposeToStr(pu));
+            jApi["purpose"] = jPurpose;
+
+            json jTools = json::array();
+            for (auto to : api.tools)
+                jTools.push_back(toolToStr(to));
+            jApi["tools"] = jTools;
+
+            jApi["openRouterOptions"]["disableReasoning"] = api.openRouterOptions.disableReasoning;
+            json jOnly = json::array();
+            for (const auto& s : api.openRouterOptions.only)
+                jOnly.push_back(s);
+            jApi["openRouterOptions"]["only"] = jOnly;
+
+            jApis.push_back(jApi);
         }
+        jProvider["apis"] = jApis;
+        jProviders.push_back(jProvider);
     }
-    
-    providersJson += L"]";
-    
-    // 发送Provider数据到WebView
-    _PostWebMessage(L"setProviderData", providersJson);
+
+    std::string utf8Json = jProviders.dump();
+    _PostWebMessage(L"setProviderData", utf8_to_widechar(utf8Json));
 }
 
 // 更新Provider的API Key
@@ -657,7 +772,138 @@ void CChatSettingPage::UpdateProviderKey(const std::wstring& providerTypeStr, co
     }
 }
 
+
 //====================== Provider验证方法实现 ======================
+
+// 保存g_llmLib到llm.json
+void CChatSettingPage::_SaveLlmJson()
+{
+    std::string dbFolder = Utils::GetDBRootFolder_utf8();
+    std::string jsonPath = dbFolder + "\\llm.json";
+    CLlmLibLoader::SaveJsonFile(g_llmLib, jsonPath.c_str());
+}
+
+// 更新Provider名称
+void CChatSettingPage::UpdateProviderName(const std::wstring& oldNameW, const std::wstring& newNameW)
+{
+    std::string oldName = widechar_to_utf8(oldNameW.c_str());
+    std::string newName = widechar_to_utf8(newNameW.c_str());
+    if (g_llmLib.SetProviderName(oldName, newName))
+        _SaveLlmJson();
+}
+
+// 更新Provider的endpoint
+void CChatSettingPage::UpdateProviderEndpoint(const std::wstring& providerNameW, const std::wstring& endpointW)
+{
+    std::string providerName = widechar_to_utf8(providerNameW.c_str());
+    std::string endpoint     = widechar_to_utf8(endpointW.c_str());
+    if (g_llmLib.SetProviderEndpoint(providerName, endpoint))
+        _SaveLlmJson();
+}
+
+// 更新API名称
+void CChatSettingPage::UpdateApiName(const std::wstring& oldNameW, const std::wstring& newNameW)
+{
+    std::string oldName = widechar_to_utf8(oldNameW.c_str());
+    std::string newName = widechar_to_utf8(newNameW.c_str());
+    if (g_llmLib.SetApiName(oldName, newName))
+        _SaveLlmJson();
+}
+
+// 更新API单字段
+void CChatSettingPage::UpdateApiField(const std::wstring& apiNameW, const std::wstring& fieldW, const nlohmann::json& value)
+{
+    using json = nlohmann::json;
+
+    std::string apiName = widechar_to_utf8(apiNameW.c_str());
+    std::string field   = widechar_to_utf8(fieldW.c_str());
+
+    auto purposeFromStr = [](const std::string& s) -> LlmApiPurpose {
+        if (s == "MajorChat")           return LlmApiPurpose::MajorChat;
+        if (s == "MinorChat")           return LlmApiPurpose::MinorChat;
+        if (s == "FastApply_Dedicated") return LlmApiPurpose::FastApply_Dedicated;
+        if (s == "FastApply_Adaptive")  return LlmApiPurpose::FastApply_Adaptive;
+        if (s == "Embedding")           return LlmApiPurpose::Embedding;
+        if (s == "Complete")            return LlmApiPurpose::Complete;
+        return LlmApiPurpose::None;
+    };
+    auto toolFromStr = [](const std::string& s) -> LlmToolType {
+        if (s == "ReplaceInFile")    return LlmToolType::ReplaceInFile;
+        if (s == "FindSymbolDefine") return LlmToolType::FindSymbolDefine;
+        if (s == "FindInFiles")      return LlmToolType::FindInFiles;
+        if (s == "SearchFile")       return LlmToolType::SearchFile;
+        if (s == "ReadFile")         return LlmToolType::ReadFile;
+        if (s == "CLI_Cmd")          return LlmToolType::CLI_Cmd;
+        if (s == "CLI_Bash")         return LlmToolType::CLI_Bash;
+        if (s == "CLI_RunScript")    return LlmToolType::CLI_RunScript;
+        if (s == "Question")         return LlmToolType::Question;
+        if (s == "QueryFinish")      return LlmToolType::QueryFinish;
+        if (s == "CreateSkill")      return LlmToolType::CreateSkill;
+        return LlmToolType::None;
+    };
+
+    LlmApi* api = g_llmLib.GetApiMutable(apiName);
+    if (!api)
+        return;
+
+    if (field == "model" && value.is_string())
+        api->model = value.get<std::string>();
+    else if (field == "rule" && value.is_string())
+        api->rule = value.get<std::string>();
+    else if (field == "maxToken" && value.is_number())
+        api->maxToken = value.get<int>();
+    else if (field == "contextCapacity" && value.is_number())
+        api->contextCapacity = value.get<int>();
+    else if (field == "priceInputToken" && value.is_number())
+        api->priceInputToken = value.get<float>();
+    else if (field == "priceOutputToken" && value.is_number())
+        api->priceOutputToken = value.get<float>();
+    else if (field == "priceCacheRead" && value.is_number())
+        api->priceCacheRead = value.get<float>();
+    else if (field == "priceCacheWrite" && value.is_number())
+        api->priceCacheWrite = value.get<float>();
+    else if (field == "thinkingMode" && value.is_string())
+    {
+        std::string v = value.get<std::string>();
+        if (v == "Enable")       api->thinkingMode = LlmThinkingMode::Enable;
+        else if (v == "Disable") api->thinkingMode = LlmThinkingMode::Disable;
+        else                     api->thinkingMode = LlmThinkingMode::Auto;
+    }
+    else if (field == "cacheControl" && value.is_string())
+    {
+        std::string v = value.get<std::string>();
+        if (v == "Anthropic")  api->cacheControlType = LlmApiCacheControlType::Anthropic_;
+        else if (v == "None")  api->cacheControlType = LlmApiCacheControlType::None_;
+        else                   api->cacheControlType = LlmApiCacheControlType::Auto;
+    }
+    else if (field == "purpose" && value.is_array())
+    {
+        api->purpose.clear();
+        for (const auto& elem : value)
+            if (elem.is_string())
+                api->purpose.push_back(purposeFromStr(elem.get<std::string>()));
+    }
+    else if (field == "tools" && value.is_array())
+    {
+        api->tools.clear();
+        for (const auto& elem : value)
+            if (elem.is_string())
+                api->tools.push_back(toolFromStr(elem.get<std::string>()));
+    }
+    else if (field == "disableReasoning" && value.is_boolean())
+        api->openRouterOptions.disableReasoning = value.get<bool>();
+    else if (field == "openRouterOnly" && value.is_array())
+    {
+        api->openRouterOptions.only.clear();
+        for (const auto& elem : value)
+            if (elem.is_string())
+                api->openRouterOptions.only.push_back(elem.get<std::string>());
+    }
+    else
+        return; // 未知字段，不保存
+
+    _SaveLlmJson();
+}
 
 void CChatSettingPage::StartValidatingProvider(const LlmApiProviderTypeName& providerTypeName)
 {

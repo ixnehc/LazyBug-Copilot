@@ -579,13 +579,19 @@ void parseLlmResponse(const char* response, CLlmToolCallParser &toolCallParser, 
 				// 处理标准消息或增量消息
 				if (choice.contains(u8"message"))
 				{
-					message.role = choice[u8"message"].value(u8"role", u8"");
+					if (choice[u8"message"].contains(u8"role") && !choice[u8"message"][u8"role"].is_null())
+						message.role = choice[u8"message"][u8"role"].get<std::string>();
+					else
+						message.role = u8"";
 					message.content = choice[u8"message"].value(u8"content", "");
 				}
 				else if (choice.contains(u8"delta"))
 				{
 					message.is_delta = true;
-					message.role = choice[u8"delta"].value(u8"role", u8"assistant");
+					if (choice[u8"delta"].contains(u8"role") && !choice[u8"delta"][u8"role"].is_null())
+						message.role = choice[u8"delta"][u8"role"].get<std::string>();
+					else
+						message.role = u8"assistant";
 					if (choice[u8"delta"].contains(u8"content") && !choice[u8"delta"][u8"content"].is_null())
 					{
 						message.content = choice[u8"delta"][u8"content"].get<std::string>();
