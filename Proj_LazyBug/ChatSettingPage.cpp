@@ -590,6 +590,52 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
             
             ShellExecuteW(NULL, L"open", utf8_to_widechar(htmlPath.c_str()).c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
+        else if (action == "addProvider")
+        {
+            // 添加新 Provider
+            if (jsonMsg.contains("name"))
+            {
+                std::string name = jsonMsg["name"];
+                AddProvider(utf8_to_widechar(name));
+            }
+        }
+        else if (action == "deleteProvider")
+        {
+            // 删除 Provider
+            if (jsonMsg.contains("name"))
+            {
+                std::string name = jsonMsg["name"];
+                DeleteProvider(utf8_to_widechar(name));
+            }
+        }
+        else if (action == "addApi")
+        {
+            // 添加新 API
+            if (jsonMsg.contains("providerName") && jsonMsg.contains("apiName"))
+            {
+                std::string providerName = jsonMsg["providerName"];
+                std::string apiName = jsonMsg["apiName"];
+                AddApi(utf8_to_widechar(providerName), utf8_to_widechar(apiName));
+            }
+        }
+        else if (action == "deleteApi")
+        {
+            // 删除 API
+            if (jsonMsg.contains("name"))
+            {
+                std::string name = jsonMsg["name"];
+                DeleteApi(utf8_to_widechar(name));
+            }
+        }
+        else if (action == "showError")
+        {
+            // 显示错误消息
+            if (jsonMsg.contains("message"))
+            {
+                std::string msg = jsonMsg["message"];
+                MessageBoxW(GetSafeHwnd(), utf8_to_widechar(msg.c_str()).c_str(), L"Error", MB_OK | MB_ICONERROR);
+            }
+        }
         // 可以在这里添加其他消息类型的处理
     }
     catch (const std::exception& e)
@@ -808,6 +854,59 @@ void CChatSettingPage::UpdateApiName(const std::wstring& oldNameW, const std::ws
     std::string newName = widechar_to_utf8(newNameW.c_str());
     if (g_llmLib.SetApiName(oldName, newName))
         _SaveLlmJson();
+}
+
+// 添加新 Provider
+void CChatSettingPage::AddProvider(const std::wstring& nameW)
+{
+    std::string name = widechar_to_utf8(nameW.c_str());
+    if (g_llmLib.AddProvider(name))
+    {
+        _SaveLlmJson();
+        // 刷新页面显示
+        LoadProviderData();
+        SendProviderDataToWebView();
+    }
+}
+
+// 删除 Provider
+void CChatSettingPage::DeleteProvider(const std::wstring& nameW)
+{
+    std::string name = widechar_to_utf8(nameW.c_str());
+    if (g_llmLib.DeleteProvider(name))
+    {
+        _SaveLlmJson();
+        // 刷新页面显示（前端会自动从 expandedProviders 数组中移除已删除的 provider）
+        LoadProviderData();
+        SendProviderDataToWebView();
+    }
+}
+
+// 添加新 API
+void CChatSettingPage::AddApi(const std::wstring& providerNameW, const std::wstring& apiNameW)
+{
+    std::string providerName = widechar_to_utf8(providerNameW.c_str());
+    std::string apiName = widechar_to_utf8(apiNameW.c_str());
+    if (g_llmLib.AddApi(providerName, apiName))
+    {
+        _SaveLlmJson();
+        // 刷新页面显示
+        LoadProviderData();
+        SendProviderDataToWebView();
+    }
+}
+
+// 删除 API
+void CChatSettingPage::DeleteApi(const std::wstring& nameW)
+{
+    std::string name = widechar_to_utf8(nameW.c_str());
+    if (g_llmLib.DeleteApi(name))
+    {
+        _SaveLlmJson();
+        // 刷新页面显示
+        LoadProviderData();
+        SendProviderDataToWebView();
+    }
 }
 
 // 更新API单字段

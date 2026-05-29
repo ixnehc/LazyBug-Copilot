@@ -185,6 +185,10 @@ public:
 	bool SetApiName(const std::string& oldName, const std::string& newName);
 	LlmApi* GetApiMutable(const std::string& apiName);
 	void SaveSettings(); // 保存设置到注册表
+	LlmApiProvider* AddProvider(const LlmApiProviderTypeName& name); // 添加新Provider
+	bool DeleteProvider(const LlmApiProviderTypeName& name); // 删除Provider
+	LlmApi* AddApi(const LlmApiProviderTypeName& providerName, const std::string& apiName); // 添加新API
+	bool DeleteApi(const std::string& name); // 删除API
 
 
 	// 检测ini文件是否变化，如有变化则重新加载，返回是否重新加载

@@ -76,6 +76,10 @@ public:
     void UpdateProviderEndpoint(const std::wstring& providerName, const std::wstring& endpoint);
     void UpdateApiName(const std::wstring& oldName, const std::wstring& newName);
     void UpdateApiField(const std::wstring& apiName, const std::wstring& field, const nlohmann::json& value);
+    void AddProvider(const std::wstring& name);
+    void DeleteProvider(const std::wstring& name);
+    void AddApi(const std::wstring& providerName, const std::wstring& apiName);
+    void DeleteApi(const std::wstring& name);
     
     // Provider验证方法
     void StartValidatingProvider(const LlmApiProviderTypeName& providerTypeName);

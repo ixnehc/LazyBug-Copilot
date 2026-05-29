@@ -304,9 +304,104 @@
             background: #0a1f12;
             border-radius: 8px 8px 0 0;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
         }
         .provider-header:hover {
             background: #0c2818;
+        }
+
+        .provider-header:hover .delete-provider-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Provider/API 删除按钮 */
+        .delete-provider-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 1px solid #999;
+            color: #aaa;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, border-color 0.15s ease, color 0.15s ease;
+            position: relative;
+            flex-shrink: 0;
+            margin-left: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        .delete-provider-btn::before {
+            content: '×';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            margin-top: -1px;
+        }
+
+        .delete-provider-btn:hover {
+            border-color: #ccc;
+            color: #ccc;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .delete-provider-btn:active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 长按进度环 */
+        .delete-provider-btn .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: calc(100% + 6px);
+            height: calc(100% + 6px);
+            transform: translate(-50%, -50%) rotate(-90deg);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s ease;
+        }
+
+        .delete-provider-btn.deleting .progress-ring {
+            opacity: 1;
+        }
+
+        .delete-provider-btn .progress-ring circle {
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .delete-provider-btn .progress-ring .progress-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .delete-provider-btn .progress-ring .progress-fill {
+            stroke: #aaa;
+            stroke-dasharray: 72.26;
+            stroke-dashoffset: 72.26;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .delete-provider-btn.deleting .progress-fill {
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 3s linear;
+        }
+
+        /* API 标题栏 hover 显示删除按钮 */
+        .api-header-bar:hover .delete-provider-btn {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .provider-name-section {
@@ -598,10 +693,41 @@
             border-radius: 0 0 4px 4px;
         }
 
+        /* 添加 Provider 按钮 */
+        .add-provider-button {
+            width: 36px;
+            height: 24px;
+            margin: 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #666;
+            font-size: 16px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+            padding-bottom: 2px;
+        }
+
+        .add-provider-button:hover {
+            border-color: #888;
+            color: #888;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .add-provider-button:active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
         /* API标题栏 - 文字区域绿色渐变，其余深灰色 */
         .api-header-bar {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             cursor: pointer;
             background-color: #1a1a1a;
             border-radius: 4px;
@@ -623,6 +749,12 @@
         }
         .api-header-bar:hover span {
             background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+        }
+        .api-header-bar .delete-provider-btn {
+            width: 16px;
+            height: 16px;
+            font-size: 14px;
+            margin-right: 12px;
         }
 
         /* 统一行高 */
@@ -752,9 +884,60 @@
         .provider-apis-label {
             font-size: 0.75em;
             color: #666;
-            text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 4px;
+            line-height: 1;
+        }
+
+        .apis-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .add-api-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.15s ease, color 0.15s ease;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            margin-top: -2px;
+        }
+
+        .add-api-btn::before {
+            content: '+';
+            line-height: 1;
+        }
+
+        .add-api-btn:hover {
+            border-color: #888;
+            color: #888;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .add-api-btn:active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .apis-none {
+            font-size: 0.85em;
+            color: #555;
+            font-style: italic;
+            padding: 8px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 4px;
         }
 
         /* API 条目 */
@@ -1084,8 +1267,10 @@
         }
 
         // ===== Provider / API 树形展开状态 =====
-        let expandedProvider = null; // 当前展开的 provider name
-        let expandedApi = null;      // 当前展开的 api name
+        let expandedProviders = [];  // 当前展开的 provider names 数组
+        let expandedApis = [];       // 当前展开的 api names 数组
+        let pendingFocusApiName = null; // 新建API后待聚焦的名称
+        let pendingFocusProviderName = null; // 新建Provider后待聚焦的名称
 
         // 辅助：发送消息到C++
         function postMsg(obj) {
@@ -1287,7 +1472,7 @@
 
                 const isAvailable = provider.isAvailable;
                 const statusClass = isAvailable ? 'available' : 'unavailable';
-                const isProviderExpanded = (expandedProvider === provider.name);
+                const isProviderExpanded = expandedProviders.includes(provider.name);
 
                 // ── Provider 标题栏（折叠/展开均可点击）──
                 const header = document.createElement('div');
@@ -1301,10 +1486,9 @@
                     const topBefore = rectBefore.top;
 
                     if (isProviderExpanded) {
-                        expandedProvider = null;
+                        expandedProviders = expandedProviders.filter(p => p !== provider.name);
                     } else {
-                        expandedProvider = provider.name;
-                        expandedApi = null;
+                        expandedProviders.push(provider.name);
                     }
                     setProviderData(providers);
 
@@ -1327,6 +1511,7 @@
                 // 状态点
                 const dot = document.createElement('div');
                 dot.className = `provider-status-dot ${statusClass}`;
+                dot.setAttribute('data-provider-type', provider.type);
                 nameSection.appendChild(dot);
 
                 // 名称（始终静态，点击标题栏折叠/展开）
@@ -1335,6 +1520,61 @@
                 nameSpan.textContent = provider.name;
                 nameSection.appendChild(nameSpan);
                 header.appendChild(nameSection);
+
+                // ── 删除按钮（长按3秒）──
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete-provider-btn';
+                deleteBtn.title = 'Hold for 3 seconds to delete';
+                
+                // 进度环SVG
+                deleteBtn.innerHTML = `
+                    <svg class="progress-ring" viewBox="0 0 26 26">
+                        <circle class="progress-bg" cx="13" cy="13" r="11.5"/>
+                        <circle class="progress-fill" cx="13" cy="13" r="11.5"/>
+                    </svg>
+                `;
+                
+                let longPressTimer = null;
+                let isDeleting = false;
+                
+                const startLongPress = (e) => {
+                    if (e.button !== 0) return; // 只响应左键
+                    e.stopPropagation();
+                    isDeleting = false;
+                    deleteBtn.classList.add('deleting');
+                    
+                    longPressTimer = setTimeout(() => {
+                        isDeleting = true;
+                        deleteBtn.classList.remove('deleting');
+                        // 发送删除消息
+                        postMsg({ action: 'deleteProvider', name: provider.name });
+                    }, 3000);
+                };
+                
+                const cancelLongPress = (e) => {
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                    if (!isDeleting) {
+                        deleteBtn.classList.remove('deleting');
+                    }
+                };
+                
+                deleteBtn.addEventListener('mousedown', startLongPress);
+                deleteBtn.addEventListener('mouseup', cancelLongPress);
+                deleteBtn.addEventListener('mouseleave', cancelLongPress);
+                deleteBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startLongPress(e.touches[0]);
+                });
+                deleteBtn.addEventListener('touchend', cancelLongPress);
+                deleteBtn.addEventListener('touchcancel', cancelLongPress);
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+                
+                header.appendChild(deleteBtn);
                 providerDiv.appendChild(header);
 
                 // ── 展开状态：显示详细内容（暗色背景区域）──
@@ -1355,7 +1595,14 @@
                     bindInlineInput(nameInput, (newVal, oldVal) => {
                         newVal = newVal.trim();
                         if (newVal && newVal !== oldVal) {
-                            if (expandedProvider === oldVal) expandedProvider = newVal;
+                            // 检查是否与其他 provider 重名
+                            const duplicateProvider = providers.find(p => p.name === newVal);
+                            if (duplicateProvider) {
+                                nameInput.value = oldVal;
+                                postMsg({ action: 'showError', message: 'Provider name "' + newVal + '" already exists' });
+                                return;
+                            }
+                            expandedProviders = expandedProviders.map(p => p === oldVal ? newVal : p);
                             postMsg({ action: 'updateProviderName', oldName: oldVal, newName: newVal });
                         } else {
                             nameInput.value = oldVal;
@@ -1424,17 +1671,57 @@
                     keyRow.appendChild(keyInput);
                     expandedArea.appendChild(keyRow);
 
-                    // API 列表
-                    if (provider.apis && provider.apis.length > 0) {
-                        const apisSection = document.createElement('div');
-                        apisSection.className = 'provider-apis-section';
-                        const apisLabel = document.createElement('div');
-                        apisLabel.className = 'provider-apis-label';
-                        apisLabel.textContent = 'APIs';
-                        apisSection.appendChild(apisLabel);
+                    // API 列表（始终显示）
+                    const apisSection = document.createElement('div');
+                    apisSection.className = 'provider-apis-section';
+                    
+                    // 标题行（APIs + 添加按钮）
+                    const apisHeaderRow = document.createElement('div');
+                    apisHeaderRow.className = 'apis-header-row';
+                    
+                    const apisLabel = document.createElement('div');
+                    apisLabel.className = 'provider-apis-label';
+                    apisLabel.textContent = 'APIs';
+                    apisHeaderRow.appendChild(apisLabel);
+                    
+                    // 添加 API 按钮
+                    const addApiBtn = document.createElement('div');
+                    addApiBtn.className = 'add-api-btn';
+                    addApiBtn.title = 'Add new API';
+                    addApiBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // 生成不重名的 API 名称
+                        let newName = 'NewApi';
+                        let suffix = 1;
+                        const existingNames = [];
+                        providers.forEach(p => {
+                            if (p.apis) p.apis.forEach(a => existingNames.push(a.name));
+                        });
+                        while (existingNames.includes(newName)) {
+                            newName = 'NewApi' + suffix;
+                            suffix++;
+                        }
+                        // 自动展开新API并标记待聚焦
+                        if (!expandedApis.includes(newName)) {
+                            expandedApis.push(newName);
+                        }
+                        pendingFocusApiName = newName;
+                        postMsg({ action: 'addApi', providerName: provider.name, apiName: newName });
+                    });
+                    apisHeaderRow.appendChild(addApiBtn);
+                    
+                    apisSection.appendChild(apisHeaderRow);
 
+                    if (!provider.apis || provider.apis.length === 0) {
+                        // 没有 API 时显示 <none>
+                        const noneDiv = document.createElement('div');
+                        noneDiv.className = 'apis-none';
+                        noneDiv.textContent = '<none>';
+                        apisSection.appendChild(noneDiv);
+                    } else {
+                        // 有 API 时显示列表
                         provider.apis.forEach((api, apiIndex) => {
-                            const isApiExpanded = (expandedApi === api.name);
+                            const isApiExpanded = expandedApis.includes(api.name);
 
                             const apiItem = document.createElement('div');
                             apiItem.className = 'api-item';
@@ -1449,7 +1736,11 @@
                                 const rectBefore = apiHeader.getBoundingClientRect();
                                 const topBefore = rectBefore.top;
 
-                                expandedApi = isApiExpanded ? null : api.name;
+                                if (isApiExpanded) {
+                                    expandedApis = expandedApis.filter(a => a !== api.name);
+                                } else {
+                                    expandedApis.push(api.name);
+                                }
                                 setProviderData(providers);
 
                                 const newApiHeader = document.getElementById(apiHeaderId);
@@ -1470,6 +1761,58 @@
                             apiNameSpan.style.cssText = 'font-size:0.9em;font-weight:500;color:var(--text-color);';
                             apiNameSpan.textContent = api.name;
                             apiHeader.appendChild(apiNameSpan);
+
+                            // API 删除按钮（长按3秒）
+                            const deleteApiBtn = document.createElement('div');
+                            deleteApiBtn.className = 'delete-provider-btn';
+                            deleteApiBtn.title = 'Hold for 3 seconds to delete';
+                            deleteApiBtn.innerHTML = `
+                                <svg class="progress-ring" viewBox="0 0 26 26">
+                                    <circle class="progress-bg" cx="13" cy="13" r="11.5"/>
+                                    <circle class="progress-fill" cx="13" cy="13" r="11.5"/>
+                                </svg>
+                            `;
+                            
+                            let apiLongPressTimer = null;
+                            let isApiDeleting = false;
+                            
+                            const startApiLongPress = (e) => {
+                                if (e.button !== 0) return;
+                                e.stopPropagation();
+                                isApiDeleting = false;
+                                deleteApiBtn.classList.add('deleting');
+                                
+                                apiLongPressTimer = setTimeout(() => {
+                                    isApiDeleting = true;
+                                    deleteApiBtn.classList.remove('deleting');
+                                    postMsg({ action: 'deleteApi', name: api.name });
+                                }, 3000);
+                            };
+                            
+                            const cancelApiLongPress = (e) => {
+                                if (apiLongPressTimer) {
+                                    clearTimeout(apiLongPressTimer);
+                                    apiLongPressTimer = null;
+                                }
+                                if (!isApiDeleting) {
+                                    deleteApiBtn.classList.remove('deleting');
+                                }
+                            };
+                            
+                            deleteApiBtn.addEventListener('mousedown', startApiLongPress);
+                            deleteApiBtn.addEventListener('mouseup', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('mouseleave', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('touchstart', (e) => {
+                                e.preventDefault();
+                                startApiLongPress(e.touches[0]);
+                            });
+                            deleteApiBtn.addEventListener('touchend', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('touchcancel', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                            });
+                            
+                            apiHeader.appendChild(deleteApiBtn);
 
                             apiItem.appendChild(apiHeader);
 
@@ -1494,7 +1837,23 @@
                                 bindInlineInput(apiNameInput, (newVal, oldVal) => {
                                     newVal = newVal.trim();
                                     if (newVal && newVal !== oldVal) {
-                                        if (expandedApi === oldVal) expandedApi = newVal;
+                                        // 检查是否与所有 provider 下的所有 api 重名
+                                        let duplicateApi = null;
+                                        for (const p of providers) {
+                                            if (p.apis) {
+                                                const found = p.apis.find(a => a.name === newVal);
+                                                if (found) {
+                                                    duplicateApi = found;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (duplicateApi) {
+                                            apiNameInput.value = oldVal;
+                                            postMsg({ action: 'showError', message: 'API name "' + newVal + '" already exists' });
+                                            return;
+                                        }
+                                        expandedApis = expandedApis.map(a => a === oldVal ? newVal : a);
                                         postMsg({ action: 'updateApiName', oldName: oldVal, newName: newVal });
                                     } else {
                                         apiNameInput.value = oldVal;
@@ -1513,15 +1872,73 @@
 
                             apisSection.appendChild(apiItem);
                         });
-
-                        expandedArea.appendChild(apisSection);
                     }
+
+                    expandedArea.appendChild(apisSection);
 
                     providerDiv.appendChild(expandedArea);
                 }
 
                 providersContainer.appendChild(providerDiv);
             });
+
+            // 添加新 Provider 按钮
+            const addButton = document.createElement('div');
+            addButton.className = 'add-provider-button';
+            addButton.innerHTML = '+';
+            addButton.title = 'Add new provider';
+            addButton.addEventListener('click', () => {
+                // 生成不重名的 Provider 名称
+                let newName = 'NewProvider';
+                let suffix = 1;
+                const existingNames = providers.map(p => p.name);
+                while (existingNames.includes(newName)) {
+                    newName = 'NewProvider' + suffix;
+                    suffix++;
+                }
+                // 自动展开新Provider并标记待聚焦
+                if (!expandedProviders.includes(newName)) {
+                    expandedProviders.push(newName);
+                }
+                pendingFocusProviderName = newName;
+                postMsg({ action: 'addProvider', name: newName });
+            });
+            providersContainer.appendChild(addButton);
+
+            // 新建Provider后自动聚焦名称输入框
+            if (pendingFocusProviderName) {
+                const focusName = pendingFocusProviderName;
+                pendingFocusProviderName = null;
+                setTimeout(() => {
+                    const areas = document.querySelectorAll('.provider-expanded-area');
+                    for (const area of areas) {
+                        const nameInput = area.querySelector('.provider-edit-input');
+                        if (nameInput && nameInput.value === focusName) {
+                            nameInput.focus();
+                            nameInput.select();
+                            nameInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            break;
+                        }
+                    }
+                }, 200);
+            }
+
+            // 新建API后自动聚焦名称输入框
+            if (pendingFocusApiName) {
+                const focusName = pendingFocusApiName;
+                pendingFocusApiName = null;
+                setTimeout(() => {
+                    const inputs = document.querySelectorAll('.api-expanded-area .provider-edit-row .provider-edit-input');
+                    for (const input of inputs) {
+                        if (input.value === focusName) {
+                            input.focus();
+                            input.select();
+                            input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            break;
+                        }
+                    }
+                }, 200);
+            }
         }
 
         // 切换Tab

@@ -613,6 +613,106 @@ void CLlmLib::SetMajorChatApi(const std::string& apiName)
 	}
 }
 
+LlmApiProvider* CLlmLib::AddProvider(const LlmApiProviderTypeName& name)
+{
+	if (name.empty())
+		return nullptr;
+	// 检查是否已存在同名 provider
+	for (const auto& p : _providers)
+	{
+		if (p.name == name)
+			return nullptr;
+	}
+	// 创建新 provider
+	LlmApiProvider newProvider;
+	newProvider.name = name;
+	newProvider.desc = name;
+	newProvider.status = LlmApiProvider::Status::Unknown;
+	newProvider.format = LlmApiFormat::OpenAI_;
+	_providers.push_back(newProvider);
+	return &_providers.back();
+}
+
+bool CLlmLib::DeleteProvider(const LlmApiProviderTypeName& name)
+{
+	if (name.empty())
+		return false;
+	
+	// 找到要删除的 provider
+	auto it = std::find_if(_providers.begin(), _providers.end(),
+		[&name](const LlmApiProvider& p) { return p.name == name; });
+	
+	if (it == _providers.end())
+		return false;
+	
+	// 删除该 provider 下的所有 API
+	_apis.erase(std::remove_if(_apis.begin(), _apis.end(),
+		[&name](const LlmApi& api) { return api.providerTypeName == name; }), _apis.end());
+	
+	// 删除 provider
+	_providers.erase(it);
+	
+	return true;
+}
+
+LlmApi* CLlmLib::AddApi(const LlmApiProviderTypeName& providerName, const std::string& apiName)
+{
+	if (providerName.empty() || apiName.empty())
+		return nullptr;
+	
+	// 检查 provider 是否存在
+	bool providerExists = false;
+	for (const auto& p : _providers)
+	{
+		if (p.name == providerName)
+		{
+			providerExists = true;
+			break;
+		}
+	}
+	if (!providerExists)
+		return nullptr;
+	
+	// 检查 API 名称是否已存在
+	for (const auto& api : _apis)
+	{
+		if (api.name == apiName)
+			return nullptr;
+	}
+	
+	// 创建新 API
+	LlmApi newApi;
+	newApi.name = apiName;
+	newApi.desc = apiName;
+	newApi.providerTypeName = providerName;
+	newApi.model = "gpt-4o";
+	newApi.maxToken = 4096;
+	newApi.contextCapacity = 128000;
+	newApi.priceInputToken = 0;
+	newApi.priceOutputToken = 0;
+	newApi.priceCacheRead = 0;
+	newApi.priceCacheWrite = 0;
+	newApi.thinkingMode = LlmThinkingMode::Auto;
+	_apis.push_back(newApi);
+	return &_apis.back();
+}
+
+bool CLlmLib::DeleteApi(const std::string& name)
+{
+	if (name.empty())
+		return false;
+	
+	// 找到并删除 API
+	auto it = std::find_if(_apis.begin(), _apis.end(),
+		[&name](const LlmApi& api) { return api.name == name; });
+	
+	if (it == _apis.end())
+		return false;
+	
+	_apis.erase(it);
+	return true;
+}
+
 LlmApi* CLlmLib::_FindApi(const char* apiName)
 {
 	for (int i = 0;i < _apis.size();i++)
