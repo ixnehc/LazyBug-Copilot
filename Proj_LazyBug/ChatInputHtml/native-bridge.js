@@ -56,7 +56,7 @@ function processNativeMessage(data) {
             if (window.setPlaceholder) window.setPlaceholder(data.placeholder || '请输入您的消息...');
             break;
         case 'updateMajorChatApiMenu':
-            if (window.updateMajorChatApiMenu) updateMajorChatApiMenu(data.current || '', data.apis || []);
+            if (window.updateMajorChatApiMenu) updateMajorChatApiMenu(data.current || '');
             break;
         case 'updateAutoComplete':
             if (window.updateAutoCompleteData) window.updateAutoCompleteData(data.items || [], data.selectedIndex);

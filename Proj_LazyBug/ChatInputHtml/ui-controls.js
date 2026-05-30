@@ -126,20 +126,11 @@ function handleApiMenuButtonClick(event) {
 }
 
 // 更新MajorChat API菜单
-function updateMajorChatApiMenu(currentApi, apis) {
-    const currentApiObject = apis.find(api => api.name === currentApi);
-    const isCurrentApiAvailable = currentApiObject ? currentApiObject.available : true;
-    
+function updateMajorChatApiMenu(currentApi) {
     const apiMenuText = document.getElementById('apiMenuText');
     if (apiMenuText) {
         apiMenuText.textContent = currentApi || 'n/a';
         apiMenuText.title = currentApi || 'n/a';
-
-        if (!isCurrentApiAvailable) {
-            apiMenuText.classList.add('unavailable');
-        } else {
-            apiMenuText.classList.remove('unavailable');
-        }
     }
 }
 

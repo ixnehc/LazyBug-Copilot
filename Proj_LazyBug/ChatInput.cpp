@@ -1527,56 +1527,9 @@ void CChatInput::UpdateMajorChatApiMenu()
 	if (!_IsReady())
 		return;
 
-	// 获取当前API名称
 	std::wstring currentApi = GetCurrentMajorChatApi();
-
-	// 构建包含可用性状态的API列表JSON
-	extern CLlmLib g_llmLib;
-	const auto& apis = g_llmLib.GetApis();
-
-	// 收集所有可用的Agent API
-	std::vector<const LlmApi*> availableApis;
-	for (const auto& api : apis)
-	{
-		if (api.role == LlmApiRole::Agent && api.enable)
-		{
-			availableApis.push_back(&api);
-		}
-	}
-
-	// 按名称字母排序（忽略大小写）
-	std::sort(availableApis.begin(), availableApis.end(),
-		[](const LlmApi* a, const LlmApi* b) {
-			return _stricmp(a->name.c_str(), b->name.c_str()) < 0;
-		});
-
-	// 构建JSON
-	std::wstring apisJson = L"[";
-	bool first = true;
-	for (size_t i = 0; i < availableApis.size(); i++)
-	{
-		const LlmApi* api = availableApis[i];
-		if (!first)
-		{
-			apisJson += L",";
-		}
-		first = false;
-
-		const LlmApiProvider* provider = g_llmLib.GetProvider(api->providerTypeName);
-		bool isAvailable = (provider && provider->IsAvailable());
-
-		apisJson += L"{";
-		apisJson += L"\"name\":\"" + EscapeJsonString(utf8_to_widechar(api->name.c_str())) + L"\",";
-		apisJson += L"\"provider\":\"" + EscapeJsonString(utf8_to_widechar(api->providerTypeName.c_str())) + L"\",";
-		apisJson += L"\"available\":";
-		apisJson += (isAvailable ? L"true" : L"false");
-		apisJson += L"}";
-	}
-	apisJson += L"]";
-
-	// 发送更新消息到WebView
 	std::wstring jsonMessage = L"{\"action\":\"updateMajorChatApiMenu\",\"current\":\"" +
-		EscapeJsonString(currentApi) + L"\",\"apis\":" + apisJson + L"}";
+		EscapeJsonString(currentApi) + L"\"}";
 	_PostWebMessageAsJson(jsonMessage);
 }
 
@@ -1596,7 +1549,8 @@ void CChatInput::ShowLlmMenu(int x, int y)
 	{
 		if (api.role == LlmApiRole::Agent && api.enable)
 		{
-			availableApis.push_back(&api);
+			if (g_llmLib.IsApiAvailable(api.name))
+				availableApis.push_back(&api);
 		}
 	}
 
