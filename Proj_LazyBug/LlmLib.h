@@ -64,16 +64,17 @@ struct LlmApi
 		, priceCacheRead(0.0f)
 		, priceCacheWrite(0.0f)
 		, thinkingMode(LlmThinkingMode::Auto)
-		, purpose()
+		, role(LlmApiRole::Auxiliary)
 		, providerTypeName("")
 		, cacheControlType(LlmApiCacheControlType::Auto)
+		, enable(true)
 	{
 
 	}
 	
 	LlmApi(const std::string& _name, const std::string& _desc, const std::string& _model, const std::string& _rule,
 			int _maxToken, float _priceInputToken, float _priceOutputToken, float _priceCachedRead, float _priceCachedWrite,
-		   const std::vector<LlmApiPurpose>& _purpose, LlmApiProviderTypeName _providerTypeName,
+		   LlmApiRole _role, LlmApiProviderTypeName _providerTypeName,
 			LlmApiCacheControlType _cacheControlType,
 			const std::vector<LlmToolType> & _tools)
 		: name(_name)
@@ -85,10 +86,11 @@ struct LlmApi
 		, priceOutputToken(_priceOutputToken)
 		, priceCacheRead(_priceCachedRead)
 		, priceCacheWrite(_priceCachedWrite)
-		, purpose(_purpose)
+		, role(_role)
 		, providerTypeName(_providerTypeName)
 		, cacheControlType(_cacheControlType)
 		, tools(_tools)
+		, enable(true)
 	{
 
 	}
@@ -103,10 +105,11 @@ struct LlmApi
 	float priceCacheRead;
 	float priceCacheWrite;
 	LlmThinkingMode thinkingMode;
-	std::vector<LlmApiPurpose> purpose;
+	LlmApiRole role;
 	LlmApiProviderTypeName providerTypeName;
 	LlmApiCacheControlType cacheControlType;
 	std::vector<LlmToolType> tools;
+	bool enable;  // enable标志，false则该API不可用
 
 	struct OpenRouterOptions
 	{
@@ -146,24 +149,28 @@ public:
 
 	static void EnsureJson();
 
-    bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, LlmApiProviderTypeName providerTypeName, bool allowUnavailable,const char* ruleName);
-	bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, const char* ruleName);
+    bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiRole role, LlmApiProviderTypeName providerTypeName, bool allowUnavailable,const char* ruleName);
+	bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiRole role, const char* ruleName);
 	bool LoadLlmSetting(LlmSessionSetting& setting, const std::string& apiName, const char* ruleName);
 
 	//检查可以以什么工作模式工作
-	//能找到 MainChat,FastApply_Dedicated,Embedding 这三种api的为WorkingCapability::Full
-	//无法找到 MainChat,FastApply_Adaptive 为WorkingCapability::CannotWork
+	//能找到 Agent 和 Auxiliary 这两种api的为WorkingCapability::Full
+	//无法找到 Agent 为WorkingCapability::CannotWork
 	//其余为WorkingCapability::Partial
 	void ValidateCap();
 	
 	// 获取当前工作能力
 	WorkingCapability GetWorkingCapability() const { return _cap; }
 
-	// 获取当前的MajorChat API
+	// 获取当前的Agent API
 	std::string GetMajorChatApi() const { return _majorChatApi; }
+	std::string GetBriefApi() const { return _briefApi; }
+	std::string GetSummarizeApi() const { return _summarizeApi; }
 	
-	// 设置当前的MajorChat API
+	// 设置当前的Agent API
 	void SetMajorChatApi(const std::string& apiName);
+	void SetBriefApi(const std::string& apiName);
+	void SetSummarizeApi(const std::string& apiName);
 	
 	// 获取API列表
 	const std::vector<LlmApi>& GetApis() const { return _apis; }
@@ -172,6 +179,7 @@ public:
 	bool IsApiAvailable(const std::string& apiName);
 	const LlmApi* GetApi(const std::string& apiName);
 	LlmApiCacheControlType GetApiCacheControlType(const std::string& apiName);
+	std::string FindApiToValidateApiKey(const LlmApiProviderTypeName& name);
 
 	// 获取Provider信息的方法
 	int GetProviderCount() const { return (int)_providers.size(); }
@@ -182,6 +190,7 @@ public:
 	bool SetProviderStatus(const LlmApiProviderTypeName& name, LlmApiProvider::Status status);
 	bool SetProviderName(const LlmApiProviderTypeName& oldName, const LlmApiProviderTypeName& newName);
 	bool SetProviderEndpoint(const LlmApiProviderTypeName& name, const std::string& endpoint);
+	bool SetProviderFormat(const LlmApiProviderTypeName& name, LlmApiFormat format);
 	bool SetApiName(const std::string& oldName, const std::string& newName);
 	LlmApi* GetApiMutable(const std::string& apiName);
 	void SaveSettings(); // 保存设置到注册表
@@ -212,8 +221,9 @@ private:
 	std::vector<LlmApiProvider> _providers;
 	std::vector<LlmApi> _apis;
 
-	std::string _majorChatApi;
-	std::string _briefApi;
+	std::string _majorChatApi;//Chat
+	std::string _briefApi;//Title brief
+	std::string _summarizeApi;//for compress summarizing
 
 	WorkingCapability _cap;
 

@@ -158,11 +158,6 @@ BOOL CChatDialogA::OnInitDialog()
 		_HandleChatSettingPageClose();
 	});
 
-	// 设置编辑扩展模型回调
-	_chatSettingPage.SetEditModelsCallback([this]() {
-		_chatSettingPage.EditModels();
-	});
-
 	// 创建微软雅黑字体并设置给编辑框
 	LOGFONT lf;
 	memset(&lf, 0, sizeof(LOGFONT));

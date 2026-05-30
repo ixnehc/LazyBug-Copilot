@@ -684,7 +684,6 @@ void parseLlmResponse(const char* response, CLlmToolCallParser &toolCallParser, 
 			}
 			// 如果usage为null，保持默认值
 		}
-
 	}
 	catch (const json::parse_error& e)
 	{
@@ -1066,7 +1065,7 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 
 	if (settings.api.providerTypeName == "OpenRouter")
 	{
-		if (settings.api.purpose[0] == LlmApiPurpose::Complete)
+		if (settings.api.role == LlmApiRole::Auxiliary)
 		{
 			requestJson["provider"]["sort"] = "latency";
 //			requestJson["provider"]["quantizations"] = { "fp8","fp16","fp32","unknown"};

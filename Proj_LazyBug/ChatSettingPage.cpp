@@ -30,6 +30,7 @@ CChatSettingPage::CChatSettingPage()
     , _controller(nullptr)
     , _activeTabId(L"providers")
     , _llmLibVersion(-1)
+    , _needShowNoApiForValidation(false)
 {
 }
 
@@ -253,12 +254,6 @@ void CChatSettingPage::SetWebMessageReceivedCallback(SettingPageMessageReceivedC
 void CChatSettingPage::SetExitCallback(SettingPageExitCallback callback)
 {
     _exitCallback = callback;
-}
-
-// 设置编辑扩展模型回调
-void CChatSettingPage::SetEditModelsCallback(SettingPageEditModelsCallback callback)
-{
-    _editModelsCallback = callback;
 }
 
 // 调整WebView大小
@@ -511,6 +506,20 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
             // 请求Capability状态
             SendCapabilityStatusToWebView();
         }
+        else if (action == "requestCastSheetData")
+        {
+            // 发送Cast Sheet数据
+            SendCastSheetDataToWebView();
+        }
+        else if (action == "updateCastSheetApi")
+        {
+            if (jsonMsg.contains("apiType") && jsonMsg.contains("apiName"))
+            {
+                std::string apiType = jsonMsg["apiType"];
+                std::string apiName = jsonMsg["apiName"];
+                UpdateCastSheetApi(utf8_to_widechar(apiType), utf8_to_widechar(apiName));
+            }
+        }
         else if (action == "updateProviderKey")
         {
             // 更新Provider Key
@@ -538,6 +547,15 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
                 std::string providerName = jsonMsg["providerName"];
                 std::string endpoint = jsonMsg["endpoint"];
                 UpdateProviderEndpoint(utf8_to_widechar(providerName), utf8_to_widechar(endpoint));
+            }
+        }
+        else if (action == "updateProviderFormat")
+        {
+            if (jsonMsg.contains("providerName") && jsonMsg.contains("format"))
+            {
+                std::string providerName = jsonMsg["providerName"];
+                std::string format = jsonMsg["format"];
+                UpdateProviderFormat(utf8_to_widechar(providerName), utf8_to_widechar(format));
             }
         }
         else if (action == "updateApiName")
@@ -574,21 +592,6 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
             {
                 _exitCallback();
             }
-        }
-        else if (action == "editModels")
-        {
-            // 编辑扩展模型
-            if (_editModelsCallback)
-            {
-                _editModelsCallback();
-            }
-        }
-        else if (action == "openSettingHelp")
-        {
-            std::string htmlPath = GetCurModuleFolderPath_utf8();
-            htmlPath += "\\llm_setting_intro.html";
-            
-            ShellExecuteW(NULL, L"open", utf8_to_widechar(htmlPath.c_str()).c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
         else if (action == "addProvider")
         {
@@ -657,6 +660,97 @@ void CChatSettingPage::LoadProviderData()
 }
 
 
+// 发送Cast Sheet数据到WebView
+void CChatSettingPage::SendCastSheetDataToWebView()
+{
+    if (!_IsReady())
+        return;
+
+    using json = nlohmann::json;
+
+    // 获取当前选中的三个API
+    std::string majorChatApi = g_llmLib.GetMajorChatApi();
+    std::string briefApi = g_llmLib.GetBriefApi();
+    std::string summarizeApi = g_llmLib.GetSummarizeApi();
+
+    // 收集可用的API指针
+    std::vector<const LlmApi*> availableApis;
+    const auto& allApis = g_llmLib.GetApis();
+    for (const auto& api : allApis)
+    {
+        // 跳过enable=false的API
+        if (!api.enable)
+            continue;
+
+        // 只添加可用的API
+        const LlmApiProvider* provider = g_llmLib.GetProvider(api.providerTypeName);
+        if (provider && provider->IsAvailable())
+        {
+            availableApis.push_back(&api);
+        }
+    }
+
+    // 按名称字母排序（忽略大小写）
+    std::sort(availableApis.begin(), availableApis.end(),
+        [](const LlmApi* a, const LlmApi* b) {
+            return _stricmp(a->name.c_str(), b->name.c_str()) < 0;
+        });
+
+    // 分别构建三个API列表
+    json jMajorChatApis = json::array();
+    json jBriefApis = json::array();
+    json jSummarizeApis = json::array();
+    
+    for (const auto* api : availableApis)
+    {
+        json jApi;
+        jApi["name"] = api->name;
+        jApi["provider"] = api->providerTypeName;
+        jApi["model"] = api->model;
+        
+        // Major Chat 只包含 Agent 角色
+        if (api->role == LlmApiRole::Agent)
+        {
+            jMajorChatApis.push_back(jApi);
+        }
+        
+        // Brief 和 Summarize 可以是 Agent 或 Auxiliary
+        jBriefApis.push_back(jApi);
+        jSummarizeApis.push_back(jApi);
+    }
+
+    json jCastSheet;
+    jCastSheet["majorChatApi"] = majorChatApi;
+    jCastSheet["briefApi"] = briefApi;
+    jCastSheet["summarizeApi"] = summarizeApi;
+    jCastSheet["majorChatApis"] = jMajorChatApis;
+    jCastSheet["briefApis"] = jBriefApis;
+    jCastSheet["summarizeApis"] = jSummarizeApis;
+
+    std::string utf8Json = jCastSheet.dump();
+    _PostWebMessage(L"setCastSheetData", utf8_to_widechar(utf8Json));
+}
+
+// 更新Cast Sheet中的API选择
+void CChatSettingPage::UpdateCastSheetApi(const std::wstring& apiTypeW, const std::wstring& apiNameW)
+{
+    std::string apiType = widechar_to_utf8(apiTypeW.c_str());
+    std::string apiName = widechar_to_utf8(apiNameW.c_str());
+
+    if (apiType == "majorChat")
+    {
+        g_llmLib.SetMajorChatApi(apiName);
+    }
+    else if (apiType == "brief")
+    {
+        g_llmLib.SetBriefApi(apiName);
+    }
+    else if (apiType == "summarize")
+    {
+        g_llmLib.SetSummarizeApi(apiName);
+    }
+}
+
 // 发送Provider数据到WebView
 void CChatSettingPage::SendProviderDataToWebView()
 {
@@ -665,17 +759,13 @@ void CChatSettingPage::SendProviderDataToWebView()
     
     using json = nlohmann::json;
 
-    // 收集所有 purpose/tool/thinkingMode/cacheControl 枚举的字符串映射
+    // 收集所有 role/tool/thinkingMode/cacheControl 枚举的字符串映射
     // （复用 llmlibloader 中已有的字符串，直接在此拼装 json）
-    auto purposeToStr = [](LlmApiPurpose p) -> std::string {
-        switch (p) {
-        case LlmApiPurpose::MajorChat:           return "MajorChat";
-        case LlmApiPurpose::MinorChat:           return "MinorChat";
-        case LlmApiPurpose::FastApply_Dedicated: return "FastApply_Dedicated";
-        case LlmApiPurpose::FastApply_Adaptive:  return "FastApply_Adaptive";
-        case LlmApiPurpose::Embedding:           return "Embedding";
-        case LlmApiPurpose::Complete:            return "Complete";
-        default:                                 return "None";
+    auto roleToStr = [](LlmApiRole r) -> std::string {
+        switch (r) {
+        case LlmApiRole::Agent:     return "Agent";
+        case LlmApiRole::Auxiliary: return "Auxiliary";
+        default:                    return "None";
         }
     };
     auto toolToStr = [](LlmToolType t) -> std::string {
@@ -708,6 +798,19 @@ void CChatSettingPage::SendProviderDataToWebView()
         default:                                 return "Auto";
         }
     };
+    auto formatToStr = [](LlmApiFormat f) -> std::string {
+        switch (f) {
+        case LlmApiFormat::OpenAI_:     return "OpenAI";
+        case LlmApiFormat::Anthropic_:  return "Anthropic";
+        case LlmApiFormat::Gemini_:     return "Gemini";
+        case LlmApiFormat::OpenRouter:  return "OpenRouter";
+        case LlmApiFormat::Kimi:        return "Kimi";
+        case LlmApiFormat::GLM:         return "GLM";
+        case LlmApiFormat::Minimax:     return "Minimax";
+        case LlmApiFormat::DeepSeek:    return "DeepSeek";
+        default:                        return "Unknown";
+        }
+    };
 
     const auto& allApis = g_llmLib.GetApis();
     int providerCount = g_llmLib.GetProviderCount();
@@ -724,6 +827,7 @@ void CChatSettingPage::SendProviderDataToWebView()
         jProvider["endpoint"]    = p->endpoint;
         jProvider["key"]         = p->key;
         jProvider["type"]        = p->name;
+        jProvider["format"]      = formatToStr(p->format);
         jProvider["isAvailable"] = p->IsAvailable();
 
         // 收集属于这个 provider 的所有 api
@@ -746,11 +850,9 @@ void CChatSettingPage::SendProviderDataToWebView()
             jApi["thinkingMode"]     = thinkingToStr(api.thinkingMode);
             jApi["cacheControl"]     = cacheToStr(api.cacheControlType);
             jApi["providerTypeName"] = api.providerTypeName;
+            jApi["enable"]           = api.enable;
 
-            json jPurpose = json::array();
-            for (auto pu : api.purpose)
-                jPurpose.push_back(purposeToStr(pu));
-            jApi["purpose"] = jPurpose;
+            jApi["role"] = roleToStr(api.role);
 
             json jTools = json::array();
             for (auto to : api.tools)
@@ -798,8 +900,22 @@ void CChatSettingPage::UpdateProviderKey(const std::wstring& providerTypeStr, co
 					if (!keyUtf8.empty())
 						needValidate = true;
 				}
+
+				if (needValidate)
+				{
+					std::string apiName = g_llmLib.FindApiToValidateApiKey(providerTypeName);
+					if (apiName.empty())
+					{
+						_needShowNoApiForValidation = true;
+						needValidate = false;
+					}
+				}
+
 			}
 		}
+
+
+
 
 		if (g_llmLib.SetProviderKey(providerTypeName, keyUtf8))
 		{
@@ -810,6 +926,8 @@ void CChatSettingPage::UpdateProviderKey(const std::wstring& providerTypeStr, co
 		if (needValidate)
 			_taskMgr.AddTask_VerifyLlmApiProvider(providerTypeName);
 
+		// Provider Key变更可能影响Cast Sheet的可用API列表
+		SendCastSheetDataToWebView();
 
     }
     catch (...)
@@ -844,6 +962,27 @@ void CChatSettingPage::UpdateProviderEndpoint(const std::wstring& providerNameW,
     std::string providerName = widechar_to_utf8(providerNameW.c_str());
     std::string endpoint     = widechar_to_utf8(endpointW.c_str());
     if (g_llmLib.SetProviderEndpoint(providerName, endpoint))
+        _SaveLlmJson();
+}
+
+// 更新Provider的format
+void CChatSettingPage::UpdateProviderFormat(const std::wstring& providerNameW, const std::wstring& formatW)
+{
+    std::string providerName = widechar_to_utf8(providerNameW.c_str());
+    std::string formatStr    = widechar_to_utf8(formatW.c_str());
+    
+    // 字符串转换为LlmApiFormat枚举
+    LlmApiFormat format = LlmApiFormat::Unknown;
+    if (formatStr == "OpenAI") format = LlmApiFormat::OpenAI_;
+    else if (formatStr == "Anthropic") format = LlmApiFormat::Anthropic_;
+    else if (formatStr == "Gemini") format = LlmApiFormat::Gemini_;
+    else if (formatStr == "OpenRouter") format = LlmApiFormat::OpenRouter;
+    else if (formatStr == "Kimi") format = LlmApiFormat::Kimi;
+    else if (formatStr == "GLM") format = LlmApiFormat::GLM;
+    else if (formatStr == "Minimax") format = LlmApiFormat::Minimax;
+    else if (formatStr == "DeepSeek") format = LlmApiFormat::DeepSeek;
+    
+    if (g_llmLib.SetProviderFormat(providerName, format))
         _SaveLlmJson();
 }
 
@@ -917,14 +1056,10 @@ void CChatSettingPage::UpdateApiField(const std::wstring& apiNameW, const std::w
     std::string apiName = widechar_to_utf8(apiNameW.c_str());
     std::string field   = widechar_to_utf8(fieldW.c_str());
 
-    auto purposeFromStr = [](const std::string& s) -> LlmApiPurpose {
-        if (s == "MajorChat")           return LlmApiPurpose::MajorChat;
-        if (s == "MinorChat")           return LlmApiPurpose::MinorChat;
-        if (s == "FastApply_Dedicated") return LlmApiPurpose::FastApply_Dedicated;
-        if (s == "FastApply_Adaptive")  return LlmApiPurpose::FastApply_Adaptive;
-        if (s == "Embedding")           return LlmApiPurpose::Embedding;
-        if (s == "Complete")            return LlmApiPurpose::Complete;
-        return LlmApiPurpose::None;
+    auto roleFromStr = [](const std::string& s) -> LlmApiRole {
+        if (s == "Agent")     return LlmApiRole::Agent;
+        if (s == "Auxiliary") return LlmApiRole::Auxiliary;
+        return LlmApiRole::None;
     };
     auto toolFromStr = [](const std::string& s) -> LlmToolType {
         if (s == "ReplaceInFile")    return LlmToolType::ReplaceInFile;
@@ -975,12 +1110,10 @@ void CChatSettingPage::UpdateApiField(const std::wstring& apiNameW, const std::w
         else if (v == "None")  api->cacheControlType = LlmApiCacheControlType::None_;
         else                   api->cacheControlType = LlmApiCacheControlType::Auto;
     }
-    else if (field == "purpose" && value.is_array())
+    else if (field == "role" && value.is_string())
     {
-        api->purpose.clear();
-        for (const auto& elem : value)
-            if (elem.is_string())
-                api->purpose.push_back(purposeFromStr(elem.get<std::string>()));
+        std::string v = value.get<std::string>();
+        api->role = roleFromStr(v);
     }
     else if (field == "tools" && value.is_array())
     {
@@ -998,6 +1131,8 @@ void CChatSettingPage::UpdateApiField(const std::wstring& apiNameW, const std::w
             if (elem.is_string())
                 api->openRouterOptions.only.push_back(elem.get<std::string>());
     }
+    else if (field == "enable" && value.is_boolean())
+        api->enable = value.get<bool>();
     else
         return; // 未知字段，不保存
 
@@ -1023,8 +1158,8 @@ void CChatSettingPage::EndValidatingProvider(const LlmApiProviderTypeName& provi
     std::wstring jsonMessage = L"{\"action\":\"endValidatingProvider\",\"providerType\":\"" + utf8_to_widechar(providerTypeName.c_str()) + L"\",\"available\":" + (available ? L"true" : L"false") + L"}";
     _PostWebMessage(L"", jsonMessage, true);
     
-    // 验证完成后重新发送capability状态，因为provider状态可能已改变
-    SendCapabilityStatusToWebView();
+    // 验证完成后重新发送Cast Sheet数据，因为provider状态可能已改变
+    SendCastSheetDataToWebView();
 }
 
 void CChatSettingPage::SendCapabilityStatusToWebView()
@@ -1049,6 +1184,16 @@ void CChatSettingPage::Update()
 {
 	_taskMgr.Update();
 	UpdateReload();
+
+	// 延迟显示消息框（因为webview回调中不能直接弹出MessageBox）
+	if (_needShowNoApiForValidation)
+	{
+		_needShowNoApiForValidation = false;
+		::MessageBox(GetSafeHwnd(), 
+			_T("To validate API key, at least one API with a valid model name is required."), 
+			_T("Validation Error"), 
+			MB_OK | MB_ICONWARNING);
+	}
 }
 
 bool CChatSettingPage::IsValidatingProvider()
@@ -1056,18 +1201,6 @@ bool CChatSettingPage::IsValidatingProvider()
 	if (_taskMgr.IsTaskTypeRunning("VerifyLlmApiProvider"))
 		return true;
 	return false;
-}
-
-//====================== 编辑扩展模型配置方法实现 ======================
-
-void CChatSettingPage::EditModels()
-{
-	// 获取llm.ini文件的完整路径
-	std::string path = Utils::GetDBRootFolder_utf8();
-	path += "\\llm.ini";
-	
-	// 使用ShellExecute打开文件（使用默认编辑器）
-	ShellExecuteW(NULL, L"open", utf8_to_widechar(path).c_str(), NULL, NULL, SW_SHOWNORMAL);
 }
 
 // 检测并重新加载（如果LLM Lib配置有变化则更新显示）
@@ -1083,6 +1216,7 @@ void CChatSettingPage::UpdateReload()
 		// 版本号变化，更新显示内容
 		SendProviderDataToWebView();
 		SendCapabilityStatusToWebView();
+		SendCastSheetDataToWebView();
 	}
 }
 

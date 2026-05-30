@@ -200,10 +200,10 @@ SystemPromptProvider::SystemPromptProvider(const ChatTokenStatsContext& ctx)
 {
 }
 
-// 获取当前 MajorChat API 对应的 rule 文件路径
+// 获取当前 Agent API 对应的 rule 文件路径
 static std::string _GetApiRuleFilePath()
 {
-	// 获取当前 MajorChat API
+	// 获取当前 Agent API
 	std::string currentApiName = g_llmLib.GetMajorChatApi();
 	if (currentApiName.empty())
 		return "";
@@ -296,7 +296,7 @@ ToolsTokenProvider::ToolsTokenProvider(const ChatTokenStatsContext& ctx)
 
 uint64_t ToolsTokenProvider::GetVersion() const
 {
-	// 获取当前 MajorChat API 名字
+	// 获取当前 Agent API 名字
 	std::string currentApiName = g_llmLib.GetMajorChatApi();
 
 	// 获取 API 信息
@@ -322,7 +322,7 @@ uint64_t ToolsTokenProvider::GetVersion() const
 
 int ToolsTokenProvider::CalculateTokens()
 {
-	// 获取当前 MajorChat API 名字
+	// 获取当前 Agent API 名字
 	std::string currentApiName = g_llmLib.GetMajorChatApi();
 
 	// 获取 API 信息

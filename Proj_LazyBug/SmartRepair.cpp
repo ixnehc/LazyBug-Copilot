@@ -432,7 +432,7 @@ void CSmartRepair::Clear()
 void CSmartRepair::_InitLlmChat()
 {
 	// 初始化AI聊天设置
-	g_llmLib.LoadLlmSetting(_defaultSettings, LlmApiPurpose::Complete, "");
+	g_llmLib.LoadLlmSetting(_defaultSettings, LlmApiRole::Auxiliary, "");
 
 	_llmChat.Init();
 }
@@ -528,7 +528,7 @@ void CSmartRepair::StartPrepareContext(RepairRequest &request0)
 void CSmartRepair::StartAIRequest()
 {
 	if (!_defaultSettings.IsValid())
-		g_llmLib.LoadLlmSetting(_defaultSettings, LlmApiPurpose::Complete, "");
+		g_llmLib.LoadLlmSetting(_defaultSettings, LlmApiRole::Auxiliary, "");
 
 	std::string userMessage;
 	int rewriteStartLine, rewriteEndLine;

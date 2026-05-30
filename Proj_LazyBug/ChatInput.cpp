@@ -1491,39 +1491,10 @@ std::wstring CChatInput::_BuildTagJson(const std::wstring& text, const std::wstr
 
 //====================== 自动补全相关实现 ======================
 
-//====================== MajorChat API 相关实现 ======================
+//====================== Agent API 相关实现 ======================
 
-// 获取可用的MajorChat API列表
-std::vector<std::wstring> CChatInput::GetAvailableMajorChatApis() const
-{
-	std::vector<std::wstring> apiList;
 
-	// 从LlmLib获取所有可用的MajorChat API
-	extern CLlmLib g_llmLib;
-	const auto& apis = g_llmLib.GetApis();
-
-	for (const auto& api : apis)
-	{
-		// 检查是否是MajorChat用途
-		for (const auto& purpose : api.purpose)
-		{
-			if (purpose == LlmApiPurpose::MajorChat)
-			{
-				// 检查提供商是否可用
-				const LlmApiProvider* provider = g_llmLib.GetProvider(api.providerTypeName);
-				if (provider && provider->IsAvailable())
-				{
-					apiList.push_back(utf8_to_widechar(api.name.c_str()));
-				}
-				break;
-			}
-		}
-	}
-
-	return apiList;
-}
-
-// 获取当前的MajorChat API
+// 获取当前的Agent API
 std::wstring CChatInput::GetCurrentMajorChatApi() const
 {
 	extern CLlmLib g_llmLib;
@@ -1531,13 +1502,13 @@ std::wstring CChatInput::GetCurrentMajorChatApi() const
 	return utf8_to_widechar(currentApi.c_str());
 }
 
-// 设置当前的MajorChat API
+// 设置当前的Agent API
 void CChatInput::SetCurrentMajorChatApi(const std::wstring& apiName)
 {
 	extern CLlmLib g_llmLib;
 	std::string apiNameStr = widechar_to_utf8(apiName.c_str());
 
-	// 设置新的MajorChat API
+	// 设置新的Agent API
 	g_llmLib.SetMajorChatApi(apiNameStr);
 
 	// 更新菜单显示
@@ -1563,37 +1534,43 @@ void CChatInput::UpdateMajorChatApiMenu()
 	extern CLlmLib g_llmLib;
 	const auto& apis = g_llmLib.GetApis();
 
-	std::wstring apisJson = L"[";
-	bool first = true;
+	// 收集所有可用的Agent API
+	std::vector<const LlmApi*> availableApis;
 	for (const auto& api : apis)
 	{
-		bool isMajorChat = false;
-		for (const auto& purpose : api.purpose)
+		if (api.role == LlmApiRole::Agent && api.enable)
 		{
-			if (purpose == LlmApiPurpose::MajorChat)
-			{
-				isMajorChat = true;
-				break;
-			}
+			availableApis.push_back(&api);
 		}
+	}
 
-		if (isMajorChat)
+	// 按名称字母排序（忽略大小写）
+	std::sort(availableApis.begin(), availableApis.end(),
+		[](const LlmApi* a, const LlmApi* b) {
+			return _stricmp(a->name.c_str(), b->name.c_str()) < 0;
+		});
+
+	// 构建JSON
+	std::wstring apisJson = L"[";
+	bool first = true;
+	for (size_t i = 0; i < availableApis.size(); i++)
+	{
+		const LlmApi* api = availableApis[i];
+		if (!first)
 		{
-			if (!first)
-			{
-				apisJson += L",";
-			}
-			first = false;
-
-			const LlmApiProvider* provider = g_llmLib.GetProvider(api.providerTypeName);
-			bool isAvailable = (provider && provider->IsAvailable());
-
-			apisJson += L"{";
-			apisJson += L"\"name\":\"" + EscapeJsonString(utf8_to_widechar(api.name.c_str())) + L"\",";
-			apisJson += L"\"available\":";
-			apisJson += (isAvailable ? L"true" : L"false");
-			apisJson += L"}";
+			apisJson += L",";
 		}
+		first = false;
+
+		const LlmApiProvider* provider = g_llmLib.GetProvider(api->providerTypeName);
+		bool isAvailable = (provider && provider->IsAvailable());
+
+		apisJson += L"{";
+		apisJson += L"\"name\":\"" + EscapeJsonString(utf8_to_widechar(api->name.c_str())) + L"\",";
+		apisJson += L"\"provider\":\"" + EscapeJsonString(utf8_to_widechar(api->providerTypeName.c_str())) + L"\",";
+		apisJson += L"\"available\":";
+		apisJson += (isAvailable ? L"true" : L"false");
+		apisJson += L"}";
 	}
 	apisJson += L"]";
 
@@ -1613,31 +1590,35 @@ void CChatInput::ShowLlmMenu(int x, int y)
 	extern CLlmLib g_llmLib;
 	const auto& apis = g_llmLib.GetApis();
 
+	// 收集所有可用的Agent API
+	std::vector<const LlmApi*> availableApis;
 	for (const auto& api : apis)
 	{
-		// 检查是否是MajorChat用途
-		bool isMajorChat = false;
-		for (const auto& purpose : api.purpose)
+		if (api.role == LlmApiRole::Agent && api.enable)
 		{
-			if (purpose == LlmApiPurpose::MajorChat)
-			{
-				isMajorChat = true;
-				break;
-			}
+			availableApis.push_back(&api);
 		}
+	}
 
-		if (isMajorChat)
-		{
-			const LlmApiProvider* provider = g_llmLib.GetProvider(api.providerTypeName);
-			bool isAvailable = (provider && provider->IsAvailable());
+	// 按名称字母排序（忽略大小写）
+	std::sort(availableApis.begin(), availableApis.end(),
+		[](const LlmApi* a, const LlmApi* b) {
+			return _stricmp(a->name.c_str(), b->name.c_str()) < 0;
+		});
 
-			ChatLlmApiItem item;
-			item.name = utf8_to_widechar(api.name.c_str());
-			item.available = isAvailable;
-			item.selected = (item.name == currentApi);
+	// 构建列表
+	for (size_t i = 0; i < availableApis.size(); i++)
+	{
+		const LlmApi* api = availableApis[i];
+		const LlmApiProvider* provider = g_llmLib.GetProvider(api->providerTypeName);
+		bool isAvailable = (provider && provider->IsAvailable());
 
-			apiItems.push_back(item);
-		}
+		ChatLlmApiItem item;
+		item.name = utf8_to_widechar(api->name.c_str());
+		item.available = isAvailable;
+		item.selected = (item.name == currentApi);
+
+		apiItems.push_back(item);
 	}
 
 	// 显示菜单

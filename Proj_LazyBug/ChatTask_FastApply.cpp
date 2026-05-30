@@ -69,7 +69,7 @@ void CChatTask_FastApply::Start()
 
 	LlmSessionSetting setting;
 	extern CLlmLib g_llmLib;
-	if (!g_llmLib.LoadLlmSetting(setting, LlmApiPurpose::FastApply_Dedicated, ""))
+	if (!g_llmLib.LoadLlmSetting(setting, LlmApiRole::Agent, ""))
 	{
 		_status = TaskStatus::Failure;
 		_collectedResult = "";

@@ -242,36 +242,108 @@
             padding: 0; /* 为整个容器添加padding */
         }
 
-        /* Capability状态标签样式 */
-        .capability-status-bar {
+        /* Cast Sheet面板样式 - 标题嵌在边框中断处 */
+        .cast-sheet-panel {
             width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 4px;
+            padding: 14px 16px 12px 16px;
+            margin: 10px 0 8px 0;
             border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: 500;
-            text-align: center;
-            border: 1px solid;
-            transition: all 0.3s ease;
+            background-color: rgba(30, 30, 30, 0.8);
+            border: 1px solid #505050;
             flex-shrink: 0; /* 不允许压缩 */
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .capability-status-bar.cannot-work {
-            background-color: rgba(244, 67, 54, 0.1);
-            border-color: rgba(244, 67, 54, 0.3);
-            color: #ff6b6b;
+        /* Major Chat有值时的绿色样式 */
+        .cast-sheet-panel.has-value {
+            border-color: rgba(76, 175, 80, 0.5);
+            background-color: rgba(76, 175, 80, 0.08);
+            box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.1), inset 0 1px 0 rgba(76, 175, 80, 0.05);
         }
 
-        .capability-status-bar.partial {
-            background-color: rgba(255, 193, 7, 0.1);
-            border-color: rgba(255, 193, 7, 0.3);
-            color: #ffc107;
-        }
-
-        .capability-status-bar.full {
-            background-color: rgba(76, 175, 80, 0.1);
-            border-color: rgba(76, 175, 80, 0.3);
+        .cast-sheet-panel.has-value .cast-sheet-title {
             color: #4caf50;
+        }
+
+        /* Major Chat无值时的红色样式 */
+        .cast-sheet-panel.no-value {
+            border-color: rgba(244, 67, 54, 0.5);
+            background-color: rgba(244, 67, 54, 0.08);
+            box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.1), inset 0 1px 0 rgba(244, 67, 54, 0.05);
+        }
+
+        .cast-sheet-panel.no-value .cast-sheet-title {
+            color: #f44336;
+        }
+
+        .cast-sheet-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #888;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+            /* 标题嵌在边框中断处，居中 */
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0 12px;
+            background-color: #1a1a1a;
+            white-space: nowrap;
+        }
+
+        .cast-sheet-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            height: 28px;
+        }
+
+        .cast-sheet-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .cast-sheet-label {
+            font-size: 0.8em;
+            color: #aaa;
+            flex-shrink: 0;
+            width: 150px;
+            text-align: right;
+            padding-right: 12px;
+        }
+
+        .cast-sheet-select {
+            flex: 1;
+            min-width: 0;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 0.8em;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-size: 12px;
+            padding-right: 22px;
+        }
+
+        .cast-sheet-select:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background-color: #252525;
+        }
+
+        .cast-sheet-select option {
+            background: #1a1a1a;
+            color: var(--text-color);
         }
 
         /* Provider列表区域 */
@@ -606,75 +678,6 @@
             overflow: hidden;
         }
 
-        /* Edit Models按钮样式 */
-        .edit-models-button {
-            width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 4px;
-            background-color: var(--secondary-bg);
-            border: 1px solid var(--primary-color);
-            border-radius: 6px;
-            color: var(--text-color);
-            font-size: 0.95em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .edit-models-button:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 77, 64, 0.3);
-        }
-
-        .edit-models-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 4px rgba(0, 77, 64, 0.2);
-        }
-
-        /* 按钮容器 */
-        .button-container {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 4px;
-            flex-shrink: 0;
-        }
-
-        .button-container .edit-models-button {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        /* 帮助按钮样式 */
-        .help-button {
-            width: 42px;
-            height: 42px;
-            background-color: var(--secondary-bg);
-            border: 1px solid var(--primary-color);
-            border-radius: 6px;
-            color: var(--text-color);
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .help-button:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 77, 64, 0.3);
-        }
-
-        .help-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 4px rgba(0, 77, 64, 0.2);
-        }
-
         /* ===== Provider / API 树形编辑样式 ===== */
 
         /* 展开区域暗色背景 */
@@ -750,11 +753,56 @@
         .api-header-bar:hover span {
             background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
         }
+        .api-header-bar .api-name-container {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+            border-radius: 3px 0 0 3px;
+            padding-right: 16px;
+        }
+        .api-header-bar:hover .api-name-container {
+            background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+        }
         .api-header-bar .delete-provider-btn {
             width: 16px;
             height: 16px;
             font-size: 14px;
             margin-right: 12px;
+        }
+        /* API Enable Checkbox - 黑白样式 */
+        .api-enable-checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            margin-left: 11px;
+            margin-right: 6px;
+            margin-top: 2px;
+            background-color: #1a1a1a;
+            border: 1px solid #666;
+            border-radius: 2px;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .api-enable-checkbox:hover {
+            border-color: #888;
+        }
+        .api-enable-checkbox:checked {
+            background-color: #333;
+            border-color: #888;
+        }
+        .api-enable-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 0px;
+            width: 4px;
+            height: 8px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
         }
 
         /* 统一行高 */
@@ -791,6 +839,20 @@
             outline: none;
             border-color: var(--primary-color-hover);
             background: #252525;
+        }
+
+        /* select下拉框样式 */
+        select.provider-edit-input {
+            height: 26px;
+            padding: 2px 6px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-size: 14px;
+            padding-right: 24px;
         }
 
         /* 通用内联编辑输入框 */
@@ -989,8 +1051,8 @@
             border: 1px solid #333;
             border-radius: 3px;
             color: var(--text-color);
-            font-size: 0.83em;
-            font-family: monospace;
+            font-size: 0.88em;
+            font-weight: 500;
             width: 100%;
         }
         .param-input:focus {
@@ -1016,7 +1078,8 @@
             border: 1px solid #333;
             border-radius: 3px;
             color: var(--text-color);
-            font-size: 0.83em;
+            font-size: 0.88em;
+            font-weight: 500;
             width: 100%;
             cursor: pointer;
         }
@@ -1119,32 +1182,41 @@
                     const providersContainer = document.createElement('div');
                     providersContainer.className = 'providers-container';
                     
-                    // 创建capability状态标签
-                    const capabilityBar = document.createElement('div');
-                    capabilityBar.className = 'capability-status-bar';
-                    capabilityBar.id = 'capability-status-bar';
-                    capabilityBar.textContent = 'Loading capability status...';
-                    providersContainer.appendChild(capabilityBar);
+                    // 创建Cast Sheet面板
+                    const castSheetPanel = document.createElement('div');
+                    castSheetPanel.className = 'cast-sheet-panel';
+                    castSheetPanel.id = 'cast-sheet-panel';
+                    castSheetPanel.innerHTML = `
+                        <div class="cast-sheet-title">Cast Sheet</div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Major Chat</span>
+                            <select class="cast-sheet-select" id="cast-sheet-majorChat" data-api-type="majorChat">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Title Brief</span>
+                            <select class="cast-sheet-select" id="cast-sheet-brief" data-api-type="brief">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Compress Summarize</span>
+                            <select class="cast-sheet-select" id="cast-sheet-summarize" data-api-type="summarize">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                    `;
+                    providersContainer.appendChild(castSheetPanel);
                     
-                    // 创建按钮容器
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.className = 'button-container';
-                    
-                    // 创建"Open Setting File..."按钮
-                    const editModelsButton = document.createElement('button');
-                    editModelsButton.className = 'edit-models-button';
-                    editModelsButton.textContent = 'Open Setting File...';
-                    editModelsButton.onclick = () => handleEditModels();
-                    buttonContainer.appendChild(editModelsButton);
-                    
-                    // 创建"?"帮助按钮
-                    const helpButton = document.createElement('button');
-                    helpButton.className = 'help-button';
-                    helpButton.textContent = '?';
-                    helpButton.onclick = () => handleHelpButtonClick();
-                    buttonContainer.appendChild(helpButton);
-                    
-                    providersContainer.appendChild(buttonContainer);
+                    // 绑定Cast Sheet select的change事件
+                    castSheetPanel.querySelectorAll('.cast-sheet-select').forEach(select => {
+                        select.addEventListener('change', function() {
+                            const apiType = this.getAttribute('data-api-type');
+                            const apiName = this.value;
+                            postMsg({ action: 'updateCastSheetApi', apiType: apiType, apiName: apiName });
+                        });
+                    });
                     
                     // 创建provider列表区域
                     const providersListArea = document.createElement('div');
@@ -1154,9 +1226,9 @@
                     
                     contentDiv.appendChild(providersContainer);
                     
-                    // 请求Provider数据和Capability状态
+                    // 请求Provider数据和Cast Sheet数据
                     requestProviderData();
-                    requestCapabilityStatus();
+                    requestCastSheetData();
                 } else {
                     // 其他tab显示空状态
                     const emptyState = document.createElement('div');
@@ -1194,24 +1266,6 @@
             }
         }
 
-        // 处理Edit Extension Models按钮点击
-        function handleEditModels() {
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage({
-                    action: 'editModels'
-                });
-            }
-        }
-
-        // 处理帮助按钮点击
-        function handleHelpButtonClick() {
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage({
-                    action: 'openSettingHelp'
-                });
-            }
-        }
-
         // 请求Provider数据
         function requestProviderData() {
             if (window.chrome && window.chrome.webview) {
@@ -1230,40 +1284,63 @@
             }
         }
 
-        // 设置Capability状态
-        function setCapabilityStatus(capability) {
-            const capabilityBar = document.getElementById('capability-status-bar');
-            if (!capabilityBar) {
-                return;
+        // 请求Cast Sheet数据
+        function requestCastSheetData() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'requestCastSheetData'
+                });
+            }
+        }
+
+        // 设置Cast Sheet数据
+        function setCastSheetData(data) {
+            const majorChatSelect = document.getElementById('cast-sheet-majorChat');
+            const briefSelect = document.getElementById('cast-sheet-brief');
+            const summarizeSelect = document.getElementById('cast-sheet-summarize');
+            const castSheetPanel = document.getElementById('cast-sheet-panel');
+            
+            if (!majorChatSelect || !briefSelect || !summarizeSelect || !castSheetPanel) return;
+            
+            // 分别获取三个不同的API列表
+            const majorChatApis = data.majorChatApis || [];
+            const briefApis = data.briefApis || [];
+            const summarizeApis = data.summarizeApis || [];
+            
+            function rebuildSelect(select, newValue, apiList) {
+                select.innerHTML = '';
+                if (apiList.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.textContent = 'No available APIs';
+                    opt.disabled = true;
+                    select.appendChild(opt);
+                } else {
+                    apiList.forEach(api => {
+                        const opt = document.createElement('option');
+                        opt.value = api.name;
+                        opt.textContent = api.name;
+                        select.appendChild(opt);
+                    });
+                }
+                // 使用传入的新值设置选中项
+                if (newValue && [...select.options].some(o => o.value === newValue)) {
+                    select.value = newValue;
+                } else if (select.options.length > 0 && !select.options[0].disabled) {
+                    select.selectedIndex = 0;
+                }
             }
             
-            // 移除所有状态类
-            capabilityBar.classList.remove('cannot-work', 'partial', 'full');
+            rebuildSelect(majorChatSelect, data.majorChatApi, majorChatApis);
+            rebuildSelect(briefSelect, data.briefApi, briefApis);
+            rebuildSelect(summarizeSelect, data.summarizeApi, summarizeApis);
             
-            let statusClass = '';
-            let statusText = '';
-            
-            switch (capability) {
-                case 0: // CannotWork
-                    statusClass = 'cannot-work';
-                    statusText = 'LazyBug plugin cannot start working due to lack of necessary models';
-                    break;
-                case 1: // Partial
-                    statusClass = 'partial';
-                    statusText = 'LazyBug can only work partially as some important models are still missing';
-                    break;
-                case 2: // Full
-                    statusClass = 'full';
-                    statusText = 'All required models are available, LazyBug is 100% functional';
-                    break;
-                default:
-                    statusClass = 'cannot-work';
-                    statusText = 'Unknown capability status';
-                    break;
+            // 根据major chat是否有值设置颜色样式
+            castSheetPanel.classList.remove('has-value', 'no-value');
+            if (data.majorChatApi && data.majorChatApi.trim() !== '') {
+                castSheetPanel.classList.add('has-value');
+            } else {
+                castSheetPanel.classList.add('no-value');
             }
-            
-            capabilityBar.className = `capability-status-bar ${statusClass}`;
-            capabilityBar.textContent = statusText;
         }
 
         // ===== Provider / API 树形展开状态 =====
@@ -1422,27 +1499,19 @@
             });
             panel.appendChild(makeRow('Cache Control', cacheSel));
 
-            // purpose checkboxes (full width)
-            const purposeOptions = ['MajorChat','MinorChat','FastApply_Dedicated','FastApply_Adaptive','Embedding','Complete'];
-            const purposeGroup = document.createElement('div');
-            purposeGroup.className = 'checkbox-group';
-            purposeOptions.forEach(p => {
-                const lbl = document.createElement('label');
-                lbl.className = 'checkbox-label';
-                const cb = document.createElement('input');
-                cb.type = 'checkbox';
-                cb.checked = (api.purpose || []).includes(p);
-                cb.addEventListener('change', function() {
-                    const current = Array.from(purposeGroup.querySelectorAll('input[type=checkbox]'))
-                        .map((c, i) => c.checked ? purposeOptions[i] : null)
-                        .filter(Boolean);
-                    postMsg({ action: 'updateApiField', apiName: api.name, field: 'purpose', value: current });
-                });
-                lbl.appendChild(cb);
-                lbl.appendChild(document.createTextNode(p));
-                purposeGroup.appendChild(lbl);
+            // role combo box
+            const roleSel = document.createElement('select');
+            roleSel.className = 'param-select';
+            ['Agent','Auxiliary'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.role === v) opt.selected = true;
+                roleSel.appendChild(opt);
             });
-            panel.appendChild(makeRow('Purpose', purposeGroup, true));
+            roleSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'role', value: this.value });
+            });
+            panel.appendChild(makeRow('Role', roleSel));
 
             return panel;
         }
@@ -1639,6 +1708,32 @@
                     endpointRow.appendChild(endpointInput);
                     expandedArea.appendChild(endpointRow);
 
+                    // Format行（下拉选择）
+                    const formatRow = document.createElement('div');
+                    formatRow.className = 'provider-edit-row';
+                    const formatLabel = document.createElement('span');
+                    formatLabel.className = 'provider-edit-label';
+                    formatLabel.textContent = 'Format:';
+                    formatRow.appendChild(formatLabel);
+                    const formatSelect = document.createElement('select');
+                    formatSelect.className = 'provider-edit-input';
+                    formatSelect.style.cursor = 'pointer';
+                    const formatOptions = ['OpenAI', 'Anthropic', 'Gemini', 'OpenRouter', 'Kimi', 'GLM', 'Minimax', 'DeepSeek'];
+                    formatOptions.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v;
+                        opt.textContent = v;
+                        if (provider.format === v) opt.selected = true;
+                        formatSelect.appendChild(opt);
+                    });
+                    formatSelect.addEventListener('change', function() {
+                        postMsg({ action: 'updateProviderFormat', providerName: provider.name, format: this.value });
+                    });
+                    formatSelect.addEventListener('click', e => e.stopPropagation());
+                    formatSelect.addEventListener('mousedown', e => e.stopPropagation());
+                    formatRow.appendChild(formatSelect);
+                    expandedArea.appendChild(formatRow);
+
                     // Api Key行
                     const keyRow = document.createElement('div');
                     keyRow.className = 'provider-edit-row';
@@ -1756,11 +1851,31 @@
                                 }
                             });
 
-                            // API 名称（静态，不可编辑）
+                            // API 名称容器（包含 checkbox 和名称文本）
+                            const apiNameContainer = document.createElement('div');
+                            apiNameContainer.className = 'api-name-container';
+
+                            // API Enable Checkbox - 自定义黑白样式
+                            const apiEnableCheckbox = document.createElement('input');
+                            apiEnableCheckbox.type = 'checkbox';
+                            apiEnableCheckbox.checked = api.enable !== false; // 默认为true
+                            apiEnableCheckbox.className = 'api-enable-checkbox';
+                            apiEnableCheckbox.title = 'Enable/Disable this API';
+                            apiEnableCheckbox.addEventListener('click', (e) => {
+                                e.stopPropagation(); // 阻止触发折叠/展开
+                            });
+                            apiEnableCheckbox.addEventListener('change', (e) => {
+                                postMsg({ action: 'updateApiField', apiName: api.name, field: 'enable', value: e.target.checked });
+                            });
+                            apiNameContainer.appendChild(apiEnableCheckbox);
+
+                            // API 名称文本
                             const apiNameSpan = document.createElement('span');
-                            apiNameSpan.style.cssText = 'font-size:0.9em;font-weight:500;color:var(--text-color);';
+                            apiNameSpan.style.cssText = 'font-size:0.9em;font-weight:500;color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,0.5);background:transparent;padding:0;line-height:28px;';
                             apiNameSpan.textContent = api.name;
-                            apiHeader.appendChild(apiNameSpan);
+                            apiNameContainer.appendChild(apiNameSpan);
+
+                            apiHeader.appendChild(apiNameContainer);
 
                             // API 删除按钮（长按3秒）
                             const deleteApiBtn = document.createElement('div');
@@ -1969,7 +2084,7 @@
             // 如果切换到providers tab，重新请求数据
             if (tabId === 'providers') {
                 requestProviderData();
-                requestCapabilityStatus();
+                requestCastSheetData();
             }
             
             // 发送Tab变更消息到C++
@@ -2023,7 +2138,11 @@
                         break;
                         
                     case 'setCapabilityStatus':
-                        setCapabilityStatus(message.capability);
+                        // Capability状态已废弃，保留兼容性
+                        break;
+                        
+                    case 'setCastSheetData':
+                        setCastSheetData(message.data);
                         break;
                         
                     case 'startValidatingProvider':

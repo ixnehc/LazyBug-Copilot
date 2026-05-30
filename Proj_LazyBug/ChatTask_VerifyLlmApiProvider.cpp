@@ -55,8 +55,16 @@ void CChatTask_VerifyLlmApiProvider::Start()
 	if (_context->chatSettingPage)
 		_context->chatSettingPage->StartValidatingProvider(_providerTypeName);
 
+	// 查找可用于验证的API（优先Auxiliary角色，且model非空）
+	std::string apiName = g_llmLib.FindApiToValidateApiKey(_providerTypeName);
+	if (apiName.empty())
+	{
+		_Fail();
+		return;
+	}
+
 	LlmSessionSetting setting;
-	if (g_llmLib.LoadLlmSetting(setting, LlmApiPurpose::MinorChat, _providerTypeName, true, ""))
+	if (g_llmLib.LoadLlmSetting(setting, apiName, ""))
 	{
 		setting.api.tools.clear();
 		setting.rulesFiles.clear();
@@ -64,65 +72,6 @@ void CChatTask_VerifyLlmApiProvider::Start()
 		request.AddUserMessage(u8"Please give me an animal's name of 4 letters");
 		request.isStreaming = false;
 
-		if (!_llmChat->Request(request, setting))
-		{
-			_Fail();
-			return;
-		}
-		_hasStartedRequest = true;
-		return;
-	}
-
-	if (g_llmLib.LoadLlmSetting(setting, LlmApiPurpose::Complete, _providerTypeName, true, ""))
-	{
-		LlmSessionRequest request;
-		request.AddUserMessage(u8"Please give me an animal's name of 4 letters");
-		request.isStreaming = false;
-
-		if (!_llmChat->Request(request, setting))
-		{
-			_Fail();
-			return;
-		}
-		_hasStartedRequest = true;
-		return;
-	}
-
-	if (g_llmLib.LoadLlmSetting(setting, LlmApiPurpose::MajorChat, _providerTypeName, true, ""))
-	{
-		LlmSessionRequest request;
-		request.AddUserMessage(u8"Please give me an animal's name of 4 letters");
-		request.isStreaming = false;
-
-		if (!_llmChat->Request(request, setting))
-		{
-			_Fail();
-			return;
-		}
-		_hasStartedRequest = true;
-		return;
-	}
-
-	if (g_llmLib.LoadLlmSetting(setting, LlmApiPurpose::FastApply_Dedicated, _providerTypeName, true, ""))
-	{
-		std::string message;
-		message += u8"<code>";
-		message += u8"int main()";
-		message += u8"{";
-		message += u8"}";
-		message += u8"</code>\n";
-		message += u8"<code>";
-		message += u8"int main()";
-		message += u8"{";
-		message += u8" return 0";
-		message += u8"}";
-		message += u8"</code>\n";
-
-		LlmSessionRequest request;
-		request.AddUserMessage( message.c_str());
-		request.isStreaming = false;
-
-		// 发送请求到LLM
 		if (!_llmChat->Request(request, setting))
 		{
 			_Fail();
@@ -150,17 +99,24 @@ void CChatTask_VerifyLlmApiProvider::Update()
 			// 检查会话是否完成
 			if (output.isCompleted)
 			{
-				if (output.hasError)
+				if (output.content.empty())
 				{
 					_Fail();
-				}
-				else if (!_requestInterrupt)
-				{
-					_Succeed();
 				}
 				else
 				{
-					_Fail();
+					if (output.hasError)
+					{
+						_Fail();
+					}
+					else if (!_requestInterrupt)
+					{
+						_Succeed();
+					}
+					else
+					{
+						_Fail();
+					}
 				}
 			}
 		}

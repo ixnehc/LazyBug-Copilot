@@ -81,9 +81,10 @@ void CLlmLib::_Save(CCurrentUserRegistry &reg)
 {
 	const char* mainSection = "LazyBugLlmLib";
 
-	// 保存 _majorChatApi 和 _briefApi
+	// 保存 _majorChatApi, _briefApi 和 _summarizeApi
 	reg.WriteString(mainSection, "majorChatApi", _majorChatApi.c_str());
 	reg.WriteString(mainSection, "briefApi", _briefApi.c_str());
+	reg.WriteString(mainSection, "summarizeApi", _summarizeApi.c_str());
 
 	// 保存API提供商的动态数据到注册表
 	for (int i = 0; i < (int)_providers.size(); i++)
@@ -112,12 +113,10 @@ void CLlmLib::_Load(CCurrentUserRegistry& reg)
 {
 	const char* mainSection = "LazyBugLlmLib";
 
-	// 从注册表加载 _majorChatApi 和 _briefApi
+	// 从注册表加载 _majorChatApi, _briefApi 和 _summarizeApi
 	_majorChatApi = reg.ReadString(mainSection, "majorChatApi", "");
 	_briefApi = reg.ReadString(mainSection, "briefApi", "");
-
-	// 确保默认API被设置
-	_EnsureDefApis();
+	_summarizeApi = reg.ReadString(mainSection, "summarizeApi", "");
 
 	// 从注册表读取API提供商的动态数据
 	for (int i = 0; i < (int)_providers.size(); i++)
@@ -144,6 +143,9 @@ void CLlmLib::_Load(CCurrentUserRegistry& reg)
 		int statusValue = reg.ReadInt(mainSection, keyName_status.c_str(), (int)LlmApiProvider::Status::Unknown);
 		provider.status = (LlmApiProvider::Status)statusValue;
 	}
+
+	// 确保默认API被设置
+	_EnsureDefApis();
 }
 
 void CLlmLib::_LoadLlmSessionSetting(LlmSessionSetting& setting, const LlmApi &api, const char* ruleName)
@@ -194,6 +196,7 @@ void CLlmLib::Init()
 
 	// 从注册表加载动态数据
 	_Load(g_reg);
+	_Save(g_reg);//_Load(..)后可能会修正,重新存一下
 
 	// 验证工作能力
 	ValidateCap();
@@ -214,39 +217,50 @@ void CLlmLib::Clear()
 
 void CLlmLib::_EnsureDefApis()
 {
-	// 确保 _majorChatApi 有值
-	if (_majorChatApi.empty())
-	{
+	// 辅助lambda：检查api是否有效（存在、provider有效、角色匹配）
+	auto IsApiValid = [this](const std::string& apiName, LlmApiRole expectedRole) {
+		if (apiName.empty()) return false;
+		const LlmApi* api = GetApi(apiName);
+		if (!api) return false;
+		if (api->role != expectedRole) return false;
+		return IsApiAvailable(apiName);
+	};
+
+	// 辅助lambda：从指定role的有效api中获取第一个
+	auto FindFirstValidApi = [this](LlmApiRole role) -> std::string {
 		for (const auto& api : _apis)
 		{
-			for (const auto& purpose : api.purpose)
+			if (api.role == role && IsApiAvailable(api.name))
 			{
-				if (purpose == LlmApiPurpose::MajorChat)
-				{
-					_majorChatApi = api.name;
-					break;
-				}
+				return api.name;
 			}
-			if (!_majorChatApi.empty())
-				break;
+		}
+		return "";
+	};
+
+	// 确保 _majorChatApi：从Agent里取，如果原值无效则重新查找
+	if (!IsApiValid(_majorChatApi, LlmApiRole::Agent))
+	{
+		_majorChatApi = FindFirstValidApi(LlmApiRole::Agent);
+	}
+
+	// 确保 _briefApi：优先从Auxiliary取，其次从Agent取
+	if (!IsApiValid(_briefApi, LlmApiRole::Auxiliary) && !IsApiValid(_briefApi, LlmApiRole::Agent))
+	{
+		_briefApi = FindFirstValidApi(LlmApiRole::Auxiliary);
+		if (_briefApi.empty())
+		{
+			_briefApi = FindFirstValidApi(LlmApiRole::Agent);
 		}
 	}
 
-	// 确保 _briefApi 有值
-	if (_briefApi.empty())
+	// 确保 _summarizeApi：优先从Auxiliary取，其次从Agent取
+	if (!IsApiValid(_summarizeApi, LlmApiRole::Auxiliary) && !IsApiValid(_summarizeApi, LlmApiRole::Agent))
 	{
-		for (const auto& api : _apis)
+		_summarizeApi = FindFirstValidApi(LlmApiRole::Auxiliary);
+		if (_summarizeApi.empty())
 		{
-			for (const auto& purpose : api.purpose)
-			{
-				if (purpose == LlmApiPurpose::MinorChat)
-				{
-					_briefApi = api.name;
-					break;
-				}
-			}
-			if (!_briefApi.empty())
-				break;
+			_summarizeApi = FindFirstValidApi(LlmApiRole::Agent);
 		}
 	}
 }
@@ -282,9 +296,9 @@ void CLlmLib::EnsureJson()
 	CLlmLibLoader::SaveJsonFile(tempLib, jsonPath.c_str());
 }
 
-bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, LlmApiProviderTypeName providerTypeName, bool allowUnavailable, const char* ruleName)
+bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiRole role, LlmApiProviderTypeName providerTypeName, bool allowUnavailable, const char* ruleName)
 {
-	// 查找具有指定用途且价格最低的API
+	// 查找具有指定角色且价格最低的API
 	const LlmApi* cheapestApi = nullptr;
 	float lowestPrice = FLT_MAX;
 
@@ -307,17 +321,13 @@ bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, 
 			}
 		}
 
-		for (const auto& apiPurpose : api.purpose)
+		if (api.role == role)
 		{
-			if (apiPurpose == purpose)
+			// 比较价格，选择价格更低的API
+			if (api.priceInputToken < lowestPrice)
 			{
-				// 比较价格，选择价格更低的API
-				if (api.priceInputToken < lowestPrice)
-				{
-					lowestPrice = api.priceInputToken;
-					cheapestApi = &api;
-				}
-				break;
+				lowestPrice = api.priceInputToken;
+				cheapestApi = &api;
 			}
 		}
 	}
@@ -332,9 +342,9 @@ bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, 
 	return false; // 未找到合适的API
 }
 
-bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiPurpose purpose, const char* ruleName)
+bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiRole role, const char* ruleName)
 {
-	return LoadLlmSetting(setting, purpose, LlmApiProviderTypeName(), false, ruleName);
+	return LoadLlmSetting(setting, role, LlmApiProviderTypeName(), false, ruleName);
 }
 
 bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, const std::string& apiName, const char* ruleName)
@@ -352,9 +362,8 @@ bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, const std::string& apiN
 
 void CLlmLib::ValidateCap()
 {
-	bool hasMainChat = false;
-	bool hasMinorChat = false;
-
+	bool hasAgent = false;
+	bool hasAuxiliary = false;
 
 	// 遍历所有API，检查可用的API类型
 	for (const auto& api : _apis)
@@ -366,35 +375,24 @@ void CLlmLib::ValidateCap()
 			continue; // 跳过不可用的提供商
 		}
 
-		// 检查API的用途
-		for (const auto& purpose : api.purpose)
-		{
-			switch (purpose)
-			{
-			case LlmApiPurpose::MajorChat:
-				hasMainChat = true;
-				break;
-			case LlmApiPurpose::MinorChat:
-				hasMinorChat = true;
-				break;
-			}
-		}
+		// 检查API的角色
+		if (api.role == LlmApiRole::Agent)
+			hasAgent = true;
+		else if (api.role == LlmApiRole::Auxiliary)
+			hasAuxiliary = true;
 	}
 
 	// 根据可用API确定工作能力
-	if (hasMainChat && hasMinorChat)
+	if (hasAgent && hasAuxiliary)
 	{
-		// 能找到 MainChat, MinorChat这三种api
 		_cap = WorkingCapability::Full;
 	}
-	else if (!hasMainChat)
+	else if (!hasAgent)
 	{
-		// 无法找到 MainChat
 		_cap = WorkingCapability::CannotWork;
 	}
 	else
 	{
-		// 其余情况
 		_cap = WorkingCapability::Partial;
 	}
 }
@@ -486,6 +484,7 @@ bool CLlmLib::SetProviderStatus(const LlmApiProviderTypeName& name, LlmApiProvid
 			provider.status = status;
 			// 重新验证工作能力
 			ValidateCap();
+			_EnsureDefApis();
 			return true;
 		}
 	}
@@ -525,6 +524,19 @@ bool CLlmLib::SetProviderEndpoint(const LlmApiProviderTypeName& name, const std:
 		if (p.name == name)
 		{
 			p.endpoint = endpoint;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CLlmLib::SetProviderFormat(const LlmApiProviderTypeName& name, LlmApiFormat format)
+{
+	for (auto& p : _providers)
+	{
+		if (p.name == name)
+		{
+			p.format = format;
 			return true;
 		}
 	}
@@ -581,33 +593,84 @@ bool CLlmLib::UpdateReload()
 
 void CLlmLib::SetMajorChatApi(const std::string& apiName)
 {
-	// 验证apiName是否在可用的MajorChat API列表中
+	// 验证apiName是否在可用的Agent API列表中
 	bool found = false;
 	for (const auto& api : _apis)
 	{
 		if (api.name == apiName)
 		{
-			// 检查是否有MajorChat用途
-			for (const auto& purpose : api.purpose)
+			// 检查是否有Agent角色
+			if (api.role == LlmApiRole::Agent)
 			{
-				if (purpose == LlmApiPurpose::MajorChat)
+				// 检查提供商是否可用
+				const LlmApiProvider* provider = GetProvider(api.providerTypeName);
+				if (provider && provider->IsAvailable())
 				{
-					// 检查提供商是否可用
-					const LlmApiProvider* provider = GetProvider(api.providerTypeName);
-					if (provider && provider->IsAvailable())
-					{
-						found = true;
-						break;
-					}
+					found = true;
+					break;
 				}
 			}
-			if (found) break;
 		}
 	}
 
 	if (found)
 	{
 		_majorChatApi = apiName;
+		_version++;
+		// 保存设置到注册表
+		SaveSettings();
+	}
+}
+
+void CLlmLib::SetBriefApi(const std::string& apiName)
+{
+	// 验证apiName是否在可用的API列表中
+	bool found = false;
+	for (const auto& api : _apis)
+	{
+		if (api.name == apiName)
+		{
+			// 检查提供商是否可用
+			const LlmApiProvider* provider = GetProvider(api.providerTypeName);
+			if (provider && provider->IsAvailable())
+			{
+				found = true;
+				break;
+			}
+		}
+	}
+
+	if (found)
+	{
+		_briefApi = apiName;
+		_version++;
+		// 保存设置到注册表
+		SaveSettings();
+	}
+}
+
+void CLlmLib::SetSummarizeApi(const std::string& apiName)
+{
+	// 验证apiName是否在可用的API列表中
+	bool found = false;
+	for (const auto& api : _apis)
+	{
+		if (api.name == apiName)
+		{
+			// 检查提供商是否可用
+			const LlmApiProvider* provider = GetProvider(api.providerTypeName);
+			if (provider && provider->IsAvailable())
+			{
+				found = true;
+				break;
+			}
+		}
+	}
+
+	if (found)
+	{
+		_summarizeApi = apiName;
+		_version++;
 		// 保存设置到注册表
 		SaveSettings();
 	}
@@ -685,14 +748,15 @@ LlmApi* CLlmLib::AddApi(const LlmApiProviderTypeName& providerName, const std::s
 	newApi.name = apiName;
 	newApi.desc = apiName;
 	newApi.providerTypeName = providerName;
-	newApi.model = "gpt-4o";
-	newApi.maxToken = 4096;
+	newApi.model = "";
+	newApi.maxToken = 0;
 	newApi.contextCapacity = 128000;
 	newApi.priceInputToken = 0;
 	newApi.priceOutputToken = 0;
 	newApi.priceCacheRead = 0;
 	newApi.priceCacheWrite = 0;
 	newApi.thinkingMode = LlmThinkingMode::Auto;
+	newApi.role = LlmApiRole::Agent;
 	_apis.push_back(newApi);
 	return &_apis.back();
 }
@@ -731,6 +795,10 @@ bool CLlmLib::IsApiAvailable(const std::string& apiName)
 	LlmApi* api = _FindApi(apiName.c_str());
 	if (api)
 	{
+		// enable为false的API视为不可用
+		if (!api->enable)
+			return false;
+		
 		if (!api->providerTypeName.empty())
 		{
 			const LlmApiProvider* provider = GetProvider(api->providerTypeName);
@@ -746,3 +814,34 @@ const LlmApi* CLlmLib::GetApi(const std::string& apiName)
 	return _FindApi(apiName.c_str());
 }
 
+
+std::string CLlmLib::FindApiToValidateApiKey(const LlmApiProviderTypeName& name)
+{
+	std::string auxiliaryApi;
+	std::string otherApi;
+
+	for (const auto& api : _apis)
+	{
+		// 检查是否属于指定provider
+		if (api.providerTypeName != name)
+			continue;
+
+		// 检查model是否非空
+		if (api.model.empty())
+			continue;
+
+		// 优先找Auxiliary角色
+		if (api.role == LlmApiRole::Auxiliary)
+		{
+			auxiliaryApi = api.name;
+			break; // 找到Auxiliary，直接退出
+		}
+		else if (otherApi.empty())
+		{
+			otherApi = api.name;
+		}
+	}
+
+	// 优先返回Auxiliary，否则返回其他符合条件的api
+	return auxiliaryApi.empty() ? otherApi : auxiliaryApi;
+}

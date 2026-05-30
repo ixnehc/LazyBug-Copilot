@@ -15,7 +15,6 @@
 using SettingPageNavigationCompletedCallback = std::function<void(bool)>;
 using SettingPageMessageReceivedCallback = std::function<void(const std::wstring&)>;
 using SettingPageExitCallback = std::function<void()>;
-using SettingPageEditModelsCallback = std::function<void()>;
 
 // Tab页面结构
 struct SettingTab
@@ -48,7 +47,6 @@ public:
     void SetNavigationCompletedCallback(SettingPageNavigationCompletedCallback callback);
     void SetWebMessageReceivedCallback(SettingPageMessageReceivedCallback callback);
     void SetExitCallback(SettingPageExitCallback callback);
-    void SetEditModelsCallback(SettingPageEditModelsCallback callback);
     
     // 获取WebView2环境和核心WebView
     ICoreWebView2* GetCoreWebView2() { return _webView; }
@@ -71,9 +69,12 @@ public:
     void LoadProviderData();
     void SendProviderDataToWebView();
     void SendCapabilityStatusToWebView();
+    void SendCastSheetDataToWebView();
+    void UpdateCastSheetApi(const std::wstring& apiType, const std::wstring& apiName);
     void UpdateProviderKey(const std::wstring& providerTypeName, const std::wstring& key);
     void UpdateProviderName(const std::wstring& oldName, const std::wstring& newName);
     void UpdateProviderEndpoint(const std::wstring& providerName, const std::wstring& endpoint);
+    void UpdateProviderFormat(const std::wstring& providerName, const std::wstring& format);
     void UpdateApiName(const std::wstring& oldName, const std::wstring& newName);
     void UpdateApiField(const std::wstring& apiName, const std::wstring& field, const nlohmann::json& value);
     void AddProvider(const std::wstring& name);
@@ -88,9 +89,6 @@ public:
 
     // 检测并重新加载（如果LLM Lib配置有变化则更新显示）
     void UpdateReload();
-
-    // 编辑扩展模型配置
-    void EditModels();
 
 
 protected:
@@ -119,7 +117,6 @@ private:
     SettingPageNavigationCompletedCallback _navigationCompletedCallback;
     SettingPageMessageReceivedCallback _webMessageReceivedCallback;
     SettingPageExitCallback _exitCallback;
-    SettingPageEditModelsCallback _editModelsCallback;
     
     // 脚本执行回调映射
     std::map<int, std::function<void(const std::wstring&)>> _scriptCallbacks;
@@ -163,4 +160,7 @@ private:
     void _HandleWebMessage(const std::wstring& message);
 
 	CChatTaskMgr _taskMgr;
+
+	// 延迟显示的消息（因为webview回调中不能直接弹出MessageBox）
+	bool _needShowNoApiForValidation;
 };

@@ -11,12 +11,12 @@ extern std::wstring utf8_to_widechar(const char* utf8_str);
 
 namespace
 {
-	// 解析用途字符串，多个用途用逗号分隔
-	void ParsePurposeString(const char* purposeStr, std::vector<LlmApiPurpose>& purposes)
+	// 从旧的purpose字符串解析并转换为LlmApiRole
+	// 如果包含MajorChat则返回Agent，否则返回Auxiliary
+	LlmApiRole ParsePurposeToRole(const char* purposeStr)
 	{
-		purposes.clear();
 		if (!purposeStr || strlen(purposeStr) == 0)
-			return;
+			return LlmApiRole::Auxiliary;
 
 		std::string str = purposeStr;
 		std::stringstream ss(str);
@@ -32,19 +32,28 @@ namespace
 				item = item.substr(start, end - start + 1);
 
 				if (item == "MajorChat")
-					purposes.push_back(LlmApiPurpose::MajorChat);
-				else if (item == "MinorChat")
-					purposes.push_back(LlmApiPurpose::MinorChat);
-				else if (item == "FastApply_Dedicated")
-					purposes.push_back(LlmApiPurpose::FastApply_Dedicated);
-				else if (item == "FastApply_Adaptive")
-					purposes.push_back(LlmApiPurpose::FastApply_Adaptive);
-				else if (item == "Embedding")
-					purposes.push_back(LlmApiPurpose::Embedding);
-				else if (item == "Complete")
-					purposes.push_back(LlmApiPurpose::Complete);
+					return LlmApiRole::Agent;
 			}
 		}
+		return LlmApiRole::Auxiliary;
+	}
+
+	// 从JSON的purpose数组解析并转换为LlmApiRole
+	LlmApiRole ParsePurposeArrayToRole(const nlohmann::json& jPurpose)
+	{
+		if (!jPurpose.is_array())
+			return LlmApiRole::Auxiliary;
+
+		for (const auto& elem : jPurpose)
+		{
+			if (elem.is_string())
+			{
+				std::string s = elem.get<std::string>();
+				if (s == "MajorChat")
+					return LlmApiRole::Agent;
+			}
+		}
+		return LlmApiRole::Auxiliary;
 	}
 
 	// 解析工具字符串，多个工具用逗号分隔
@@ -172,16 +181,12 @@ namespace
 		}
 	}
 
-	std::string PurposeToString(LlmApiPurpose purpose)
+	std::string RoleToString(LlmApiRole role)
 	{
-		switch (purpose)
+		switch (role)
 		{
-		case LlmApiPurpose::MajorChat: return "MajorChat";
-		case LlmApiPurpose::MinorChat: return "MinorChat";
-		case LlmApiPurpose::FastApply_Dedicated: return "FastApply_Dedicated";
-		case LlmApiPurpose::FastApply_Adaptive: return "FastApply_Adaptive";
-		case LlmApiPurpose::Embedding: return "Embedding";
-		case LlmApiPurpose::Complete: return "Complete";
+		case LlmApiRole::Agent: return "Agent";
+		case LlmApiRole::Auxiliary: return "Auxiliary";
 		default: return "None";
 		}
 	}
@@ -225,16 +230,12 @@ namespace
 		}
 	}
 
-	// 从字符串解析单个 Purpose
-	LlmApiPurpose StringToPurpose(const std::string& str)
+	// 从字符串解析单个 Role
+	LlmApiRole StringToRole(const std::string& str)
 	{
-		if (str == "MajorChat") return LlmApiPurpose::MajorChat;
-		if (str == "MinorChat") return LlmApiPurpose::MinorChat;
-		if (str == "FastApply_Dedicated") return LlmApiPurpose::FastApply_Dedicated;
-		if (str == "FastApply_Adaptive") return LlmApiPurpose::FastApply_Adaptive;
-		if (str == "Embedding") return LlmApiPurpose::Embedding;
-		if (str == "Complete") return LlmApiPurpose::Complete;
-		return LlmApiPurpose::None;
+		if (str == "Agent") return LlmApiRole::Agent;
+		if (str == "Auxiliary") return LlmApiRole::Auxiliary;
+		return LlmApiRole::None;
 	}
 
 	// 从字符串解析单个 ToolType
@@ -509,10 +510,20 @@ void CLlmLibLoader::LoadInto(std::vector<LlmApiProvider>& providers, std::vector
 		else
 			api.thinkingMode = LlmThinkingMode::Auto;
 
-		// 读取purpose
+		// 读取purpose(旧格式，转换为role)
 		it = section.keyValues.find("purpose");
 		if (it != section.keyValues.end())
-			ParsePurposeString(it->second.c_str(), api.purpose);
+			api.role = ParsePurposeToRole(it->second.c_str());
+
+		// 读取role(新格式，优先于purpose)
+		it = section.keyValues.find("role");
+		if (it != section.keyValues.end())
+		{
+			if (it->second == "Agent")
+				api.role = LlmApiRole::Agent;
+			else if (it->second == "Auxiliary")
+				api.role = LlmApiRole::Auxiliary;
+		}
 
 		// 读取cacheControl
 		it = section.keyValues.find("cacheControl");
@@ -619,11 +630,10 @@ void CLlmLibLoader::SaveJsonFile(CLlmLib& lib, const char* jsonFilePath)
 		jApi["priceCacheRead"] = api.priceCacheRead;
 		jApi["priceCacheWrite"] = api.priceCacheWrite;
 		jApi["thinkingMode"] = ThinkingModeToString(api.thinkingMode);
-		jApi["purpose"] = json::array();
-		for (auto purpose : api.purpose)
-			jApi["purpose"].push_back(PurposeToString(purpose));
+		jApi["role"] = RoleToString(api.role);
 		jApi["providerTypeName"] = api.providerTypeName;
 		jApi["cacheControl"] = CacheControlTypeToString(api.cacheControlType);
+		jApi["enable"] = api.enable;
 		jApi["tools"] = json::array();
 		for (auto tool : api.tools)
 			jApi["tools"].push_back(ToolTypeToString(tool));
@@ -704,11 +714,17 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 				api.priceCacheWrite = jApi.value("priceCacheWrite", api.priceOutputToken);
 				api.thinkingMode = ParseThinkingMode(jApi.value("thinkingMode", "").c_str());
 				api.cacheControlType = ParseCacheControlType(jApi.value("cacheControl", "").c_str());
+				api.enable = jApi.value("enable", true);  // 默认为true
 
-				if (jApi.contains("purpose") && jApi["purpose"].is_array())
+				// 读取role(新格式)
+				if (jApi.contains("role") && jApi["role"].is_string())
 				{
-					for (const auto& jPurpose : jApi["purpose"])
-						api.purpose.push_back(StringToPurpose(jPurpose.get<std::string>()));
+					api.role = StringToRole(jApi["role"].get<std::string>());
+				}
+				// 兼容旧格式：如果存在purpose数组，则转换为role
+				else if (jApi.contains("purpose") && jApi["purpose"].is_array())
+				{
+					api.role = ParsePurposeArrayToRole(jApi["purpose"]);
 				}
 
 				if (jApi.contains("tools") && jApi["tools"].is_array())

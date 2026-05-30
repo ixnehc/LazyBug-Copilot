@@ -104,8 +104,8 @@ void CChatBriefA::Update(CChatDialogA& chatDlg)
 	request.AddUserMessage(question.c_str());
 
 	LlmSessionSetting settings;
-	if (!g_llmLib.LoadLlmSetting(settings, LlmApiPurpose::MinorChat, ""))
-		g_llmLib.LoadLlmSetting(settings, LlmApiPurpose::MajorChat, "");
+	if (!g_llmLib.LoadLlmSetting(settings, LlmApiRole::Auxiliary, ""))
+		g_llmLib.LoadLlmSetting(settings, LlmApiRole::Agent, "");
 
 	settings.api.tools.clear();
 	settings.api.thinkingMode = LlmThinkingMode::Disable;

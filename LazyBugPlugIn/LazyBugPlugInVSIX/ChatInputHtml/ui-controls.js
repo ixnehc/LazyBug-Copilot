@@ -132,8 +132,8 @@ function updateMajorChatApiMenu(currentApi, apis) {
     
     const apiMenuText = document.getElementById('apiMenuText');
     if (apiMenuText) {
-        apiMenuText.textContent = currentApi || '选择模型';
-        apiMenuText.title = currentApi || '选择模型';
+        apiMenuText.textContent = currentApi || 'n/a';
+        apiMenuText.title = currentApi || 'n/a';
 
         if (!isCurrentApiAvailable) {
             apiMenuText.classList.add('unavailable');

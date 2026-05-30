@@ -1,16 +1,11 @@
 ﻿#pragma once
 
 
-enum class LlmApiPurpose
+enum class LlmApiRole
 {
 	None,
-	MajorChat,
-	MinorChat,//简单对话
-	FastApply_Dedicated,//第一优先
-	FastApply_Adaptive,//第二优先
-	Embedding,
-	Complete,
-	Max,
+	Agent,      // 主要代理
+	Auxiliary,  // 辅助
 };
 
 enum class LlmApiFormat
