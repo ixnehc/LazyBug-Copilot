@@ -798,7 +798,12 @@ void CChatInput::InitializeInputUI()
 	// 初始化MajorChat API菜单
 	UpdateMajorChatApiMenu();
 
+	// 恢复 Context Level 流光状态
+	if (_contextLevelFlowing)
+		ExecuteScript(L"startCompressFlowing()");
+
 	// 调用ready回调
+
 	if (_readyCallback)
 	{
 		_readyCallback();
@@ -1316,6 +1321,35 @@ bool CChatInput::SetCompressedSize(const std::wstring& sizeText, const std::wstr
 
 	return true;
 }
+
+// 开始 Context Level 按钮的流光效果
+void CChatInput::StartContextLevelFlowing()
+{
+	if (_contextLevelFlowing)
+		return;
+
+	_contextLevelFlowing = true;
+
+	if (!_IsReady())
+		return;
+
+	ExecuteScript(L"startCompressFlowing()");
+}
+
+// 停止 Context Level 按钮的流光效果
+void CChatInput::StopContextLevelFlowing()
+{
+	if (!_contextLevelFlowing)
+		return;
+
+	_contextLevelFlowing = false;
+
+	if (!_IsReady())
+		return;
+
+	ExecuteScript(L"stopCompressFlowing()");
+}
+
 
 
 //====================== 私有辅助方法实现 ======================

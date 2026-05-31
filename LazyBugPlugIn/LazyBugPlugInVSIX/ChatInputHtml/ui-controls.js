@@ -146,6 +146,9 @@ const CompressIntensity = {
 // 当前压缩强度
 let currentCompressIntensity = CompressIntensity.Low;
 
+// 流光期间保存的原始 tooltip
+let _compressOriginalTooltip = null;
+
 // 设置压缩强度 (0-4, 对应 None, Low, Medium, High, Extreme)
 // 显示下标: None=∞, Low=4, Medium=3, High=2, Extreme=1
 function setCompressIntensity(intensity, tooltip) {
@@ -169,11 +172,39 @@ function setCompressIntensity(intensity, tooltip) {
     
     // 设置 tooltip
     if (tooltip) {
-        compressButton.title = tooltip;
+        _compressOriginalTooltip = tooltip;
+        if (!compressButton.classList.contains('flowing')) {
+            compressButton.title = tooltip;
+        }
+    }
+}
+
+// 开始压缩按钮(Context Level)流光效果
+function startCompressFlowing() {
+    const compressButton = document.getElementById('compressButton');
+    if (compressButton) {
+        if (_compressOriginalTooltip === null) {
+            _compressOriginalTooltip = compressButton.title || '';
+        }
+        compressButton.classList.add('flowing');
+        compressButton.title = 'Compressing...';
+    }
+}
+
+// 停止压缩按钮(Context Level)流光效果
+function stopCompressFlowing() {
+    const compressButton = document.getElementById('compressButton');
+    if (compressButton) {
+        compressButton.classList.remove('flowing');
+        if (_compressOriginalTooltip !== null) {
+            compressButton.title = _compressOriginalTooltip;
+            _compressOriginalTooltip = null;
+        }
     }
 }
 
 // 获取下一个压缩强度 (循环切换)
+
 function getNextCompressIntensity() {
     const values = [CompressIntensity.None, CompressIntensity.Extreme, 
                     CompressIntensity.High, CompressIntensity.Medium, 
@@ -292,6 +323,8 @@ window.setPlaceholder = setPlaceholder;
 window.handleApiMenuButtonClick = handleApiMenuButtonClick;
 window.updateMajorChatApiMenu = updateMajorChatApiMenu;
 window.setCompressIntensity = setCompressIntensity;
+window.startCompressFlowing = startCompressFlowing;
+window.stopCompressFlowing = stopCompressFlowing;
 window.setCompressedSize = setCompressedSize;
 window.handleCompressButtonClick = handleCompressButtonClick;
 window.handleAtButtonClick = handleAtButtonClick;

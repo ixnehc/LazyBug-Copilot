@@ -599,6 +599,9 @@
     <ClInclude Include="ChatNotify.h">
       <Filter>GUI\ChatDialog\ChatNotify</Filter>
     </ClInclude>
+    <ClInclude Include="ChatTask_CompressSummarize.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBug.cpp">
@@ -984,6 +987,9 @@
     </ClCompile>
     <ClCompile Include="ChatNotify.cpp">
       <Filter>GUI\ChatDialog\ChatNotify</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatTask_CompressSummarize.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

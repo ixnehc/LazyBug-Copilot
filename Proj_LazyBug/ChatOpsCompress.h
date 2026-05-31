@@ -8,9 +8,13 @@
 
 #include "chatopsctrl.h"
 
+#include "chattaskmgr.h"
+
 // 前置声明
 class CChatOpsCtrl;
 struct ChatOp;
+class CChatTask_CompressSummarize;
+class CChatAgent;
 
 enum class ChatOpCompressIntensity
 {
@@ -23,6 +27,7 @@ enum class ChatOpCompressIntensity
 
 class CChatOpsCompress
 {
+	friend class CChatTask_CompressSummarize;
 public:
 	// 压缩等级
 	enum CompressLevel
@@ -95,7 +100,7 @@ public:
 		_compressStartTime = 0;     // 压缩开始时间
 	}
 
-	void Init(CChatOpsCtrl* opsCtrl);
+	void Init(CChatOpsCtrl* opsCtrl, CChatAgent* chatAgent);
 	void Clear();
 
 	// 从注册表读写当前 API 对应的压缩强度
@@ -108,9 +113,10 @@ public:
 	// 获取当前状态
 	State GetState() const { return _state; }
 	bool IsCompressing() const { return _state == State_Compressing; }
+	bool IsSummarizing();
 
 	void CancelCompress()	{		_CancelCompress();	}
-	bool TryTrigger()	{		return _TryTrigger();	}
+	bool TryTrigger(bool allowSummarize)	{		return _TryTrigger(allowSummarize);	}
 
 
 	// 获取已减少的 token 数
@@ -118,7 +124,7 @@ public:
 
 private:
 
-	void _StartCompress(int reduceTokenCount);
+	void _StartCompress(int reduceTokenCount,bool allowSummarize);
 	void _BuildWorkingOps();
 
 	void _CollectEnv(Env &env);
@@ -126,7 +132,7 @@ private:
 	void _UpdateCompress();
 	void _CancelCompress();
 	void _DecompressAll();
-	bool _TryTrigger();
+	bool _TryTrigger(bool allowSummarize);
 
 	// 执行指定 Pass，返回是否达到目标
 	// 执行指定 Pass
@@ -162,6 +168,7 @@ private:
 	void _Pass_RemoveFindSymbol(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
 	void _Pass_ClearMessages(int startSessionAge, int endSessionAge);
+	void _Pass_SummarizeMessage(int startSessionAge, int endSessionAge);
 
 	// Pass 总数
 	static constexpr int _passCount = 50;
@@ -172,7 +179,9 @@ private:
 
 private:
 	CChatOpsCtrl* _opsCtrl = nullptr;
+
 	State _state = State_Idle;
+	bool _allowSummarize = false;
 
 	Env _env;
 
@@ -187,5 +196,7 @@ private:
 
 	// 判断是否超时
 	bool _IsCompressTimeout() const;
+
+	CChatTaskMgr _taskMgr;
 };
 

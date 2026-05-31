@@ -13,7 +13,7 @@ void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *
 	_llmChat.Init();
 
 	_opsCtrl.Init(ctx);
-	_compressor.Init(&_opsCtrl);
+	_compressor.Init(&_opsCtrl, this);
 
 	_ui = ui;
 	if (ui)
@@ -357,7 +357,7 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 // 			_compressor.StartCompress(reduceToken);
 // 	}
 	_compressor.CancelCompress();
-	_compressor.TryTrigger();
+	_compressor.TryTrigger(true);
 
 	if (_compressor.IsCompressing())
 	{

@@ -106,9 +106,15 @@ CChatOpsCompress::~CChatOpsCompress()
 {
 }
 
-void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl)
+void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl, CChatAgent* chatAgent)
 {
 	_opsCtrl = opsCtrl;
+
+	ChatTaskContext ctx;
+	ctx.chatOpsCtrl = opsCtrl;
+	ctx.chatAgent = chatAgent;
+	_taskMgr.Init(ctx);
+
 }
 
 void CChatOpsCompress::Clear()
@@ -127,7 +133,7 @@ void CChatOpsCompress::_CollectEnv(Env& env)
 }
 
 
-void CChatOpsCompress::_StartCompress(int reduceTokenCount)
+void CChatOpsCompress::_StartCompress(int reduceTokenCount, bool allowSummarize)
 {
 	if (!_opsCtrl || reduceTokenCount <= 0)
 	{
@@ -139,6 +145,7 @@ void CChatOpsCompress::_StartCompress(int reduceTokenCount)
 	_reducedTokens = 0;
 	_currentPass = 0;
 	_state = State_Compressing;
+	_allowSummarize = allowSummarize;
 
 	// 构建工作 Op 数组
 	_BuildWorkingOps();
@@ -153,6 +160,14 @@ void CChatOpsCompress::_StartCompress(int reduceTokenCount)
 	_CollectEnv(_workingEnv);
 }
 
+bool CChatOpsCompress::IsSummarizing()
+{
+	if (IsCompressing() && _taskMgr.IsRunning())
+		return true;
+	return false;
+}
+
+
 void CChatOpsCompress::UpdateCompressTriggering()
 {
 	if (IsCompressing())
@@ -163,7 +178,7 @@ void CChatOpsCompress::UpdateCompressTriggering()
 	if (env.Equals(_env))
 		return;
 
-	_TryTrigger();
+	_TryTrigger(false);
 	_UpdateCompress();//立即更新一次
 
 	_CollectEnv(_env);
@@ -172,6 +187,10 @@ void CChatOpsCompress::UpdateCompressTriggering()
 
 void CChatOpsCompress::UpdateCompress()
 {
+	_taskMgr.Update();
+	if (_taskMgr.IsRunning())
+		return;
+
 	_UpdateCompress();
 }
 
@@ -192,6 +211,9 @@ void CChatOpsCompress::_UpdateCompress()
 
 		// 执行当前 Pass
 		_ExecutePass(_currentPass);
+
+		if (_taskMgr.IsRunning())
+			return;
 
 		// Pass 执行完毕后检查是否超时
 		if (_IsCompressTimeout())
@@ -217,6 +239,8 @@ void CChatOpsCompress::_CancelCompress()
 {
 	if (_state == State_Idle )
 		return;
+
+	_taskMgr.Shutdown();
 
 	_state = State_Idle;
 	_workingOps.clear();
@@ -917,6 +941,63 @@ void CChatOpsCompress::_Pass_ClearMessages(int startSessionAge, int endSessionAg
 	// TODO: 清除消息
 }
 
+void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessionAge)
+{
+	for (size_t i = 0; i < _workingOps.size(); ++i)
+	{
+		Op& op = _workingOps[i];
+
+		// 检查是否已达到目标
+		if (_reducedTokens >= _reduceTokenCount)
+			return;
+
+		// 检查 sessionAge 范围
+		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
+			continue;
+
+		// 仅处理 AI 消息
+		if (op.type != ChatOp::Op_AddStreamingAIMessage)
+			continue;
+		if (op.currentLevel != Level_None)
+			continue;  // 已压缩过
+
+		// 查找已有的压缩内容（优先本次新增，再查原始 ChatOp 历史内容）
+		const std::string* partialContent = nullptr;
+		auto it = op.newCompressedContents.find(static_cast<int>(Level_Partial));
+		if (it != op.newCompressedContents.end())
+		{
+			partialContent = &it->second;
+		}
+		else
+		{
+			const ChatOp& srcOp = _GetSrcOp(op);
+			auto it2 = srcOp.compressedContents.find(static_cast<int>(Level_Partial));
+			if (it2 != srcOp.compressedContents.end())
+				partialContent = &it2->second;
+		}
+
+		// 如果已有压缩内容，则直接应用压缩
+		if (partialContent && !partialContent->empty() && *partialContent != _GetSrcOp(op).contentUtf8)
+		{
+			std::wstring oldContent = utf8_to_widechar(_GetSrcOp(op).contentUtf8);
+			std::wstring newContent = utf8_to_widechar(*partialContent);
+			_ApplyCompressToOp(op, Level_Partial, "");
+			continue;
+		}
+
+		if(!_allowSummarize)
+			continue;
+
+		// 否则：内容数据大于 50 字节才值得压缩，启动 task 进行压缩
+		const ChatOp& srcOp = _GetSrcOp(op);
+		if (srcOp.contentUtf8.size() <= 50)
+			continue;
+
+		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
+		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i));
+	}
+}
+
 
 void CChatOpsCompress::_ExecutePass(int pass)
 {
@@ -946,6 +1027,8 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_RemoveFindSymbol(3, 999));
 	_PASS(_Pass_RemoveSearchOps(3, 999));
 
+	_PASS(_Pass_SummarizeMessage(4, 999));
+
 	if (_workingEnv.intensity >= ChatOpCompressIntensity::Extreme)
 	{
 		_PASS(_Pass_TruncateCmdResults(1, 999));
@@ -962,7 +1045,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 }
 
   
-bool CChatOpsCompress::_TryTrigger() 
+bool CChatOpsCompress::_TryTrigger(bool allowSummarize)
 {
 	if (!_opsCtrl)
 		return false;
@@ -1023,7 +1106,7 @@ bool CChatOpsCompress::_TryTrigger()
 	if (reduceTokens <= 0)
 		return false;
 
-	_StartCompress(reduceTokens);
+	_StartCompress(reduceTokens,allowSummarize);
 	return true;
 }
 

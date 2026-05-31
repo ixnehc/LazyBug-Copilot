@@ -185,6 +185,12 @@ public:
     // 设置压缩后大小显示 (如 "18K", "1.21M", "0B" 等)
     bool SetCompressedSize(const std::wstring& sizeText, const std::wstring& tooltip);
 
+    // 开始 Context Level 按钮的流光效果
+    void StartContextLevelFlowing();
+
+    // 停止 Context Level 按钮的流光效果
+    void StopContextLevelFlowing();
+
     // ===== Agent API 相关方法 =====
     
     // 获取当前的Agent API
@@ -284,6 +290,9 @@ private:
     CChatInputACList _autoCompleteList;
     bool _autoCompleteEnabled;
     std::wstring _autoCompletePrefix; // 当前自动补全的前缀（@符号的位置到当前光标）
+
+    bool _contextLevelFlowing = false; // Context Level 按钮流光效果是否开启
+
     
     // 标签菜单相关
     CChatInputTagMenuWindow _tagMenuWindow;

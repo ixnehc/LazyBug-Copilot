@@ -12,6 +12,7 @@
 #include "ChatTask_QueryFinish.h"
 #include "ChatTask_ResolveSymbolLinks.h"
 #include "ChatTask_CreateSkill.h"
+#include "ChatTask_CompressSummarize.h"
 #include <algorithm>
 #include <cstring>
 
@@ -617,6 +618,12 @@ void CChatTaskMgr::AddTask_CreateSkill(const LlmToolCall& toolCall)
 {
 	CChatTask_CreateSkill* task = new CChatTask_CreateSkill;
 	task->SetToolCall(toolCall);
+	_AddTask(task);
+}
+
+void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex)
+{
+	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex);
 	_AddTask(task);
 }
 

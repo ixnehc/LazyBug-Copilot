@@ -1361,6 +1361,14 @@ void CChatDialogA::_UpdateContextUsage()
 	_apiNameOfContextUsage = currentApiName;
 	_compressLevelOfContextUsage = intensity;
 	_tokenStats.ClearAllChanged();
+
+	if (true)
+	{
+		if (_agent.GetCompressor().IsSummarizing())
+			_chatInput.StartContextLevelFlowing();
+		else
+			_chatInput.StopContextLevelFlowing();
+	}
 }
 
 
