@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <unordered_set>
 #include <string>
 #include "LlmLibDefines.h"  // for LlmToolType
 #include "timer/timer.h"
@@ -98,6 +99,8 @@ public:
 		_currentPass = 0;             // 当前执行的 Pass
 
 		_compressStartTime = 0;     // 压缩开始时间
+
+		_summarized.clear();        // 清空已摘要列表
 	}
 
 	void Init(CChatOpsCtrl* opsCtrl, CChatAgent* chatAgent);
@@ -132,7 +135,7 @@ private:
 	void _UpdateCompress();
 	void _CancelCompress();
 	void _DecompressAll();
-	bool _TryTrigger(bool allowSummarize);
+	bool _TryTrigger(bool allowSummarize, bool forceRecompress = false);
 
 	// 执行指定 Pass，返回是否达到目标
 	// 执行指定 Pass
@@ -160,10 +163,12 @@ private:
 	void _Pass_RemoveIrrelavantSearchResult(int startSessionAge, int endSessionAge);
 	void _Pass_ClearThinking(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateCmdResults(int startSessionAge, int endSessionAge);
-	void _Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
+	void _Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes, CompressLevel level = Level_Partial);
 	void _Pass_TruncateFindSymbol(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateReadFile(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateFindInFiles(int startSessionAge, int endSessionAge);
+	void _Pass_TruncateReplaceInFile(int startSessionAge, int endSessionAge);
+	void _Pass_ClearReplaceInFile(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveSearchOps(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveFindSymbol(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
@@ -198,5 +203,7 @@ private:
 	bool _IsCompressTimeout() const;
 
 	CChatTaskMgr _taskMgr;
+
+	std::unordered_set<int> _summarized; // 本次压缩过程中已尝试 AddTask_CompressSummarize 的 workingOp 索引
 };
 

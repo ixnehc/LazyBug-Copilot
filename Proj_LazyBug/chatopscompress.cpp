@@ -146,6 +146,7 @@ void CChatOpsCompress::_StartCompress(int reduceTokenCount, bool allowSummarize)
 	_currentPass = 0;
 	_state = State_Compressing;
 	_allowSummarize = allowSummarize;
+	_summarized.clear();
 
 	// 构建工作 Op 数组
 	_BuildWorkingOps();
@@ -178,7 +179,11 @@ void CChatOpsCompress::UpdateCompressTriggering()
 	if (env.Equals(_env))
 		return;
 
-	_TryTrigger(false);
+	bool forceRecompress = false;
+	if (env.intensity != _env.intensity)
+		forceRecompress = true;
+
+	_TryTrigger(false, forceRecompress);
 	_UpdateCompress();//立即更新一次
 
 	_CollectEnv(_env);
@@ -232,6 +237,7 @@ void CChatOpsCompress::_UpdateCompress()
 		_env = _workingEnv;
 		_env.opsVer = _opsCtrl->GetVer();
 		_workingEnv.Clear();
+		_summarized.clear();
 	}
 }
 
@@ -245,6 +251,7 @@ void CChatOpsCompress::_CancelCompress()
 	_state = State_Idle;
 	_workingOps.clear();
 	_workingEnv.Clear();
+	_summarized.clear();
 }
 
 void CChatOpsCompress::_DecompressAll()
@@ -818,7 +825,7 @@ void CChatOpsCompress::_Pass_TruncateCmdResults(int startSessionAge, int endSess
 	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, cliTypes);
 }
 
-void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes)
+void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes, CompressLevel level)
 {
 	for (auto& op : _workingOps)
 	{
@@ -844,13 +851,13 @@ void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int end
 		if (!matched)
 			continue;
 
-		if (op.currentLevel != Level_None)
+		if (op.currentLevel >= level)
 			continue;
 
-		// 检查是否有预存的简化版内容 (level 1 = Level_Partial)
+		// 检查是否有预存的简化版内容
 		// 优先查本次新增，再查原始 ChatOp 历史内容
 		const std::string* partialContent = nullptr;
-		auto it = op.newCompressedContents.find(static_cast<int>(Level_Partial));
+		auto it = op.newCompressedContents.find(static_cast<int>(level));
 		if (it != op.newCompressedContents.end())
 		{
 			partialContent = &it->second;
@@ -858,7 +865,7 @@ void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int end
 		else
 		{
 			const ChatOp& srcOp = _GetSrcOp(op);
-			auto it2 = srcOp.compressedContents.find(static_cast<int>(Level_Partial));
+			auto it2 = srcOp.compressedContents.find(static_cast<int>(level));
 			if (it2 != srcOp.compressedContents.end())
 				partialContent = &it2->second;
 		}
@@ -866,7 +873,7 @@ void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int end
 		if (!partialContent || partialContent->empty() || *partialContent == _GetSrcOp(op).contentUtf8)
 			continue;
 
-		_ApplyCompressToOp(op, Level_Partial, *partialContent);
+		_ApplyCompressToOp(op, level, *partialContent);
 	}
 }
 
@@ -885,7 +892,15 @@ void CChatOpsCompress::_Pass_TruncateFindInFiles(int startSessionAge, int endSes
 	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::FindInFiles });
 }
 
+void CChatOpsCompress::_Pass_TruncateReplaceInFile(int startSessionAge, int endSessionAge)
+{
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::ReplaceInFile });
+}
 
+void CChatOpsCompress::_Pass_ClearReplaceInFile(int startSessionAge, int endSessionAge)
+{
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::ReplaceInFile },CompressLevel::Level_Full);
+}
 
 void CChatOpsCompress::_Pass_RemoveToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes)
 {
@@ -916,7 +931,7 @@ void CChatOpsCompress::_Pass_RemoveToolCallResult(int startSessionAge, int endSe
 		if (!matched)
 			continue;
 
-		if (op.currentLevel != Level_None)
+		if (op.currentLevel >= Level_Remove)
 			continue;
 
 		_ApplyCompressToOp(op, Level_Remove, "");
@@ -993,6 +1008,11 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 		if (srcOp.contentUtf8.size() <= 50)
 			continue;
 
+		// 每个 op 在一次 compress 过程中只尝试摘要一次
+		if (_summarized.count(static_cast<int>(i)) > 0)
+			continue;
+		_summarized.insert(static_cast<int>(i));
+
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
 		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i));
 	}
@@ -1008,36 +1028,57 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	if (pass == currentPassIndex) { expr; return; } \
 	currentPassIndex++;
 
-	_PASS(_Pass_RemoveFailureFileEdit(0, 999));
-	_PASS(_Pass_RemoveFailureCMD(0, 999));
-	_PASS(_Pass_RemoveCoveredLines(0, 999));
+	// ============================================================
+	// Pass 顺序原则：信息损失从小到大；同类操作 sessionAge 从大到小（先精简最旧的）
+	// ============================================================
 
+	// ---- 阶段1：清除无效/冗余内容（信息损失 ~0，本就不该保留）----
+	_PASS(_Pass_RemoveFailureFileEdit(0, 999));   // 失败的文件编辑
+	_PASS(_Pass_RemoveFailureCMD(0, 999));        // 失败的命令执行
+	_PASS(_Pass_RemoveCoveredLines(0, 999));      // 被后续 ReadFile 覆盖的行
+
+	// ---- 阶段2：清除思考过程（低损失，非最终结果）----
 	_PASS(_Pass_ClearThinking(1, 999));
 
+	// ---- 阶段3：摘要化 AI 消息（LLM 语义压缩，损失最小，优先于截断）----
+	_PASS(_Pass_SummarizeMessage(4, 999));
+
+	// ---- 阶段4：截断工具结果（中等损失，从最旧的 session 开始）----
+	// 第一批：sessionAge >= 3（较旧）
 	_PASS(_Pass_TruncateCmdResults(3, 999));
 	_PASS(_Pass_TruncateFindSymbol(3, 999));
 	_PASS(_Pass_TruncateFindInFiles(3, 999));
 	_PASS(_Pass_TruncateReadFile(3, 999));
+	_PASS(_Pass_TruncateReplaceInFile(3, 999));
 
+	_PASS(_Pass_SummarizeMessage(3, 999));
+
+	// 第二批：sessionAge >= 2（次新也开始截断）
 	_PASS(_Pass_TruncateCmdResults(2, 999));
 	_PASS(_Pass_TruncateFindSymbol(2, 999));
 	_PASS(_Pass_TruncateFindInFiles(2, 999));
 	_PASS(_Pass_TruncateReadFile(2, 999));
+	_PASS(_Pass_TruncateReplaceInFile(2, 999));
 
-	_PASS(_Pass_RemoveFindSymbol(3, 999));
-	_PASS(_Pass_RemoveSearchOps(3, 999));
+	_PASS(_Pass_SummarizeMessage(2, 999));
 
-	_PASS(_Pass_SummarizeMessage(4, 999));
+	// ---- 阶段5：进一步清除/删除可恢复内容（高损失）----
+	_PASS(_Pass_ClearReplaceInFile(3, 999));      // 完全清除文件替换结果
+	_PASS(_Pass_RemoveFindSymbol(3, 999));        // 删除符号查找结果
+	_PASS(_Pass_RemoveSearchOps(3, 999));         // 删除搜索结果
 
+	// ---- 阶段6：Extreme 模式 - 激进精简（极高损失，含当前 session）----
 	if (_workingEnv.intensity >= ChatOpCompressIntensity::Extreme)
 	{
-		_PASS(_Pass_TruncateCmdResults(1, 999));
+//		_PASS(_Pass_TruncateCmdResults(1, 999));
 		_PASS(_Pass_TruncateFindSymbol(1, 999));
 		_PASS(_Pass_TruncateFindInFiles(1, 999));
-		_PASS(_Pass_TruncateReadFile(1, 999));
+// 		_PASS(_Pass_TruncateReadFile(1, 999));
+		_PASS(_Pass_TruncateReplaceInFile(1, 999));
 
-		_PASS(_Pass_RemoveSearchOps(2, 999));
+		_PASS(_Pass_ClearReplaceInFile(2, 999));
 		_PASS(_Pass_RemoveFindSymbol(2, 999));
+		_PASS(_Pass_RemoveSearchOps(2, 999));
 	}
 
 
@@ -1045,7 +1086,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 }
 
   
-bool CChatOpsCompress::_TryTrigger(bool allowSummarize)
+bool CChatOpsCompress::_TryTrigger(bool allowSummarize,bool forceRecompress)
 {
 	if (!_opsCtrl)
 		return false;
@@ -1092,15 +1133,26 @@ bool CChatOpsCompress::_TryTrigger(bool allowSummarize)
 	if (env.tokenCalibrate <= 0.0f)
 		return false;
 	  
-	int currentTokens = (int)(((float)_opsCtrl->GetUncompressedEstimateTokens())*env.tokenCalibrate);
+	int currentUncompressedTokens = (int)(((float)_opsCtrl->GetUncompressedEstimateTokens())*env.tokenCalibrate);
 
-	if (currentTokens <= threshold)
+	if (currentUncompressedTokens <= threshold)
 	{
 		_DecompressAll();
 		return false;
 	}
 
-	int reduceTokens = currentTokens - targetTokens;
+	//如果当前的token数没有超过threshold,我们可以不压缩
+	//除非强制要求重新压缩
+	//注意:重新压缩会从未压缩数据基础上压缩到targetTokens,可能会比当前的token数多
+	if (!forceRecompress)
+	{
+		int currentTokens = (int)(((float)_opsCtrl->GetEstimateTokens()) * env.tokenCalibrate);
+
+		if (currentTokens < threshold * 9 / 10)
+			return false;
+	}
+
+	int reduceTokens = currentUncompressedTokens - targetTokens;
 	reduceTokens = (int)(((float)reduceTokens) / env.tokenCalibrate);
 
 	if (reduceTokens <= 0)

@@ -512,6 +512,9 @@
     <ClCompile Include="..\Proj_LazyBug\TokenCalibrate.cpp">
       <Filter>GUI\ChatDialog</Filter>
     </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_CompressSummarize.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -931,6 +934,9 @@
     </ClInclude>
     <ClInclude Include="..\Proj_LazyBug\TokenCalibrate.h">
       <Filter>GUI\ChatDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_CompressSummarize.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

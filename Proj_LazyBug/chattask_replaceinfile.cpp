@@ -48,6 +48,63 @@ std::vector<std::string> SplitLines(const std::string& str)
 	return lines;
 }
 
+// 辅助函数：生成行范围字符串，格式为 "<line xx ~ line XX>"
+std::string MakeLineRangeString(int startLine, int endLine)
+{
+	return "<line " + std::to_string(startLine) + " ~ line " + std::to_string(endLine) + ">";
+}
+
+// 辅助函数：精简内容，保留前后各 keepLines 行，中间省略
+// 用于生成 partial tool call，减少发送给 LLM 的 token 数
+std::string SimplifyLines(const std::string& lines, int keepLines = 20)
+{
+	std::vector<std::string> lineList = SplitLines(lines);
+	
+	// 如果行数不超过阈值，直接返回原内容
+	int totalLines = static_cast<int>(lineList.size());
+	int threshold = keepLines * 2 + 5; // 至少要省略5行才有意义
+	if (totalLines <= threshold)
+		return lines;
+	
+	std::string result;
+	
+	// 添加前 keepLines 行
+	for (int i = 0; i < keepLines && i < totalLines; i++)
+	{
+		if (!result.empty())
+			result += "\n";
+		result += lineList[i];
+	}
+	
+	// 添加省略标记
+	int omittedLines = totalLines - keepLines * 2;
+	result += "\n... (";
+	result += std::to_string(omittedLines);
+	result += " lines omitted) ...\n";
+	
+	// 添加后 keepLines 行
+	for (int i = totalLines - keepLines; i < totalLines; i++)
+	{
+		if (i >= keepLines) // 确保不与前部分重叠
+		{
+			result += lineList[i];
+			if (i < totalLines - 1)
+				result += "\n";
+		}
+	}
+	
+	return result;
+}
+
+// 辅助函数：计算内容行数
+int CountLines(const std::string& content)
+{
+	if (content.empty())
+		return 0;
+	std::vector<std::string> lines = SplitLines(content);
+	return static_cast<int>(lines.size());
+}
+
 // 辅助函数：计算两个字符串的相似度（使用编辑距离）
 int LevenshteinDistance(const std::string& s1, const std::string& s2)
 {
@@ -301,8 +358,13 @@ std::string TrimCodeLineForCompare(const std::string& str)
 
 // 精确替换函数：要求每行内容必须完全一致（忽略行末空白），且只能有一个匹配
 bool ReplaceInFileAccurately(const std::string& oldContent, const char* oldLines,
-	const char* newLines, std::string& newContent, std::string& errorMessage)
+	const char* newLines, std::string& newContent, std::string& errorMessage,
+	LineRange& oldLineRange, LineRange& newLineRange)
 {
+	// 初始化输出参数
+	oldLineRange.Zero();
+	newLineRange.Zero();
+
 	if (!oldLines || !newLines)
 	{
 		errorMessage = "Invalid input: oldLines or newLines is null";
@@ -319,6 +381,15 @@ bool ReplaceInFileAccurately(const std::string& oldContent, const char* oldLines
 	if (IsAllBlank(oldContent.c_str()) && (IsAllBlank(oldLines)))
 	{
 		newContent = newLines;
+		// 空文件情况下，newLines从第0行开始
+		int lineCount = 0;
+		for (const char* p = newLines; *p; p++)
+		{
+			if (*p == '\n') lineCount++;
+		}
+		if (newLines[0] != '\0') lineCount++; // 有内容但无结尾换行
+		newLineRange.start = 0;
+		newLineRange.end = lineCount > 0 ? lineCount - 1 : 0;
 		return true;
 	}
 
@@ -442,6 +513,15 @@ bool ReplaceInFileAccurately(const std::string& oldContent, const char* oldLines
 			newContent += "\r\n";
 		newContent += untrimedContentLines[i];
 	}
+
+	// 设置oldLineRange: oldLines在oldContent中的行范围
+	oldLineRange.start = static_cast<UINT16>(matchPos);
+	oldLineRange.end = static_cast<UINT16>(matchPos + searchLines.size() - 1);
+
+	// 设置newLineRange: newLines在newContent中的行范围
+	// newLines在matchPos位置插入，占据相同的行号范围
+	newLineRange.start = static_cast<UINT16>(matchPos);
+	newLineRange.end = static_cast<UINT16>(matchPos + untrimedReplaceLines.size() - 1);
 
 	return true;
 }
@@ -865,6 +945,7 @@ void CChatTask_ReplaceInFile::Update()
 		{
 			_status = TaskStatus::Success;
 			std::string newContent;
+			LineRange oldLineRange, newLineRange;
 
 			if (!IsFullPath(_filePath.c_str()))
 			{
@@ -873,7 +954,7 @@ void CChatTask_ReplaceInFile::Update()
 			}
 			else
 			{
-				if (!ReplaceInFileAccurately(oldContent, _oldLines.c_str(), _newLines.c_str(), newContent, errorMessage))
+				if (!ReplaceInFileAccurately(oldContent, _oldLines.c_str(), _newLines.c_str(), newContent, errorMessage, oldLineRange, newLineRange))
 				{
 					newContent = "";
 					newContent = newContent + FILE_EDIT_RESULT_ERROR_PREFIX + "Code replacing failure: " + errorMessage + " !";
@@ -892,7 +973,20 @@ void CChatTask_ReplaceInFile::Update()
 				_status = TaskStatus::Success;
 				if (true)
 				{
-					_SendToolCallResult("Successfully made the replacement in the file!");
+					// 创建 partial tool call：oldLines 改为行范围
+					LlmToolCall toolCallPartial = _toolCall;
+					toolCallPartial.params_string["oldLines"] = MakeLineRangeString(oldLineRange.start + 1, oldLineRange.end);
+					
+					// 创建 fullCompress tool call：oldLines 改为行范围，newLines 精简
+					LlmToolCall toolCallFullCompress = _toolCall;
+					toolCallFullCompress.params_string["oldLines"] = MakeLineRangeString(oldLineRange.start + 1, oldLineRange.end);
+					toolCallFullCompress.params_string["newLines"] = SimplifyLines(_newLines, 3);
+
+					// fullCompress 的 result string
+					std::string resultFullCompress = "Replaced old lines " + std::to_string(oldLineRange.start + 1) + "-" + std::to_string(oldLineRange.end);
+					resultFullCompress += " with new content of line " + std::to_string(newLineRange.start + 1) + "-" + std::to_string(newLineRange.end);
+					
+					_SendToolCallResult("Successfully made the replacement in the file!", nullptr, &toolCallPartial, resultFullCompress.c_str(), &toolCallFullCompress);
 					// UI 操作，继续使用 chatDialog
 					if (_context->chatUi)
 					{
@@ -909,8 +1003,8 @@ void CChatTask_ReplaceInFile::Update()
 	if (true)
 	{
 		std::string ret = std::string("Fail to make the replacement in the file!") + "[" + errorMessage + "]";
+		
 		_SendToolCallResult(ret.c_str());
-
 	}
 	return;
 }

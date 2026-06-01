@@ -82,7 +82,7 @@ public:
 
 	//utility functions
 	bool _SaveFileEditResult(const std::string& filePath, const std::string oldContent, const std::string newContent, Utils::FileContentCodingFormat codingFmt,const std::wstring& fileEditId);
-	void _SendToolCallResult(const char* result, const char* resultPartial = nullptr);
+	void _SendToolCallResult(const char* result, const char* resultPartial = nullptr, const LlmToolCall* toolCallPartial = nullptr, const char* resultFullCompress = nullptr, const LlmToolCall* toolCallFullCompress = nullptr);
 	void _SendToolCallMessage(const char* result);
 
 

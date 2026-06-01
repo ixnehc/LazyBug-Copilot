@@ -969,18 +969,20 @@ void CChatDialogA::_HandleSettingMenuItemClicked(const std::wstring& itemName)
 		// 显示设置页面
 		ShowChatSettingPage();
 	}
+	else if (itemName == L"database_folder")
+	{
+		// 打开 database folder
+		const char* dbFolderPath = GetOpenedDBFolderPath_utf8();
+		if (dbFolderPath && dbFolderPath[0] != '\0')
+		{
+			ShellExecuteA(NULL, "open", "explorer.exe", dbFolderPath, NULL, SW_SHOWNORMAL);
+		}
+	}
 	else if (itemName == L"cli_whitelist.ini")
 	{
 		// 打开 cli_whitelist.ini
 		Utils::EnsureCliWhitelists();
 		std::string filePath = std::string(Utils::GetDBRootFolder_utf8()) + "\\" + LAZYBUG_CLI_WHITELIST_FILENAME;
-		FileLocation loc;
-		GetFileLocator().Request(filePath.c_str(), loc);
-	}
-	else if (itemName == L"llm.ini")
-	{
-		// 打开 llm.ini
-		std::string filePath = std::string(Utils::GetDBRootFolder_utf8()) + "\\llm.ini";
 		FileLocation loc;
 		GetFileLocator().Request(filePath.c_str(), loc);
 	}
@@ -1410,7 +1412,8 @@ void CChatDialogA::UpdateSettingMenuButton()
 	const char* dbFolderPath = GetOpenedDBFolderPath_utf8();
 	bool hasDbFolder = (dbFolderPath && dbFolderPath[0] != '\0');
 	
-	// 如果没有打开的数据库文件夹，禁用 project_rules.md 菜单项
+	// 如果没有打开的数据库文件夹，禁用 database_folder 和 project_rules.md 菜单项
+	_settingMenuWindow.SetItemEnabled(L"database_folder", hasDbFolder);
 	_settingMenuWindow.SetItemEnabled(L"project_rules.md", hasDbFolder);
 }
 

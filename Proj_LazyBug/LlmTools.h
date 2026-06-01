@@ -17,7 +17,7 @@ struct LlmToolCall
 		tp = LlmToolType::None;
 		isComplete = false;
 	}
-	bool IsValid()
+	bool IsValid() const
 	{
 		if ((tp != LlmToolType::None) && (!id.empty()))
 		{
@@ -30,7 +30,7 @@ struct LlmToolCall
 		}
 		return false;
 	}
-	bool IsComplete()
+	bool IsComplete() const
 	{
 		return isComplete;
 	}

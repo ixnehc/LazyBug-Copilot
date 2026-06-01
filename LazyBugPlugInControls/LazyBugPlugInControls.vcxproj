@@ -359,6 +359,7 @@
     <ClCompile Include="..\Proj_LazyBug\ChatSkillsTree.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTaskMgr.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_CLI.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_CompressSummarize.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_CreateSkill.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FastApply.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FindInFiles.cpp" />
@@ -561,6 +562,7 @@
     <ClInclude Include="..\Proj_LazyBug\ChatSkillsTree.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTaskMgr.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_CLI.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_CompressSummarize.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_CreateSkill.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FastApply.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FindInFiles.h" />

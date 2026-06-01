@@ -82,6 +82,9 @@ void CChatAgent::Update()
 		_taskMgr.Interrupt();
 	_taskMgr.Update();
 
+	if (requestInterrupt)
+		_compressor.CancelCompress();
+
 	_compressor.UpdateCompress();
 	if (!IsWorking())
 		_compressor.UpdateCompressTriggering();
@@ -109,7 +112,6 @@ void CChatAgent::Update()
 
 			if (_DoRequest(request, pending.isUserMessage))
 			{
-				_workingMode = WorkingMode::Chat;
 				if (pending.isUserMessage)
 				{
 					// 开始 AI 流式消息（仅 user message 需要创建新的 AI 消息）
@@ -119,11 +121,6 @@ void CChatAgent::Update()
 			}
 			else
 			{
-				// 发送失败，清理状态
-				if (pending.isUserMessage)
-				{
-					_opsCtrl.EndSession();
-				}
 				_FinishChat();
 			}
 		}
@@ -326,6 +323,7 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 
 	// 开始会话
 	_opsCtrl.BeginSession(sessionHeadCheckpointId);
+	_workingMode = WorkingMode::Chat;
 
 	// 添加所有 session tags（包括 visible 和非 visible）
 	for (const auto& tag : allTags)
@@ -365,7 +363,6 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 		_pendingRequest.fileAttaches = _lastCtx.fileAttaches;
 		_pendingRequest.isUserMessage = true;
 		_pendingRequest.valid = true;
-		_workingMode = WorkingMode::Chat;
 
 		return;
 	}
@@ -377,16 +374,13 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 	// 发送请求
 	if (_DoRequest(request, true))
 	{
-		_workingMode = WorkingMode::Chat;
 		// 开始 AI 流式消息
 		_aiMessageId = _opsCtrl.StartStreamingAIMessage();
 		_chatUsage.Zero();
 	}
 	else
 	{
-		// 发送失败，清理状态
-		_opsCtrl.EndSession();
-		_workingMode = WorkingMode::None;
+		_FinishChat();
 	}
 }
 
@@ -453,31 +447,33 @@ bool CChatAgent::_DoRequest(const LlmSessionRequest& request, bool isUserMessage
 
 void CChatAgent::_FinishChat()
 {
-
-	// 如果没有正在进行的 AI 消息，直接返回
-	if (_aiMessageId.empty())
+	if (_workingMode == WorkingMode::None)
 		return;
 
-	if (true)
+	if (!_aiMessageId.empty())
 	{
-		std::vector<std::wstring> pathes;
-		_opsCtrl.GetFileEditFilePathesByMessageId(_aiMessageId, pathes);
+		if (true)
+		{
+			std::vector<std::wstring> pathes;
+			_opsCtrl.GetFileEditFilePathesByMessageId(_aiMessageId, pathes);
 
-		for (int i = 0;i < pathes.size();i++)
-			_opsCtrl.AddFileSummarizeToAIMessage(_aiMessageId, Utils::GetActualFilePath(pathes[i].c_str()));
+			for (int i = 0;i < pathes.size();i++)
+				_opsCtrl.AddFileSummarizeToAIMessage(_aiMessageId, Utils::GetActualFilePath(pathes[i].c_str()));
+		}
+
+		// 完成 AI 流式消息
+		_opsCtrl.CompleteStreamingAIMessage(_aiMessageId);
+
+		// 添加本次会话的费用记录
+		_opsCtrl.AddSessionCost(_chatUsage, _aiMessageId);
+
+		// 清空 AI 消息 ID
+		_aiMessageId = L"";
 	}
-
-	// 完成 AI 流式消息
-	_opsCtrl.CompleteStreamingAIMessage(_aiMessageId);
-
-	// 添加本次会话的费用记录
-	_opsCtrl.AddSessionCost(_chatUsage, _aiMessageId);
 
 	// 结束会话
 	_opsCtrl.EndSession();
 
-	// 清空 AI 消息 ID
-	_aiMessageId = L"";
 
 	// 重置工作模式
 	_workingMode = WorkingMode::None;
@@ -528,7 +524,6 @@ void CChatAgent::_ExecuteSendToolCallResult()
 	// 发送请求
 	if (_DoRequest(request, false))
 	{
-		_workingMode = WorkingMode::Chat;
 	}
 	else
 	{

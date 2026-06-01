@@ -2165,13 +2165,17 @@ int CChatOpsCtrl::AddFileAttaches(const std::string& fileList, FilesCheckpointUI
 	return _ops.size() - 1;
 }
 
-void CChatOpsCtrl::AddToolCallResult(const std::string& jsonString, const std::string& jsonStringPartial)
+void CChatOpsCtrl::AddToolCallResult(const std::string& jsonString, const std::string& jsonStringPartial, const std::string& jsonStringFullCompress)
 {
 	ChatOp op(ChatOp::Op_AddToolCallResult);
 	op.contentUtf8 = jsonString;
 	if (!jsonStringPartial.empty())
 	{
 		op.compressedContents[1] = jsonStringPartial;  // level 1 = Level_Partial
+	}
+	if (!jsonStringFullCompress.empty())
+	{
+		op.compressedContents[2] = jsonStringFullCompress;  // level 2 = Level_Full
 	}
 	_AddOp(op);
 }
