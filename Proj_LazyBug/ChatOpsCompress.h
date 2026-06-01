@@ -61,14 +61,16 @@ public:
 			if (!isValid)
 				return false;
 			return isValid == other.isValid &&
-				   intensity == other.intensity &&
-				   std::fabs(tokenCalibrate - other.tokenCalibrate) < 1e-6f &&
-				   opsVer == other.opsVer;
+				intensity == other.intensity &&
+				std::fabs(tokenCalibrate - other.tokenCalibrate) < 1e-6f &&
+				opsVer == other.opsVer &&
+				disableAfter == other.disableAfter;
 		}
 		bool isValid;
 		ChatOpCompressIntensity intensity;
 		float tokenCalibrate;
 		DWORD opsVer;
+		int disableAfter;
 	};
 
 	// 工作 Op 结构：与 CChatOpsCtrl 中的 Op 一一对应

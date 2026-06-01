@@ -126,3 +126,9 @@ void CChatTask_VerifyLlmApiProvider::Update()
 		_Fail();
 	}
 }
+
+void CChatTask_VerifyLlmApiProvider::Interrupt()
+{ 
+	_requestInterrupt = true; 
+	Update();
+}

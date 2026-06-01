@@ -1240,8 +1240,20 @@ void CChatDialogA::SetFocusToChatInput()
 
 void CChatDialogA::_UpdateContextUsage()
 {
+
 	// 更新统计（检测变化）
 	_tokenStats.Update();
+
+	if (!_chatInput.IsReady())
+		return;
+
+	if (true)
+	{
+		if (_agent.GetCompressor().IsSummarizing())
+			_chatInput.StartContextLevelFlowing();
+		else
+			_chatInput.StopContextLevelFlowing();
+	}
 
 	ChatOpCompressIntensity intensity = CChatOpsCompress::LoadIntensityForCurrentApi();
 
@@ -1250,9 +1262,6 @@ void CChatDialogA::_UpdateContextUsage()
 
 	// 没有变化则直接返回
 	if ((!_tokenStats.HasAnyChanged()) && (currentApiName == _apiNameOfContextUsage))
-		return;
-
-	if (!_chatInput.IsReady())
 		return;
 
 	// 更新压缩强度
@@ -1364,13 +1373,6 @@ void CChatDialogA::_UpdateContextUsage()
 	_compressLevelOfContextUsage = intensity;
 	_tokenStats.ClearAllChanged();
 
-	if (true)
-	{
-		if (_agent.GetCompressor().IsSummarizing())
-			_chatInput.StartContextLevelFlowing();
-		else
-			_chatInput.StopContextLevelFlowing();
-	}
 }
 
 

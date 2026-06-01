@@ -120,6 +120,7 @@ void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl, CChatAgent* chatAgent)
 void CChatOpsCompress::Clear()
 {
 	_CancelCompress();
+	_taskMgr.Shutdown();
 	_env.Clear();
 	Zero();
 }
@@ -129,6 +130,8 @@ void CChatOpsCompress::_CollectEnv(Env& env)
 	env.intensity = LoadIntensityForCurrentApi();
 	env.tokenCalibrate = CTokenCalibrate::GetCalibrationFactor();
 	env.opsVer = _opsCtrl->GetVer();
+	env.disableAfter = _opsCtrl->_GetDisableAfterIndex();
+
 	env.isValid = true;
 }
 
@@ -246,7 +249,7 @@ void CChatOpsCompress::_CancelCompress()
 	if (_state == State_Idle )
 		return;
 
-	_taskMgr.Shutdown();
+	_taskMgr.Interrupt();
 
 	_state = State_Idle;
 	_workingOps.clear();
@@ -1000,18 +1003,22 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 			continue;
 		}
 
-		if(!_allowSummarize)
+		// 每个 op 在一次 compress 过程中只尝试摘要一次
+		if (_summarized.count(static_cast<int>(i)) > 0)
 			continue;
+		_summarized.insert(static_cast<int>(i));
 
 		// 否则：内容数据大于 50 字节才值得压缩，启动 task 进行压缩
 		const ChatOp& srcOp = _GetSrcOp(op);
 		if (srcOp.contentUtf8.size() <= 50)
 			continue;
 
-		// 每个 op 在一次 compress 过程中只尝试摘要一次
-		if (_summarized.count(static_cast<int>(i)) > 0)
+		//
+		if (!_allowSummarize)
+		{
+			_currentPass = _passCount;//终止compress
 			continue;
-		_summarized.insert(static_cast<int>(i));
+		}
 
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
 		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i));

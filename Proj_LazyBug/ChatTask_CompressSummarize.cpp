@@ -159,3 +159,9 @@ void CChatTask_CompressSummarize::Update()
 		_Fail();
 	}
 }
+
+void CChatTask_CompressSummarize::Interrupt()
+{ 
+	_requestInterrupt = true; 
+	Update();
+}

@@ -1285,8 +1285,16 @@ function appendCliOutput(messageId, deltaOutput) {
     // 查找输出内容元素
     const outputContent = lastCliContainer.querySelector('.cli-output-content');
     if (outputContent) {
+        // 检查 CLI 输出区域是否在底部附近
+        const isOutputNearBottom = outputContent.scrollHeight - outputContent.scrollTop - outputContent.clientHeight < 50;
+        
         // 追加输出内容
         outputContent.textContent += deltaOutput;
+        
+        // 只有在底部附近时才自动滚动
+        if (isOutputNearBottom) {
+            outputContent.scrollTop = outputContent.scrollHeight;
+        }
     }
     
     if (shouldScroll) {

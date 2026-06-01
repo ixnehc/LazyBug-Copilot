@@ -14,7 +14,7 @@ public:
 	const char* GetType() override { return "VerifyLlmApiProvider"; }
 	void Start() override;
 	void Update() override;
-	void Interrupt() override	{ 		_requestInterrupt = true;	}
+	void Interrupt() override;
 	bool NeedLlmSession() override { return true; }
 
 	bool DependsOn(CChatTask* task) override;

@@ -727,12 +727,12 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 					api.role = ParsePurposeArrayToRole(jApi["purpose"]);
 				}
 
-				if (jApi.contains("tools") && jApi["tools"].is_array())
-				{
-					for (const auto& jTool : jApi["tools"])
-						api.tools.push_back(StringToToolType(jTool.get<std::string>()));
-				}
-				else
+// 				if (jApi.contains("tools") && jApi["tools"].is_array())
+// 				{
+// 					for (const auto& jTool : jApi["tools"])
+// 						api.tools.push_back(StringToToolType(jTool.get<std::string>()));
+// 				}
+// 				else
 				{
 					api.tools =
 					{

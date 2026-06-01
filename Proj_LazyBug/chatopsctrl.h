@@ -245,6 +245,7 @@ public:
     void DisableMessagesAfter(const std::wstring& messageId);
     void RemoveDisabledSessions(std::vector<FilesCheckpointUID>& checkpointsToDiscard);
     void EnableAllDisabledMessages();
+	int GetDisableAfterIndex() const	{		return _GetDisableAfterIndex();	}
 
     // ── Session Cost ─────────────────────────────────────────────────────
 
