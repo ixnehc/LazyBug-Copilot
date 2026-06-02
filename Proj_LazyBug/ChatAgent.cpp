@@ -355,7 +355,7 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 // 			_compressor.StartCompress(reduceToken);
 // 	}
 	_compressor.CancelCompress();
-	_compressor.TryTrigger(true);
+	_compressor.TryTrigger(true, false, false);
 
 	if (_compressor.IsCompressing())
 	{

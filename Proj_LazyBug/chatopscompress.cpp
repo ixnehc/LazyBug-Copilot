@@ -135,8 +135,7 @@ void CChatOpsCompress::_CollectEnv(Env& env)
 	env.isValid = true;
 }
 
-
-void CChatOpsCompress::_StartCompress(int reduceTokenCount, bool allowSummarize)
+void CChatOpsCompress::_StartCompress(int reduceTokenCount, bool allowSummarize,bool allowDecompress)
 {
 	if (!_opsCtrl || reduceTokenCount <= 0)
 	{
@@ -145,10 +144,14 @@ void CChatOpsCompress::_StartCompress(int reduceTokenCount, bool allowSummarize)
 	}
 
 	_reduceTokenCount = reduceTokenCount;
+	_initialUncompressedTokens = _opsCtrl->GetUncompressedEstimateTokens();
+	_initialTokens = _opsCtrl->GetEstimateTokens();
 	_reducedTokens = 0;
+
 	_currentPass = 0;
 	_state = State_Compressing;
 	_allowSummarize = allowSummarize;
+	_allowDecompress = allowDecompress;
 	_summarized.clear();
 
 	// 构建工作 Op 数组
@@ -185,8 +188,16 @@ void CChatOpsCompress::UpdateCompressTriggering()
 	bool forceRecompress = false;
 	if (env.intensity != _env.intensity)
 		forceRecompress = true;
+	if (env.disableAfter < _env.disableAfter)
+		forceRecompress = true;
 
-	_TryTrigger(false, forceRecompress);
+	bool allowDecompress = false;
+	if (env.intensity < _env.intensity)
+		allowDecompress = true;
+	if (env.disableAfter < _env.disableAfter)
+		allowDecompress = true;
+
+	_TryTrigger(false, forceRecompress,allowDecompress);
 	_UpdateCompress();//立即更新一次
 
 	_CollectEnv(_env);
@@ -223,19 +234,32 @@ void CChatOpsCompress::_UpdateCompress()
 		if (_taskMgr.IsRunning())
 			return;
 
+		// 进入下一个 Pass
+		_currentPass++;
+
 		// Pass 执行完毕后检查是否超时
 		if (_IsCompressTimeout())
 			break;
 
-		// 进入下一个 Pass
-		_currentPass++;
 	}
 
 	// 所有 Pass 完成或达标或超时
 	if (_currentPass >= _passCount || _reducedTokens >= _reduceTokenCount)
 	{
-		// 同步回原数组
-		_SyncBackToOps();
+		if (true)
+		{
+			bool canAccept = true;
+			if (true)
+			{
+				bool isDecompressed = _initialUncompressedTokens - _reducedTokens > _initialTokens;
+				if ((!_allowDecompress) && isDecompressed)
+					canAccept = false;
+			}
+			// 同步回原数组
+			if (canAccept)
+				_SyncBackToOps();
+		}
+
 		_state = State_Idle;
 		_env = _workingEnv;
 		_env.opsVer = _opsCtrl->GetVer();
@@ -995,11 +1019,13 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 		}
 
 		// 如果已有压缩内容，则直接应用压缩
-		if (partialContent && !partialContent->empty() && *partialContent != _GetSrcOp(op).contentUtf8)
+		if (partialContent && !partialContent->empty())
 		{
-			std::wstring oldContent = utf8_to_widechar(_GetSrcOp(op).contentUtf8);
-			std::wstring newContent = utf8_to_widechar(*partialContent);
-			_ApplyCompressToOp(op, Level_Partial, "");
+// 			std::wstring oldContent = utf8_to_widechar(_GetSrcOp(op).contentUtf8);
+// 			std::wstring newContent = utf8_to_widechar(*partialContent);
+
+			if (*partialContent != _GetSrcOp(op).contentUtf8)
+				_ApplyCompressToOp(op, Level_Partial, "");
 			continue;
 		}
 
@@ -1010,7 +1036,7 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 
 		// 否则：内容数据大于 50 字节才值得压缩，启动 task 进行压缩
 		const ChatOp& srcOp = _GetSrcOp(op);
-		if (srcOp.contentUtf8.size() <= 50)
+		if (srcOp.contentUtf8.size() <= 100)
 			continue;
 
 		//
@@ -1093,7 +1119,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 }
 
   
-bool CChatOpsCompress::_TryTrigger(bool allowSummarize,bool forceRecompress)
+bool CChatOpsCompress::_TryTrigger(bool allowSummarize,bool forceRecompress,bool allowDecompress)
 {
 	if (!_opsCtrl)
 		return false;
@@ -1142,7 +1168,7 @@ bool CChatOpsCompress::_TryTrigger(bool allowSummarize,bool forceRecompress)
 	  
 	int currentUncompressedTokens = (int)(((float)_opsCtrl->GetUncompressedEstimateTokens())*env.tokenCalibrate);
 
-	if (currentUncompressedTokens <= threshold)
+	if ((currentUncompressedTokens <= threshold) && allowDecompress)
 	{
 		_DecompressAll();
 		return false;
@@ -1165,7 +1191,7 @@ bool CChatOpsCompress::_TryTrigger(bool allowSummarize,bool forceRecompress)
 	if (reduceTokens <= 0)
 		return false;
 
-	_StartCompress(reduceTokens,allowSummarize);
+	_StartCompress(reduceTokens,allowSummarize,allowDecompress);
 	return true;
 }
 

@@ -121,7 +121,7 @@ public:
 	bool IsSummarizing();
 
 	void CancelCompress()	{		_CancelCompress();	}
-	bool TryTrigger(bool allowSummarize)	{		return _TryTrigger(allowSummarize);	}
+	bool TryTrigger(bool allowSummarize,bool forceRecompress,bool allowDecompress)	{		return _TryTrigger(allowSummarize,forceRecompress,allowDecompress);	}
 
 
 	// 获取已减少的 token 数
@@ -129,7 +129,7 @@ public:
 
 private:
 
-	void _StartCompress(int reduceTokenCount,bool allowSummarize);
+	void _StartCompress(int reduceTokenCount,bool allowSummarize,bool allowDecompress);
 	void _BuildWorkingOps();
 
 	void _CollectEnv(Env &env);
@@ -137,7 +137,7 @@ private:
 	void _UpdateCompress();
 	void _CancelCompress();
 	void _DecompressAll();
-	bool _TryTrigger(bool allowSummarize, bool forceRecompress = false);
+	bool _TryTrigger(bool allowSummarize, bool forceRecompress, bool allowDecompress);
 
 	// 执行指定 Pass，返回是否达到目标
 	// 执行指定 Pass
@@ -186,26 +186,28 @@ private:
 
 private:
 	CChatOpsCtrl* _opsCtrl = nullptr;
-
-	State _state = State_Idle;
-	bool _allowSummarize = false;
-
 	Env _env;
 
+	static constexpr int _compressTimeLimitMs = 20;  // 每次压缩时间限制（毫秒）
+	AbsTick _compressStartTime = 0;     // 压缩开始时间
+
+	//working state
+	State _state = State_Idle;
+	bool _allowSummarize = false;
+	bool _allowDecompress = false;
 	Env _workingEnv;
 	std::vector<Op> _workingOps;      // 工作 Op 数组
-	int _reduceTokenCount = 0;        // 目标减少的 token 数
-	int _reducedTokens = 0;           // 已减少的 token 数（累加）
+	int _initialTokens = 0;     //压缩开始时的压缩后的token数 (Not calibrated)
+	int _initialUncompressedTokens = 0;//压缩开始时的未压缩的token数(Not calibrated)
+	int _reduceTokenCount = 0;        // 目标减少的 token 数(Not calibrated)
+	int _reducedTokens = 0;           // 已减少的 token 数（累加）(Not calibrated)
 	int _currentPass = 0;             // 当前执行的 Pass
-
-	AbsTick _compressStartTime = 0;     // 压缩开始时间
-	static constexpr int _compressTimeLimitMs = 20;  // 每次压缩时间限制（毫秒）
+	std::unordered_set<int> _summarized; // 本次压缩过程中已尝试 AddTask_CompressSummarize 的 workingOp 索引
 
 	// 判断是否超时
 	bool _IsCompressTimeout() const;
 
 	CChatTaskMgr _taskMgr;
 
-	std::unordered_set<int> _summarized; // 本次压缩过程中已尝试 AddTask_CompressSummarize 的 workingOp 索引
 };
 
