@@ -326,7 +326,7 @@ void CChatSettingPage::_InitializeDefaultTabs()
     // Providers Tab (默认)
     SettingTab providersTab;
     providersTab.id = L"providers";
-    providersTab.title = L"Providers";
+    providersTab.title = L"Providers & APIs";
     _tabs.push_back(providersTab);
     
     // 发送Tab数据到WebView

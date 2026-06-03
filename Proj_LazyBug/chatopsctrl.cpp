@@ -1262,8 +1262,8 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 		std::string command, output, shellType;
 		_ParseCliDisplayContent(op.contentUtf8, command, output, shellType);
 		
-		// 调用方法显示，传递 shellType
-		AddCliDisplay(op.messageId, command, op.title, false, shellType);
+		// 调用方法显示，传递 shellType（重放历史记录时使用 None 状态）
+		AddCliDisplay(op.messageId, command, op.title, CliDisplayStatus::None, shellType);
 		
 		// 如果有 output，再追加
 		if (!output.empty())
@@ -2358,7 +2358,8 @@ std::string CChatOpsCtrl::_BuildCliDisplayContent(const std::string& cmd,
 	}
 }
 
-std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc, bool isPending, const std::string& shellType)
+
+std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc, CliDisplayStatus displayStatus, const std::string& shellType)
 {
 	if (command.empty())
 		return L"";
@@ -2369,7 +2370,7 @@ std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const st
 	// 通过 CChatUi 创建 CLI 显示
 	if (_ui)
 	{
-		_ui->AddCliDisplay(messageId, cliId, utf8_to_widechar(command), desc, isPending, utf8_to_widechar(shellType));
+		_ui->AddCliDisplay(messageId, cliId, utf8_to_widechar(command), desc, displayStatus, utf8_to_widechar(shellType));
 	}
 
 	// 记录操作，使用 JSON 格式存储 command、output 和 shellType

@@ -477,14 +477,112 @@ function setCostDisplay(costText, messageId) {
 }
 
 /**
- * 添加新的 CLI 命令显示元素
- * @param {string} messageId - 消息 ID
- * @param {string} cliId - CLI ID（由 C++ 生成）
- * @param {string} command - 命令行原始命令
- * @param {string} desc - 命令的简略描述（可选）
- * @param {string} status - CLI 状态（"none", "pending", "reject", "accept"）
- * @param {string} shellType - Shell 类型（如 "cmd.exe", "powershell.exe" 等）
+ * 创建 CLI 内容区域（包含命令、输出、可选的输入区域）
+ * @param {string} cliId - CLI ID
+ * @param {string} command - 命令内容
+ * @param {boolean} withInputArea - 是否包含输入区域
+ * @param {boolean} expanded - 是否默认展开
+ * @returns {Object} { cliContent }
  */
+function createCliContentArea(cliId, command, withInputArea, expanded) {
+    const cliContent = document.createElement('div');
+    cliContent.className = 'cli-collapsible-content';
+    cliContent.id = `${cliId}-content`;
+    cliContent.style.display = expanded ? 'block' : 'none';
+    
+    // 创建命令内容容器
+    const commandContentWrapper = document.createElement('div');
+    commandContentWrapper.className = 'cli-content-wrapper';
+    
+    const commandContent = document.createElement('div');
+    commandContent.className = 'cli-command-content';
+    commandContent.textContent = command;
+    
+    const commandCopyBtn = document.createElement('button');
+    commandCopyBtn.className = 'cli-copy-button';
+    commandCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    commandCopyBtn.title = 'Copy command';
+    commandCopyBtn.onclick = function(e) {
+        e.stopPropagation();
+        copyCliContent(commandCopyBtn, command);
+    };
+    
+    commandContentWrapper.appendChild(commandContent);
+    commandContentWrapper.appendChild(commandCopyBtn);
+    
+    // 创建输出内容容器
+    const outputContentWrapper = document.createElement('div');
+    outputContentWrapper.className = 'cli-content-wrapper';
+    
+    const outputContent = document.createElement('div');
+    outputContent.className = 'cli-output-content';
+    outputContent.id = `${cliId}-output`;
+    
+    const outputCopyBtn = document.createElement('button');
+    outputCopyBtn.className = 'cli-copy-button';
+    outputCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    outputCopyBtn.title = 'Copy output';
+    outputCopyBtn.onclick = function(e) {
+        e.stopPropagation();
+        const outputText = outputContent.textContent || '';
+        copyCliContent(outputCopyBtn, outputText);
+    };
+    
+    outputContentWrapper.appendChild(outputContent);
+    outputContentWrapper.appendChild(outputCopyBtn);
+    
+    cliContent.appendChild(commandContentWrapper);
+    cliContent.appendChild(outputContentWrapper);
+    
+    // 可选：创建输入区域
+    if (withInputArea) {
+        const inputArea = createCliInputArea(cliId);
+        cliContent.appendChild(inputArea);
+    }
+    
+    return { cliContent };
+}
+
+/**
+ * 创建 CLI 输入区域
+ * @param {string} cliId - CLI ID
+ * @returns {HTMLElement} 输入区域元素
+ */
+function createCliInputArea(cliId) {
+    const inputArea = document.createElement('div');
+    inputArea.className = 'cli-input-area hidden';
+    inputArea.id = `${cliId}-input-area`;
+    
+    const inputPrompt = document.createElement('span');
+    inputPrompt.className = 'cli-input-prompt';
+    inputPrompt.textContent = '⟩';
+    
+    const inputField = document.createElement('input');
+    inputField.type = 'text';
+    inputField.className = 'cli-input-field';
+    inputField.id = `${cliId}-input-field`;
+    inputField.placeholder = 'Type input and press Enter...';
+    
+    const sendBtn = document.createElement('button');
+    sendBtn.className = 'cli-send-btn';
+    sendBtn.textContent = 'Send';
+    sendBtn.onclick = function() {
+        sendCliInput(cliId, null);
+    };
+    
+    inputField.onkeypress = function(e) {
+        if (e.key === 'Enter') {
+            sendCliInput(cliId, null);
+        }
+    };
+    
+    inputArea.appendChild(inputPrompt);
+    inputArea.appendChild(inputField);
+    inputArea.appendChild(sendBtn);
+    
+    return inputArea;
+}
+
 function addCliDisplay(messageId, cliId, command, desc, status = "none", shellType = "") {
     const shouldScroll = isNearBottom();
     
@@ -504,8 +602,6 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
     // 创建新的 CLI 显示容器
     const cliContainer = document.createElement('div');
     cliContainer.className = 'cli-display-container';
-    
-    // 使用传入的 CLI ID
     cliContainer.id = cliId;
     cliContainer.setAttribute('data-message-id', messageId);
     cliContainer.setAttribute('data-status', status);
@@ -520,13 +616,12 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
     // 创建展开按钮（初始为收起状态）
     const expandIcon = document.createElement('span');
     expandIcon.className = 'cli-expand-icon';
-    expandIcon.textContent = '+';  // 收起状态显示 +
+    expandIcon.textContent = '+';
     
     // 创建 shell type 标签
     const shellTypeLabel = document.createElement('span');
     shellTypeLabel.className = 'cli-shell-type';
     if (shellType && shellType.trim()) {
-        // 去掉 .exe 后缀并转为大写
         let shellName = shellType.trim();
         if (shellName.toLowerCase().endsWith('.exe')) {
             shellName = shellName.slice(0, -4);
@@ -539,215 +634,39 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
     // 创建标题文本
     const headerText = document.createElement('span');
     headerText.className = 'cli-header-text';
-    // 如果有desc，显示desc，否则显示command
-    if (desc && desc.trim()) {
-        headerText.textContent = desc;
-    } else {
-        headerText.textContent = command;
-    }
+    headerText.textContent = (desc && desc.trim()) ? desc : command;
     
     cliHeader.appendChild(expandIcon);
     cliHeader.appendChild(shellTypeLabel);
     cliHeader.appendChild(headerText);
     
-    // 根据 status 添加不同的按钮
-    if (status === "pending") {
+    // 根据 status 添加不同的按钮和内容
+    const isPending = (status === "pending");
+    const isAccepted = (status === "accepted");
+    const withInputArea = isPending || isAccepted;
+    
+    if (isPending) {
         // pending 状态：显示播放、禁止、白名单三个按钮
-        
-        // 播放按钮
-        const playButton = document.createElement('span');
-        playButton.className = 'cli-action-button cli-play-button';
-        playButton.innerHTML = '▶';
-        playButton.title = 'Play';
-        playButton.onclick = function(e) {
-            e.stopPropagation();
-            onCliAction(cliId, 'accept');
-        };
-        cliHeader.appendChild(playButton);
-        
-        // 禁止按钮
-        const rejectButton = document.createElement('span');
-        rejectButton.className = 'cli-action-button cli-reject-button';
-        rejectButton.innerHTML = '⛔';
-        rejectButton.title = 'Reject';
-        rejectButton.onclick = function(e) {
-            e.stopPropagation();
-            onCliAction(cliId, 'reject');
-        };
-        cliHeader.appendChild(rejectButton);
-        
-        // 白名单按钮
-        const whitelistButton = document.createElement('span');
-        whitelistButton.className = 'cli-action-button cli-whitelist-button';
-        whitelistButton.innerHTML = '📋';
-        whitelistButton.title = 'Edit Command Whitelist';
-        whitelistButton.onclick = function(e) {
-            e.stopPropagation();
-            onCliAction(cliId, 'whitelist');
-        };
-        cliHeader.appendChild(whitelistButton);
-        
-        // pending 状态自动展开
-        const cliContent = document.createElement('div');
-        cliContent.className = 'cli-collapsible-content';
-        cliContent.id = `${cliId}-content`;
-        cliContent.style.display = 'block';  // 自动展开
-        expandIcon.textContent = '-';  // 展开状态显示 -
-        
-        // 创建命令内容容器
-        const commandContentWrapper = document.createElement('div');
-        commandContentWrapper.className = 'cli-content-wrapper';
-        
-        const commandContent = document.createElement('div');
-        commandContent.className = 'cli-command-content';
-        commandContent.textContent = command;
-        
-        // 创建命令复制按钮
-        const commandCopyBtn = document.createElement('button');
-        commandCopyBtn.className = 'cli-copy-button';
-        commandCopyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-        commandCopyBtn.title = 'Copy command';
-        commandCopyBtn.onclick = function(e) {
-            e.stopPropagation();
-            copyCliContent(commandCopyBtn, command);
-        };
-        
-        commandContentWrapper.appendChild(commandContent);
-        commandContentWrapper.appendChild(commandCopyBtn);
-        
-        // 创建输出内容容器
-        const outputContentWrapper = document.createElement('div');
-        outputContentWrapper.className = 'cli-content-wrapper';
-        
-        const outputContent = document.createElement('div');
-        outputContent.className = 'cli-output-content';
-        outputContent.id = `${cliId}-output`;
-        
-        // 创建输出复制按钮
-        const outputCopyBtn = document.createElement('button');
-        outputCopyBtn.className = 'cli-copy-button';
-        outputCopyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-        outputCopyBtn.title = 'Copy output';
-        outputCopyBtn.onclick = function(e) {
-            e.stopPropagation();
-            const outputText = outputContent.textContent || '';
-            copyCliContent(outputCopyBtn, outputText);
-        };
-        
-        outputContentWrapper.appendChild(outputContent);
-        outputContentWrapper.appendChild(outputCopyBtn);
-        
-        // 创建输入区域（默认隐藏）
-        const inputArea = document.createElement('div');
-        inputArea.className = 'cli-input-area hidden';
-        inputArea.id = `${cliId}-input-area`;
-        
-        const inputPrompt = document.createElement('span');
-        inputPrompt.className = 'cli-input-prompt';
-        inputPrompt.textContent = '⟩';
-        
-        const inputField = document.createElement('input');
-        inputField.type = 'text';
-        inputField.className = 'cli-input-field';
-        inputField.id = `${cliId}-input-field`;
-        inputField.placeholder = 'Type input and press Enter...';
-        
-        const sendBtn = document.createElement('button');
-        sendBtn.className = 'cli-send-btn';
-        sendBtn.textContent = 'Send';
-        sendBtn.onclick = function() {
-            sendCliInput(cliId, messageId);
-        };
-        
-        // 支持回车发送
-        inputField.onkeypress = function(e) {
-            if (e.key === 'Enter') {
-                sendCliInput(cliId, messageId);
-            }
-        };
-        
-        inputArea.appendChild(inputPrompt);
-        inputArea.appendChild(inputField);
-        inputArea.appendChild(sendBtn);
-        
-        cliContent.appendChild(commandContentWrapper);
-        cliContent.appendChild(outputContentWrapper);
-        cliContent.appendChild(inputArea);
-        cliContainer.appendChild(cliHeader);
-        cliContainer.appendChild(cliContent);
-        
-        // 更新复制按钮的 SVG 大小为 12x12
-        commandCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-        outputCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        cliHeader.appendChild(createPlayButton(cliId));
+        cliHeader.appendChild(createRejectButton(cliId));
+        cliHeader.appendChild(createWhitelistButton(cliId));
+    } else if (isAccepted) {
+        // accepted 状态：显示停止、白名单按钮
+        cliHeader.appendChild(createStopButton(cliId));
+        cliHeader.appendChild(createWhitelistButton(cliId));
     } else {
-        // none 状态：只显示白名单按钮（停止按钮在点击 accept 后显示）
-        
-        // 白名单按钮
-        const whitelistButton = document.createElement('span');
-        whitelistButton.className = 'cli-action-button cli-whitelist-button';
-        whitelistButton.innerHTML = '📋';
-        whitelistButton.title = 'Edit Command Whitelist';
-        whitelistButton.onclick = function(e) {
-            e.stopPropagation();
-            onCliAction(cliId, 'whitelist');
-        };
-        cliHeader.appendChild(whitelistButton);
-        
-        // 创建可折叠的内容区域（初始为收起状态）
-        const cliContent = document.createElement('div');
-        cliContent.className = 'cli-collapsible-content';
-        cliContent.id = `${cliId}-content`;
-        cliContent.style.display = 'none';  // 初始隐藏
-        
-        // 创建命令内容容器
-        const commandContentWrapper = document.createElement('div');
-        commandContentWrapper.className = 'cli-content-wrapper';
-        
-        const commandContent = document.createElement('div');
-        commandContent.className = 'cli-command-content';
-        commandContent.textContent = command;
-        
-        // 创建命令复制按钮
-        const commandCopyBtn = document.createElement('button');
-        commandCopyBtn.className = 'cli-copy-button';
-        commandCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-        commandCopyBtn.title = 'Copy command';
-        commandCopyBtn.onclick = function(e) {
-            e.stopPropagation();
-            copyCliContent(commandCopyBtn, command);
-        };
-        
-        commandContentWrapper.appendChild(commandContent);
-        commandContentWrapper.appendChild(commandCopyBtn);
-        
-        // 创建输出内容容器
-        const outputContentWrapper = document.createElement('div');
-        outputContentWrapper.className = 'cli-content-wrapper';
-        
-        const outputContent = document.createElement('div');
-        outputContent.className = 'cli-output-content';
-        outputContent.id = `${cliId}-output`;
-        
-        // 创建输出复制按钮
-        const outputCopyBtn = document.createElement('button');
-        outputCopyBtn.className = 'cli-copy-button';
-        outputCopyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
-        outputCopyBtn.title = 'Copy output';
-        outputCopyBtn.onclick = function(e) {
-            e.stopPropagation();
-            const outputText = outputContent.textContent || '';
-            copyCliContent(outputCopyBtn, outputText);
-        };
-        
-        outputContentWrapper.appendChild(outputContent);
-        outputContentWrapper.appendChild(outputCopyBtn);
-        
-        cliContent.appendChild(commandContentWrapper);
-        cliContent.appendChild(outputContentWrapper);
-        cliContainer.appendChild(cliHeader);
-        cliContainer.appendChild(cliContent);
+        // none 状态：只显示白名单按钮
+        cliHeader.appendChild(createWhitelistButton(cliId));
     }
     
+    // 创建内容区域（pending 状态自动展开）
+    const { cliContent } = createCliContentArea(cliId, command, withInputArea, isPending);
+    if (isPending) {
+        expandIcon.textContent = '-';
+    }
+    
+    cliContainer.appendChild(cliHeader);
+    cliContainer.appendChild(cliContent);
     messageContentElem.appendChild(cliContainer);
     
     // 自动滚动到底部
@@ -840,7 +759,8 @@ function updateCliButtonsByStatus(container, cliId, status) {
             break;
             
         case 'accept':
-            // Running 状态（Accept 后）：显示 Stop、Whitelist
+        case 'accepted':
+            // Running 状态（Accept 后或白名单命令）：显示 Stop、Whitelist
             if (playBtn) playBtn.style.display = 'none';
             if (rejectBtn) rejectBtn.style.display = 'none';
             if (!stopBtn) {

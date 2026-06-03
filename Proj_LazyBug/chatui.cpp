@@ -939,7 +939,7 @@ void CChatUi::ActivateCheckpointFileChange(const std::wstring& fileEditId)
 
 //====================== CLI Display 相关实现 ======================
 
-void CChatUi::AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc, bool isPending, const std::wstring& shellType)
+void CChatUi::AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc, CliDisplayStatus displayStatus, const std::wstring& shellType)
 {
 	if (command.empty() || cliId.empty())
 		return;
@@ -947,7 +947,7 @@ void CChatUi::AddCliDisplay(const std::wstring& messageId, const std::wstring& c
 	// 设置 CLI 状态
 	{
 		std::lock_guard<std::mutex> lock(_cliStatusMutex);
-		_cliStatus[cliId] = isPending ? CliStatus::Pending : CliStatus::None;
+		_cliStatus[cliId] = (displayStatus == CliDisplayStatus::Pending) ? CliStatus::Pending : CliStatus::Accept;
 	}
 
 	if (!_IsReady())
@@ -960,12 +960,28 @@ void CChatUi::AddCliDisplay(const std::wstring& messageId, const std::wstring& c
 	std::wstring safeCliId = EscapeJsonString(cliId);
 	std::wstring safeShellType = EscapeJsonString(shellType);
 
+	// 将 displayStatus 转换为字符串
+	std::wstring statusStr;
+	switch (displayStatus)
+	{
+	case CliDisplayStatus::Pending:
+		statusStr = L"pending";
+		break;
+	case CliDisplayStatus::Accepted:
+		statusStr = L"accepted";
+		break;
+	case CliDisplayStatus::None:
+	default:
+		statusStr = L"none";
+		break;
+	}
+
 	// 构造 JSON 消息 - 发送 command、desc、cliId、status 和 shellType
 	std::wstring jsonMessage = L"{\"action\":\"addCliDisplay\",\"messageId\":\"" + safeMessageId +
 		L"\",\"cliId\":\"" + safeCliId +
 		L"\",\"command\":\"" + safeCommand +
 		L"\",\"desc\":\"" + safeDesc +
-		L"\",\"status\":\"" + (isPending ? L"pending" : L"none") +
+		L"\",\"status\":\"" + statusStr +
 		L"\",\"shellType\":\"" + safeShellType + L"\"}";
 
 	PostJsonMessage(jsonMessage);

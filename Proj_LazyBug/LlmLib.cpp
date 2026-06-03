@@ -257,11 +257,12 @@ void CLlmLib::_EnsureDefApis()
 	// 确保 _summarizeApi：优先从Auxiliary取，其次从Agent取
 	if (!IsApiValid(_summarizeApi, LlmApiRole::Auxiliary) && !IsApiValid(_summarizeApi, LlmApiRole::Agent))
 	{
-		_summarizeApi = FindFirstValidApi(LlmApiRole::Auxiliary);
-		if (_summarizeApi.empty())
-		{
-			_summarizeApi = FindFirstValidApi(LlmApiRole::Agent);
-		}
+		if((_summarizeApi!= SUMMARIZE_API_AUTO)&& (_summarizeApi != SUMMARIZE_API_DISABLE))
+			_summarizeApi = SUMMARIZE_API_AUTO;
+// 		if (_summarizeApi.empty())
+// 		{
+// 			_summarizeApi = FindFirstValidApi(LlmApiRole::Agent);
+// 		}
 	}
 }
 
@@ -347,10 +348,13 @@ bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, LlmApiRole role, const 
 	return LoadLlmSetting(setting, role, LlmApiProviderTypeName(), false, ruleName);
 }
 
-bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, const std::string& apiName, const char* ruleName)
+bool CLlmLib::LoadLlmSetting(LlmSessionSetting& setting, const std::string& apiName, bool allowUnavailable, const char* ruleName)
 {
-	if (!IsApiAvailable(apiName))
-		return false;
+	if (!allowUnavailable)
+	{
+		if (!IsApiAvailable(apiName))
+			return false;
+	}
 	LlmApi* api = _FindApi(apiName.c_str());
 	if (api)
 	{
@@ -651,6 +655,16 @@ void CLlmLib::SetBriefApi(const std::string& apiName)
 
 void CLlmLib::SetSummarizeApi(const std::string& apiName)
 {
+	// 特殊值 <disable> 和 <auto> 直接接受，无需验证
+	if (apiName == SUMMARIZE_API_DISABLE || apiName == SUMMARIZE_API_AUTO)
+	{
+		_summarizeApi = apiName;
+		_version++;
+		// 保存设置到注册表
+		SaveSettings();
+		return;
+	}
+
 	// 验证apiName是否在可用的API列表中
 	bool found = false;
 	for (const auto& api : _apis)

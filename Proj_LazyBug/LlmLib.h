@@ -151,7 +151,7 @@ public:
 
     bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiRole role, LlmApiProviderTypeName providerTypeName, bool allowUnavailable,const char* ruleName);
 	bool LoadLlmSetting(LlmSessionSetting& setting, LlmApiRole role, const char* ruleName);
-	bool LoadLlmSetting(LlmSessionSetting& setting, const std::string& apiName, const char* ruleName);
+	bool LoadLlmSetting(LlmSessionSetting& setting, const std::string& apiName, bool allowUnavailable, const char* ruleName);
 
 	//检查可以以什么工作模式工作
 	//能找到 Agent 和 Auxiliary 这两种api的为WorkingCapability::Full

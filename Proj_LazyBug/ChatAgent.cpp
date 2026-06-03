@@ -432,7 +432,7 @@ bool CChatAgent::_DoRequest(const LlmSessionRequest& request, bool isUserMessage
 
 	// 获取 LLM 设置
 	LlmSessionSetting setting;
-	if (!g_llmLib.LoadLlmSetting(setting, _lastCtx.apiName, ""))
+	if (!g_llmLib.LoadLlmSetting(setting, _lastCtx.apiName, false, ""))
 		return false;
 
 	// 通知 UI 即将发送请求

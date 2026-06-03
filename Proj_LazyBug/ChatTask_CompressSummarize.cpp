@@ -97,7 +97,7 @@ void CChatTask_CompressSummarize::Start()
 	}
 
 	LlmSessionSetting setting;
-	if (g_llmLib.LoadLlmSetting(setting, _summarizeApiName, ""))
+	if (g_llmLib.LoadLlmSetting(setting, _summarizeApiName,false, ""))
 	{
 		setting.api.tools.clear();
 		setting.rulesFiles.clear();

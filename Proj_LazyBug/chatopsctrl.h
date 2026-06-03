@@ -218,8 +218,8 @@ public:
     // ── CLI Display ─────────────────────────────────────────────────────
 
     // 添加 CLI 命令显示，返回 CLI ID
-    // isPending: 如果为 true，则显示播放按钮，等待用户点击后才启动执行
-    std::wstring AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc = L"", bool isPending = false, const std::string& shellType = "");
+    // displayStatus: Pending=等待用户确认, Accepted=白名单自动执行, None=其他
+    std::wstring AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::string& shellType = "");
     
     // 增量追加输出到最后的 CLI 显示
     void AppendOutputToLastCliDisplay(const std::wstring& messageId, const std::string& deltaOutput);

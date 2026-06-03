@@ -4,7 +4,15 @@ class CCheckpoints;
 
 #define DEFAULT_CHAT_TITLE L"[ Untitled Chat ]"
 
-// CLI 状态枚举
+// CLI 显示状态枚举（用于 AddCliDisplay 参数）
+enum class CliDisplayStatus
+{
+	None,     // 不在白名单，需要用户确认
+	Pending,  // 在白名单，自动执行但显示停止按钮
+	Accepted  // 已被用户接受或白名单命令，自动执行
+};
+
+// CLI 运行时状态枚举
 enum class CliStatus
 {
 	None,    // 非pending状态
@@ -46,7 +54,7 @@ public:
 	virtual void ClearCliInput() { }
 
 	// CLI Display 相关方法
-	virtual void AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc = L"", bool isPending = false, const std::wstring& shellType = L"") { }
+	virtual void AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::wstring& shellType = L"") { }
 	virtual bool IsCliPending(const std::wstring& cliId) { return false; }
 	virtual void RemovePendingCli(const std::wstring& cliId) { }
 	virtual CliStatus GetCliStatus(const std::wstring& cliId) { return CliStatus::None; }

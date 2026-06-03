@@ -64,7 +64,7 @@ void CChatTask_VerifyLlmApiProvider::Start()
 	}
 
 	LlmSessionSetting setting;
-	if (g_llmLib.LoadLlmSetting(setting, apiName, ""))
+	if (g_llmLib.LoadLlmSetting(setting, apiName,true, ""))
 	{
 		setting.api.tools.clear();
 		setting.rulesFiles.clear();

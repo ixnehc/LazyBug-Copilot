@@ -929,8 +929,9 @@ void CChatTask_CLI::Start()
 
 	_outputBufferSimple.SetHeadLimit(2000);
 
-	// 检查是否有 pending 参数
+	// 检查白名单，确定显示状态
 	g_cliWhitelist.UpdateReload();
+	CliDisplayStatus displayStatus = CliDisplayStatus::Pending;  // 默认需要用户确认
 	_isPending = true;
 
 	// 获取命令参数
@@ -951,15 +952,16 @@ void CChatTask_CLI::Start()
 		{
 			if (g_cliWhitelist.Check(command.c_str()))
 			{
+				displayStatus = CliDisplayStatus::Accepted;  // 在白名单中，自动执行
 				_isPending = false;
 			}
 		}
 
-		// 创建 CLI display，传递 isPending 参数和 shellType
+		// 创建 CLI display，传递 displayStatus 和 shellType
 		if (_context && _context->chatOpsCtrl && _context->chatAgent)
 		{
 			std::wstring messageId = _context->chatAgent->GetCurrentAIMessageId();
-			_cliId = _context->chatOpsCtrl->AddCliDisplay(messageId, command, wDesc, _isPending, _shellType);
+			_cliId = _context->chatOpsCtrl->AddCliDisplay(messageId, command, wDesc, displayStatus, _shellType);
 		}
 
 		// 如果不是 pending 状态，立即启动执行
