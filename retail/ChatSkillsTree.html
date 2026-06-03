@@ -50,7 +50,7 @@
         .skills-header {
             background-color: var(--secondary-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 6px 12px;
+            padding: 3px 12px;
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -378,23 +378,34 @@
         const treeArea = document.getElementById('tree-area');
         const skillsCount = document.getElementById('skills-count');
 
+        // ============ 共用函数 ============
+        // 统计叶子节点数量和激活数量
+        function countLeaves(nodes) {
+            let leafCount = 0;
+            let activeCount = 0;
+            function countRecursive(nodes) {
+                for (const node of nodes) {
+                    if (node.isLeaf) {
+                        leafCount++;
+                        if (node.enable) activeCount++;
+                    }
+                    if (node.children && node.children.length > 0) {
+                        countRecursive(node.children);
+                    }
+                }
+            }
+            countRecursive(nodes);
+            return { leafCount, activeCount };
+        }
+
         // ============ 构建树UI ============
         function buildTree(data) {
             skillTreeData = data || [];
             treeArea.innerHTML = '';
 
-            // 统计叶子节点数量
-            let leafCount = 0;
-            function countLeaves(nodes) {
-                for (const node of nodes) {
-                    if (node.isLeaf) leafCount++;
-                    if (node.children && node.children.length > 0) {
-                        countLeaves(node.children);
-                    }
-                }
-            }
-            countLeaves(skillTreeData);
-            skillsCount.textContent = `(${leafCount} skills)`;
+            // 统计叶子节点数量和激活数量
+            const { leafCount, activeCount } = countLeaves(skillTreeData);
+            skillsCount.textContent = `(${activeCount}/${leafCount} skills)`;
 
             // 渲染根节点
             for (const rootNode of skillTreeData) {
@@ -924,6 +935,12 @@
             });
         }
 
+        // 更新标题栏skill计数显示
+        function updateSkillCount() {
+            const { leafCount, activeCount } = countLeaves(skillTreeData);
+            skillsCount.textContent = `(${activeCount}/${leafCount} skills)`;
+        }
+
         function handleCheckboxClick(node, checkbox) {
             // 切换选中状态
             const isChecked = checkbox.classList.contains('checked');
@@ -946,6 +963,9 @@
 
             // 更新所有文件夹节点的checkbox视觉状态
             updateAllFolderCheckboxes();
+
+            // 更新标题栏计数
+            updateSkillCount();
         }
 
         function handleOpenFolder(node) {

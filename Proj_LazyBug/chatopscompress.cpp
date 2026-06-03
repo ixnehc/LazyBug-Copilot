@@ -114,6 +114,7 @@ void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl, CChatAgent* chatAgent)
 	ctx.chatOpsCtrl = opsCtrl;
 	ctx.chatAgent = chatAgent;
 	_taskMgr.Init(ctx);
+//	_taskMgr.SetSingleTaskMode(false);
 
 }
 
@@ -135,7 +136,7 @@ void CChatOpsCompress::_CollectEnv(Env& env)
 	env.isValid = true;
 }
 
-void CChatOpsCompress::_StartCompress(int reduceTokenCount, bool allowSummarize,bool allowDecompress)
+void CChatOpsCompress::_StartCompress(int reduceTokenCount, const std::string& summarizeApiName, bool allowDecompress)
 {
 	if (!_opsCtrl || reduceTokenCount <= 0)
 	{
@@ -150,8 +151,8 @@ void CChatOpsCompress::_StartCompress(int reduceTokenCount, bool allowSummarize,
 
 	_currentPass = 0;
 	_state = State_Compressing;
-	_allowSummarize = allowSummarize;
 	_allowDecompress = allowDecompress;
+	_summarizeApiName = summarizeApiName;
 	_summarized.clear();
 
 	// 构建工作 Op 数组
@@ -197,7 +198,7 @@ void CChatOpsCompress::UpdateCompressTriggering()
 	if (env.disableAfter < _env.disableAfter)
 		allowDecompress = true;
 
-	_TryTrigger(false, forceRecompress,allowDecompress);
+	_TryTrigger(std::string(), forceRecompress, allowDecompress);
 	_UpdateCompress();//立即更新一次
 
 	_CollectEnv(_env);
@@ -1024,8 +1025,7 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 // 			std::wstring oldContent = utf8_to_widechar(_GetSrcOp(op).contentUtf8);
 // 			std::wstring newContent = utf8_to_widechar(*partialContent);
 
-			if (*partialContent != _GetSrcOp(op).contentUtf8)
-				_ApplyCompressToOp(op, Level_Partial, "");
+			_ApplyCompressToOp(op, Level_Partial, "");
 			continue;
 		}
 
@@ -1036,18 +1036,19 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 
 		// 否则：内容数据大于 50 字节才值得压缩，启动 task 进行压缩
 		const ChatOp& srcOp = _GetSrcOp(op);
-		if (srcOp.contentUtf8.size() <= 100)
+		if (srcOp.contentUtf8.size() <= 4000)
 			continue;
 
+
 		//
-		if (!_allowSummarize)
+		if (_summarizeApiName.empty())
 		{
 			_currentPass = _passCount;//终止compress
 			continue;
 		}
 
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
-		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i));
+		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName);
 	}
 }
 
@@ -1073,9 +1074,6 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	// ---- 阶段2：清除思考过程（低损失，非最终结果）----
 	_PASS(_Pass_ClearThinking(1, 999));
 
-	// ---- 阶段3：摘要化 AI 消息（LLM 语义压缩，损失最小，优先于截断）----
-	_PASS(_Pass_SummarizeMessage(4, 999));
-
 	// ---- 阶段4：截断工具结果（中等损失，从最旧的 session 开始）----
 	// 第一批：sessionAge >= 3（较旧）
 	_PASS(_Pass_TruncateCmdResults(3, 999));
@@ -1084,8 +1082,6 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_TruncateReadFile(3, 999));
 	_PASS(_Pass_TruncateReplaceInFile(3, 999));
 
-	_PASS(_Pass_SummarizeMessage(3, 999));
-
 	// 第二批：sessionAge >= 2（次新也开始截断）
 	_PASS(_Pass_TruncateCmdResults(2, 999));
 	_PASS(_Pass_TruncateFindSymbol(2, 999));
@@ -1093,12 +1089,14 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_TruncateReadFile(2, 999));
 	_PASS(_Pass_TruncateReplaceInFile(2, 999));
 
-	_PASS(_Pass_SummarizeMessage(2, 999));
+	_PASS(_Pass_SummarizeMessage(4, 999));
 
 	// ---- 阶段5：进一步清除/删除可恢复内容（高损失）----
 	_PASS(_Pass_ClearReplaceInFile(3, 999));      // 完全清除文件替换结果
 	_PASS(_Pass_RemoveFindSymbol(3, 999));        // 删除符号查找结果
 	_PASS(_Pass_RemoveSearchOps(3, 999));         // 删除搜索结果
+
+	_PASS(_Pass_SummarizeMessage(3, 999));
 
 	// ---- 阶段6：Extreme 模式 - 激进精简（极高损失，含当前 session）----
 	if (_workingEnv.intensity >= ChatOpCompressIntensity::Extreme)
@@ -1119,7 +1117,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 }
 
   
-bool CChatOpsCompress::_TryTrigger(bool allowSummarize,bool forceRecompress,bool allowDecompress)
+bool CChatOpsCompress::_TryTrigger(const std::string& summarizeApiName, bool forceRecompress, bool allowDecompress)
 {
 	if (!_opsCtrl)
 		return false;
@@ -1191,7 +1189,7 @@ bool CChatOpsCompress::_TryTrigger(bool allowSummarize,bool forceRecompress,bool
 	if (reduceTokens <= 0)
 		return false;
 
-	_StartCompress(reduceTokens,allowSummarize,allowDecompress);
+	_StartCompress(reduceTokens, summarizeApiName, allowDecompress);
 	return true;
 }
 

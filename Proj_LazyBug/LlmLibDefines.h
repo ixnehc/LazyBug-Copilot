@@ -52,3 +52,7 @@ enum class LlmThinkingMode
 	Enable,
 	Disable,
 };
+
+// Summarize API 特殊选项
+#define SUMMARIZE_API_DISABLE "<disable>"
+#define SUMMARIZE_API_AUTO "<auto>"

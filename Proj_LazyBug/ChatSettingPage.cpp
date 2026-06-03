@@ -701,6 +701,21 @@ void CChatSettingPage::SendCastSheetDataToWebView()
     json jBriefApis = json::array();
     json jSummarizeApis = json::array();
     
+    // 为 Summarize 列表添加特殊选项
+    {
+        json jDisable;
+        jDisable["name"] = SUMMARIZE_API_DISABLE;
+        jDisable["provider"] = "";
+        jDisable["model"] = "";
+        jSummarizeApis.push_back(jDisable);
+        
+        json jAuto;
+        jAuto["name"] = SUMMARIZE_API_AUTO;
+        jAuto["provider"] = "";
+        jAuto["model"] = "";
+        jSummarizeApis.push_back(jAuto);
+    }
+    
     for (const auto* api : availableApis)
     {
         json jApi;

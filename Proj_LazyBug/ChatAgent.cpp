@@ -354,8 +354,19 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 // 		if (reduceToken > 0)
 // 			_compressor.StartCompress(reduceToken);
 // 	}
+	// 解析 summarize API 名称
+	std::string summarizeApiName = g_llmLib.GetSummarizeApi();
+	if (summarizeApiName == SUMMARIZE_API_AUTO)
+	{
+		summarizeApiName = g_llmLib.GetMajorChatApi();
+	}
+	else if (summarizeApiName == SUMMARIZE_API_DISABLE)
+	{
+		summarizeApiName.clear();  // 禁用 summarize
+	}
+	
 	_compressor.CancelCompress();
-	_compressor.TryTrigger(true, false, false);
+	_compressor.TryTrigger(summarizeApiName, false, false);
 
 	if (_compressor.IsCompressing())
 	{

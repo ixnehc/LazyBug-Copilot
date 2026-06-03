@@ -121,7 +121,7 @@ public:
 	bool IsSummarizing();
 
 	void CancelCompress()	{		_CancelCompress();	}
-	bool TryTrigger(bool allowSummarize,bool forceRecompress,bool allowDecompress)	{		return _TryTrigger(allowSummarize,forceRecompress,allowDecompress);	}
+	bool TryTrigger(const std::string& summarizeApiName, bool forceRecompress, bool allowDecompress)	{		return _TryTrigger(summarizeApiName, forceRecompress, allowDecompress);	}
 
 
 	// 获取已减少的 token 数
@@ -129,7 +129,7 @@ public:
 
 private:
 
-	void _StartCompress(int reduceTokenCount,bool allowSummarize,bool allowDecompress);
+	void _StartCompress(int reduceTokenCount, const std::string& summarizeApiName, bool allowDecompress);
 	void _BuildWorkingOps();
 
 	void _CollectEnv(Env &env);
@@ -137,7 +137,7 @@ private:
 	void _UpdateCompress();
 	void _CancelCompress();
 	void _DecompressAll();
-	bool _TryTrigger(bool allowSummarize, bool forceRecompress, bool allowDecompress);
+	bool _TryTrigger(const std::string& summarizeApiName, bool forceRecompress, bool allowDecompress);
 
 	// 执行指定 Pass，返回是否达到目标
 	// 执行指定 Pass
@@ -193,8 +193,8 @@ private:
 
 	//working state
 	State _state = State_Idle;
-	bool _allowSummarize = false;
 	bool _allowDecompress = false;
+	std::string _summarizeApiName;  // 用于 summarize 的 API 名称（已解析 <auto>）
 	Env _workingEnv;
 	std::vector<Op> _workingOps;      // 工作 Op 数组
 	int _initialTokens = 0;     //压缩开始时的压缩后的token数 (Not calibrated)

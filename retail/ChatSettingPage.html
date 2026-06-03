@@ -242,36 +242,108 @@
             padding: 0; /* 为整个容器添加padding */
         }
 
-        /* Capability状态标签样式 */
-        .capability-status-bar {
+        /* Cast Sheet面板样式 - 标题嵌在边框中断处 */
+        .cast-sheet-panel {
             width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 4px;
+            padding: 14px 16px 12px 16px;
+            margin: 10px 0 8px 0;
             border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: 500;
-            text-align: center;
-            border: 1px solid;
-            transition: all 0.3s ease;
+            background-color: rgba(30, 30, 30, 0.8);
+            border: 1px solid #505050;
             flex-shrink: 0; /* 不允许压缩 */
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .capability-status-bar.cannot-work {
-            background-color: rgba(244, 67, 54, 0.1);
-            border-color: rgba(244, 67, 54, 0.3);
-            color: #ff6b6b;
+        /* Major Chat有值时的绿色样式 */
+        .cast-sheet-panel.has-value {
+            border-color: rgba(76, 175, 80, 0.5);
+            background-color: rgba(76, 175, 80, 0.08);
+            box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.1), inset 0 1px 0 rgba(76, 175, 80, 0.05);
         }
 
-        .capability-status-bar.partial {
-            background-color: rgba(255, 193, 7, 0.1);
-            border-color: rgba(255, 193, 7, 0.3);
-            color: #ffc107;
-        }
-
-        .capability-status-bar.full {
-            background-color: rgba(76, 175, 80, 0.1);
-            border-color: rgba(76, 175, 80, 0.3);
+        .cast-sheet-panel.has-value .cast-sheet-title {
             color: #4caf50;
+        }
+
+        /* Major Chat无值时的红色样式 */
+        .cast-sheet-panel.no-value {
+            border-color: rgba(244, 67, 54, 0.5);
+            background-color: rgba(244, 67, 54, 0.08);
+            box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.1), inset 0 1px 0 rgba(244, 67, 54, 0.05);
+        }
+
+        .cast-sheet-panel.no-value .cast-sheet-title {
+            color: #f44336;
+        }
+
+        .cast-sheet-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #888;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+            /* 标题嵌在边框中断处，居中 */
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0 12px;
+            background-color: #1a1a1a;
+            white-space: nowrap;
+        }
+
+        .cast-sheet-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            height: 28px;
+        }
+
+        .cast-sheet-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .cast-sheet-label {
+            font-size: 0.8em;
+            color: #aaa;
+            flex-shrink: 0;
+            width: 150px;
+            text-align: right;
+            padding-right: 12px;
+        }
+
+        .cast-sheet-select {
+            flex: 1;
+            min-width: 0;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 0.8em;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-size: 12px;
+            padding-right: 22px;
+        }
+
+        .cast-sheet-select:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background-color: #252525;
+        }
+
+        .cast-sheet-select option {
+            background: #1a1a1a;
+            color: var(--text-color);
         }
 
         /* Provider列表区域 */
@@ -283,23 +355,125 @@
         }
 
         .provider-item {
-            background-color: var(--secondary-bg);
-            border: 1px solid var(--border-color);
+            background: #020a06;
+            border: 1px solid #0a301d;
             border-radius: 8px;
-            margin-bottom: 16px;
-            padding: 16px;
-            transition: border-color 0.2s ease;
+            margin-bottom: 4px;
+            padding: 8px 12px;
+            transition: box-shadow 0.2s ease;
         }
 
         .provider-item:hover {
-            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .provider-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            padding: 6px 8px;
+            margin: -8px -12px 8px -12px;
+            background: #0a1f12;
+            border-radius: 8px 8px 0 0;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .provider-header:hover {
+            background: #0c2818;
+        }
+
+        .provider-header:hover .delete-provider-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Provider/API 删除按钮 */
+        .delete-provider-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 1px solid #999;
+            color: #aaa;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, border-color 0.15s ease, color 0.15s ease;
+            position: relative;
+            flex-shrink: 0;
+            margin-left: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        .delete-provider-btn::before {
+            content: '×';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            margin-top: -1px;
+        }
+
+        .delete-provider-btn:hover {
+            border-color: #ccc;
+            color: #ccc;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .delete-provider-btn:active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 长按进度环 */
+        .delete-provider-btn .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: calc(100% + 6px);
+            height: calc(100% + 6px);
+            transform: translate(-50%, -50%) rotate(-90deg);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s ease;
+        }
+
+        .delete-provider-btn.deleting .progress-ring {
+            opacity: 1;
+        }
+
+        .delete-provider-btn .progress-ring circle {
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .delete-provider-btn .progress-ring .progress-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .delete-provider-btn .progress-ring .progress-fill {
+            stroke: #aaa;
+            stroke-dasharray: 72.26;
+            stroke-dashoffset: 72.26;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .delete-provider-btn.deleting .progress-fill {
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 3s linear;
+        }
+
+        /* API 标题栏 hover 显示删除按钮 */
+        .api-header-bar:hover .delete-provider-btn {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .provider-name-section {
@@ -311,8 +485,9 @@
         .provider-name {
             font-size: 1.1em;
             font-weight: 600;
-            color: var(--text-color);
+            color: #ffffff;
             margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .provider-status-dot {
@@ -503,73 +678,434 @@
             overflow: hidden;
         }
 
-        /* Edit Models按钮样式 */
-        .edit-models-button {
-            width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 4px;
-            background-color: var(--secondary-bg);
-            border: 1px solid var(--primary-color);
-            border-radius: 6px;
-            color: var(--text-color);
-            font-size: 0.95em;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
+        /* ===== Provider / API 树形编辑样式 ===== */
+
+        /* 展开区域暗色背景 */
+        .provider-expanded-area {
+            background-color: #141414;
+            margin: 8px -10px -10px -10px;
+            padding: 10px;
+            border-radius: 0 0 6px 6px;
         }
 
-        .edit-models-button:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 77, 64, 0.3);
+        /* API展开区域 */
+        .api-expanded-area {
+            background-color: #141414;
+            margin: 6px -8px -8px -8px;
+            padding: 8px;
+            border-radius: 0 0 4px 4px;
         }
 
-        .edit-models-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 4px rgba(0, 77, 64, 0.2);
-        }
-
-        /* 按钮容器 */
-        .button-container {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 4px;
-            flex-shrink: 0;
-        }
-
-        .button-container .edit-models-button {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        /* 帮助按钮样式 */
-        .help-button {
-            width: 42px;
-            height: 42px;
-            background-color: var(--secondary-bg);
-            border: 1px solid var(--primary-color);
-            border-radius: 6px;
-            color: var(--text-color);
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        /* 添加 Provider 按钮 */
+        .add-provider-button {
+            width: 36px;
+            height: 24px;
+            margin: 12px auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #666;
+            font-size: 16px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+            padding-bottom: 2px;
+        }
+
+        .add-provider-button:hover {
+            border-color: #888;
+            color: #888;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .add-provider-button:active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* API标题栏 - 文字区域绿色渐变，其余深灰色 */
+        .api-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background-color: #1a1a1a;
+            border-radius: 4px;
+            margin: -4px -8px 8px -8px;
+            height: 28px;
+        }
+        .api-header-bar:hover {
+            background-color: #252525;
+        }
+        .api-header-bar span {
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+            padding: 0 16px 0 10px;
+            height: 100%;
+            line-height: 28px;
+            border-radius: 3px 0 0 3px;
+            display: inline-block;
+        }
+        .api-header-bar:hover span {
+            background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+        }
+        .api-header-bar .api-name-container {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+            border-radius: 3px 0 0 3px;
+            padding-right: 16px;
+        }
+        .api-header-bar:hover .api-name-container {
+            background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+        }
+        .api-header-bar .delete-provider-btn {
+            width: 16px;
+            height: 16px;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+        /* API Enable Checkbox - 黑白样式 */
+        .api-enable-checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            margin-left: 11px;
+            margin-right: 6px;
+            margin-top: 2px;
+            background-color: #1a1a1a;
+            border: 1px solid #666;
+            border-radius: 2px;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .api-enable-checkbox:hover {
+            border-color: #888;
+        }
+        .api-enable-checkbox:checked {
+            background-color: #333;
+            border-color: #888;
+        }
+        .api-enable-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 0px;
+            width: 4px;
+            height: 8px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* 统一行高 */
+        .provider-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            margin-bottom: 4px;
+        }
+        .provider-edit-row:last-child {
+            margin-bottom: 0;
+        }
+        .provider-edit-label {
+            font-size: 0.78em;
+            color: #888;
+            flex-shrink: 0;
+            min-width: 65px;
+            text-align: right;
+        }
+        .provider-edit-input {
+            flex: 1;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.85em;
+            font-family: inherit;
+            height: 24px;
+            box-sizing: border-box;
+        }
+        .provider-edit-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* select下拉框样式 */
+        select.provider-edit-input {
+            height: 26px;
+            padding: 2px 6px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-size: 14px;
+            padding-right: 24px;
+        }
+
+        /* 通用内联编辑输入框 */
+        .inline-input {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
+            padding: 1px 4px;
+            min-width: 60px;
+            max-width: 100%;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .inline-input:hover {
+            border-color: var(--border-color);
+            background: #252525;
+        }
+        .inline-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* Provider 折叠按钮 */
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 0 4px;
+            font-size: 0.85em;
+            line-height: 1;
+            transition: color 0.15s;
             flex-shrink: 0;
         }
+        .expand-btn:hover { color: var(--text-color); }
 
-        .help-button:hover {
-            background-color: var(--primary-color);
-            color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 77, 64, 0.3);
+        .provider-name-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .provider-name {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
         }
 
-        .help-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 4px rgba(0, 77, 64, 0.2);
+        /* endpoint 行 */
+        .provider-endpoint-section {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .provider-endpoint-label {
+            font-size: 0.78em;
+            color: #888;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .provider-endpoint-input {
+            flex: 1;
+            min-width: 0;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.82em;
+            font-family: monospace;
+        }
+        .provider-endpoint-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* API 列表区域 */
+        .provider-apis-section {
+            margin-top: 10px;
+            border-top: 1px solid #2e2e2e;
+            padding-top: 8px;
+        }
+        .provider-apis-label {
+            font-size: 0.75em;
+            color: #666;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+
+        .apis-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .add-api-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.15s ease, color 0.15s ease;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            margin-top: -2px;
+        }
+
+        .add-api-btn::before {
+            content: '+';
+            line-height: 1;
+        }
+
+        .add-api-btn:hover {
+            border-color: #888;
+            color: #888;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .add-api-btn:active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .apis-none {
+            font-size: 0.85em;
+            color: #555;
+            font-style: italic;
+            padding: 8px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 4px;
+        }
+
+        /* API 条目 */
+        .api-item {
+            margin: 2px 0;
+            border-radius: 4px;
+            background: #181818;
+            border: 1px solid #2a2a2a;
+            overflow: hidden;
+        }
+        .api-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+        }
+        .api-name-input {
+            flex: 1;
+            min-width: 0;
+            font-size: 0.88em;
+            font-weight: 500;
+        }
+
+        /* API 参数面板 */
+        .api-params {
+            padding: 8px 10px 10px 10px;
+            border-top: 1px solid #242424;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 12px;
+        }
+        .param-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .param-row.full-width {
+            grid-column: 1 / -1;
+        }
+        .param-label {
+            font-size: 0.72em;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .param-input {
+            padding: 3px 7px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.88em;
+            font-weight: 500;
+            width: 100%;
+        }
+        .param-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* 隐藏 number input 的上下箭头 */
+        .param-input[type="number"]::-webkit-outer-spin-button,
+        .param-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .param-input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Select */
+        .param-select {
+            padding: 3px 7px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.88em;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+        }
+        .param-select:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+        }
+
+        /* Checkbox 组 */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8em;
+            color: #aaa;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .checkbox-label input[type=checkbox] {
+            accent-color: var(--primary-color-hover);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -646,32 +1182,41 @@
                     const providersContainer = document.createElement('div');
                     providersContainer.className = 'providers-container';
                     
-                    // 创建capability状态标签
-                    const capabilityBar = document.createElement('div');
-                    capabilityBar.className = 'capability-status-bar';
-                    capabilityBar.id = 'capability-status-bar';
-                    capabilityBar.textContent = 'Loading capability status...';
-                    providersContainer.appendChild(capabilityBar);
+                    // 创建Cast Sheet面板
+                    const castSheetPanel = document.createElement('div');
+                    castSheetPanel.className = 'cast-sheet-panel';
+                    castSheetPanel.id = 'cast-sheet-panel';
+                    castSheetPanel.innerHTML = `
+                        <div class="cast-sheet-title">Cast Sheet</div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Major Chat</span>
+                            <select class="cast-sheet-select" id="cast-sheet-majorChat" data-api-type="majorChat">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Title Brief</span>
+                            <select class="cast-sheet-select" id="cast-sheet-brief" data-api-type="brief">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Compress Summarize</span>
+                            <select class="cast-sheet-select" id="cast-sheet-summarize" data-api-type="summarize">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                    `;
+                    providersContainer.appendChild(castSheetPanel);
                     
-                    // 创建按钮容器
-                    const buttonContainer = document.createElement('div');
-                    buttonContainer.className = 'button-container';
-                    
-                    // 创建"Open Setting File..."按钮
-                    const editModelsButton = document.createElement('button');
-                    editModelsButton.className = 'edit-models-button';
-                    editModelsButton.textContent = 'Open Setting File...';
-                    editModelsButton.onclick = () => handleEditModels();
-                    buttonContainer.appendChild(editModelsButton);
-                    
-                    // 创建"?"帮助按钮
-                    const helpButton = document.createElement('button');
-                    helpButton.className = 'help-button';
-                    helpButton.textContent = '?';
-                    helpButton.onclick = () => handleHelpButtonClick();
-                    buttonContainer.appendChild(helpButton);
-                    
-                    providersContainer.appendChild(buttonContainer);
+                    // 绑定Cast Sheet select的change事件
+                    castSheetPanel.querySelectorAll('.cast-sheet-select').forEach(select => {
+                        select.addEventListener('change', function() {
+                            const apiType = this.getAttribute('data-api-type');
+                            const apiName = this.value;
+                            postMsg({ action: 'updateCastSheetApi', apiType: apiType, apiName: apiName });
+                        });
+                    });
                     
                     // 创建provider列表区域
                     const providersListArea = document.createElement('div');
@@ -681,9 +1226,9 @@
                     
                     contentDiv.appendChild(providersContainer);
                     
-                    // 请求Provider数据和Capability状态
+                    // 请求Provider数据和Cast Sheet数据
                     requestProviderData();
-                    requestCapabilityStatus();
+                    requestCastSheetData();
                 } else {
                     // 其他tab显示空状态
                     const emptyState = document.createElement('div');
@@ -721,24 +1266,6 @@
             }
         }
 
-        // 处理Edit Extension Models按钮点击
-        function handleEditModels() {
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage({
-                    action: 'editModels'
-                });
-            }
-        }
-
-        // 处理帮助按钮点击
-        function handleHelpButtonClick() {
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage({
-                    action: 'openSettingHelp'
-                });
-            }
-        }
-
         // 请求Provider数据
         function requestProviderData() {
             if (window.chrome && window.chrome.webview) {
@@ -757,51 +1284,245 @@
             }
         }
 
-        // 设置Capability状态
-        function setCapabilityStatus(capability) {
-            const capabilityBar = document.getElementById('capability-status-bar');
-            if (!capabilityBar) {
-                return;
+        // 请求Cast Sheet数据
+        function requestCastSheetData() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'requestCastSheetData'
+                });
             }
-            
-            // 移除所有状态类
-            capabilityBar.classList.remove('cannot-work', 'partial', 'full');
-            
-            let statusClass = '';
-            let statusText = '';
-            
-            switch (capability) {
-                case 0: // CannotWork
-                    statusClass = 'cannot-work';
-                    statusText = 'LazyBug plugin cannot start working due to lack of necessary models';
-                    break;
-                case 1: // Partial
-                    statusClass = 'partial';
-                    statusText = 'LazyBug can only work partially as some important models are still missing';
-                    break;
-                case 2: // Full
-                    statusClass = 'full';
-                    statusText = 'All required models are available, LazyBug is 100% functional';
-                    break;
-                default:
-                    statusClass = 'cannot-work';
-                    statusText = 'Unknown capability status';
-                    break;
-            }
-            
-            capabilityBar.className = `capability-status-bar ${statusClass}`;
-            capabilityBar.textContent = statusText;
         }
 
-        // 设置Provider数据
-        function setProviderData(providers) {
-            const providersContainer = document.getElementById('providers-list');
-            if (!providersContainer) {
-                return;
+        // 设置Cast Sheet数据
+        function setCastSheetData(data) {
+            const majorChatSelect = document.getElementById('cast-sheet-majorChat');
+            const briefSelect = document.getElementById('cast-sheet-brief');
+            const summarizeSelect = document.getElementById('cast-sheet-summarize');
+            const castSheetPanel = document.getElementById('cast-sheet-panel');
+            
+            if (!majorChatSelect || !briefSelect || !summarizeSelect || !castSheetPanel) return;
+            
+            // 分别获取三个不同的API列表
+            const majorChatApis = data.majorChatApis || [];
+            const briefApis = data.briefApis || [];
+            const summarizeApis = data.summarizeApis || [];
+            
+            function rebuildSelect(select, newValue, apiList) {
+                select.innerHTML = '';
+                if (apiList.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.textContent = 'No available APIs';
+                    opt.disabled = true;
+                    select.appendChild(opt);
+                } else {
+                    apiList.forEach(api => {
+                        const opt = document.createElement('option');
+                        opt.value = api.name;
+                        opt.textContent = api.name;
+                        select.appendChild(opt);
+                    });
+                }
+                // 使用传入的新值设置选中项
+                if (newValue && [...select.options].some(o => o.value === newValue)) {
+                    select.value = newValue;
+                } else if (select.options.length > 0 && !select.options[0].disabled) {
+                    select.selectedIndex = 0;
+                }
             }
             
-            providersContainer.innerHTML = '';
+            rebuildSelect(majorChatSelect, data.majorChatApi, majorChatApis);
+            rebuildSelect(briefSelect, data.briefApi, briefApis);
+            rebuildSelect(summarizeSelect, data.summarizeApi, summarizeApis);
             
+            // 根据major chat是否有值设置颜色样式
+            castSheetPanel.classList.remove('has-value', 'no-value');
+            if (data.majorChatApi && data.majorChatApi.trim() !== '') {
+                castSheetPanel.classList.add('has-value');
+            } else {
+                castSheetPanel.classList.add('no-value');
+            }
+        }
+
+        // ===== Provider / API 树形展开状态 =====
+        let expandedProviders = [];  // 当前展开的 provider names 数组
+        let expandedApis = [];       // 当前展开的 api names 数组
+        let pendingFocusApiName = null; // 新建API后待聚焦的名称
+        let pendingFocusProviderName = null; // 新建Provider后待聚焦的名称
+
+        // 辅助：发送消息到C++
+        function postMsg(obj) {
+            if (window.chrome && window.chrome.webview)
+                window.chrome.webview.postMessage(obj);
+        }
+
+        // 辅助：绑定内联编辑输入框（失焦/Enter提交，Escape还原）
+        function bindInlineInput(input, onCommit) {
+            let lastValue = input.value;
+            input.addEventListener('focus', function() { lastValue = this.value; this.select(); });
+            input.addEventListener('blur', function() { onCommit(this.value, lastValue); });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = lastValue; this.blur(); }
+            });
+            input.addEventListener('click', e => e.stopPropagation());
+            input.addEventListener('mousedown', e => e.stopPropagation());
+        }
+
+        // 辅助：绑定普通参数输入框（失焦提交数值/字符串）
+        function bindParamInput(input, apiName, field, isNumber) {
+            let last = input.value;
+            input.addEventListener('focus', function() { last = this.value; });
+            input.addEventListener('blur', function() {
+                let val = this.value.trim();
+                if (val === last) return;
+                postMsg({ action: 'updateApiField', apiName, field, value: isNumber ? (parseFloat(val) || 0) : val });
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = last; this.blur(); }
+            });
+        }
+
+        // 辅助：绑定浮点数输入框（显示两位小数，无上下箭头）
+        function bindFloatInput(input, apiName, field) {
+            let lastValue = input.value;
+            input.addEventListener('focus', function() { 
+                lastValue = this.value; 
+                this.select(); 
+            });
+            input.addEventListener('blur', function() {
+                let val = this.value.trim();
+                // 格式化为两位小数显示
+                let numVal = parseFloat(val);
+                if (isNaN(numVal)) numVal = 0;
+                this.value = numVal.toFixed(2);
+                if (val !== lastValue) {
+                    postMsg({ action: 'updateApiField', apiName, field, value: numVal });
+                }
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = lastValue; this.blur(); }
+            });
+        }
+
+        // 构建 API 参数面板
+        function buildApiParams(api) {
+            const panel = document.createElement('div');
+            panel.className = 'api-params';
+
+            // 辅助：创建一行参数
+            function makeRow(label, el, fullWidth) {
+                const row = document.createElement('div');
+                row.className = 'param-row' + (fullWidth ? ' full-width' : '');
+                const lbl = document.createElement('div');
+                lbl.className = 'param-label';
+                lbl.textContent = label;
+                row.appendChild(lbl);
+                row.appendChild(el);
+                return row;
+            }
+
+            // model
+            const modelInput = document.createElement('input');
+            modelInput.className = 'param-input';
+            modelInput.value = api.model || '';
+            modelInput.placeholder = 'model id';
+            bindParamInput(modelInput, api.name, 'model', false);
+            panel.appendChild(makeRow('Model', modelInput));
+
+            // maxToken
+            const maxTokenInput = document.createElement('input');
+            maxTokenInput.className = 'param-input';
+            maxTokenInput.type = 'number';
+            maxTokenInput.value = api.maxToken || 0;
+            bindParamInput(maxTokenInput, api.name, 'maxToken', true);
+            panel.appendChild(makeRow('Max Output Token', maxTokenInput));
+
+            // priceInputToken（浮点数，显示两位小数）
+            const priceInInput = document.createElement('input');
+            priceInInput.className = 'param-input';
+            priceInInput.type = 'text';
+            priceInInput.value = (api.priceInputToken || 0).toFixed(2);
+            bindFloatInput(priceInInput, api.name, 'priceInputToken');
+            panel.appendChild(makeRow('Price/Input Token', priceInInput));
+
+            // priceOutputToken（浮点数，显示两位小数）
+            const priceOutInput = document.createElement('input');
+            priceOutInput.className = 'param-input';
+            priceOutInput.type = 'text';
+            priceOutInput.value = (api.priceOutputToken || 0).toFixed(2);
+            bindFloatInput(priceOutInput, api.name, 'priceOutputToken');
+            panel.appendChild(makeRow('Price/Output Token', priceOutInput));
+
+            // priceCacheRead（浮点数，显示两位小数）
+            const priceCRInput = document.createElement('input');
+            priceCRInput.className = 'param-input';
+            priceCRInput.type = 'text';
+            priceCRInput.value = (api.priceCacheRead || 0).toFixed(2);
+            bindFloatInput(priceCRInput, api.name, 'priceCacheRead');
+            panel.appendChild(makeRow('Price/Cache Read', priceCRInput));
+
+            // priceCacheWrite（浮点数，显示两位小数）
+            const priceCWInput = document.createElement('input');
+            priceCWInput.className = 'param-input';
+            priceCWInput.type = 'text';
+            priceCWInput.value = (api.priceCacheWrite || 0).toFixed(2);
+            bindFloatInput(priceCWInput, api.name, 'priceCacheWrite');
+            panel.appendChild(makeRow('Price/Cache Write', priceCWInput));
+
+            // thinkingMode
+            const thinkSel = document.createElement('select');
+            thinkSel.className = 'param-select';
+            ['Auto','Enable','Disable'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.thinkingMode === v) opt.selected = true;
+                thinkSel.appendChild(opt);
+            });
+            thinkSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'thinkingMode', value: this.value });
+            });
+            panel.appendChild(makeRow('Thinking Mode', thinkSel));
+
+            // cacheControl
+            const cacheSel = document.createElement('select');
+            cacheSel.className = 'param-select';
+            ['Auto','None','Anthropic'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.cacheControl === v) opt.selected = true;
+                cacheSel.appendChild(opt);
+            });
+            cacheSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'cacheControl', value: this.value });
+            });
+            panel.appendChild(makeRow('Cache Control', cacheSel));
+
+            // role combo box
+            const roleSel = document.createElement('select');
+            roleSel.className = 'param-select';
+            ['Agent','Auxiliary'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.role === v) opt.selected = true;
+                roleSel.appendChild(opt);
+            });
+            roleSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'role', value: this.value });
+            });
+            panel.appendChild(makeRow('Role', roleSel));
+
+            return panel;
+        }
+
+        // 设置Provider数据（全量重建，保持展开状态）
+        function setProviderData(providers) {
+            const providersContainer = document.getElementById('providers-list');
+            if (!providersContainer) return;
+
+            providersContainer.innerHTML = '';
+
             if (!providers || providers.length === 0) {
                 const emptyDiv = document.createElement('div');
                 emptyDiv.className = 'providers-empty';
@@ -813,122 +1534,526 @@
                 providersContainer.appendChild(emptyDiv);
                 return;
             }
-            
+
             providers.forEach((provider, index) => {
                 const providerDiv = document.createElement('div');
                 providerDiv.className = 'provider-item';
-                
+
                 const isAvailable = provider.isAvailable;
                 const statusClass = isAvailable ? 'available' : 'unavailable';
+                const isProviderExpanded = expandedProviders.includes(provider.name);
+
+                // ── Provider 标题栏（折叠/展开均可点击）──
+                const header = document.createElement('div');
+                header.className = 'provider-header';
+                const headerId = 'provider-header-' + index;
+                header.id = headerId;
+                header.style.cursor = 'pointer';
+                header.title = isProviderExpanded ? 'Click to collapse' : 'Click to expand';
+                header.addEventListener('click', () => {
+                    const rectBefore = header.getBoundingClientRect();
+                    const topBefore = rectBefore.top;
+
+                    if (isProviderExpanded) {
+                        expandedProviders = expandedProviders.filter(p => p !== provider.name);
+                    } else {
+                        expandedProviders.push(provider.name);
+                    }
+                    setProviderData(providers);
+
+                    const newHeader = document.getElementById(headerId);
+                    if (newHeader) {
+                        const rectAfter = newHeader.getBoundingClientRect();
+                        const diff = rectAfter.top - topBefore;
+                        if (diff !== 0) {
+                            const scrollContainer = document.getElementById('providers-list');
+                            if (scrollContainer) {
+                                scrollContainer.scrollTop += diff;
+                            }
+                        }
+                    }
+                });
+
+                const nameSection = document.createElement('div');
+                nameSection.className = 'provider-name-section';
+
+                // 状态点
+                const dot = document.createElement('div');
+                dot.className = `provider-status-dot ${statusClass}`;
+                dot.setAttribute('data-provider-type', provider.type);
+                nameSection.appendChild(dot);
+
+                // 名称（始终静态，点击标题栏折叠/展开）
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'provider-name';
+                nameSpan.textContent = provider.name;
+                nameSection.appendChild(nameSpan);
+                header.appendChild(nameSection);
+
+                // ── 删除按钮（长按3秒）──
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete-provider-btn';
+                deleteBtn.title = 'Hold for 3 seconds to delete';
                 
-                providerDiv.innerHTML = `
-                    <div class="provider-header">
-                        <div class="provider-name-section">
-                            <div class="provider-status-dot ${statusClass}" data-provider-type="${provider.type}"></div>
-                            <h3 class="provider-name">${provider.name}</h3>
-                        </div>
-                    </div>
-                    <div class="provider-key-section">
-                        <input 
-                            type="password" 
-                            id="provider-key-${index}"
-                            class="provider-key-input"
-                            placeholder="Enter API key..."
-                            value="${provider.key || ''}"
-                            data-provider-type="${provider.type}"
-                        />
-                    </div>
+                // 进度环SVG
+                deleteBtn.innerHTML = `
+                    <svg class="progress-ring" viewBox="0 0 26 26">
+                        <circle class="progress-bg" cx="13" cy="13" r="11.5"/>
+                        <circle class="progress-fill" cx="13" cy="13" r="11.5"/>
+                    </svg>
                 `;
                 
-                providersContainer.appendChild(providerDiv);
+                let longPressTimer = null;
+                let isDeleting = false;
                 
-                // 如果不是最后一个项目，添加分隔线
-                if (index < providers.length - 1) {
-                    const separator = document.createElement('div');
-                    separator.className = 'provider-separator';
-                    providersContainer.appendChild(separator);
-                }
-            });
-            
-            // 为所有API key输入框添加事件监听器
-            providersContainer.querySelectorAll('.provider-key-input').forEach(input => {
-                // 记录上一次的值
-                let lastValue = input.value;
+                const startLongPress = (e) => {
+                    if (e.button !== 0) return; // 只响应左键
+                    e.stopPropagation();
+                    isDeleting = false;
+                    deleteBtn.classList.add('deleting');
+                    
+                    longPressTimer = setTimeout(() => {
+                        isDeleting = true;
+                        deleteBtn.classList.remove('deleting');
+                        // 发送删除消息
+                        postMsg({ action: 'deleteProvider', name: provider.name });
+                    }, 3000);
+                };
                 
-                // 获得焦点时自动全选
-                input.addEventListener('focus', function() {
-                    this.select();
+                const cancelLongPress = (e) => {
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                    if (!isDeleting) {
+                        deleteBtn.classList.remove('deleting');
+                    }
+                };
+                
+                deleteBtn.addEventListener('mousedown', startLongPress);
+                deleteBtn.addEventListener('mouseup', cancelLongPress);
+                deleteBtn.addEventListener('mouseleave', cancelLongPress);
+                deleteBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startLongPress(e.touches[0]);
+                });
+                deleteBtn.addEventListener('touchend', cancelLongPress);
+                deleteBtn.addEventListener('touchcancel', cancelLongPress);
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                 });
                 
-                // 使用blur事件代替change事件，无论内容是否改变都发送更新
-                input.addEventListener('blur', function() {
-                    const currentValue = this.value;
-                    const providerType = this.getAttribute('data-provider-type');
+                header.appendChild(deleteBtn);
+                providerDiv.appendChild(header);
+
+                // ── 展开状态：显示详细内容（暗色背景区域）──
+                if (isProviderExpanded) {
+                    const expandedArea = document.createElement('div');
+                    expandedArea.className = 'provider-expanded-area';
+
+                    // Name行
+                    const nameRow = document.createElement('div');
+                    nameRow.className = 'provider-edit-row';
+                    const nameLabel = document.createElement('span');
+                    nameLabel.className = 'provider-edit-label';
+                    nameLabel.textContent = 'Name:';
+                    nameRow.appendChild(nameLabel);
+                    const nameInput = document.createElement('input');
+                    nameInput.className = 'provider-edit-input';
+                    nameInput.value = provider.name;
+                    bindInlineInput(nameInput, (newVal, oldVal) => {
+                        newVal = newVal.trim();
+                        if (newVal && newVal !== oldVal) {
+                            // 检查是否与其他 provider 重名
+                            const duplicateProvider = providers.find(p => p.name === newVal);
+                            if (duplicateProvider) {
+                                nameInput.value = oldVal;
+                                postMsg({ action: 'showError', message: 'Provider name "' + newVal + '" already exists' });
+                                return;
+                            }
+                            expandedProviders = expandedProviders.map(p => p === oldVal ? newVal : p);
+                            postMsg({ action: 'updateProviderName', oldName: oldVal, newName: newVal });
+                        } else {
+                            nameInput.value = oldVal;
+                        }
+                    });
+                    nameInput.addEventListener('click', e => e.stopPropagation());
+                    nameInput.addEventListener('mousedown', e => e.stopPropagation());
+                    nameRow.appendChild(nameInput);
+                    expandedArea.appendChild(nameRow);
+
+                    // Endpoint行
+                    const endpointRow = document.createElement('div');
+                    endpointRow.className = 'provider-edit-row';
+                    const endpointLabel = document.createElement('span');
+                    endpointLabel.className = 'provider-edit-label';
+                    endpointLabel.textContent = 'Endpoint:';
+                    endpointRow.appendChild(endpointLabel);
+                    const endpointInput = document.createElement('input');
+                    endpointInput.className = 'provider-edit-input';
+                    endpointInput.value = provider.endpoint || '';
+                    endpointInput.placeholder = 'https://api.example.com/v1';
+                    let lastEndpoint = endpointInput.value;
+                    endpointInput.addEventListener('focus', function() { lastEndpoint = this.value; this.select(); });
+                    endpointInput.addEventListener('blur', function() {
+                        const v = this.value.trim();
+                        postMsg({ action: 'updateProviderEndpoint', providerName: provider.name, endpoint: v });
+                    });
+                    endpointInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                        else if (e.key === 'Escape') { this.value = lastEndpoint; this.blur(); }
+                    });
+                    endpointInput.addEventListener('click', e => e.stopPropagation());
+                    endpointInput.addEventListener('mousedown', e => e.stopPropagation());
+                    endpointRow.appendChild(endpointInput);
+                    expandedArea.appendChild(endpointRow);
+
+                    // Format行（下拉选择）
+                    const formatRow = document.createElement('div');
+                    formatRow.className = 'provider-edit-row';
+                    const formatLabel = document.createElement('span');
+                    formatLabel.className = 'provider-edit-label';
+                    formatLabel.textContent = 'Format:';
+                    formatRow.appendChild(formatLabel);
+                    const formatSelect = document.createElement('select');
+                    formatSelect.className = 'provider-edit-input';
+                    formatSelect.style.cursor = 'pointer';
+                    const formatOptions = ['OpenAI', 'Anthropic', 'Gemini', 'OpenRouter', 'Kimi', 'GLM', 'Minimax', 'DeepSeek'];
+                    formatOptions.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v;
+                        opt.textContent = v;
+                        if (provider.format === v) opt.selected = true;
+                        formatSelect.appendChild(opt);
+                    });
+                    formatSelect.addEventListener('change', function() {
+                        postMsg({ action: 'updateProviderFormat', providerName: provider.name, format: this.value });
+                    });
+                    formatSelect.addEventListener('click', e => e.stopPropagation());
+                    formatSelect.addEventListener('mousedown', e => e.stopPropagation());
+                    formatRow.appendChild(formatSelect);
+                    expandedArea.appendChild(formatRow);
+
+                    // Api Key行
+                    const keyRow = document.createElement('div');
+                    keyRow.className = 'provider-edit-row';
+                    const keyLabel = document.createElement('span');
+                    keyLabel.className = 'provider-edit-label';
+                    keyLabel.textContent = 'Api Key:';
+                    keyRow.appendChild(keyLabel);
+                    const keyInput = document.createElement('input');
+                    keyInput.type = 'password';
+                    keyInput.className = 'provider-edit-input';
+                    keyInput.placeholder = 'Enter API key...';
+                    keyInput.value = provider.key || '';
+                    keyInput.setAttribute('data-provider-type', provider.type);
+                    let lastKey = keyInput.value;
+                    keyInput.addEventListener('focus', function() { lastKey = this.value; this.select(); });
+                    keyInput.addEventListener('blur', function() {
+                        postMsg({ action: 'updateProviderKey', providerType: provider.type, key: this.value });
+                        lastKey = this.value;
+                    });
+                    keyInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                        else if (e.key === 'Escape') { this.value = lastKey; this.blur(); }
+                    });
+                    keyInput.addEventListener('dblclick', function(e) {
+                        e.stopPropagation();
+                        this.type = this.type === 'password' ? 'text' : 'password';
+                    });
+                    keyInput.addEventListener('click', e => e.stopPropagation());
+                    keyInput.addEventListener('mousedown', e => e.stopPropagation());
+                    keyRow.appendChild(keyInput);
+                    expandedArea.appendChild(keyRow);
+
+                    // API 列表（始终显示）
+                    const apisSection = document.createElement('div');
+                    apisSection.className = 'provider-apis-section';
                     
-                    // 无论值是否变化都发送API key更新消息到C++
-                    if (window.chrome && window.chrome.webview) {
-                        window.chrome.webview.postMessage({
-                            action: 'updateProviderKey',
-                            providerType: providerType,
-                            key: currentValue
+                    // 标题行（APIs + 添加按钮）
+                    const apisHeaderRow = document.createElement('div');
+                    apisHeaderRow.className = 'apis-header-row';
+                    
+                    const apisLabel = document.createElement('div');
+                    apisLabel.className = 'provider-apis-label';
+                    apisLabel.textContent = 'APIs';
+                    apisHeaderRow.appendChild(apisLabel);
+                    
+                    // 添加 API 按钮
+                    const addApiBtn = document.createElement('div');
+                    addApiBtn.className = 'add-api-btn';
+                    addApiBtn.title = 'Add new API';
+                    addApiBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // 生成不重名的 API 名称
+                        let newName = 'NewApi';
+                        let suffix = 1;
+                        const existingNames = [];
+                        providers.forEach(p => {
+                            if (p.apis) p.apis.forEach(a => existingNames.push(a.name));
+                        });
+                        while (existingNames.includes(newName)) {
+                            newName = 'NewApi' + suffix;
+                            suffix++;
+                        }
+                        // 自动展开新API并标记待聚焦
+                        if (!expandedApis.includes(newName)) {
+                            expandedApis.push(newName);
+                        }
+                        pendingFocusApiName = newName;
+                        postMsg({ action: 'addApi', providerName: provider.name, apiName: newName });
+                    });
+                    apisHeaderRow.appendChild(addApiBtn);
+                    
+                    apisSection.appendChild(apisHeaderRow);
+
+                    if (!provider.apis || provider.apis.length === 0) {
+                        // 没有 API 时显示 <none>
+                        const noneDiv = document.createElement('div');
+                        noneDiv.className = 'apis-none';
+                        noneDiv.textContent = '<none>';
+                        apisSection.appendChild(noneDiv);
+                    } else {
+                        // 有 API 时显示列表
+                        provider.apis.forEach((api, apiIndex) => {
+                            const isApiExpanded = expandedApis.includes(api.name);
+
+                            const apiItem = document.createElement('div');
+                            apiItem.className = 'api-item';
+
+                            // API 标题栏（单击展开/折叠）
+                            const apiHeader = document.createElement('div');
+                            apiHeader.className = 'api-header-bar';
+                            const apiHeaderId = 'api-header-' + index + '-' + apiIndex;
+                            apiHeader.id = apiHeaderId;
+                            apiHeader.title = isApiExpanded ? 'Click to collapse' : 'Click to expand';
+                            apiHeader.addEventListener('click', () => {
+                                const rectBefore = apiHeader.getBoundingClientRect();
+                                const topBefore = rectBefore.top;
+
+                                if (isApiExpanded) {
+                                    expandedApis = expandedApis.filter(a => a !== api.name);
+                                } else {
+                                    expandedApis.push(api.name);
+                                }
+                                setProviderData(providers);
+
+                                const newApiHeader = document.getElementById(apiHeaderId);
+                                if (newApiHeader) {
+                                    const rectAfter = newApiHeader.getBoundingClientRect();
+                                    const diff = rectAfter.top - topBefore;
+                                    if (diff !== 0) {
+                                        const scrollContainer = document.getElementById('providers-list');
+                                        if (scrollContainer) {
+                                            scrollContainer.scrollTop += diff;
+                                        }
+                                    }
+                                }
+                            });
+
+                            // API 名称容器（包含 checkbox 和名称文本）
+                            const apiNameContainer = document.createElement('div');
+                            apiNameContainer.className = 'api-name-container';
+
+                            // API Enable Checkbox - 自定义黑白样式
+                            const apiEnableCheckbox = document.createElement('input');
+                            apiEnableCheckbox.type = 'checkbox';
+                            apiEnableCheckbox.checked = api.enable !== false; // 默认为true
+                            apiEnableCheckbox.className = 'api-enable-checkbox';
+                            apiEnableCheckbox.title = 'Enable/Disable this API';
+                            apiEnableCheckbox.addEventListener('click', (e) => {
+                                e.stopPropagation(); // 阻止触发折叠/展开
+                            });
+                            apiEnableCheckbox.addEventListener('change', (e) => {
+                                postMsg({ action: 'updateApiField', apiName: api.name, field: 'enable', value: e.target.checked });
+                            });
+                            apiNameContainer.appendChild(apiEnableCheckbox);
+
+                            // API 名称文本
+                            const apiNameSpan = document.createElement('span');
+                            apiNameSpan.style.cssText = 'font-size:0.9em;font-weight:500;color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,0.5);background:transparent;padding:0;line-height:28px;';
+                            apiNameSpan.textContent = api.name;
+                            apiNameContainer.appendChild(apiNameSpan);
+
+                            apiHeader.appendChild(apiNameContainer);
+
+                            // API 删除按钮（长按3秒）
+                            const deleteApiBtn = document.createElement('div');
+                            deleteApiBtn.className = 'delete-provider-btn';
+                            deleteApiBtn.title = 'Hold for 3 seconds to delete';
+                            deleteApiBtn.innerHTML = `
+                                <svg class="progress-ring" viewBox="0 0 26 26">
+                                    <circle class="progress-bg" cx="13" cy="13" r="11.5"/>
+                                    <circle class="progress-fill" cx="13" cy="13" r="11.5"/>
+                                </svg>
+                            `;
+                            
+                            let apiLongPressTimer = null;
+                            let isApiDeleting = false;
+                            
+                            const startApiLongPress = (e) => {
+                                if (e.button !== 0) return;
+                                e.stopPropagation();
+                                isApiDeleting = false;
+                                deleteApiBtn.classList.add('deleting');
+                                
+                                apiLongPressTimer = setTimeout(() => {
+                                    isApiDeleting = true;
+                                    deleteApiBtn.classList.remove('deleting');
+                                    postMsg({ action: 'deleteApi', name: api.name });
+                                }, 3000);
+                            };
+                            
+                            const cancelApiLongPress = (e) => {
+                                if (apiLongPressTimer) {
+                                    clearTimeout(apiLongPressTimer);
+                                    apiLongPressTimer = null;
+                                }
+                                if (!isApiDeleting) {
+                                    deleteApiBtn.classList.remove('deleting');
+                                }
+                            };
+                            
+                            deleteApiBtn.addEventListener('mousedown', startApiLongPress);
+                            deleteApiBtn.addEventListener('mouseup', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('mouseleave', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('touchstart', (e) => {
+                                e.preventDefault();
+                                startApiLongPress(e.touches[0]);
+                            });
+                            deleteApiBtn.addEventListener('touchend', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('touchcancel', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                            });
+                            
+                            apiHeader.appendChild(deleteApiBtn);
+
+                            apiItem.appendChild(apiHeader);
+
+                            // API 展开区域（暗色背景）
+                            if (isApiExpanded) {
+                                const apiExpandedArea = document.createElement('div');
+                                apiExpandedArea.className = 'api-expanded-area';
+
+                                // Name编辑行
+                                const apiNameRow = document.createElement('div');
+                                apiNameRow.className = 'provider-edit-row';
+                                apiNameRow.style.height = '28px';
+                                const apiNameLabel = document.createElement('span');
+                                apiNameLabel.className = 'provider-edit-label';
+                                apiNameLabel.style.minWidth = '50px';
+                                apiNameLabel.textContent = 'Name:';
+                                apiNameRow.appendChild(apiNameLabel);
+                                const apiNameInput = document.createElement('input');
+                                apiNameInput.className = 'provider-edit-input';
+                                apiNameInput.style.fontSize = '0.82em';
+                                apiNameInput.value = api.name;
+                                bindInlineInput(apiNameInput, (newVal, oldVal) => {
+                                    newVal = newVal.trim();
+                                    if (newVal && newVal !== oldVal) {
+                                        // 检查是否与所有 provider 下的所有 api 重名
+                                        let duplicateApi = null;
+                                        for (const p of providers) {
+                                            if (p.apis) {
+                                                const found = p.apis.find(a => a.name === newVal);
+                                                if (found) {
+                                                    duplicateApi = found;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (duplicateApi) {
+                                            apiNameInput.value = oldVal;
+                                            postMsg({ action: 'showError', message: 'API name "' + newVal + '" already exists' });
+                                            return;
+                                        }
+                                        expandedApis = expandedApis.map(a => a === oldVal ? newVal : a);
+                                        postMsg({ action: 'updateApiName', oldName: oldVal, newName: newVal });
+                                    } else {
+                                        apiNameInput.value = oldVal;
+                                    }
+                                });
+                                apiNameInput.addEventListener('click', e => e.stopPropagation());
+                                apiNameInput.addEventListener('mousedown', e => e.stopPropagation());
+                                apiNameRow.appendChild(apiNameInput);
+                                apiExpandedArea.appendChild(apiNameRow);
+
+                                // 其他参数面板
+                                apiExpandedArea.appendChild(buildApiParams(api));
+
+                                apiItem.appendChild(apiExpandedArea);
+                            }
+
+                            apisSection.appendChild(apiItem);
                         });
                     }
-                    
-                    // 更新lastValue
-                    lastValue = currentValue;
-                });
-                
-                // 防止焦点问题 - 使用mousedown事件确保焦点
-                input.addEventListener('mousedown', function(e) {
-                    // 防止事件冒泡到父元素
-                    e.stopPropagation();
-                });
-                
-                // 点击时确保获得焦点
-                input.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    this.focus();
-                });
-                
-                // 处理键盘事件
-                input.addEventListener('keydown', function(e) {
-                    // Enter键时保存并失焦
-                    if (e.key === 'Enter') {
-                        this.blur();
-                    }
-                    // Escape键时恢复原值并失焦
-                    else if (e.key === 'Escape') {
-                        this.value = lastValue;
-                        this.blur();
-                    }
-                });
-                
-                // 实时显示/隐藏密码 - 使用dblclick
-                input.addEventListener('dblclick', function(e) {
-                    e.stopPropagation();
-                    this.type = this.type === 'password' ? 'text' : 'password';
-                });
-                
-                // 阻止provider-item的点击事件影响输入框
-                input.closest('.provider-item').addEventListener('click', function(e) {
-                    // 如果点击的是输入框，不阻止
-                    if (e.target.classList.contains('provider-key-input')) {
-                        return;
-                    }
-                    // 其他点击不影响输入框焦点
-                    e.stopPropagation();
-                });
-                
-                // 点击label区域时聚焦到输入框
-                const keySection = input.closest('.provider-key-section');
-                keySection.addEventListener('click', function(e) {
-                    // 如果点击的不是输入框本身，则聚焦到输入框
-                    if (!e.target.classList.contains('provider-key-input')) {
-                        input.focus();
-                        e.stopPropagation();
-                    }
-                });
+
+                    expandedArea.appendChild(apisSection);
+
+                    providerDiv.appendChild(expandedArea);
+                }
+
+                providersContainer.appendChild(providerDiv);
             });
+
+            // 添加新 Provider 按钮
+            const addButton = document.createElement('div');
+            addButton.className = 'add-provider-button';
+            addButton.innerHTML = '+';
+            addButton.title = 'Add new provider';
+            addButton.addEventListener('click', () => {
+                // 生成不重名的 Provider 名称
+                let newName = 'NewProvider';
+                let suffix = 1;
+                const existingNames = providers.map(p => p.name);
+                while (existingNames.includes(newName)) {
+                    newName = 'NewProvider' + suffix;
+                    suffix++;
+                }
+                // 自动展开新Provider并标记待聚焦
+                if (!expandedProviders.includes(newName)) {
+                    expandedProviders.push(newName);
+                }
+                pendingFocusProviderName = newName;
+                postMsg({ action: 'addProvider', name: newName });
+            });
+            providersContainer.appendChild(addButton);
+
+            // 新建Provider后自动聚焦名称输入框
+            if (pendingFocusProviderName) {
+                const focusName = pendingFocusProviderName;
+                pendingFocusProviderName = null;
+                setTimeout(() => {
+                    const areas = document.querySelectorAll('.provider-expanded-area');
+                    for (const area of areas) {
+                        const nameInput = area.querySelector('.provider-edit-input');
+                        if (nameInput && nameInput.value === focusName) {
+                            nameInput.focus();
+                            nameInput.select();
+                            nameInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            break;
+                        }
+                    }
+                }, 200);
+            }
+
+            // 新建API后自动聚焦名称输入框
+            if (pendingFocusApiName) {
+                const focusName = pendingFocusApiName;
+                pendingFocusApiName = null;
+                setTimeout(() => {
+                    const inputs = document.querySelectorAll('.api-expanded-area .provider-edit-row .provider-edit-input');
+                    for (const input of inputs) {
+                        if (input.value === focusName) {
+                            input.focus();
+                            input.select();
+                            input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            break;
+                        }
+                    }
+                }, 200);
+            }
         }
 
         // 切换Tab
@@ -959,7 +2084,7 @@
             // 如果切换到providers tab，重新请求数据
             if (tabId === 'providers') {
                 requestProviderData();
-                requestCapabilityStatus();
+                requestCastSheetData();
             }
             
             // 发送Tab变更消息到C++
@@ -1013,7 +2138,11 @@
                         break;
                         
                     case 'setCapabilityStatus':
-                        setCapabilityStatus(message.capability);
+                        // Capability状态已废弃，保留兼容性
+                        break;
+                        
+                    case 'setCastSheetData':
+                        setCastSheetData(message.data);
                         break;
                         
                     case 'startValidatingProvider':

@@ -7,9 +7,12 @@
 #include "ChatAgent.h"
 #include <algorithm>
 
-CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex)
+#include "Utils_Context.h"
+
+CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName)
 {
 	_workingOpIndex = workingOpIndex;
+	_summarizeApiName = summarizeApiName;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 }
@@ -28,8 +31,23 @@ void CChatTask_CompressSummarize::_Succeed(const std::string& result)
 		if (_workingOpIndex >= 0 && _workingOpIndex < (int)compressor._workingOps.size())
 		{
 			CChatOpsCompress::Op& workingOp = compressor._workingOps[_workingOpIndex];
+
+// 			std::wstring  newContent = utf8_to_widechar(result);
+// 			std::wstring oldContent= utf8_to_widechar(compressor._opsCtrl->GetOps()[workingOp.srcIndex].contentUtf8);
+
 			// 使用 Level_Partial 作为压缩等级
-			workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = result;
+			const std::string* pContentToStore = &result;
+			int resultTokenCount = Utils::EstimateTokenCount(result);
+			// 如果压缩掉的token数不到400,仍然用原来的
+			if (resultTokenCount + 400 > _originalTokenCount)
+			{
+				int srcIndex = workingOp.srcIndex;
+				if (srcIndex >= 0 && srcIndex < (int)compressor._opsCtrl->GetOps().size())
+				{
+					pContentToStore = &compressor._opsCtrl->GetOps()[srcIndex].contentUtf8;
+				}
+			}
+			workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = *pContentToStore;
 		}
 	}
 	_status = TaskStatus::Success;
@@ -63,6 +81,7 @@ void CChatTask_CompressSummarize::Start()
 
 	const ChatOp& srcOp = compressor._opsCtrl->GetOps()[srcIndex];
 	const std::string& textToCompress = srcOp.contentUtf8;
+	_originalTokenCount = Utils::EstimateTokenCount(textToCompress);
 
 	if (textToCompress.empty())
 	{
@@ -70,16 +89,15 @@ void CChatTask_CompressSummarize::Start()
 		return;
 	}
 
-	// 查找可用于压缩摘要的API
-	std::string apiName = g_llmLib.GetSummarizeApi();
-	if (apiName.empty())
+	// 使用传入的 summarize API 名称
+	if (_summarizeApiName.empty())
 	{
 		_Fail();
 		return;
 	}
 
 	LlmSessionSetting setting;
-	if (g_llmLib.LoadLlmSetting(setting, apiName, ""))
+	if (g_llmLib.LoadLlmSetting(setting, _summarizeApiName, ""))
 	{
 		setting.api.tools.clear();
 		setting.rulesFiles.clear();
@@ -87,23 +105,15 @@ void CChatTask_CompressSummarize::Start()
 		LlmSessionRequest request;
 		
 		// 构建精简提示词
-		std::string prompt = u8R"(You are a context-compression assistant. Your task is to condense the conversation content below into a concise summary that preserves all information essential for continuing the work.
-
-Compression guidelines:
-- Retain the user's original intent, requirements, and any explicit constraints or preferences.
-- Preserve key technical details: file paths, symbol names (functions, classes, members, variables), code snippets, signatures, and configuration values that may be referenced later.
-- Keep track of decisions made, the current state of the task, and any pending or unresolved items.
-- Remove redundant, repetitive, or purely conversational filler that adds no actionable value.
-- Do not invent, infer, or add information that is not present in the original text.
-- Maintain the chronological/logical order so the flow of work remains clear.
-
-Output only the compressed summary text. Do not include any preamble, explanation, or commentary.
-
-Content to compress:
-)" + textToCompress;
+		std::string prompt =
+			"Please summarize the following text. Preserve the original tone and all key information,\n"
+			"including file names, code symbols (function names, class names, variable names, etc.).\n"
+			"Output only the summary. Do not include any additional text or explanation.\n"
+			"Text to summarize:\n";
+		prompt += textToCompress;
 		
 		request.AddUserMessage(prompt.c_str());
-		request.isStreaming = false;
+		request.isStreaming = true;
 
 		if (!_llmChat->Request(request, setting))
 		{
@@ -132,7 +142,7 @@ void CChatTask_CompressSummarize::Update()
 			// 检查会话是否完成
 			if (output.isCompleted)
 			{
-				if (output.content.empty())
+				if (output.fullContent.empty())
 				{
 					_Fail();
 				}
@@ -144,7 +154,7 @@ void CChatTask_CompressSummarize::Update()
 					}
 					else if (!_requestInterrupt)
 					{
-						_Succeed(output.content);
+						_Succeed(output.fullContent);
 					}
 					else
 					{
