@@ -677,6 +677,15 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 			_HandleSymbolLinkClicked(symbol, results);
 		}
 	}
+	else if (action == "openFile")
+	{
+		// 处理打开文件事件（FileEdit 进度标签点击）
+		if (jsonMsg.contains("filePath"))
+		{
+			std::wstring filePath = utf8_to_widechar(jsonMsg["filePath"].get<std::string>());
+			_HandleOpenFile(filePath);
+		}
+	}
 	else if (action == "cliStatusChange")
 	{
 		// 处理 CLI 状态变化（accept/reject/stop）
@@ -1057,6 +1066,16 @@ void CChatDialogA::_HandleSymbolLinkClicked(const std::wstring& symbol, const st
 	{
 		_symbolLinkClickIndex = 0;
 	}
+}
+
+void CChatDialogA::_HandleOpenFile(const std::wstring& filePath)
+{
+	if (filePath.empty())
+		return;
+	
+	std::string filePathA = widechar_to_utf8(filePath.c_str());
+	FileLocation loc;
+	GetFileLocator().Request(filePathA.c_str(), loc);
 }
 
 void CChatDialogA::_OnStopButtonClicked()

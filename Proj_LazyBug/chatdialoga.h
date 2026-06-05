@@ -185,6 +185,7 @@ protected:
 	// Symbol 链接相关处理
 	void _HandleQuerySymbolLocations(const std::wstring& messageId, const std::vector<std::wstring>& symbols);
 	void _HandleSymbolLinkClicked(const std::wstring& symbol, const std::vector<std::pair<std::wstring, int>>& results);
+	void _HandleOpenFile(const std::wstring& filePath);
 	std::wstring _currentSymbolLink; // 当前点击的symbol
 	int _symbolLinkClickIndex; // 当前symbol的点击索引，用于循环多个结果
 

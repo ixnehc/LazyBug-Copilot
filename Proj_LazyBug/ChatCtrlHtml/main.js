@@ -130,7 +130,7 @@ function setupWebViewMessageListener() {
                 
                 // ====== FileEdit 相关 ======
                 case 'addFileEdit':
-                    createFileEditWindow(message.fileEditId, message.messageId, message.title, message.content, message.buttons, message.isCollapsed, message.diffContent);
+                    createFileEditWindow(message.fileEditId, message.messageId, message.title, message.content, message.buttons, message.isCollapsed, message.diffContent, message.fullPath);
                     break;
                 case 'updateFileEditTitle':
                     updateFileEditWindow(message.fileEditId, { title: message.title });
@@ -157,7 +157,7 @@ function setupWebViewMessageListener() {
                     stopFileEditModification(message.fileEditId);
                     break;
                 case 'showFileEditProgressLabel':
-                    showFileEditProgressLabel(message.messageId, message.fileName);
+                    showFileEditProgressLabel(message.messageId, message.fileName, message.fullPath);
                     break;
                 case 'hideFileEditProgressLabel':
                     hideFileEditProgressLabel(message.messageId);

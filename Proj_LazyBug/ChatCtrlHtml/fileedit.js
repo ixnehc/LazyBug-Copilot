@@ -9,8 +9,9 @@
  * @param {Array} buttons - 按钮配置数组
  * @param {boolean} isCollapsed - 是否折叠
  * @param {string} diffContent - diff 内容
+ * @param {string} fullPath - 完整文件路径
  */
-function createFileEditWindow(fileEditId, messageId, title, content, buttons, isCollapsed, diffContent) {
+function createFileEditWindow(fileEditId, messageId, title, content, buttons, isCollapsed, diffContent, fullPath) {
     const chatContainer = document.getElementById('chat-container');
     const messageElem = document.getElementById(messageId);
     if (!messageElem) {
@@ -40,6 +41,11 @@ function createFileEditWindow(fileEditId, messageId, title, content, buttons, is
 
     const titlebar = document.createElement('div');
     titlebar.className = 'file-edit-titlebar';
+    
+    // 设置标题栏的 tooltip 显示完整路径
+    if (fullPath && fullPath.trim()) {
+        titlebar.title = fullPath;
+    }
 
     // Container for left-aligned controls (collapse button and title)
     const leftControlsArea = document.createElement('div');
@@ -596,8 +602,9 @@ function stopFileEditModification(fileEditId) {
  * 显示 FileEdit 进度标签
  * @param {string} messageId - 消息 ID
  * @param {string} fileName - 文件名
+ * @param {string} fullPath - 完整文件路径
  */
-function showFileEditProgressLabel(messageId, fileName) {
+function showFileEditProgressLabel(messageId, fileName, fullPath) {
     const messageElem = document.getElementById(messageId);
     if (!messageElem) {
         console.error('Message element not found for progress label:', messageId);
@@ -641,6 +648,22 @@ function showFileEditProgressLabel(messageId, fileName) {
     const progressLabel = document.createElement('div');
     progressLabel.className = 'file-edit-progress-label';
     progressLabel.id = messageId + '-progress-label';
+    
+    // 设置 tooltip 显示完整路径（只有设置了路径名才显示）
+    if (fullPath && fullPath.trim()) {
+        progressLabel.title = fullPath;
+        // 添加可点击样式和事件
+        progressLabel.classList.add('file-edit-progress-label-clickable');
+        progressLabel.style.cursor = 'pointer';
+        progressLabel.onclick = (e) => {
+            e.stopPropagation();
+            // 发送消息给 C++ 端打开文件
+            window.chrome.webview.postMessage({
+                action: 'openFile',
+                filePath: fullPath
+            });
+        };
+    }
 
     // 创建旋转图标
     const progressIcon = document.createElement('div');

@@ -44,6 +44,7 @@ protected:
     afx_msg void OnDestroy();
     afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
     afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+    afx_msg void OnTimer(UINT_PTR nIDEvent);
 
     DECLARE_MESSAGE_MAP()
 
@@ -83,10 +84,19 @@ private:
     // 发送消息到WebView
     void _PostWebMessage(const std::wstring& action, const std::wstring& data);
 
+
     // 发送skill数据到WebView
     void _SendSkillContent();
 
     // 前台窗口监控
     void CheckForegroundWindow();
+
+    // 显示延迟定时器
+    UINT_PTR _showTimerId = 0;
+    CRect _pendingWindowRect;
+
+    // 显示窗口（由定时器触发）
+    void _DoShowWindow();
 };
+
 

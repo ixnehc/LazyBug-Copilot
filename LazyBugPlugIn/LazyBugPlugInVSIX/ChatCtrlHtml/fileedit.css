@@ -1,7 +1,7 @@
 /* ====== FileEdit 窗口基础样式 ====== */
 .file-edit-window {
     margin: 10px 0;
-    border: 1px solid #0a1e35;
+    border: 1px solid var(--code-border);
     border-radius: 6px;
     background-color: var(--code-bg);
     overflow: hidden;
@@ -13,14 +13,14 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 12px;
-    background-color: #122842;
+    background-color: rgb(24, 37, 59);
     border-bottom: 1px solid #0a1e35;
     cursor: pointer;
     user-select: none;
 }
 
 .file-edit-titlebar:hover {
-    background-color: #1a3a58;
+    background-color: rgb(34, 52, 79);
 }
 
 /* 左侧控制区域容器 */
@@ -106,6 +106,14 @@
     border-radius: 3px;
     cursor: pointer;
     transition: background-color 0.2s;
+    font-family: Consolas, "Courier New", monospace;
+}
+
+/* 折叠按钮样式 - 固定宽度确保 +/- 大小一致 */
+.file-edit-titlebar-collapse-btn {
+    min-width: 24px;
+    text-align: center;
+    padding: 4px 0;
 }
 
 .file-edit-button:hover {
@@ -255,7 +263,7 @@
 
 /* ====== FileEdit Progress Label 样式 ====== */
 .file-edit-progress-label {
-    background-color: #122842;
+    background-color: rgb(24, 37, 59);
     border: 1px solid #0a1e35;
     border-radius: 6px;
     padding: 8px 12px;
@@ -271,7 +279,13 @@
 }
 
 .file-edit-progress-label:hover {
-    background-color: #1a3a58;
+    background-color: rgb(34, 52, 79);
+}
+
+/* 可点击的进度标签样式 */
+.file-edit-progress-label-clickable:hover {
+    background-color: rgb(34, 52, 79);
+    border-color: #1e5a8a;
 }
 
 .file-edit-progress-icon {

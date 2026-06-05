@@ -22,6 +22,7 @@ BEGIN_MESSAGE_MAP(CChatSkillTip, CWnd)
     ON_WM_DESTROY()
     ON_WM_ACTIVATE()
     ON_WM_KEYDOWN()
+    ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 CChatSkillTip::CChatSkillTip()
@@ -232,6 +233,25 @@ void CChatSkillTip::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
+void CChatSkillTip::OnTimer(UINT_PTR nIDEvent)
+{
+    if (nIDEvent == 1 && _showTimerId != 0)
+    {
+        KillTimer(_showTimerId);
+        _showTimerId = 0;
+        _DoShowWindow();
+    }
+    CWnd::OnTimer(nIDEvent);
+}
+
+void CChatSkillTip::_DoShowWindow()
+{
+    // 显示窗口
+    SetWindowPos(&CWnd::wndTopMost, _pendingWindowRect.left, _pendingWindowRect.top,
+        _pendingWindowRect.Width(), _pendingWindowRect.Height(),
+        SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
 //====================== 显示/隐藏 ======================
 
 void CChatSkillTip::ShowTip(const RECT& anchorRect, const std::wstring& skillMdPath)
@@ -239,15 +259,22 @@ void CChatSkillTip::ShowTip(const RECT& anchorRect, const std::wstring& skillMdP
     // 保存当前skill路径
     _currentSkillMdPath = skillMdPath;
 
+    // 取消之前的显示定时器
+    if (_showTimerId != 0)
+    {
+        KillTimer(_showTimerId);
+        _showTimerId = 0;
+    }
+
     // 计算窗口位置和大小（固定大小，只计算位置）
-    CRect windowRect = CalculateWindowRect(anchorRect);
+    _pendingWindowRect = CalculateWindowRect(anchorRect);
 
     // 如果WebView未创建，先创建（首次显示时）
     if (!_isWebViewCreated)
     {
         // 先设置窗口位置（不显示），这样WebView创建时就有正确的大小
-        SetWindowPos(&CWnd::wndTopMost, windowRect.left, windowRect.top,
-            windowRect.Width(), windowRect.Height(),
+        SetWindowPos(&CWnd::wndTopMost, _pendingWindowRect.left, _pendingWindowRect.top,
+            _pendingWindowRect.Width(), _pendingWindowRect.Height(),
             SWP_NOACTIVATE | SWP_HIDEWINDOW);
 
         HRESULT hr = InitializeWebView();
@@ -260,11 +287,10 @@ void CChatSkillTip::ShowTip(const RECT& anchorRect, const std::wstring& skillMdP
     }
     else
     {
-        // WebView已创建，直接显示并更新内容
-        // 更新窗口位置和大小
-        SetWindowPos(&CWnd::wndTopMost, windowRect.left, windowRect.top,
-            windowRect.Width(), windowRect.Height(),
-            SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        // WebView已创建，先更新内容（不显示窗口）
+        SetWindowPos(&CWnd::wndTopMost, _pendingWindowRect.left, _pendingWindowRect.top,
+            _pendingWindowRect.Width(), _pendingWindowRect.Height(),
+            SWP_NOACTIVATE | SWP_HIDEWINDOW);
 
         // 调整WebView大小
         ResizeWebView();
@@ -275,10 +301,20 @@ void CChatSkillTip::ShowTip(const RECT& anchorRect, const std::wstring& skillMdP
             _SendSkillContent();
         }
     }
+
+    // 启动延迟显示定时器（500ms后显示窗口，避免内容闪烁）
+    _showTimerId = SetTimer(1, 500, nullptr);
 }
 
 void CChatSkillTip::HideTip()
 {
+    // 取消显示定时器
+    if (_showTimerId != 0)
+    {
+        KillTimer(_showTimerId);
+        _showTimerId = 0;
+    }
+
     if (IsWindowVisible())
     {
         CWnd::ShowWindow(SW_HIDE);

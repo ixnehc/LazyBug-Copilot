@@ -555,7 +555,7 @@ void CChatAgent::RequestSendToolCallResult()
 
 
 // 显示文件编辑进度标签
-void CChatAgent::ShowFileEditProgressLabel(const std::wstring& fileName)
+void CChatAgent::ShowFileEditProgressLabel(const std::wstring& fileName, const std::wstring& fullPath)
 {
 	// 获取当前 AI 消息 ID
 	std::wstring aiMessageId = GetCurrentAIMessageId();
@@ -569,7 +569,7 @@ void CChatAgent::ShowFileEditProgressLabel(const std::wstring& fileName)
 	}
 	
 	// 调用 _opsCtrl 的方法显示进度标签
-	_opsCtrl.ShowFileEditProgressLabel(aiMessageId, fileName);
+	_opsCtrl.ShowFileEditProgressLabel(aiMessageId, fileName, fullPath);
 }
 
 // 隐藏文件编辑进度标签

@@ -138,7 +138,7 @@ public:
     // ── FileEdit Progress Label ─────────────────────────────────────────────
 
     // 显示/隐藏文件编辑进度标签
-    void ShowFileEditProgressLabel(const std::wstring& fileName);
+    void ShowFileEditProgressLabel(const std::wstring& fileName, const std::wstring& fullPath = L"");
     void HideFileEditProgressLabel();
 
 	void RequestSave()	{		_requestSave = true;	}

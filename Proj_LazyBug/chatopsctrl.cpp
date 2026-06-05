@@ -1000,6 +1000,7 @@ void CChatOpsCtrl::_SendFileEditMsg(const std::wstring& action, const FileEdit& 
 	std::wstring safeTitle = EscapeJsonString(window.title);
 	std::wstring safeMessageId = EscapeJsonString(window.messageId);
 	std::wstring safeFileEditId = EscapeJsonString(window.id);
+	std::wstring safeFullPath = EscapeJsonString(window.fullPath);
 
 	// 同时发送原始内容和diff内容，让JavaScript端决定显示哪个
 	std::wstring safeContent = EscapeJsonString(window.content);
@@ -1011,6 +1012,7 @@ void CChatOpsCtrl::_SendFileEditMsg(const std::wstring& action, const FileEdit& 
 	jsonMessage += L"\"fileEditId\":\"" + safeFileEditId + L"\",";
 	jsonMessage += L"\"messageId\":\"" + safeMessageId + L"\",";
 	jsonMessage += L"\"title\":\"" + safeTitle + L"\",";
+	jsonMessage += L"\"fullPath\":\"" + safeFullPath + L"\",";
 	jsonMessage += L"\"content\":\"" + safeContent + L"\",";
 	jsonMessage += L"\"diffContent\":\"" + safeDiffContent + L"\",";
 	jsonMessage += L"\"isCollapsed\":";
@@ -1595,17 +1597,18 @@ void CChatOpsCtrl::HideLoadingOverlay()
 //====================== FileEdit Progress Label 功能实现 ======================
 
 // 显示文件编辑进行中的标签
-void CChatOpsCtrl::ShowFileEditProgressLabel(const std::wstring& messageId, const std::wstring& fileName)
+void CChatOpsCtrl::ShowFileEditProgressLabel(const std::wstring& messageId, const std::wstring& fileName, const std::wstring& fullPath)
 {
 	if (!_ui)
 		return;
 
-	// 转义消息ID和文件名
+	// 转义消息ID、文件名和完整路径
 	std::wstring safeMessageId = EscapeJsonString(messageId);
 	std::wstring safeFileName = EscapeJsonString(fileName);
+	std::wstring safeFullPath = EscapeJsonString(fullPath);
 
 	// 构造JSON消息
-	std::wstring jsonMessage = L"{\"action\":\"showFileEditProgressLabel\",\"messageId\":\"" + safeMessageId + L"\",\"fileName\":\"" + safeFileName + L"\"}";
+	std::wstring jsonMessage = L"{\"action\":\"showFileEditProgressLabel\",\"messageId\":\"" + safeMessageId + L"\",\"fileName\":\"" + safeFileName + L"\",\"fullPath\":\"" + safeFullPath + L"\"}";
 
 	// 发送到WebView
 	_ui->PostJsonMessage(jsonMessage);
