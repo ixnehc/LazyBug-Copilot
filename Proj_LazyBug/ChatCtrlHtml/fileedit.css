@@ -1,7 +1,7 @@
 /* ====== FileEdit 窗口基础样式 ====== */
 .file-edit-window {
     margin: 10px 0;
-    border: 1px solid var(--code-border);
+    border: 1px solid #0a1e35;
     border-radius: 6px;
     background-color: var(--code-bg);
     overflow: hidden;
@@ -14,7 +14,7 @@
     justify-content: space-between;
     padding: 8px 12px;
     background-color: #122842;
-    border-bottom: 1px solid var(--code-border);
+    border-bottom: 1px solid #0a1e35;
     cursor: pointer;
     user-select: none;
 }
@@ -256,7 +256,7 @@
 /* ====== FileEdit Progress Label 样式 ====== */
 .file-edit-progress-label {
     background-color: #122842;
-    border: 1px solid var(--code-border);
+    border: 1px solid #0a1e35;
     border-radius: 6px;
     padding: 8px 12px;
     margin: 10px 0;
