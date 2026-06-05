@@ -70,10 +70,18 @@ BOOL CChatSkillsTree::CreateSkillsTreeWindow(CWnd* pParent)
 		NULL);
 
 	// 创建弹出式窗口
-	return CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
+	BOOL result = CreateEx(WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
 		className, _T("SkillsTree"),
 		WS_POPUP | WS_BORDER | WS_CLIPCHILDREN,
 		0, 0, _windowWidth, _windowHeight, pParent->GetSafeHwnd(), NULL);
+
+	// 创建Skill Tip窗口
+	if (result)
+	{
+		_skillTip.CreateSkillTipWindow(this);
+	}
+
+	return result;
 }
 
 HRESULT CChatSkillsTree::InitializeWebView()
@@ -310,6 +318,9 @@ void CChatSkillsTree::ShowWindow(const RECT& btnRect)
 
 void CChatSkillsTree::HideWindow()
 {
+	// 隐藏tip窗口
+	_skillTip.HideTip();
+
 	if (IsWindowVisible())
 	{
 		CWnd::ShowWindow(SW_HIDE);
@@ -585,6 +596,51 @@ void CChatSkillsTree::_HandleWebMessage(const std::wstring& message)
 					}
 				}
 			}
+		}
+		else if (action == "showSkillTip")
+		{
+			// 显示Skill Tip
+			if (jsonMsg.contains("data") && jsonMsg["data"].is_object())
+			{
+				auto& data = jsonMsg["data"];
+				if (data.contains("fullPath") && data["fullPath"].is_string() &&
+					data.contains("anchorRect") && data["anchorRect"].is_object())
+				{
+					std::string skillPath = data["fullPath"];
+					auto& anchorRect = data["anchorRect"];
+					
+					// 构建SKILL.md文件路径
+					std::wstring skillMdPath = utf8_to_widechar(skillPath) + L"\\SKILL.md";
+					
+					// 获取锚点矩形（相对于屏幕坐标）
+					RECT rect;
+					rect.left = anchorRect.value("left", 0);
+					rect.top = anchorRect.value("top", 0);
+					rect.right = anchorRect.value("right", 0);
+					rect.bottom = anchorRect.value("bottom", 0);
+					
+					// 将ClientRect转换为ScreenRect
+					// 由于HTML中的getBoundingClientRect返回的是相对于viewport的坐标
+					// 需要转换为屏幕坐标
+					POINT pt = { rect.left, rect.top };
+					ClientToScreen(&pt);
+					rect.left = pt.x;
+					rect.top = pt.y;
+					
+					pt.x = rect.right;
+					pt.y = rect.bottom;
+					ClientToScreen(&pt);
+					rect.right = pt.x;
+					rect.bottom = pt.y;
+					
+					_skillTip.ShowTip(rect, skillMdPath);
+				}
+			}
+		}
+		else if (action == "hideSkillTip")
+		{
+			// 隐藏Skill Tip
+			_skillTip.HideTip();
 		}
 	}
 	catch (const std::exception& e)

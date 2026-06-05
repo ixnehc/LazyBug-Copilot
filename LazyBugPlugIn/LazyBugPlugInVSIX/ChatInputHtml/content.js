@@ -297,9 +297,26 @@ function insertTextWithLineBreaks(text) {
         selection.addRange(range);
     }
 
-    // 使用 execCommand('insertText') 插入文本，使浏览器将此操作记录到
-    // undo 栈中，从而支持 Ctrl+Z 撤销粘贴。
-    document.execCommand('insertText', false, text);
+    // 多行文本必须用 <br> 作为换行边界后再插入。
+    // 若直接用 execCommand('insertText') 插入含 '\n' 的整段文本，浏览器会将其
+    // 作为单个文本节点（靠 CSS white-space:pre-wrap 视觉换行）插入，
+    // 此结构下 Chromium 的光标上下导航在跨越 '\n' 字符时存在缺陷，
+    // 表现为按↑/↓键移动到相邻行时光标消失。
+    // 改用 <br> + insertHTML，使换行边界与手工换行(insertLineBreak)一致，
+    // insertHTML 同样会进 undo 栈，可保留 Ctrl+Z 撤销能力。
+    if (text.indexOf('\n') !== -1) {
+        const html = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\r\n/g, '\n')
+            .replace(/\n/g, '<br>');
+        document.execCommand('insertHTML', false, html);
+    } else {
+        // 使用 execCommand('insertText') 插入文本，使浏览器将此操作记录到
+        // undo 栈中，从而支持 Ctrl+Z 撤销粘贴。
+        document.execCommand('insertText', false, text);
+    }
 }
 
 

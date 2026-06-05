@@ -1506,6 +1506,7 @@ c:\sound.exe
     <ClInclude Include="ChatAgentDefines.h" />
     <ClInclude Include="ChatNotify.h" />
     <ClInclude Include="ChatOpsCompress.h" />
+    <ClInclude Include="ChatSkillTip.h" />
     <ClInclude Include="ChatTask_CompressSummarize.h" />
     <ClInclude Include="ChatTokenStats.h" />
     <ClInclude Include="ChatSettingMenu.h" />
@@ -1534,6 +1535,7 @@ c:\sound.exe
     <ClCompile Include="BackupDepot.cpp" />
     <ClCompile Include="ChatNotify.cpp" />
     <ClCompile Include="ChatOpsCompress.cpp" />
+    <ClCompile Include="ChatSkillTip.cpp" />
     <ClCompile Include="ChatTask_CompressSummarize.cpp" />
     <ClCompile Include="ChatTokenStats.cpp" />
     <ClCompile Include="ChatSettingMenu.cpp" />
@@ -1878,6 +1880,7 @@ c:\sound.exe
     <None Include="ChatInputHtml\ui-controls.js" />
     <None Include="ChatInputHtml\utils.js" />
     <None Include="ChatSettingMenu.html" />
+    <None Include="ChatSkillTip.html" />
     <None Include="ChatSkillsTree.html" />
     <None Include="ChatSettingPage.html" />
     <None Include="CommonHtml\tag-common.css" />

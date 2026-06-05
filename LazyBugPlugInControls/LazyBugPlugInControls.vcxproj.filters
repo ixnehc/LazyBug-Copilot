@@ -156,6 +156,9 @@
     <Filter Include="GUI\ChatDialog\ChatNotify">
       <UniqueIdentifier>{d8483330-5e68-4bbf-ac9d-350495a4a8b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput\ChatSkillTip">
+      <UniqueIdentifier>{50bae057-c8ef-4fd0-b149-8c164a79848d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBugPlugInControls.cpp">
@@ -515,6 +518,9 @@
     <ClCompile Include="..\Proj_LazyBug\ChatTask_CompressSummarize.cpp">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatSkillTip.cpp">
+      <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -539,6 +545,9 @@
     </None>
     <None Include="..\Proj_LazyBug\ChatSettingMenu.html">
       <Filter>GUI\ChatDialog\ChatSettingMenu</Filter>
+    </None>
+    <None Include="..\Proj_LazyBug\ChatSkillTip.html">
+      <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -937,6 +946,9 @@
     </ClInclude>
     <ClInclude Include="..\Proj_LazyBug\ChatTask_CompressSummarize.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatSkillTip.h">
+      <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

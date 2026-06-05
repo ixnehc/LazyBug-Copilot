@@ -973,14 +973,14 @@ void CChatTask_ReplaceInFile::Update()
 				_status = TaskStatus::Success;
 				if (true)
 				{
-					// 创建 partial tool call：oldLines 改为行范围
+				// 创建 partial tool call：oldLines 精简（上下6行）
 					LlmToolCall toolCallPartial = _toolCall;
-					toolCallPartial.params_string["oldLines"] = MakeLineRangeString(oldLineRange.start + 1, oldLineRange.end);
+					toolCallPartial.params_string["oldLines"] = SimplifyLines(_oldLines, 3);
 					
-					// 创建 fullCompress tool call：oldLines 改为行范围，newLines 精简
+					// 创建 fullCompress tool call：oldLines 精简（上下3行），newLines 精简（上下6行）
 					LlmToolCall toolCallFullCompress = _toolCall;
-					toolCallFullCompress.params_string["oldLines"] = MakeLineRangeString(oldLineRange.start + 1, oldLineRange.end);
-					toolCallFullCompress.params_string["newLines"] = SimplifyLines(_newLines, 3);
+					toolCallFullCompress.params_string["oldLines"] = SimplifyLines(_oldLines, 3);
+					toolCallFullCompress.params_string["newLines"] = SimplifyLines(_newLines, 6);
 
 					// fullCompress 的 result string
 					std::string resultFullCompress = "Replaced old lines " + std::to_string(oldLineRange.start + 1) + "-" + std::to_string(oldLineRange.end);

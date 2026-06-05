@@ -43,3 +43,8 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - Fix an issue that sometimes the code database service will fail to detect a modified file
 - Fix a llm response exception
 - Fix an issue that skill is not loaded
+
+0.17.1
+- Fix an issue in input window that the cursor will disappear when moving between pasted lines
+- Disable some some too aggressive compression
+- Add tip for skill

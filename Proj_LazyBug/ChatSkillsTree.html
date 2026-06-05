@@ -373,12 +373,68 @@
         let expandedNodes = new Set(); // 存储展开节点的路径
         let clickTimer = null; // 用于区分单击和双击的计时器（标签用）
         let rowClickTimer = null; // 用于区分单击和双击的计时器（行用）
+        let tipTimer = null; // tip显示延迟计时器
+        let currentTipNode = null; // 当前显示tip的节点
 
         // ============ DOM引用 ============
         const treeArea = document.getElementById('tree-area');
         const skillsCount = document.getElementById('skills-count');
 
         // ============ 共用函数 ============
+        // 显示tip（延迟显示）
+        function showTip(e, node) {
+            // 清除之前的计时器
+            if (tipTimer) {
+                clearTimeout(tipTimer);
+                tipTimer = null;
+            }
+            
+            // 延迟300ms显示tip
+            tipTimer = setTimeout(() => {
+                tipTimer = null;
+                currentTipNode = node;
+                
+                // 获取行元素的边界矩形
+                const rowRect = e.target.closest('.tree-row').getBoundingClientRect();
+                
+                // 通知C++显示tip
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'showSkillTip',
+                        data: {
+                            name: node.name,
+                            fullPath: node.fullPath || '',
+                            anchorRect: {
+                                left: rowRect.left,
+                                top: rowRect.top,
+                                right: rowRect.right,
+                                bottom: rowRect.bottom
+                            }
+                        }
+                    });
+                }
+            }, 300);
+        }
+
+        // 隐藏tip
+        function hideTip() {
+            // 清除计时器
+            if (tipTimer) {
+                clearTimeout(tipTimer);
+                tipTimer = null;
+            }
+            
+            // 如果已经显示了tip，通知C++隐藏
+            if (currentTipNode) {
+                currentTipNode = null;
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'hideSkillTip'
+                    });
+                }
+            }
+        }
+
         // 统计叶子节点数量和激活数量
         function countLeaves(nodes) {
             let leafCount = 0;
@@ -602,6 +658,7 @@
             // 行双击事件
             row.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
+                hideTip(); // 隐藏tip
                 if (node.isLeaf) {
                     // 叶子节点：打开skill
                     if (rowClickTimer) {
@@ -622,6 +679,18 @@
                     // 非叶子节点（root和folder）：展开/折叠
                     handleNodeClick(node, row, arrow, hasChildren, depth);
                 }
+            });
+
+            // 鼠标悬停显示tip（仅叶子节点）
+            row.addEventListener('mouseenter', (e) => {
+                if (node.isLeaf && node.fullPath) {
+                    showTip(e, node);
+                }
+            });
+
+            // 鼠标离开隐藏tip
+            row.addEventListener('mouseleave', (e) => {
+                hideTip();
             });
 
             // 标签点击事件 - 单击进入编辑模式（叶子节点或目录，但根节点除外）

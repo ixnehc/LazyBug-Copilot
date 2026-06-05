@@ -35,4 +35,5 @@ extern CLlmSkills g_llmSkills;
 
 // 解析 SKILL.md 文件中的 YAML frontmatter
 // 返回 true 表示成功解析 name 和 description
-bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string& outDescription);
+// outContent: 可选，如果提供，将填充第二个"---"之后的内容
+bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string& outDescription, std::string* outContent = nullptr);

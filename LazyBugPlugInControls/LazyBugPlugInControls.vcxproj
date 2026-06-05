@@ -357,6 +357,7 @@
     <ClCompile Include="..\Proj_LazyBug\ChatSettingMenu.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatSettingPage.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatSkillsTree.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatSkillTip.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTaskMgr.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_CLI.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_CompressSummarize.cpp" />
@@ -470,6 +471,7 @@
     <None Include="..\Proj_LazyBug\ChatSettingMenu.html" />
     <None Include="..\Proj_LazyBug\ChatSettingPage.html" />
     <None Include="..\Proj_LazyBug\ChatSkillsTree.html" />
+    <None Include="..\Proj_LazyBug\ChatSkillTip.html" />
     <None Include="..\Proj_LazyBug\RepairWnd.html" />
     <None Include="LazyBugPlugInControls.def" />
     <None Include="packages.config" />
@@ -560,6 +562,7 @@
     <ClInclude Include="..\Proj_LazyBug\ChatSettingMenu.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatSettingPage.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatSkillsTree.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatSkillTip.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTaskMgr.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_CLI.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_CompressSummarize.h" />

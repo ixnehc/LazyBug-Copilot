@@ -7,6 +7,7 @@
 #include <WebView2.h>
 
 #include "LlmSkills.h"
+#include "ChatSkillTip.h"
 
 // 回调函数类型定义
 using SkillsTreeNavigationCompletedCallback = std::function<void(bool)>;
@@ -132,5 +133,8 @@ private:
 
 	// 前台窗口监控
 	void CheckForegroundWindow();
+
+	// Skill Tip窗口
+	CChatSkillTip _skillTip;
 };
 

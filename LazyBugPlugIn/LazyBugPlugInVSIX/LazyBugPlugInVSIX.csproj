@@ -172,6 +172,9 @@
     <Content Include="ChatSkillsTree.html">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="chatskilltip.html">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="cli_whitelist.txt">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

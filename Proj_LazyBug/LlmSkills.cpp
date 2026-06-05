@@ -50,7 +50,7 @@ static std::string _RemoveBOMAndUnreadable(const std::string& str)
 	return str.substr(start);
 }
 
-bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string& outDescription)
+bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string& outDescription, std::string* outContent)
 {
 	std::ifstream file;
 	Utils::OpenIFStream(file, filePath.c_str());
@@ -92,13 +92,47 @@ bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string
 
 	// 读取 frontmatter 内容直到第二个 "---"
 	std::string yamlContent;
+	bool foundSecondMarker = false;
 	while (std::getline(file, line))
 	{
-		line = _Trim(line);
-		if (line == "---")
+		std::string trimmedLine = _Trim(line);
+		if (trimmedLine == "---")
+		{
+			foundSecondMarker = true;
 			break;
+		}
 		yamlContent += line + "\n";
 	}
+
+	// 如果请求了正文内容，读取剩余所有内容
+	if (outContent)
+	{
+		outContent->clear();
+		if (foundSecondMarker)
+		{
+			// 从当前位置继续读取剩余所有内容
+			std::ostringstream contentStream;
+			while (std::getline(file, line))
+			{
+				contentStream << line << "\n";
+			}
+			*outContent = contentStream.str();
+
+			// 清除起始的空行
+			size_t start = 0;
+			while (start < outContent->size())
+			{
+				char c = (*outContent)[start];
+				if (c == '\r' || c == '\n' || c == ' ' || c == '\t')
+					++start;
+				else
+					break;
+			}
+			if (start > 0)
+				*outContent = outContent->substr(start);
+		}
+	}
+
 	file.close();
 
 	// 解析 name 和 description 字段
