@@ -1092,7 +1092,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_SummarizeMessage(4, 999));
 
 	// ---- 阶段5：进一步清除/删除可恢复内容（高损失）----
-	_PASS(_Pass_ClearReplaceInFile(3, 999));      // 完全清除文件替换结果
+// 	_PASS(_Pass_ClearReplaceInFile(3, 999));      // 完全清除文件替换结果
 	_PASS(_Pass_RemoveFindSymbol(3, 999));        // 删除符号查找结果
 	_PASS(_Pass_RemoveSearchOps(3, 999));         // 删除搜索结果
 
@@ -1107,7 +1107,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 // 		_PASS(_Pass_TruncateReadFile(1, 999));
 		_PASS(_Pass_TruncateReplaceInFile(1, 999));
 
-		_PASS(_Pass_ClearReplaceInFile(2, 999));
+// 		_PASS(_Pass_ClearReplaceInFile(2, 999));
 		_PASS(_Pass_RemoveFindSymbol(2, 999));
 		_PASS(_Pass_RemoveSearchOps(2, 999));
 	}

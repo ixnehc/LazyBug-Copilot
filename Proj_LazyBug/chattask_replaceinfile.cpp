@@ -830,7 +830,7 @@ void CChatTask_ReplaceInFile::Start()
 	// 优先使用 chatAgent
 	if (_context->chatAgent)
 	{
-		_context->chatAgent->ShowFileEditProgressLabel(std::wstring(L""));
+		_context->chatAgent->ShowFileEditProgressLabel(std::wstring(L""), std::wstring(L""));
 	}
 }
 
@@ -866,7 +866,7 @@ void CChatTask_ReplaceInFile::Update()
 				{
 					std::string fileName = GetFileName(_filePath);
 					std::wstring progressText = utf8_to_widechar(fileName) + L" <span style='color:#ff6b6b;'>[read only]</span>";
-					_context->chatAgent->ShowFileEditProgressLabel(progressText);
+					_context->chatAgent->ShowFileEditProgressLabel(progressText, utf8_to_widechar(_filePath));
 					_wasReadOnly = true;
 				}
 				
@@ -878,7 +878,7 @@ void CChatTask_ReplaceInFile::Update()
 			// 只在状态变化时更新（从只读变为可写）
 			if (_wasReadOnly)
 			{
-				_context->chatAgent->ShowFileEditProgressLabel(L"");
+				_context->chatAgent->ShowFileEditProgressLabel(L"", utf8_to_widechar(_filePath));
 				_wasReadOnly = false;
 			}
 		}
@@ -888,7 +888,7 @@ void CChatTask_ReplaceInFile::Update()
 	{
 		std::string fileName = GetFileName(_filePath);
 		if (_context->chatAgent)
-			_context->chatAgent->ShowFileEditProgressLabel(utf8_to_widechar(fileName.c_str()));
+			_context->chatAgent->ShowFileEditProgressLabel(utf8_to_widechar(fileName.c_str()), utf8_to_widechar(_filePath));
 		return;
 	}
 
@@ -978,15 +978,18 @@ void CChatTask_ReplaceInFile::Update()
 					toolCallPartial.params_string["oldLines"] = SimplifyLines(_oldLines, 3);
 					
 					// 创建 fullCompress tool call：oldLines 精简（上下3行），newLines 精简（上下6行）
-					LlmToolCall toolCallFullCompress = _toolCall;
-					toolCallFullCompress.params_string["oldLines"] = SimplifyLines(_oldLines, 3);
-					toolCallFullCompress.params_string["newLines"] = SimplifyLines(_newLines, 6);
-
-					// fullCompress 的 result string
-					std::string resultFullCompress = "Replaced old lines " + std::to_string(oldLineRange.start + 1) + "-" + std::to_string(oldLineRange.end);
-					resultFullCompress += " with new content of line " + std::to_string(newLineRange.start + 1) + "-" + std::to_string(newLineRange.end);
+// 					LlmToolCall toolCallFullCompress = _toolCall;
+// 					toolCallFullCompress.params_string["oldLines"] = SimplifyLines(_oldLines, 3);
+// 					toolCallFullCompress.params_string["newLines"] = SimplifyLines(_newLines, 6);
+// 
+// 					// fullCompress 的 result string
+// 					std::string resultFullCompress = "Replaced old lines " + std::to_string(oldLineRange.start + 1) + "-" + std::to_string(oldLineRange.end);
+// 					resultFullCompress += " with new content of line " + std::to_string(newLineRange.start + 1) + "-" + std::to_string(newLineRange.end);
 					
-					_SendToolCallResult("Successfully made the replacement in the file!", nullptr, &toolCallPartial, resultFullCompress.c_str(), &toolCallFullCompress);
+// 					_SendToolCallResult("Successfully made the replacement in the file!", nullptr, &toolCallPartial, resultFullCompress.c_str(), &toolCallFullCompress);
+
+					_SendToolCallResult("Successfully made the replacement in the file!", nullptr, &toolCallPartial, nullptr, nullptr);
+
 					// UI 操作，继续使用 chatDialog
 					if (_context->chatUi)
 					{

@@ -8,8 +8,8 @@
 
 #include <sstream>
 
-// 辅助函数：生成简化版代码内容（只保留头尾各3行）
-static std::string _MakeSimplifiedCode(const std::string& codeContent)
+// 辅助函数：生成简化版代码内容（带行号，头尾各3行，省略部分标注行号范围）
+static std::string _MakeSimplifiedCode(const std::string& codeContent, int startLine)
 {
 	// 按行分割
 	std::vector<std::string> lines;
@@ -20,25 +20,42 @@ static std::string _MakeSimplifiedCode(const std::string& codeContent)
 		lines.push_back(line);
 	}
 	
+	// 计算行号数字宽度，用于对齐
+	int lastLineNum = (int)(startLine + lines.size() - 1);
+	int numWidth = 1;
+	{
+		int n = lastLineNum;
+		while (n >= 10) { n /= 10; ++numWidth; }
+	}
+	
+	// 辅助lambda：添加带行号的一行
+	auto addLineWithNum = [&](std::string& out, size_t lineIdx)
+	{
+		int lineNum = startLine + (int)lineIdx;
+		// 格式：右对齐行号 + " | " + 内容
+		std::string numStr = std::to_string(lineNum);
+		if ((int)numStr.size() < numWidth)
+			out += std::string(numWidth - numStr.size(), ' ');
+		out += numStr + " | " + lines[lineIdx] + "\n";
+	};
+	
 	// 如果行数不超过8行，直接返回原内容
-	if (lines.size() <= 15)
+	if (lines.size() <= 8)
 		return codeContent;
 	
-	// 构建简化版本：头3行 + 省略提示 + 尾3行
+	// 构建简化版本：头3行（带行号）+ 省略提示（含行号范围）+ 尾3行（带行号）
 	std::string result;
-	size_t omittedCount = lines.size() - 12;
 	
-	for (size_t i = 0; i < 6; ++i)
-	{
-		result += lines[i] + "\n";
-	}
-	result += "...";
-	result += std::to_string(omittedCount);
-	result += " lines omitted...\n";
-	for (size_t i = lines.size() - 6; i < lines.size(); ++i)
-	{
-		result += lines[i] + "\n";
-	}
+	for (size_t i = 0; i < 3; ++i)
+		addLineWithNum(result, i);
+	
+	// 省略提示：标注省略的行号范围
+	int omitStartLine = startLine + 3;
+	int omitEndLine = startLine + (int)lines.size() - 4;
+	result += "... lines " + std::to_string(omitStartLine) + "-" + std::to_string(omitEndLine) + " omitted ...\n";
+	
+	for (size_t i = lines.size() - 3; i < lines.size(); ++i)
+		addLineWithNum(result, i);
 	
 	return result;
 }
@@ -197,7 +214,7 @@ void CChatTask_ReadFile::_ThreadFunc()
 		else
 		{
 			resultStr = fileContent;
-			resultStrSimple = _MakeSimplifiedCode(fileContent);
+			resultStrSimple = _MakeSimplifiedCode(fileContent, startLine);
 			messageStr = "Successfully read file: \"" + filePath + "\"" + lineRangeStr;
 		}
 	}
