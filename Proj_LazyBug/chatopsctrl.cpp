@@ -747,7 +747,7 @@ std::wstring CChatOpsCtrl::AddFileEditToAIMessage(const std::wstring& messageId,
 	window.title = title;                                // 窗口标题（通常是文件名）
 	window.fullPath = fullPath;                          // 完整文件路径
 	window.messageId = messageId;                        // 关联的AI消息ID
-	window.isCollapsed = false;                          // 初始状态：未折叠
+	window.isCollapsed = true;                           // 初始状态：折叠
 
 	// 保存FileEdit窗口到内部存储容器，用于后续查找和更新
 	_fileEdits.push_back(window);

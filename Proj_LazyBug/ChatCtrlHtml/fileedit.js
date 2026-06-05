@@ -48,17 +48,17 @@ function createFileEditWindow(fileEditId, messageId, title, content, buttons, is
     // Create and add the collapse button first
     const collapseBtn = document.createElement('button');
     collapseBtn.className = 'file-edit-button file-edit-titlebar-collapse-btn'; // Added a specific class
-    collapseBtn.textContent = isCollapsed ? '▶' : '▼';
+    collapseBtn.textContent = isCollapsed ? '+' : '-';
     collapseBtn.title = 'Toggle Collapse';
     collapseBtn.onclick = (e) => {
         e.stopPropagation();
         const isCurrentlyCollapsed = fileEditDiv.classList.contains('file-edit-collapsed');
         if (isCurrentlyCollapsed) {
             fileEditDiv.classList.remove('file-edit-collapsed');
-            collapseBtn.textContent = '▼';
+            collapseBtn.textContent = '-';
         } else {
             fileEditDiv.classList.add('file-edit-collapsed');
-            collapseBtn.textContent = '▶';
+            collapseBtn.textContent = '+';
         }
         window.chrome.webview.postMessage({
             action: 'fileEditToggled',
@@ -115,6 +115,72 @@ function createFileEditWindow(fileEditId, messageId, title, content, buttons, is
     const buttonsArea = document.createElement('div');
     buttonsArea.className = 'file-edit-buttons'; // This will now only hold custom buttons
 
+    // 添加修改统计显示区域
+    const statsArea = document.createElement('div');
+    statsArea.className = 'file-edit-stats';
+    statsArea.id = fileEditId + '-stats';
+    
+    // 错误前缀常量
+    const ERROR_PREFIX = '~Error~ :';
+    
+    // 统计添加和删除的行数
+    function updateStats() {
+        const diffCnt = fileEditDiv.getAttribute('data-diff-content') || '';
+        const content = fileEditDiv.getAttribute('data-content') || '';
+        
+        // 检查是否是失败状态（内容以错误前缀开头）
+        if (content.startsWith(ERROR_PREFIX) || diffCnt.startsWith(ERROR_PREFIX)) {
+            statsArea.innerHTML = '';
+            const failureSpan = document.createElement('span');
+            failureSpan.className = 'file-edit-stats-failure';
+            failureSpan.textContent = 'failure';
+            statsArea.appendChild(failureSpan);
+            statsArea.style.display = '';
+            return;
+        }
+        
+        if (!diffCnt.trim()) {
+            statsArea.style.display = 'none';
+            return;
+        }
+        
+        let addedCount = 0;
+        let removedCount = 0;
+        const lines = diffCnt.split('\n');
+        for (const line of lines) {
+            if (line.startsWith('[+]')) {
+                addedCount++;
+            } else if (line.startsWith('[-]')) {
+                removedCount++;
+            }
+        }
+        
+        if (addedCount > 0 || removedCount > 0) {
+            statsArea.innerHTML = '';
+            if (addedCount > 0) {
+                const addedSpan = document.createElement('span');
+                addedSpan.className = 'file-edit-stats-added';
+                addedSpan.textContent = '+' + addedCount;
+                statsArea.appendChild(addedSpan);
+            }
+            if (removedCount > 0) {
+                const removedSpan = document.createElement('span');
+                removedSpan.className = 'file-edit-stats-removed';
+                removedSpan.textContent = '-' + removedCount;
+                statsArea.appendChild(removedSpan);
+            }
+            statsArea.style.display = '';
+        } else {
+            statsArea.style.display = 'none';
+        }
+    }
+    
+    // 初始化统计
+    updateStats();
+    
+    // 存储更新函数供后续调用
+    statsArea.updateStats = updateStats;
+
     // Add custom buttons
     if (buttons && Array.isArray(buttons)) {
         buttons.forEach(btn => {
@@ -134,81 +200,82 @@ function createFileEditWindow(fileEditId, messageId, title, content, buttons, is
         });
     }
 
-    // Add Options ("...") button and its menu
-    const optionsBtn = document.createElement('button');
-    optionsBtn.className = 'file-edit-button file-edit-options-btn';
-    optionsBtn.textContent = '...';
-    optionsBtn.title = 'Options';
+    // "..." 按钮已隐藏
+    // const optionsBtn = document.createElement('button');
+    // optionsBtn.className = 'file-edit-button file-edit-options-btn';
+    // optionsBtn.textContent = '...';
+    // optionsBtn.title = 'Options';
     
-    // Option 按钮总是启用，不再根据 diffContent 状态禁用
+    // // Option 按钮总是启用，不再根据 diffContent 状态禁用
 
-    const optionsMenu = document.createElement('div');
-    optionsMenu.className = 'file-edit-options-menu';
-    optionsMenu.id = fileEditId + '-options-menu'; // Unique ID for the menu
+    // const optionsMenu = document.createElement('div');
+    // optionsMenu.className = 'file-edit-options-menu';
+    // optionsMenu.id = fileEditId + '-options-menu'; // Unique ID for the menu
 
-    // Helper function to update menu items
-    function updateMenuItems() {
-        optionsMenu.innerHTML = ''; // Clear existing items
+    // // Helper function to update menu items
+    // function updateMenuItems() {
+    //     optionsMenu.innerHTML = ''; // Clear existing items
         
-        const showDiff = fileEditDiv.getAttribute('data-show-diff') === 'true';
-        const diffContent = fileEditDiv.getAttribute('data-diff-content') || '';
-        const originalContent = fileEditDiv.getAttribute('data-content') || '';
+    //     const showDiff = fileEditDiv.getAttribute('data-show-diff') === 'true';
+    //     const diffContent = fileEditDiv.getAttribute('data-diff-content') || '';
+    //     const originalContent = fileEditDiv.getAttribute('data-content') || '';
         
-        // Add Show code/Show diff option
-        const toggleItem = document.createElement('div');
-        toggleItem.className = 'file-edit-options-menu-item';
+    //     // Add Show code/Show diff option
+    //     const toggleItem = document.createElement('div');
+    //     toggleItem.className = 'file-edit-options-menu-item';
         
-        // 检查是否有足够的内容来切换显示
-        const hasValidDiffContent = diffContent.trim() && originalContent.trim();
+    //     // 检查是否有足够的内容来切换显示
+    //     const hasValidDiffContent = diffContent.trim() && originalContent.trim();
         
-        if (hasValidDiffContent) {
-            // 有 diff 内容，菜单项可用
-            toggleItem.textContent = showDiff ? 'Show code' : 'Show diff';
-            toggleItem.onclick = (e) => {
-                e.stopPropagation();
-                toggleFileEditContentDisplay(fileEditDiv);
-                optionsMenu.classList.remove('show');
-            };
-        } else {
-            // 没有 diff 内容，菜单项禁用
-            toggleItem.textContent = 'Show diff';
-            toggleItem.classList.add('disabled');
-            toggleItem.style.opacity = '0.5';
-            toggleItem.style.cursor = 'not-allowed';
-            toggleItem.onclick = (e) => {
-                e.stopPropagation();
-                // 禁用状态下不执行任何操作
-            };
-        }
-        optionsMenu.appendChild(toggleItem);
-    }
+    //     if (hasValidDiffContent) {
+    //         // 有 diff 内容，菜单项可用
+    //         toggleItem.textContent = showDiff ? 'Show code' : 'Show diff';
+    //         toggleItem.onclick = (e) => {
+    //             e.stopPropagation();
+    //             toggleFileEditContentDisplay(fileEditDiv);
+    //             optionsMenu.classList.remove('show');
+    //         };
+    //     } else {
+    //         // 没有 diff 内容，菜单项禁用
+    //         toggleItem.textContent = 'Show diff';
+    //         toggleItem.classList.add('disabled');
+    //         toggleItem.style.opacity = '0.5';
+    //         toggleItem.style.cursor = 'not-allowed';
+    //         toggleItem.onclick = (e) => {
+    //             e.stopPropagation();
+    //             // 禁用状态下不执行任何操作
+    //         };
+    //     }
+    //     optionsMenu.appendChild(toggleItem);
+    // }
 
-    // Initialize menu items
-    updateMenuItems();
+    // // Initialize menu items
+    // updateMenuItems();
     
-    // Store the update function for later use
-    optionsMenu.updateMenuItems = updateMenuItems;
+    // // Store the update function for later use
+    // optionsMenu.updateMenuItems = updateMenuItems;
 
-    buttonsArea.appendChild(optionsBtn);
-    buttonsArea.appendChild(optionsMenu); // Menu is a child of buttonsArea, positioned by CSS
+    // buttonsArea.appendChild(optionsBtn);
+    // buttonsArea.appendChild(optionsMenu); // Menu is a child of buttonsArea, positioned by CSS
 
-    optionsBtn.onclick = (e) => {
-        e.stopPropagation();
-        // 如果按钮被禁用，不处理点击
-        if (optionsBtn.disabled) {
-            return;
-        }
-        const shouldShow = !optionsMenu.classList.contains('show');
-        hideAllFileEditOptionMenus(); // Hide all other similar menus first
-        if (shouldShow) {
-            optionsMenu.updateMenuItems(); // Update menu items before showing
-            optionsMenu.classList.add('show');
-        }
-        // If it was already visible, hideAllFileEditOptionMenus would have hidden it.
-    };
+    // optionsBtn.onclick = (e) => {
+    //     e.stopPropagation();
+    //     // 如果按钮被禁用，不处理点击
+    //     if (optionsBtn.disabled) {
+    //         return;
+    //     }
+    //     const shouldShow = !optionsMenu.classList.contains('show');
+    //     hideAllFileEditOptionMenus(); // Hide all other similar menus first
+    //     if (shouldShow) {
+    //         optionsMenu.updateMenuItems(); // Update menu items before showing
+    //         optionsMenu.classList.add('show');
+    //     }
+    //     // If it was already visible, hideAllFileEditOptionMenus would have hidden it.
+    // };
 
     titlebar.appendChild(leftControlsArea); // Add left controls (collapse btn + title)
     titlebar.appendChild(buttonsArea);    // Add right controls (custom buttons)
+    titlebar.appendChild(statsArea);      // Add stats display (rightmost)
 
     const contentDiv = document.createElement('div');
     contentDiv.className = 'file-edit-content';
@@ -346,6 +413,12 @@ function updateFileEditWindow(fileEditId, updates) {
             // 更新自适应高度
             updateFileEditAutoHeight(fileEditElem, contentToDisplay);
             
+            // 更新修改统计显示
+            const statsArea = fileEditElem.querySelector('.file-edit-stats');
+            if (statsArea && statsArea.updateStats) {
+                statsArea.updateStats();
+            }
+            
             // 更新菜单项
             const optionsMenu = fileEditElem.querySelector('.file-edit-options-menu');
             if (optionsMenu && optionsMenu.updateMenuItems) {
@@ -420,10 +493,10 @@ function updateFileEditWindow(fileEditId, updates) {
         if (collapseBtn) {
             if (updates.isCollapsed) {
                 fileEditElem.classList.add('file-edit-collapsed');
-                collapseBtn.textContent = '▶';
+                collapseBtn.textContent = '+';
             } else {
                 fileEditElem.classList.remove('file-edit-collapsed');
-                collapseBtn.textContent = '▼';
+                collapseBtn.textContent = '-';
             }
         }
     }
@@ -471,108 +544,13 @@ function toggleFileEditContentDisplay(fileEditDiv) {
 }
 
 /**
- * 切换 FileEdit 窗口的展开/收叠状态
- * @param {HTMLElement} fileEditDiv - FileEdit 元素
- */
-function toggleFileEditExpansion(fileEditDiv) {
-    const isCollapsed = fileEditDiv.classList.contains('collapsed');
-    const expandBtn = fileEditDiv.querySelector('.file-edit-expand-btn');
-    
-    if (isCollapsed) {
-        // 展开
-        fileEditDiv.classList.remove('collapsed');
-        fileEditDiv.classList.add('fully-expanded');
-        if (expandBtn) {
-            expandBtn.innerHTML = '<span class="expand-icon">▲</span>';
-        }
-    } else {
-        // 收叠
-        fileEditDiv.classList.add('collapsed');
-        fileEditDiv.classList.remove('fully-expanded');
-        if (expandBtn) {
-            expandBtn.innerHTML = '<span class="expand-icon">▼</span>';
-        }
-    }
-    
-    // 发送状态变化到 C++
-    window.chrome.webview.postMessage({
-        action: 'fileEditExpansionToggled',
-        fileEditId: fileEditDiv.id,
-        isExpanded: !isCollapsed
-    });
-}
-
-/**
  * 更新 FileEdit 窗口的自适应高度
  * @param {HTMLElement} fileEditDiv - FileEdit 元素
  * @param {string} content - 内容文本
  */
 function updateFileEditAutoHeight(fileEditDiv, content) {
-    const contentHeight = calculateContentHeight(content);
-    const maxHeight = 200; // FileEdit窗口最大高度
-    const collapsedMaxHeight = 150;
-    // 使用更保守的阈值，为最大高度减去一个安全边距
-    const safeMaxHeight = maxHeight - 10; // 减去 10px 作为安全边距，对于 200px 高度来说足够了
-    
-    // 检查是否为用户手动展开状态
-    const isUserExpanded = fileEditDiv.classList.contains('fully-expanded') && 
-                           !fileEditDiv.classList.contains('collapsed');
-    
     // 添加自适应高度类
     fileEditDiv.classList.add('auto-height');
-    
-    const contentDiv = fileEditDiv.querySelector('.file-edit-content');
-    const expandBtn = fileEditDiv.querySelector('.file-edit-expand-btn');
-    
-    // 如果用户已手动展开，保持展开状态，不要自动折叠
-    if (isUserExpanded) {
-        // 保持用户的展开选择，只确保有展开按钮且状态正确
-        if (!expandBtn) {
-            const newExpandBtn = document.createElement('button');
-            newExpandBtn.className = 'file-edit-expand-btn';
-            newExpandBtn.innerHTML = '<span class="expand-icon">▲</span>';
-            newExpandBtn.onclick = (e) => {
-                e.stopPropagation();
-                toggleFileEditExpansion(fileEditDiv);
-            };
-            fileEditDiv.appendChild(newExpandBtn);
-        } else {
-            // 确保按钮显示正确的展开状态
-            expandBtn.innerHTML = '<span class="expand-icon">▲</span>';
-        }
-        return; // 直接返回，不要改变用户的展开状态
-    }
-    
-    if (contentHeight > safeMaxHeight) {
-        // 内容超过安全最大高度，显示为折叠状态，并提供展开按钮
-        fileEditDiv.classList.add('collapsed');
-        fileEditDiv.classList.remove('fully-expanded');
-        
-        if (!expandBtn) {
-            // 创建展开按钮
-            const newExpandBtn = document.createElement('button');
-            newExpandBtn.className = 'file-edit-expand-btn';
-            newExpandBtn.innerHTML = '<span class="expand-icon">▼</span>';
-            newExpandBtn.onclick = (e) => {
-                e.stopPropagation();
-                toggleFileEditExpansion(fileEditDiv);
-            };
-            fileEditDiv.appendChild(newExpandBtn);
-        } else {
-            // 确保按钮显示正确的折叠状态
-            expandBtn.innerHTML = '<span class="expand-icon">▼</span>';
-        }
-    } else {
-        // 内容不超过安全最大高度，设为折叠状态，但不需要展开按钮
-        // 因为内容在折叠状态下已经能完整显示
-        fileEditDiv.classList.add('collapsed');
-        fileEditDiv.classList.remove('fully-expanded');
-        
-        // 移除展开按钮，因为内容已经能完整显示
-        if (expandBtn) {
-            expandBtn.remove();
-        }
-    }
 }
 
 /**

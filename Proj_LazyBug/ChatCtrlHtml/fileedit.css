@@ -12,15 +12,15 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 4px 8px;
-    background-color: var(--ai-message-bg);
+    padding: 8px 12px;
+    background-color: #122842;
     border-bottom: 1px solid var(--code-border);
     cursor: pointer;
     user-select: none;
 }
 
 .file-edit-titlebar:hover {
-    background-color: #2f3e46;
+    background-color: #1a3a58;
 }
 
 /* 左侧控制区域容器 */
@@ -32,11 +32,10 @@
 
 /* 标题样式 */
 .file-edit-title {
-    font-weight: 600;
-    font-size: 0.8em;
+    font-weight: bold;
+    font-size: 0.9em;
     color: var(--text-color);
     flex-grow: 1;
-    line-height: 1.2;
     margin-left: 8px;
     display: flex;
     align-items: center;
@@ -73,87 +72,44 @@
     position: relative;
 }
 
+/* ====== 修改统计显示 ====== */
+.file-edit-stats {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 8px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.file-edit-stats-added {
+    color: #28a745;
+}
+
+.file-edit-stats-removed {
+    color: #dc3545;
+}
+
+.file-edit-stats-failure {
+    color: #dc3545;
+    font-style: italic;
+    font-weight: bold;
+}
+
 /* 基础按钮样式 */
 .file-edit-button {
-    padding: 2px 6px;
-    font-size: 0.7em;
+    padding: 4px 6px;
+    font-size: 0.9em;
     background-color: #404040;
     color: var(--text-color);
     border: 1px solid #606060;
     border-radius: 3px;
     cursor: pointer;
     transition: background-color 0.2s;
-    line-height: 1.2;
 }
 
 .file-edit-button:hover {
     background-color: #505050;
-}
-
-/* 调整大小按钮 */
-.file-edit-resize-btn {
-    padding: 2px 4px;
-    font-size: 0.7em;
-    background-color: #606060;
-    color: var(--text-color);
-    border: 1px solid #808080;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    line-height: 1.2;
-}
-
-.file-edit-resize-btn:hover {
-    background-color: #707070;
-}
-
-/* 展开/收叠按钮样式 */
-.file-edit-expand-btn {
-    width: 100%;
-    height: 24px;
-    background: linear-gradient(to bottom, 
-        var(--ai-message-bg) 0%,
-        #1a2b32 50%,
-        var(--ai-message-bg) 100%);
-    border: none;
-    border-top: 1px solid var(--code-border);
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: 0.7em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    border-radius: 0 0 6px 6px;
-}
-
-.file-edit-expand-btn:hover {
-    background: linear-gradient(to bottom, 
-        #2f3e46 0%,
-        #1f3540 50%,
-        #2f3e46 100%);
-}
-
-.file-edit-expand-btn .expand-icon {
-    font-weight: bold;
-    font-size: 0.8em;
-}
-
-/* 展开状态下的收叠按钮样式 */
-.file-edit-window.fully-expanded .file-edit-expand-btn {
-    background: linear-gradient(to bottom, 
-        #2f3e46 0%,
-        #1f3540 50%,
-        #2f3e46 100%);
-    border-top: 2px solid #4a9eff;
-}
-
-.file-edit-window.fully-expanded .file-edit-expand-btn:hover {
-    background: linear-gradient(to bottom, 
-        #3a4f56 0%,
-        #2a4050 50%,
-        #3a4f56 100%);
-    border-top-color: #6bb3ff;
 }
 
 /* ====== 内容区域 ====== */
@@ -164,8 +120,9 @@
     line-height: 1.4;
     color: var(--code-text-color);
     background-color: var(--code-bg);
-    overflow-y: hidden;
+    overflow-y: auto;
     overflow-x: auto;
+    max-height: 300px;
 }
 
 .file-edit-content pre {
@@ -219,20 +176,6 @@
 /* ====== 自适应高度相关样式 ====== */
 .file-edit-window.auto-height .file-edit-content {
     height: auto !important;
-    max-height: 200px;
-}
-
-.file-edit-window.auto-height.collapsed .file-edit-content {
-    max-height: 150px;
-    overflow: hidden;
-}
-
-/* 完全展开状态 */
-.file-edit-window.fully-expanded .file-edit-content {
-    height: auto !important;
-    max-height: none !important;
-    overflow-y: hidden !important;
-    overflow-x: auto !important;
 }
 
 /* ====== 行高亮样式 - 移除左边框 ====== */
@@ -312,20 +255,23 @@
 
 /* ====== FileEdit Progress Label 样式 ====== */
 .file-edit-progress-label {
-    background: linear-gradient(90deg, #1a4a5c 0%, #2d5a6e 50%, #1a4a5c 100%);
-    border: 1px solid #3a6a7e;
-    border-radius: 4px;
-    padding: 4px 8px;
-    margin: 8px 0;
-    color: #e0f2f1;
-    font-size: 0.8em;
-    font-style: italic;
+    background-color: #122842;
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 10px 0;
+    color: var(--text-color);
+    font-size: 0.9em;
+    font-weight: bold;
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-    animation: progressPulse 2s ease-in-out infinite;
     min-height: 20px;
+    overflow: hidden;
+}
+
+.file-edit-progress-label:hover {
+    background-color: #1a3a58;
 }
 
 .file-edit-progress-icon {
@@ -339,15 +285,9 @@
 
 .file-edit-progress-text {
     flex: 1;
-    font-weight: 500;
 }
 
 @keyframes progressSpin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-}
-
-@keyframes progressPulse {
-    0%, 100% { opacity: 0.9; }
-    50% { opacity: 1; }
 }
