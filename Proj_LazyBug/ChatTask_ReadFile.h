@@ -36,5 +36,7 @@ private:
 	std::string _threadResultSimple;
 	std::string _threadMessage;
 	bool _threadSuccess;
+	int _threadSimpleStartLine;
+	int _threadSimpleEndLine;
 
 };

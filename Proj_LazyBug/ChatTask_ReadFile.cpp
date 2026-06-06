@@ -8,9 +8,11 @@
 
 #include <sstream>
 
-// 辅助函数：生成简化版代码内容（带行号，头尾各3行，省略部分标注行号范围）
-static std::string _MakeSimplifiedCode(const std::string& codeContent, int startLine)
+// 辅助函数：生成简化版代码内容（只保留前20行）
+static std::string _MakeSimplifiedCode(const std::string& codeContent, int& outLineCount)
 {
+	outLineCount = 0;
+	
 	// 按行分割
 	std::vector<std::string> lines;
 	std::istringstream iss(codeContent);
@@ -20,43 +22,21 @@ static std::string _MakeSimplifiedCode(const std::string& codeContent, int start
 		lines.push_back(line);
 	}
 	
-	// 计算行号数字宽度，用于对齐
-	int lastLineNum = (int)(startLine + lines.size() - 1);
-	int numWidth = 1;
+	// 如果行数不超过20行，直接返回原内容
+	if (lines.size() <= 20)
 	{
-		int n = lastLineNum;
-		while (n >= 10) { n /= 10; ++numWidth; }
+		outLineCount = (int)lines.size();
+		return codeContent;
 	}
 	
-	// 辅助lambda：添加带行号的一行
-	auto addLineWithNum = [&](std::string& out, size_t lineIdx)
-	{
-		int lineNum = startLine + (int)lineIdx;
-		// 格式：右对齐行号 + " | " + 内容
-		std::string numStr = std::to_string(lineNum);
-		if ((int)numStr.size() < numWidth)
-			out += std::string(numWidth - numStr.size(), ' ');
-		out += numStr + " | " + lines[lineIdx] + "\n";
-	};
-	
-	// 如果行数不超过8行，直接返回原内容
-	if (lines.size() <= 8)
-		return codeContent;
-	
-	// 构建简化版本：头3行（带行号）+ 省略提示（含行号范围）+ 尾3行（带行号）
+	// 只保留前20行
 	std::string result;
+	for (size_t i = 0; i < 20 && i < lines.size(); ++i)
+	{
+		result += lines[i] + "\n";
+	}
 	
-	for (size_t i = 0; i < 3; ++i)
-		addLineWithNum(result, i);
-	
-	// 省略提示：标注省略的行号范围
-	int omitStartLine = startLine + 3;
-	int omitEndLine = startLine + (int)lines.size() - 4;
-	result += "... lines " + std::to_string(omitStartLine) + "-" + std::to_string(omitEndLine) + " omitted ...\n";
-	
-	for (size_t i = lines.size() - 3; i < lines.size(); ++i)
-		addLineWithNum(result, i);
-	
+	outLineCount = 20;
 	return result;
 }
 
@@ -66,6 +46,8 @@ CChatTask_ReadFile::CChatTask_ReadFile()
 	_shouldStop = false;
 	_threadFinished = false;
 	_threadSuccess = false;
+	_threadSimpleStartLine = 1;
+	_threadSimpleEndLine = 1;
 }
 
 CChatTask_ReadFile::~CChatTask_ReadFile()
@@ -188,6 +170,10 @@ void CChatTask_ReadFile::_ThreadFunc()
 	std::string resultStrSimple;
 	std::string messageStr;
 	
+	// 初始化 simple result 的行范围
+	int simpleStartLine = startLine;
+	int simpleEndLine = startLine;
+	
 	// 构建行号范围描述
 	std::string lineRangeStr;
 	if (endLine != -1)
@@ -214,8 +200,13 @@ void CChatTask_ReadFile::_ThreadFunc()
 		else
 		{
 			resultStr = fileContent;
-			resultStrSimple = _MakeSimplifiedCode(fileContent, startLine);
+			int simpleLineCount = 0;
+			resultStrSimple = _MakeSimplifiedCode(fileContent, simpleLineCount);
 			messageStr = "Successfully read file: \"" + filePath + "\"" + lineRangeStr;
+			
+			// 计算 simple result 的实际行范围
+			simpleStartLine = startLine;
+			simpleEndLine = startLine + simpleLineCount - 1;
 		}
 	}
 	
@@ -224,6 +215,8 @@ void CChatTask_ReadFile::_ThreadFunc()
 	_threadResult = resultStr;
 	_threadResultSimple = resultStrSimple;
 	_threadMessage = messageStr;
+	_threadSimpleStartLine = simpleStartLine;
+	_threadSimpleEndLine = simpleEndLine;
 	_threadSuccess = readSuccess;
 	_threadFinished = true;
 }
@@ -239,6 +232,8 @@ void CChatTask_ReadFile::Start()
 	_threadResult.clear();
 	_threadResultSimple.clear();
 	_threadMessage.clear();
+	_threadSimpleStartLine = 1;
+	_threadSimpleEndLine = 1;
 	
 	// 启动工作线程
 	_workerThread = new std::thread(&CChatTask_ReadFile::_ThreadFunc, this);
@@ -261,7 +256,11 @@ void CChatTask_ReadFile::Update()
 		// 获取结果并发送
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
-			_SendToolCallResult(_threadResult.c_str(), _threadResultSimple.c_str());
+			// 创建 simple result 的 tool call，修改 startLine 和 endLine
+			LlmToolCall toolCallSimple = _toolCall;
+			toolCallSimple.params_int["startLine"] = _threadSimpleStartLine;
+			toolCallSimple.params_int["endLine"] = _threadSimpleEndLine;
+			_SendToolCallResult(_threadResult.c_str(), _threadResultSimple.c_str(), &toolCallSimple);
 			_SendToolCallMessage(_threadMessage.c_str());
 		}
 		
