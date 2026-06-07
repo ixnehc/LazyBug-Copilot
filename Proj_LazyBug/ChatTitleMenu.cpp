@@ -6,6 +6,11 @@
 
 #include <algorithm>
 
+// 定义M_PI（如果未定义）
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 // GDI+相关
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
@@ -28,6 +33,7 @@ CChatTitleMenu::CChatTitleMenu()
     , _scrollOffset(0)
     , _itemHeight(32) // 标题栏菜单项高度
     , _maxVisibleItems(16)
+    , _favoriteIconSize(16) // 五角星图标大小
     , _currentProcessId(0)
     , _bufferBitmap(NULL)
     , _bufferWidth(0)
@@ -124,7 +130,7 @@ void CChatTitleMenu::HideMenu()
     }
 }
 
-void CChatTitleMenu::AddMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp)
+void CChatTitleMenu::AddMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp, bool isFavorite)
 {
     // 检查是否已存在相同ID的菜单项
     auto it = std::find_if(_menuItems.begin(), _menuItems.end(),
@@ -137,6 +143,7 @@ void CChatTitleMenu::AddMenuItem(const std::wstring& menuItemId, const std::wstr
         // 更新现有菜单项
         it->content = content;
         it->stamp = stamp;
+        it->isFavorite = isFavorite;
     }
     else
     {
@@ -145,6 +152,7 @@ void CChatTitleMenu::AddMenuItem(const std::wstring& menuItemId, const std::wstr
         newItem.id = menuItemId;
         newItem.content = content;
         newItem.stamp = stamp;
+        newItem.isFavorite = isFavorite;
         _menuItems.push_back(newItem);
     }
     
@@ -253,6 +261,12 @@ void CChatTitleMenu::DrawMenuItem(Graphics* graphics, const TitleMenuItem& item,
         graphics->DrawLine(&separatorPen, rect.left + 8, rect.bottom - 1, rect.right - 8, rect.bottom - 1);
     }
     
+    // 绘制五角星（非New Chat项）
+    if (!isNewChat)
+    {
+        DrawFavoriteStar(graphics, rect, item.isFavorite, hovered);
+    }
+    
     // 文本颜色
     Color textColor(255, 224, 224, 224); // --text-color
     
@@ -265,8 +279,8 @@ void CChatTitleMenu::DrawMenuItem(Graphics* graphics, const TitleMenuItem& item,
     // 文本画刷
     SolidBrush textBrush(textColor);
     
-    // 布局参数 - 扩大绘制区域
-    int contentLeft = rect.left + 12;
+    // 布局参数 - 左侧留出五角星的空间
+    int contentLeft = rect.left + 12 + (isNewChat ? 0 : (_favoriteIconSize + 8)); // 五角星区域 + 间距
     int contentRight = rect.right - 120; // 为stamp留出更多空间（80像素）
     int stampLeft = contentRight + 8;    // stamp起始位置
     int textY = rect.top + (rect.Height() - 18) / 2;  // 扩大文本区域高度
@@ -302,6 +316,61 @@ void CChatTitleMenu::DrawMenuItem(Graphics* graphics, const TitleMenuItem& item,
     }
 }
 
+void CChatTitleMenu::DrawFavoriteStar(Graphics* graphics, const CRect& rect, bool isFavorite, bool hovered)
+{
+    // 计算五角星中心位置
+    int centerX = rect.left + 12 + _favoriteIconSize / 2;
+    int centerY = rect.top + (rect.Height()) / 2;
+    
+    // 五角星颜色
+    Color starColor;
+    if (isFavorite)
+    {
+        // 实心五角星 - 金黄色
+        starColor = Color(255, 255, 193, 7);
+    }
+    else
+    {
+        // 空心五角星 - 灰色
+        starColor = Color(255, 128, 128, 128);
+    }
+    
+    // 创建五角星路径
+    GraphicsPath starPath;
+    
+    // 五角星的5个外顶点和5个内顶点
+    const int points = 5;
+    float outerRadius = _favoriteIconSize / 2.0f;
+    float innerRadius = outerRadius * 0.38f; // 内半径比例
+    
+    // 先计算所有顶点
+    PointF starPoints[points * 2];
+    for (int i = 0; i < points * 2; i++)
+    {
+        float radius = (i % 2 == 0) ? outerRadius : innerRadius;
+        float angle = (float)(M_PI / 2.0 + i * M_PI / points); // 从顶部开始
+        starPoints[i].X = centerX + radius * (float)cos(angle);
+        starPoints[i].Y = centerY - radius * (float)sin(angle);
+    }
+    
+    // 添加多边形
+    starPath.AddPolygon(starPoints, points * 2);
+    
+    // 绘制五角星
+    if (isFavorite)
+    {
+        // 实心填充
+        SolidBrush starBrush(starColor);
+        graphics->FillPath(&starBrush, &starPath);
+    }
+    else
+    {
+        // 空心边框
+        Pen starPen(starColor, 1.5f);
+        graphics->DrawPath(&starPen, &starPath);
+    }
+}
+
 CRect CChatTitleMenu::GetItemRect(int index)
 {
     CRect clientRect;
@@ -331,6 +400,33 @@ int CChatTitleMenu::GetItemFromPoint(CPoint point)
     return -1;
 }
 
+CRect CChatTitleMenu::GetFavoriteRect(int index)
+{
+    CRect itemRect = GetItemRect(index);
+    
+    // 五角星区域：左侧12像素开始，大小为_favoriteIconSize
+    CRect favRect;
+    favRect.left = itemRect.left + 12;
+    favRect.top = itemRect.top + (itemRect.Height() - _favoriteIconSize) / 2;
+    favRect.right = favRect.left + _favoriteIconSize;
+    favRect.bottom = favRect.top + _favoriteIconSize;
+    
+    return favRect;
+}
+
+bool CChatTitleMenu::IsPointInFavoriteRect(CPoint point, int itemIndex)
+{
+    if (itemIndex < 0 || itemIndex >= (int)_menuItems.size())
+        return false;
+    
+    // New Chat项没有五角星
+    if (_menuItems[itemIndex].id == L"newchat")
+        return false;
+    
+    CRect favRect = GetFavoriteRect(itemIndex - _scrollOffset); // 使用相对索引
+    return favRect.PtInRect(point) != FALSE;
+}
+
 void CChatTitleMenu::OnLButtonDown(UINT nFlags, CPoint point)
 {
     CRect clientRect;
@@ -342,18 +438,37 @@ void CChatTitleMenu::OnLButtonDown(UINT nFlags, CPoint point)
 		int actualIndex = GetItemFromPoint(point);
 		if (actualIndex >= 0 && actualIndex < (int)_menuItems.size())
 		{
-			// 点击在某个菜单项上，触发回调
-			if (_menuItemClickedCallback)
-			{
-				_menuItemClickedCallback(
-                    _menuItems[actualIndex].id,
-                    _menuItems[actualIndex].content,
-                    _menuItems[actualIndex].stamp);
-			}
+            // 检查是否点击在五角星区域
+            if (IsPointInFavoriteRect(point, actualIndex))
+            {
+                // 点击五角星，触发favorite回调
+                if (_favoriteClickedCallback)
+                {
+                    _favoriteClickedCallback(
+                        _menuItems[actualIndex].id,
+                        !_menuItems[actualIndex].isFavorite); // 切换状态
+                }
+                // 不隐藏菜单，允许继续操作
+            }
+            else
+            {
+			    // 点击在菜单项上，触发回调
+			    if (_menuItemClickedCallback)
+			    {
+				    _menuItemClickedCallback(
+                        _menuItems[actualIndex].id,
+                        _menuItems[actualIndex].content,
+                        _menuItems[actualIndex].stamp);
+			    }
+                // 点击菜单项后隐藏菜单
+                HideMenu();
+            }
 		}
-        
-        // 点击后隐藏菜单
-        HideMenu();
+        else
+        {
+            // 点击在空白区域，隐藏菜单
+            HideMenu();
+        }
     }
     else
     {

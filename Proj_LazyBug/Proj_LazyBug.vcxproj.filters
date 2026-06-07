@@ -1177,6 +1177,9 @@
     <None Include="ChatSkillTip.html">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
     </None>
+    <None Include="ChatCtrlHtml\favorite.js">
+      <Filter>GUI\ChatDialog\ChatUi\ChatCtrlHtml</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe_cn.md" />

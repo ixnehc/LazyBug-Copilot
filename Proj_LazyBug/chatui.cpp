@@ -518,6 +518,12 @@ void CChatUi::SetTitleMenuItemClickedCallback(TitleMenuItemClickedCallback callb
 	_titleMenuItemClickedCallback = callback;
 }
 
+// 设置Favorite点击回调
+void CChatUi::SetFavoriteClickedCallback(TitleMenuFavoriteClickedCallback callback)
+{
+	_favoriteClickedCallback = callback;
+}
+
 // 发送消息到WebView
 void CChatUi::PostJsonMessage(const std::wstring& message)
 {
@@ -589,6 +595,14 @@ void CChatUi::InitializeChatUI()
 			_titleMenuItemClickedCallback(menuItemId, content, stamp);
 		}
 	});
+
+	// 设置Favorite点击回调
+	_titleMenuWindow.SetFavoriteClickedCallback([this](const std::wstring& menuItemId, bool isFavorite) {
+		if (_favoriteClickedCallback)
+		{
+			_favoriteClickedCallback(menuItemId, isFavorite);
+		}
+	});
 }
 
 
@@ -603,6 +617,32 @@ void CChatUi::SetTheme(const std::wstring& theme)
     PostJsonMessage(jsonMessage);
 }
 
+// 根据文件路径检查 .fav 文件并更新 WebView 中的 favorite 状态
+void CChatUi::UpdateFavoriteStatus(const std::string& filePath)
+{
+    if (!_IsReady() || filePath.empty())
+        return;
+
+    // 检查是否存在 .fav 文件
+    std::string favPath = filePath + ".fav";
+    bool isFavorite = Utils::IsFileExist(favPath.c_str());
+
+    // 发送 favorite 状态到 WebView（只传 boolean，不传文件路径）
+    std::wstring jsonMessage = L"{\"action\":\"setFavoriteStatus\",\"isFavorite\":" 
+        + std::wstring(isFavorite ? L"true" : L"false") + L"}";
+    PostJsonMessage(jsonMessage);
+}
+
+// 直接设置 favorite 状态（不检查 .fav 文件）
+void CChatUi::SetFavorite(bool isFavorite)
+{
+    if (!_IsReady())
+        return;
+
+    std::wstring jsonMessage = L"{\"action\":\"setFavoriteStatus\",\"isFavorite\":" 
+        + std::wstring(isFavorite ? L"true" : L"false") + L"}";
+    PostJsonMessage(jsonMessage);
+}
 
 // 设置FileSummarize点击回调
 void CChatUi::SetFileSummarizeClickedCallback(FileSummarizeClickedCallback callback)
@@ -614,10 +654,10 @@ void CChatUi::SetFileSummarizeClickedCallback(FileSummarizeClickedCallback callb
 //====================== WebView 标题栏功能实现 ======================
 
 // 添加标题栏菜单项
-void CChatUi::AddTitlebarMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp)
+void CChatUi::AddTitlebarMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp, bool isFavorite)
 {
 	// 添加到 C++ 标题栏菜单
-	_titleMenuWindow.AddMenuItem(menuItemId, content, stamp);
+	_titleMenuWindow.AddMenuItem(menuItemId, content, stamp, isFavorite);
 
 	if (!_IsReady())
 		return;

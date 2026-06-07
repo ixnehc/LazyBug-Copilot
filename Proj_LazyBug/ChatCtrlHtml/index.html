@@ -50,6 +50,20 @@
         <div class="pause-overlay" id="pause-overlay"></div>
     </div>
 
+    <!-- Favorite 点击热区 -->
+    <div class="favorite-hot-area" id="favorite-hot-area"></div>
+
+    <!-- Favorite 标记 - 直角三角形贴在左下角 -->
+    <div class="favorite-corner-mark" id="favorite-corner-mark"></div>
+
+    <!-- Favorite 按钮 - 固定定位在左下角 -->
+    <button class="favorite-btn" id="favorite-btn" title="Favorite this chat">
+        <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- 五角星路径 -->
+            <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/>
+        </svg>
+    </button>
+
     <!-- 本地 JS 文件 -->
     <script src="../CommonHtml/tag-utils.js"></script>
     <script src="utils.js"></script>
@@ -58,6 +72,7 @@
     <script src="filesummarize.js"></script>
     <script src="symbol.js"></script>
     <script src="message.js"></script>
+    <script src="favorite.js"></script>
     <script src="main.js"></script>
 </body>
 </html>

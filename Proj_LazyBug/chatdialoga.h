@@ -121,6 +121,7 @@ protected:
 
 	void _ShutdownAgent();
 	void _InitAgent(const char* fileName);
+	void _UpdateFavoriteStatus();
 	CChatAgent _agent;
 	CChatUi _ui;
 	CChatNotify _notify;
@@ -167,6 +168,7 @@ protected:
 	// WebView消息处理
 	void _OnWebViewMessage(const std::wstring& message);
 	void _HandleTitlebarMenuItemClicked(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp);
+	void _HandleFavoriteClicked(const std::wstring& menuItemId, bool isFavorite);
 	void _HandleUserMessageRestoreClicked(const std::wstring& messageId);
 	void _RestoreUserMessageToInput(const std::wstring& messageId);
 	void _HandleDisabledMessageClicked(const std::wstring& messageId);

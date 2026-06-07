@@ -58,6 +58,7 @@ public:
     void SetTitlebarMenuUpdateCallback(TitlebarMenuUpdateCallback callback);
     void SetFileEditTitleClickedCallback(FileEditTitleClickedCallback callback);
     void SetTitleMenuItemClickedCallback(TitleMenuItemClickedCallback callback);
+    void SetFavoriteClickedCallback(TitleMenuFavoriteClickedCallback callback);
 	void SetFileSummarizeClickedCallback(FileSummarizeClickedCallback callback);
 	void SetSymbolLinkClickedCallback(SymbolLinkClickedCallback callback);
 	void SetQuerySymbolLocationsCallback(QuerySymbolLocationsCallback callback);
@@ -127,7 +128,13 @@ public:
     
     
 	// 添加标题栏菜单项
-    void AddTitlebarMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp);
+    void AddTitlebarMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp, bool isFavorite = false);
+
+    // ===== Favorite 按钮相关方法 =====
+    // 根据文件路径检查 .fav 文件并更新 WebView 中的 favorite 状态
+    void UpdateFavoriteStatus(const std::string& filePath);
+    // 直接设置 favorite 状态（不检查 .fav 文件）
+    void SetFavorite(bool isFavorite);
   
     // 清空所有标题栏菜单项
     void ClearTitlebarMenuItems();
@@ -187,6 +194,7 @@ private:
 	// Title Menu
 	CChatTitleMenu _titleMenuWindow;
 	TitleMenuItemClickedCallback _titleMenuItemClickedCallback;
+	TitleMenuFavoriteClickedCallback _favoriteClickedCallback;
 
 	// Question/Answer 数据结构
 	struct QuestionData

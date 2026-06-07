@@ -18,6 +18,7 @@ body {
     border-bottom: 2px solid var(--titlebar-border);
     border-top: 1px solid var(--titlebar-border);
     padding: 4px 12px;
+    padding-right: 38px;
     min-height: 20px;
     display: flex;
     align-items: center;
@@ -26,8 +27,8 @@ body {
     user-select: none;
     flex-shrink: 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    width: calc(100%);
-    margin-right: 40px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .webview-titlebar:hover {
@@ -214,6 +215,123 @@ body {
 .message-content ol,
 .message-content li {
     white-space: normal;
+}
+
+/* ====== Favorite 角落标记（直角三角形）====== */
+.favorite-corner-mark {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 40px;
+    z-index: 49;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease 0.1s;
+    cursor: pointer;
+}
+
+/* 三角形使用伪元素 */
+.favorite-corner-mark::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 14px 14px 0;
+    border-color: transparent transparent #FFD700 transparent;
+}
+
+/* favorite状态显示角落标记，可点击 */
+.favorite-corner-mark.favorited {
+    opacity: 0.8;
+    pointer-events: auto;
+}
+
+/* 鼠标在热区时隐藏角落标记 */
+.favorite-corner-mark.visible {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ====== Favorite 点击热区 ====== */
+.favorite-hot-area {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 40px;
+    height: 40px;
+    z-index: 48;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 热区激活时可点击 */
+.favorite-hot-area.active {
+    pointer-events: auto;
+}
+
+/* ====== Favorite 按钮样式 ====== */
+.favorite-btn {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    color: #FFD700;  /* 金黄色 */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 50;
+    opacity: 0;              /* 默认隐藏 */
+    pointer-events: none;    /* 隐藏时不响应鼠标 */
+    transform: scale(0.7);
+}
+
+.favorite-btn:hover {
+    transform: scale(1.15);
+}
+
+.favorite-btn .star-icon {
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+}
+
+/* 非favorite状态下的镂空五角星 */
+.favorite-btn:not(.favorited) .star-icon {
+    fill: none;
+}
+
+/* favorite状态下的实心五角星 */
+.favorite-btn.favorited .star-icon {
+    fill: #FFD700;  /* 金黄色填充 */
+}
+
+/* 完全显示状态（鼠标在热区） */
+.favorite-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+    left: 8px;
+    bottom: 8px;
+    transform: scale(1);
+}
+
+/* 淡出效果（鼠标不在热区）- 缩小到角落再消失 */
+.favorite-btn:not(.visible) {
+    opacity: 0;
+    left: 0;
+    bottom: 0;
+    transform: scale(0);
+    pointer-events: none;
 }
 
 /* ====== 全局滚动条样式 ====== */

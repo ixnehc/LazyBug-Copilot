@@ -201,6 +201,11 @@ BOOL CChatDialogA::OnInitDialog()
 		_HandleTitlebarMenuItemClicked(menuItemId, content, stamp);
 	});
 
+	// 设置Favorite点击回调
+	_ui.SetFavoriteClickedCallback([this](const std::wstring& menuItemId, bool isFavorite) {
+		_HandleFavoriteClicked(menuItemId, isFavorite);
+	});
+
 	// 设置WebView导航完成回调
 	_ui.SetNavigationCompletedCallback([this](bool success) {
 		UpdateSettingMenuButton();
@@ -313,6 +318,8 @@ BOOL CChatDialogA::OnInitDialog()
 
 	_InitAgent("");
 
+	// 更新 favorite 状态
+	_UpdateFavoriteStatus();
 
 	if (g_llmLib.GetWorkingCapability() == CLlmLib::WorkingCapability::CannotWork)
 		ShowChatSettingPage();
@@ -508,7 +515,7 @@ void CChatDialogA::_RefreshTitleMenu()
 {
 	_ui.ClearTitlebarMenuItems();
 
-	_ui.AddTitlebarMenuItem(L"newchat", L"New Chat", L"");
+	_ui.AddTitlebarMenuItem(L"newchat", L"New Chat", L"", false);
 
 	std::wstring curfileName = utf8_to_widechar(_agent.GetFileName());
 	std::vector<CChatHistory::MenuItemInfo> menuItems;
@@ -516,7 +523,7 @@ void CChatDialogA::_RefreshTitleMenu()
 	for (const auto& item : menuItems)
 	{
 		if (item.uid != curfileName)
-			_ui.AddTitlebarMenuItem(item.uid.c_str(), item.content.c_str(), item.stamp.c_str());
+			_ui.AddTitlebarMenuItem(item.uid.c_str(), item.content.c_str(), item.stamp.c_str(), item.isFavorite);
 	}
 
 }
@@ -568,6 +575,8 @@ void CChatDialogA::_UpdateLoadChatCtrl()
 		std::string fileName = _chatHistory.GetRecentFileName();
 
 		_InitAgent(fileName.c_str());
+
+		_UpdateFavoriteStatus();
 
 		UpdateSettingMenuButton();
 
@@ -715,6 +724,22 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 			_HandleCliWhitelist(cliId);
 		}
 	}
+	else if (action == "toggleFavorite")
+	{
+		// 处理 favorite 切换
+		if (jsonMsg.contains("isFavorite"))
+		{
+			bool isFavorite = jsonMsg["isFavorite"].get<bool>();
+			
+			// 获取当前 chat 文件名
+			const char* fileName = _agent.GetFileName();
+			if (fileName && fileName[0] != '\0')
+			{
+				_chatHistory.SetFavorite(fileName, isFavorite);
+			}
+			_UpdateFavoriteStatus();
+		}
+	}
 	// 可以在这里添加其他消息类型的处理
 	// else if (action == "otherAction") { ... }
 }
@@ -761,6 +786,9 @@ void CChatDialogA::_UpdateSwitchChat()
 
 		_InitAgent("");
 
+		// 更新 favorite 状态
+		_UpdateFavoriteStatus();
+
 		_chatBrief.Activate();
 
 		_requestSwitchChat.Reset();
@@ -778,6 +806,9 @@ void CChatDialogA::_UpdateSwitchChat()
 		_InitAgent(fileName.c_str());
 
 		_LoadChatInputTagsFromChatCtrl();
+		
+		// 更新 favorite 状态
+		_UpdateFavoriteStatus();
 	}
 	_chatBrief.Activate();
 	_requestSwitchChat.Reset();
@@ -790,6 +821,18 @@ void CChatDialogA::_HandleTitlebarMenuItemClicked(const std::wstring& menuItemId
 	_requestSwitchChat.t = GetAbsTick();
 
 	_UpdateSwitchChat();
+}
+
+void CChatDialogA::_HandleFavoriteClicked(const std::wstring& menuItemId, bool isFavorite)
+{
+	// 将 wstring 转换为 UTF-8 string
+	std::string fileName = widechar_to_utf8(menuItemId.c_str());
+	
+	// 调用 CChatHistory::SetFavorite
+	_chatHistory.SetFavorite(fileName.c_str(), isFavorite);
+	
+	// 刷新标题菜单
+	_RefreshTitleMenu();
 }
 
 void CChatDialogA::_HandleUserMessageRestoreClicked(const std::wstring& messageId)
@@ -1425,6 +1468,21 @@ void CChatDialogA::_HandleCliWhitelist(const std::wstring& cliId)
     std::string filePath = std::string(Utils::GetDBRootFolder_utf8()) + "\\" + LAZYBUG_CLI_WHITELIST_FILENAME;
     FileLocation loc;
     GetFileLocator().Request(filePath.c_str(), loc);
+}
+
+void CChatDialogA::_UpdateFavoriteStatus()
+{
+	// 获取当前 chat 文件路径并更新 favorite 状态
+	std::string filePath = _agent.GetFilePath();
+	if (!filePath.empty())
+	{
+		_ui.UpdateFavoriteStatus(filePath);
+	}
+	else
+	{
+		// 文件路径为空时，设置 favorite 为 false
+		_ui.SetFavorite(false);
+	}
 }
 
 // 更新设置菜单按钮状态（根据是否有打开的数据库文件夹）

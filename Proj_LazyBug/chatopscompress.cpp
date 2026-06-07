@@ -1080,14 +1080,14 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_TruncateFindSymbol(3, 999));
 	_PASS(_Pass_TruncateFindInFiles(3, 999));
 	_PASS(_Pass_TruncateReadFile(3, 999));
-	_PASS(_Pass_TruncateReplaceInFile(3, 999));
+// 	_PASS(_Pass_TruncateReplaceInFile(3, 999));
 
 	// 第二批：sessionAge >= 2（次新也开始截断）
 	_PASS(_Pass_TruncateCmdResults(2, 999));
 	_PASS(_Pass_TruncateFindSymbol(2, 999));
 	_PASS(_Pass_TruncateFindInFiles(2, 999));
 	_PASS(_Pass_TruncateReadFile(2, 999));
-	_PASS(_Pass_TruncateReplaceInFile(2, 999));
+// 	_PASS(_Pass_TruncateReplaceInFile(2, 999));
 
 	_PASS(_Pass_SummarizeMessage(4, 999));
 
@@ -1105,7 +1105,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 		_PASS(_Pass_TruncateFindSymbol(1, 999));
 		_PASS(_Pass_TruncateFindInFiles(1, 999));
 // 		_PASS(_Pass_TruncateReadFile(1, 999));
-		_PASS(_Pass_TruncateReplaceInFile(1, 999));
+// 		_PASS(_Pass_TruncateReplaceInFile(1, 999));
 
 // 		_PASS(_Pass_ClearReplaceInFile(2, 999));
 		_PASS(_Pass_RemoveFindSymbol(2, 999));

@@ -6,6 +6,7 @@
 
 // 回调函数类型定义
 using TitleMenuItemClickedCallback = std::function<void(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp)>;
+using TitleMenuFavoriteClickedCallback = std::function<void(const std::wstring& menuItemId, bool isFavorite)>;
 
 // 标题栏菜单项结构
 struct TitleMenuItem
@@ -13,6 +14,7 @@ struct TitleMenuItem
     std::wstring id;      // 菜单项唯一ID
     std::wstring content;  // 显示文本
     std::wstring stamp;    // 时间戳/标记
+    bool isFavorite;       // 是否为favorite
 };
 
 // 前向声明
@@ -39,12 +41,13 @@ public:
 
     // 设置回调
     void SetMenuItemClickedCallback(TitleMenuItemClickedCallback callback) { _menuItemClickedCallback = callback; }
+    void SetFavoriteClickedCallback(TitleMenuFavoriteClickedCallback callback) { _favoriteClickedCallback = callback; }
 
     // 更新
     void Update();
 
     // 菜单项管理
-    void AddMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp);
+    void AddMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp, bool isFavorite = false);
     void RemoveMenuItem(const std::wstring& menuItemId);
     void ClearMenuItems();
     
@@ -70,10 +73,12 @@ private:
     int _hoverIndex;
     int _scrollOffset;  // 滚动偏移量，表示第一个显示的菜单项索引
     TitleMenuItemClickedCallback _menuItemClickedCallback;
+    TitleMenuFavoriteClickedCallback _favoriteClickedCallback;
     
     // UI参数
     int _itemHeight;
     int _maxVisibleItems;
+    int _favoriteIconSize;  // 五角星图标大小
     
     // GDI+缓冲位图相关
     Gdiplus::Bitmap* _bufferBitmap;
@@ -89,11 +94,20 @@ private:
     // 绘制菜单项
     void DrawMenuItem(Graphics* graphics, const TitleMenuItem& item, const CRect& rect, bool hovered, bool isLastItem);
     
+    // 绘制五角星
+    void DrawFavoriteStar(Graphics* graphics, const CRect& rect, bool isFavorite, bool hovered);
+    
     // 确保缓冲位图有效
     void EnsureBufferBitmap(int width, int height);
     
     // 获取项目矩形
     CRect GetItemRect(int index);
+    
+    // 获取五角星区域
+    CRect GetFavoriteRect(int index);
+    
+    // 判断点击是否在五角星区域
+    bool IsPointInFavoriteRect(CPoint point, int itemIndex);
     
     // 根据点击位置获取项目索引
     int GetItemFromPoint(CPoint point);

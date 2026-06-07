@@ -18,9 +18,10 @@ void CChatHistory::Init(const char* folder)
     Clear();
     _folderPath = folder;
     
-    // 枚举文件夹下所有.chat文件
+    // 枚举文件夹下所有.chat文件和.chat.fav文件
     std::vector<std::string> fileList;
-    _EnumerateFiles(folder, fileList);
+    std::set<std::string> favFiles;
+    _EnumerateFiles(folder, fileList, favFiles);
     
     // 获取.chat文件信息
     for (const auto& fileName : fileList)
@@ -33,6 +34,7 @@ void CChatHistory::Init(const char* folder)
             Entry entry;
             entry.fileName = utf8_to_widechar(fileName.c_str());
 			entry.modifiedTime = Utils::GetFileTime(fullPath.c_str());
+            entry.isFavorite = (favFiles.find(fileName) != favFiles.end());
             
             _entries.push_back(entry);
         }
@@ -51,30 +53,48 @@ void CChatHistory::Clear()
     _folderPath.clear();
 }
 
-void CChatHistory::_EnumerateFiles(const char* folder, std::vector<std::string>& fileList)
+void CChatHistory::_EnumerateFiles(const char* folder, std::vector<std::string>& fileList, std::set<std::string>& favFiles)
 {
     fileList.clear();
+    favFiles.clear();
     
     // 将 UTF-8 路径转换为宽字符
     std::wstring wFolder = utf8_to_widechar(folder);
-    std::wstring searchPattern = wFolder + L"\\*.chat";
+    
+    // 枚举所有文件，然后过滤出.chat和.chat.fav文件
+    std::wstring searchPattern = wFolder + L"\\*";
     WIN32_FIND_DATAW findFileData;
     HANDLE hFind = FindFirstFileW(searchPattern.c_str(), &findFileData);
     
-    if (hFind == INVALID_HANDLE_VALUE)
-        return;
-    
-    do
+    if (hFind != INVALID_HANDLE_VALUE)
     {
-        // 跳过目录，只添加.chat文件
-        if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+        do
         {
-            // 将宽字符文件名转换为 UTF-8
-            fileList.push_back(widechar_to_utf8(findFileData.cFileName));
-        }
-    } while (FindNextFileW(hFind, &findFileData));
-    
-    FindClose(hFind);
+            // 跳过目录
+            if (!(findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+            {
+                std::wstring wFileName = findFileData.cFileName;
+                std::wstring lowerFileName = wFileName;
+                std::transform(lowerFileName.begin(), lowerFileName.end(), lowerFileName.begin(), ::towlower);
+                
+                // 检查是否是.chat.fav文件
+                if (lowerFileName.length() > 9 && lowerFileName.substr(lowerFileName.length() - 9) == L".chat.fav")
+                {
+                    // 这是.chat.fav文件，提取对应的.chat文件名
+                    std::wstring chatFileName = wFileName.substr(0, wFileName.length() - 4); // 去掉.fav后缀
+                    favFiles.insert(widechar_to_utf8(chatFileName.c_str()));
+                }
+                // 检查是否是.chat文件（排除.chat.fav文件）
+                else if (lowerFileName.length() > 5 && lowerFileName.substr(lowerFileName.length() - 5) == L".chat")
+                {
+                    // 这是.chat文件
+                    fileList.push_back(widechar_to_utf8(wFileName.c_str()));
+                }
+            }
+        } while (FindNextFileW(hFind, &findFileData));
+        
+        FindClose(hFind);
+    }
 }
 
 void CChatHistory::Add(const char* fileName)
@@ -103,6 +123,7 @@ void CChatHistory::Add(const char* fileName)
         // 不存在，添加新项
         Entry entry;
         entry.fileName = wFileName;
+        entry.isFavorite = false;
         
         std::string fullPath = _folderPath + "\\" + fileName;
         entry.modifiedTime = Utils::GetFileTime(fullPath.c_str());
@@ -110,6 +131,36 @@ void CChatHistory::Add(const char* fileName)
 			GetSystemTimeAsFileTime(&entry.modifiedTime);
         
         _entries.insert(_entries.begin(), entry);
+    }
+}
+
+void CChatHistory::SetFavorite(const char* fileName, bool isFavorite)
+{
+    std::wstring wFileName = utf8_to_widechar(fileName);
+    
+    // 查找对应的Entry
+    auto it = std::find_if(_entries.begin(), _entries.end(),
+        [&wFileName](const Entry& entry) {
+            return entry.fileName == wFileName;
+        });
+    
+    if (it != _entries.end())
+    {
+        // 更新Entry的favorite状态
+        it->isFavorite = isFavorite;
+        
+        // 创建或删除.fav文件
+        std::string favPath = _folderPath + "\\" + fileName + ".fav";
+        if (isFavorite)
+        {
+            // 创建空的.fav文件
+            Utils::SaveFileContent(favPath.c_str(), std::string());
+        }
+        else
+        {
+            // 删除.fav文件
+            Utils::RemoveFile(favPath.c_str());
+        }
     }
 }
 
@@ -237,6 +288,7 @@ void CChatHistory::_Entry2MenuItemInfo(const Entry& entry, MenuItemInfo& info)
     }
     
     info.stamp = timeStr;
+    info.isFavorite = entry.isFavorite;
 }
 
 std::string CChatHistory::GetRecentFileName()

@@ -303,7 +303,7 @@ void CChatSkillTip::ShowTip(const RECT& anchorRect, const std::wstring& skillMdP
     }
 
     // 启动延迟显示定时器（500ms后显示窗口，避免内容闪烁）
-    _showTimerId = SetTimer(1, 500, nullptr);
+    _showTimerId = SetTimer(1, 300, nullptr);
 }
 
 void CChatSkillTip::HideTip()

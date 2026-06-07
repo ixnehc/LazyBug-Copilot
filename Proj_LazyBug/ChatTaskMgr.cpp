@@ -147,20 +147,36 @@ void CChatTask::_SendToolCallResult(const char *result, const char* resultPartia
 	std::string jsonStringPartial;
 	std::string jsonStringFullCompress;
 	
-	// 如果有 toolCallPartial，使用它生成 partial；否则用 resultPartial
+	// 处理 partial
 	if (toolCallPartial != nullptr && toolCallPartial->IsValid())
 	{
-		jsonStringPartial = g_llmTools.MakeToolCallResultString(*toolCallPartial, result ? result : "");
+		// 如果 toolCallPartial 和 resultPartial 都存在，组合使用
+		if (resultPartial != nullptr && resultPartial[0] != '\0')
+		{
+			jsonStringPartial = g_llmTools.MakeToolCallResultString(*toolCallPartial, resultPartial);
+		}
+		else
+		{
+			jsonStringPartial = g_llmTools.MakeToolCallResultString(*toolCallPartial, result ? result : "");
+		}
 	}
 	else if (resultPartial != nullptr && resultPartial[0] != '\0')
 	{
 		jsonStringPartial = g_llmTools.MakeToolCallResultString(_toolCall, resultPartial);
 	}
 	
-	// 如果有 toolCallFullCompress，使用它生成 fullCompress；否则用 resultFullCompress
+	// 处理 fullCompress
 	if (toolCallFullCompress != nullptr && toolCallFullCompress->IsValid())
 	{
-		jsonStringFullCompress = g_llmTools.MakeToolCallResultString(*toolCallFullCompress, resultFullCompress ? resultFullCompress : "");
+		// 如果 toolCallFullCompress 和 resultFullCompress 都存在，组合使用
+		if (resultFullCompress != nullptr && resultFullCompress[0] != '\0')
+		{
+			jsonStringFullCompress = g_llmTools.MakeToolCallResultString(*toolCallFullCompress, resultFullCompress);
+		}
+		else
+		{
+			jsonStringFullCompress = g_llmTools.MakeToolCallResultString(*toolCallFullCompress, result ? result : "");
+		}
 	}
 	else if (resultFullCompress != nullptr && resultFullCompress[0] != '\0')
 	{

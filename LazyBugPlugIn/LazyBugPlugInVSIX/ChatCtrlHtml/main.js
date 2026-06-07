@@ -25,6 +25,11 @@ function initApp() {
     initMessageModule();
     initSymbolModule();
     
+    // 初始化 Favorite 按钮
+    if (typeof initFavoriteButton === 'function') {
+        initFavoriteButton();
+    }
+    
     // 设置全局事件监听
     setupGlobalEvents();
     
@@ -243,7 +248,14 @@ function setupWebViewMessageListener() {
                 case 'clearQuestion':
                     clearQuestion();
                     break;
-                
+
+                // ====== Favorite 按钮相关 ======
+                case 'setFavoriteStatus':
+                    if (typeof setFavoriteStatus === 'function') {
+                        setFavoriteStatus(message.isFavorite);
+                    }
+                    break;
+
                 default:
                     console.warn('Unknown message action:', message.action); 
                     break;

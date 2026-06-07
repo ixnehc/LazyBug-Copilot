@@ -79,6 +79,9 @@
     <Content Include="ChatCtrlHtml\components.css">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="ChatCtrlHtml\favorite.js">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="ChatCtrlHtml\fileedit.css">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

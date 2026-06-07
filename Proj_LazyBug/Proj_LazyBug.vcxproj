@@ -1850,6 +1850,7 @@ c:\sound.exe
     <None Include="..\CopyFileToFolder.bat" />
     <None Include="..\SyncPlugin.bat" />
     <None Include="ChatCtrlHtml\components.css" />
+    <None Include="ChatCtrlHtml\favorite.js" />
     <None Include="ChatCtrlHtml\fileedit.css" />
     <None Include="ChatCtrlHtml\fileedit.js" />
     <None Include="ChatCtrlHtml\filesummarize.css" />

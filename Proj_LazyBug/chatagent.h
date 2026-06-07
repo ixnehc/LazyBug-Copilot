@@ -78,6 +78,9 @@ public:
 	const char* GetFileName() const	{		return _fileName.c_str();	}
 	DWORD GetFileVer() const	{		return _chatFileVer;	}
 
+	// 获取完整文件路径（用于检查 .fav 文件）
+	std::string GetFilePath() const	{		return _MakeFilePath();	}
+
     // ─────────────────────────────────────────────────────────────────────
     //  对话控制
     // ─────────────────────────────────────────────────────────────────────

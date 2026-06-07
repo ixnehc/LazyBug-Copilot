@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 #include <windows.h>
 #include <fstream>
 
@@ -14,6 +15,7 @@ public:
 	{
 		std::wstring fileName;//.chat文件的文件名(注意不是全路径名)
 		FILETIME modifiedTime;
+		bool isFavorite;
 	};
 
 	struct MenuItemInfo
@@ -21,6 +23,7 @@ public:
 		std::wstring uid;
 		std::wstring content;
 		std::wstring stamp;
+		bool isFavorite;
 	};
 
 	//枚举folder下所有的.chat文件,读取到_entries里,并将它们按照文件修改时间排序,越近的排在越前面
@@ -32,6 +35,9 @@ public:
 
 	//添加一个新的fileName,加在最前面,如果fileName已经在_entries里,则把那一项提到最前面
 	void Add(const char* fileName);
+
+	//设置指定文件的favorite状态
+	void SetFavorite(const char* fileName, bool isFavorite);
 
 	std::string GetRecentFileName();
 
@@ -46,7 +52,7 @@ protected:
 	void _Entry2MenuItemInfo(const Entry& entry, MenuItemInfo& info);
 
 	// 辅助函数：枚举目录下的文件
-	void _EnumerateFiles(const char* folder, std::vector<std::string>& fileList);
+	void _EnumerateFiles(const char* folder, std::vector<std::string>& fileList, std::set<std::string>& favFiles);
 
 	std::string _folderPath;
 	std::vector<Entry> _entries;//按照文件修改顺序排列
