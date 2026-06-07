@@ -51,6 +51,9 @@ public:
     void RemoveMenuItem(const std::wstring& menuItemId);
     void ClearMenuItems();
     
+    // 更新菜单项的favorite状态（不关闭菜单）
+    void UpdateMenuItemFavorite(const std::wstring& menuItemId, bool isFavorite);
+    
     // 判断是否有菜单项
     bool HasMenuItems() const { return !_menuItems.empty(); }
     

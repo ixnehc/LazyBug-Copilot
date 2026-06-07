@@ -642,6 +642,11 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 		// 处理设置按钮点击事件
 		_HandleSettingsButtonClicked();
 	}
+	else if (action == "favoriteListButtonClicked")
+	{
+		// 处理Favorite列表按钮点击事件
+		_HandleFavoriteListButtonClicked();
+	}
 	else if (action == "querySymbolLocations")
 	{
 		// 处理 symbol 查询请求
@@ -831,8 +836,15 @@ void CChatDialogA::_HandleFavoriteClicked(const std::wstring& menuItemId, bool i
 	// 调用 CChatHistory::SetFavorite
 	_chatHistory.SetFavorite(fileName.c_str(), isFavorite);
 	
-	// 刷新标题菜单
-	_RefreshTitleMenu();
+	// 更新菜单项的favorite状态（不关闭菜单）
+	_ui.UpdateTitlebarMenuItemFavorite(menuItemId, isFavorite);
+	
+	// 如果修改的是当前打开的chat文件，更新UI上的favorite状态显示
+	std::wstring curFileName = utf8_to_widechar(_agent.GetFileName());
+	if (menuItemId == curFileName)
+	{
+		_ui.SetFavorite(isFavorite);
+	}
 }
 
 void CChatDialogA::_HandleUserMessageRestoreClicked(const std::wstring& messageId)
@@ -1012,6 +1024,37 @@ void CChatDialogA::_HandleSettingsButtonClicked()
 	btnRect.right = btnRect.left + 30; // 按钮宽度
 	btnRect.bottom = btnRect.top + 28; // 按钮高度
 	_settingMenuWindow.ShowWindow(btnRect);
+}
+
+void CChatDialogA::_HandleFavoriteListButtonClicked()
+{
+	// 获取favorite列表
+	std::vector<CChatHistory::MenuItemInfo> favItems;
+	_chatHistory.GetFavoriteMenuItems(favItems);
+	
+	// 如果没有favorite项，不显示菜单
+	if (favItems.empty())
+		return;
+	
+	// 清空并重新填充菜单
+	_ui.ClearTitlebarMenuItems();
+	
+	for (const auto& item : favItems)
+	{
+		_ui.AddTitlebarMenuItem(item.uid.c_str(), item.content.c_str(), item.stamp.c_str(), true);
+	}
+	
+	// 获取按钮位置（左上角）
+	CRect rect;
+	_ui.GetWindowRect(&rect);
+	CRect btnRect;
+	btnRect.left = rect.left + 4;      // 距离左边4像素
+	btnRect.top = rect.top + 4;        // 标题栏顶部偏移约4像素
+	btnRect.right = btnRect.left + 30; // 按钮宽度
+	btnRect.bottom = btnRect.top + 28; // 按钮高度
+	
+	// 显示菜单
+	_ui.ShowTitlebarMenuAt(btnRect);
 }
 
 void CChatDialogA::_HandleSettingMenuItemClicked(const std::wstring& itemName)

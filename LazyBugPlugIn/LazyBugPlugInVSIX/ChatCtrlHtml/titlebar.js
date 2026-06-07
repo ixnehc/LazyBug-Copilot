@@ -4,7 +4,7 @@
 const DEFAULT_CHAT_TITLE = '[ Untitled Chat ]';
 
 // DOM 元素引用
-let webviewTitlebar, webviewTitle, webviewSettingsButton;
+let webviewTitlebar, webviewTitle, webviewSettingsButton, webviewFavoriteListButton;
 
 /**
  * 初始化标题栏模块
@@ -13,6 +13,7 @@ function initTitlebar() {
     webviewTitlebar = document.getElementById('webview-titlebar');
     webviewTitle = document.getElementById('webview-title');
     webviewSettingsButton = document.getElementById('webview-settings-button');
+    webviewFavoriteListButton = document.getElementById('webview-favorite-list-button');
     
     setupTitlebarEvents();
 }
@@ -35,6 +36,14 @@ function setupTitlebarEvents() {
         e.stopPropagation();
         window.chrome.webview.postMessage({
             action: 'settingsButtonClicked'
+        });
+    };
+
+    // Favorite列表按钮点击事件
+    webviewFavoriteListButton.onclick = (e) => {
+        e.stopPropagation();
+        window.chrome.webview.postMessage({
+            action: 'favoriteListButtonClicked'
         });
     };
 }

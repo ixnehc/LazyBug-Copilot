@@ -19,7 +19,8 @@ body {
     border-top: 1px solid var(--titlebar-border);
     padding: 4px 12px;
     padding-right: 38px;
-    min-height: 20px;
+    height: 32px;
+    min-height: 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -41,6 +42,7 @@ body {
     color: var(--text-color);
     flex-grow: 1;
     line-height: 1.2;
+    margin-left: 31px;  /* 为Favorite按钮留出空间 */
     margin-right: 8px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -80,6 +82,42 @@ body {
     background-color: rgba(255, 255, 255, 0.2);
     transform: scale(0.95);
     transition: all 0.1s ease;
+}
+
+/* ====== Favorite列表按钮 - 固定定位在左上角 ====== */
+.webview-favorite-list-button {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    padding: 4px 8px;
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 100;
+    width: 31px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.webview-favorite-list-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: transparent;
+}
+
+.webview-favorite-list-button:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+    transition: all 0.1s ease;
+}
+
+.webview-favorite-list-button .star-icon {
+    width: 16px;
+    height: 16px;
 }
 
 /* ====== 内容区域布局 ====== */

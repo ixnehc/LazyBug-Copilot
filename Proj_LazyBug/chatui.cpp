@@ -680,6 +680,12 @@ void CChatUi::AddTitlebarMenuItem(const std::wstring& menuItemId, const std::wst
 	PostJsonMessage(jsonMessage);
 }
 
+// 更新菜单项的favorite状态
+void CChatUi::UpdateTitlebarMenuItemFavorite(const std::wstring& menuItemId, bool isFavorite)
+{
+	_titleMenuWindow.UpdateMenuItemFavorite(menuItemId, isFavorite);
+}
+
 // 清空所有标题栏菜单项
 void CChatUi::ClearTitlebarMenuItems()
 {
@@ -713,6 +719,25 @@ void CChatUi::ShowTitlebarMenu()
 	_titleMenuWindow.ShowMenu(x, y, width);
 
 	// 不再发送showTitlebarMenu消息到WebView，避免显示HTML菜单
+}
+
+// 在指定按钮位置显示标题栏菜单
+void CChatUi::ShowTitlebarMenuAt(const CRect& btnRect)
+{
+	if (!_titleMenuWindow.HasMenuItems())
+		return;
+
+	// 获取ChatCtrl窗口的位置和大小
+	CRect rect;
+	GetWindowRect(&rect);
+	
+	// 菜单显示在按钮下方
+	int x = btnRect.left;
+	int y = btnRect.bottom;
+	int width = rect.Width();  // 使用ChatCtrl的宽度
+
+	// 显示 C++ 标题栏菜单
+	_titleMenuWindow.ShowMenu(x, y, width);
 }
 
 // 隐藏标题栏菜单（仅隐藏C++原生菜单，不通知HTML）

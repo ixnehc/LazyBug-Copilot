@@ -163,7 +163,7 @@ private:
 	void _Pass_RemoveFailureCMD(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveCoveredLines(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveIrrelavantSearchResult(int startSessionAge, int endSessionAge);
-	void _Pass_ClearThinking(int startSessionAge, int endSessionAge);
+	void _Pass_RemoveThinking(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateCmdResults(int startSessionAge, int endSessionAge);
 	void _Pass_TruncateToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes, CompressLevel level = Level_Partial);
 	void _Pass_TruncateFindSymbol(int startSessionAge, int endSessionAge);
@@ -173,6 +173,7 @@ private:
 	void _Pass_ClearReplaceInFile(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveSearchOps(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveFindSymbol(int startSessionAge, int endSessionAge);
+	void _Pass_RemoveReplaceInFile(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
 	void _Pass_ClearMessages(int startSessionAge, int endSessionAge);
 	void _Pass_SummarizeMessage(int startSessionAge, int endSessionAge);

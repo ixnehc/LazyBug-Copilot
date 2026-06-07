@@ -2876,6 +2876,12 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 
 	int totalTokens = 0;
 
+	// 调试用：记录各类型token数
+	int userMsgTokens = 0;
+	int aiMsgTokens = 0;
+	int thinkingTokens = 0;
+	int toolCallTokens[12] = {0};  // 按tool type分类 (LlmToolType枚举值数量)
+
 	for (int i = startIndex; i < endIndex; i++)
 	{
 		const ChatOp& op = _ops[i];
@@ -2892,28 +2898,37 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 		{
 			// 用户消息需要通过 ExtractPlainText 处理
 			std::string plainText = ExtractPlainTextUtf8(effectiveContent);
-			totalTokens += Utils::EstimateTokenCount(plainText);
+			int tokens = Utils::EstimateTokenCount(plainText);
+			totalTokens += tokens;
+			userMsgTokens += tokens;
 			break;
 		}
 
 		case ChatOp::Op_AddStreamingAIMessage:
 		{
 			// AI消息直接使用content
-			totalTokens += Utils::EstimateTokenCount(effectiveContent);
+			int tokens = Utils::EstimateTokenCount(effectiveContent);
+			totalTokens += tokens;
+			aiMsgTokens += tokens;
 			break;
 		}
 
 		case ChatOp::Op_AddStreamingAIMessage_Thinking:
 		{
 			// AI思考消息
-			totalTokens += Utils::EstimateTokenCount(effectiveContent);
+			int tokens = Utils::EstimateTokenCount(effectiveContent);
+			totalTokens += tokens;
+			thinkingTokens += tokens;
 			break;
 		}
 
 		case ChatOp::Op_AddToolCallResult:
 		{
 			// 工具调用结果
-			totalTokens += Utils::EstimateTokenCount(effectiveContent);
+			int tokens = Utils::EstimateTokenCount(effectiveContent);
+			totalTokens += tokens;
+			LlmToolType toolType = CLlmTools::ParseToolTypeFromToolCallResultString(effectiveContent);
+			toolCallTokens[static_cast<int>(toolType)] += tokens;
 			break;
 		}
 

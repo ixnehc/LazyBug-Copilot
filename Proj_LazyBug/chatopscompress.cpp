@@ -820,7 +820,7 @@ void CChatOpsCompress::_Pass_RemoveIrrelavantSearchResult(int startSessionAge, i
 	// TODO: 删除不相关的搜索结果
 }
 
-void CChatOpsCompress::_Pass_ClearThinking(int startSessionAge, int endSessionAge)
+void CChatOpsCompress::_Pass_RemoveThinking(int startSessionAge, int endSessionAge)
 {
 	for (auto& op : _workingOps)
 	{
@@ -839,7 +839,7 @@ void CChatOpsCompress::_Pass_ClearThinking(int startSessionAge, int endSessionAg
 			continue;  // 已压缩过
 
 		// 完全清除 thinking 内容
-		_ApplyCompressToOp(op, Level_Partial, ".");
+		_ApplyCompressToOp(op, Level_Remove, ".");
 	}
 }
 
@@ -978,6 +978,11 @@ void CChatOpsCompress::_Pass_RemoveFindSymbol(int startSessionAge, int endSessio
 	_Pass_RemoveToolCallResult(startSessionAge, endSessionAge, toolTypes);
 }
 
+void CChatOpsCompress::_Pass_RemoveReplaceInFile(int startSessionAge, int endSessionAge)
+{
+	std::vector<LlmToolType> toolTypes = { LlmToolType::ReplaceInFile };
+	_Pass_RemoveToolCallResult(startSessionAge, endSessionAge, toolTypes);
+}
 
 void CChatOpsCompress::_Pass_ClearMessages(int startSessionAge, int endSessionAge)
 {
@@ -1072,7 +1077,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_RemoveCoveredLines(0, 999));      // 被后续 ReadFile 覆盖的行
 
 	// ---- 阶段2：清除思考过程（低损失，非最终结果）----
-	_PASS(_Pass_ClearThinking(1, 999));
+	_PASS(_Pass_RemoveThinking(1, 999));
 
 	// ---- 阶段4：截断工具结果（中等损失，从最旧的 session 开始）----
 	// 第一批：sessionAge >= 3（较旧）
@@ -1080,14 +1085,14 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_TruncateFindSymbol(3, 999));
 	_PASS(_Pass_TruncateFindInFiles(3, 999));
 	_PASS(_Pass_TruncateReadFile(3, 999));
-// 	_PASS(_Pass_TruncateReplaceInFile(3, 999));
+ 	_PASS(_Pass_RemoveReplaceInFile(5, 999));
 
 	// 第二批：sessionAge >= 2（次新也开始截断）
 	_PASS(_Pass_TruncateCmdResults(2, 999));
 	_PASS(_Pass_TruncateFindSymbol(2, 999));
 	_PASS(_Pass_TruncateFindInFiles(2, 999));
 	_PASS(_Pass_TruncateReadFile(2, 999));
-// 	_PASS(_Pass_TruncateReplaceInFile(2, 999));
+	_PASS(_Pass_RemoveReplaceInFile(4, 999));
 
 	_PASS(_Pass_SummarizeMessage(4, 999));
 
@@ -1110,6 +1115,8 @@ void CChatOpsCompress::_ExecutePass(int pass)
 // 		_PASS(_Pass_ClearReplaceInFile(2, 999));
 		_PASS(_Pass_RemoveFindSymbol(2, 999));
 		_PASS(_Pass_RemoveSearchOps(2, 999));
+
+		_PASS(_Pass_RemoveReplaceInFile(3, 999));
 	}
 
 

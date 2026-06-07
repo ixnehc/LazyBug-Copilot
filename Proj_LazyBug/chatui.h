@@ -131,6 +131,8 @@ public:
     void AddTitlebarMenuItem(const std::wstring& menuItemId, const std::wstring& content, const std::wstring& stamp, bool isFavorite = false);
 
     // ===== Favorite 按钮相关方法 =====
+    // 更新菜单项的favorite状态（不关闭菜单）
+    void UpdateTitlebarMenuItemFavorite(const std::wstring& menuItemId, bool isFavorite);
     // 根据文件路径检查 .fav 文件并更新 WebView 中的 favorite 状态
     void UpdateFavoriteStatus(const std::string& filePath);
     // 直接设置 favorite 状态（不检查 .fav 文件）
@@ -141,6 +143,7 @@ public:
     
     // 显示/隐藏标题栏菜单
     void ShowTitlebarMenu();
+    void ShowTitlebarMenuAt(const CRect& btnRect);
     void HideTitlebarMenu();
     void ToggleTitlebarMenu();
 

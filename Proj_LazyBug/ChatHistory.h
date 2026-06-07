@@ -43,6 +43,7 @@ public:
 
 	//得到最近的若干项entry,并把它们转换成MenuItemInfo返回
 	void GetRecentMenuItems(DWORD count, std::vector<MenuItemInfo>& items);
+	void GetFavoriteMenuItems(std::vector<MenuItemInfo>& items);
 
 protected:
 

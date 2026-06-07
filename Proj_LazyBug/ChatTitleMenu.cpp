@@ -182,6 +182,25 @@ void CChatTitleMenu::ClearMenuItems()
         HideMenu();
 }
 
+void CChatTitleMenu::UpdateMenuItemFavorite(const std::wstring& menuItemId, bool isFavorite)
+{
+    // 查找对应的菜单项
+    auto it = std::find_if(_menuItems.begin(), _menuItems.end(),
+        [&menuItemId](const TitleMenuItem& item) {
+            return item.id == menuItemId;
+        });
+    
+    if (it != _menuItems.end())
+    {
+        // 更新favorite状态
+        it->isFavorite = isFavorite;
+        
+        // 重绘菜单（不关闭）
+        if (IsWindowVisible())
+            Invalidate();
+    }
+}
+
 CSize CChatTitleMenu::CalculateWindowSize()
 {
     int visibleItems = min((int)_menuItems.size(), _maxVisibleItems);

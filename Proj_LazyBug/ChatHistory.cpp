@@ -179,6 +179,21 @@ void CChatHistory::GetRecentMenuItems(DWORD count, std::vector<MenuItemInfo>& it
     }
 }
 
+void CChatHistory::GetFavoriteMenuItems(std::vector<MenuItemInfo>& items)
+{
+    items.clear();
+    
+    for (const auto& entry : _entries)
+    {
+        if (entry.isFavorite)
+        {
+            MenuItemInfo info;
+            _Entry2MenuItemInfo(entry, info);
+            items.push_back(info);
+        }
+    }
+}
+
 void CChatHistory::_Entry2MenuItemInfo(const Entry& entry, MenuItemInfo& info)
 {
     // uid就是文件名
