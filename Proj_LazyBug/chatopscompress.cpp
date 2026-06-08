@@ -1041,7 +1041,8 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 
 		// 否则：内容数据大于 50 字节才值得压缩，启动 task 进行压缩
 		const ChatOp& srcOp = _GetSrcOp(op);
-		if (srcOp.contentUtf8.size() <= 4000)
+//		if (srcOp.contentUtf8.size() <= 4000)
+		if (srcOp.contentUtf8.size() <= 4)//XXXXXXXXXXXXXXXXXXXX
 			continue;
 
 
@@ -1053,7 +1054,7 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 		}
 
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
-		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName);
+		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName,true);
 	}
 }
 
@@ -1071,6 +1072,8 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	// Pass 顺序原则：信息损失从小到大；同类操作 sessionAge 从大到小（先精简最旧的）
 	// ============================================================
 
+	_PASS(_Pass_SummarizeMessage(1, 999));//XXXXXXXXXXXXXXXXXXXX
+
 	// ---- 阶段1：清除无效/冗余内容（信息损失 ~0，本就不该保留）----
 	_PASS(_Pass_RemoveFailureFileEdit(0, 999));   // 失败的文件编辑
 	_PASS(_Pass_RemoveFailureCMD(0, 999));        // 失败的命令执行
@@ -1085,14 +1088,12 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_TruncateFindSymbol(3, 999));
 	_PASS(_Pass_TruncateFindInFiles(3, 999));
 	_PASS(_Pass_TruncateReadFile(3, 999));
- 	_PASS(_Pass_RemoveReplaceInFile(5, 999));
 
 	// 第二批：sessionAge >= 2（次新也开始截断）
 	_PASS(_Pass_TruncateCmdResults(2, 999));
 	_PASS(_Pass_TruncateFindSymbol(2, 999));
 	_PASS(_Pass_TruncateFindInFiles(2, 999));
 	_PASS(_Pass_TruncateReadFile(2, 999));
-	_PASS(_Pass_RemoveReplaceInFile(4, 999));
 
 	_PASS(_Pass_SummarizeMessage(4, 999));
 
@@ -1116,7 +1117,6 @@ void CChatOpsCompress::_ExecutePass(int pass)
 		_PASS(_Pass_RemoveFindSymbol(2, 999));
 		_PASS(_Pass_RemoveSearchOps(2, 999));
 
-		_PASS(_Pass_RemoveReplaceInFile(3, 999));
 	}
 
 
@@ -1158,8 +1158,8 @@ bool CChatOpsCompress::_TryTrigger(const std::string& summarizeApiName, bool for
 		targetTokens = 30000;
 		break;
 	case ChatOpCompressIntensity::Extreme:
-		threshold = 30000;
-		targetTokens = 10000;
+		threshold = 3000;//XXXXXXXXXXXXXXXXXXXX
+		targetTokens = 1000;
 		break;
 	default: 
 		return false;
