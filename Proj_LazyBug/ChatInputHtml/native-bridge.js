@@ -69,6 +69,16 @@ function processNativeMessage(data) {
                 window.replaceAutoCompleteWithTag(data.prefix || '', data.tag || {});
             }
             break;
+        case 'showCompressSummarizeTip':
+            if (window.showCompressSummarizeTip) {
+                window.showCompressSummarizeTip(data.success, data.message, data.logPath);
+            }
+            break;
+        case 'hideCompressSummarizeTip':
+            if (window.hideCompressSummarizeTip) {
+                window.hideCompressSummarizeTip();
+            }
+            break;
     }
 }
 

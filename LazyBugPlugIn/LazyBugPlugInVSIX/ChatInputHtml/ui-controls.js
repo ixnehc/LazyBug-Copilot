@@ -312,6 +312,67 @@ function handleSkillClick() {
     });
 }
 
+// 压缩结果提示标签相关
+let _compressSummarizeTipTimer = null;
+
+// 显示压缩结果提示
+// success: 是否成功
+// message: 显示的消息
+// logPath: 日志文件路径（成功时显示链接）
+function showCompressSummarizeTip(success, message, logPath) {
+    const tipElement = document.getElementById('compressSummarizeTip');
+    const textElement = document.getElementById('compressSummarizeTipText');
+    const linkElement = document.getElementById('compressSummarizeTipLink');
+    
+    if (!tipElement || !textElement) return;
+    
+    // 清除之前的定时器
+    if (_compressSummarizeTipTimer) {
+        clearTimeout(_compressSummarizeTipTimer);
+        _compressSummarizeTipTimer = null;
+    }
+    
+    // 设置文本
+    textElement.textContent = message || '';
+    
+    // 设置样式
+    tipElement.classList.remove('hidden', 'success', 'error');
+    tipElement.classList.add(success ? 'success' : 'error');
+    
+    // 设置日志链接
+    if (linkElement) {
+        if (success && logPath) {
+            linkElement.classList.remove('hidden');
+            linkElement.onclick = function(e) {
+                e.preventDefault();
+                sendMessageToNative({
+                    action: 'openLogFile',
+                    path: logPath
+                });
+            };
+        } else {
+            linkElement.classList.add('hidden');
+        }
+    }
+    
+    // 5秒后自动隐藏
+    _compressSummarizeTipTimer = setTimeout(function() {
+        hideCompressSummarizeTip();
+    }, 5000);
+}
+
+// 隐藏压缩结果提示
+function hideCompressSummarizeTip() {
+    const tipElement = document.getElementById('compressSummarizeTip');
+    if (tipElement) {
+        tipElement.classList.add('hidden');
+    }
+    if (_compressSummarizeTipTimer) {
+        clearTimeout(_compressSummarizeTipTimer);
+        _compressSummarizeTipTimer = null;
+    }
+}
+
 // 导出到全局
 window.updateToolButtons = updateToolButtons;
 window.createToolButtonElement = createToolButtonElement;
@@ -332,3 +393,5 @@ window.handleSendClick = handleSendClick;
 window.handleStopClick = handleStopClick;
 window.handleSkillClick = handleSkillClick;
 window.focusEditor = focusEditor;
+window.showCompressSummarizeTip = showCompressSummarizeTip;
+window.hideCompressSummarizeTip = hideCompressSummarizeTip;

@@ -742,8 +742,20 @@ copy $(SolutionDir)Proj_LazyBug\chatrules_*.txt $(SolutionDir)LazyBugPlugIn\Lazy
     <CustomBuildStep>
       <Command>copy $(OutDir)LazyBug.exe $(SolutionDir)retail\LazyBug.exe
 copy $(SolutionDir)Proj_LazyBug\*.html $(SolutionDir)retail
+copy $(SolutionDir)Proj_LazyBug\ChatCtrlHtml\*.* $(SolutionDir)retail\ChatCtrlHtml
+copy $(SolutionDir)Proj_LazyBug\ChatInputHtml\*.* $(SolutionDir)retail\ChatInputHtml
+copy $(SolutionDir)Proj_LazyBug\CommonHtml\*.* $(SolutionDir)retail\CommonHtml
+xcopy D:\LazyBug\Proj_LazyBug\skills\*.* D:\LazyBug\retail\skills\ /E /I /Y
+copy $(SolutionDir)Proj_LazyBug\llm_default.ini $(SolutionDir)retail
+copy $(SolutionDir)Proj_LazyBug\cli_whitelist.txt $(SolutionDir)retail
 copy $(SolutionDir)Proj_LazyBug\chatrules_*.txt $(SolutionDir)retail\rules
 copy $(SolutionDir)Proj_LazyBug\*.html $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX
+copy $(SolutionDir)Proj_LazyBug\ChatCtrlHtml\*.* $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX\ChatCtrlHtml
+copy $(SolutionDir)Proj_LazyBug\ChatInputHtml\*.* $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX\ChatInputHtml
+copy $(SolutionDir)Proj_LazyBug\CommonHtml\*.* $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX\CommonHtml
+xcopy $(SolutionDir)Proj_LazyBug\skills\*.* $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX\skills /E /I /Y
+copy $(SolutionDir)Proj_LazyBug\llm_default.ini $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX
+copy $(SolutionDir)Proj_LazyBug\cli_whitelist.txt $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX
 copy $(SolutionDir)Proj_LazyBug\chatrules_*.txt $(SolutionDir)LazyBugPlugIn\LazyBugPlugInVSIX\rules
 </Command>
       <Outputs>LazyBug.exe;%(Outputs)</Outputs>
@@ -754,7 +766,7 @@ copy $(SolutionDir)Proj_LazyBug\chatrules_*.txt $(SolutionDir)LazyBugPlugIn\Lazy
     </Midl>
     <ClCompile>
       <AdditionalOptions>/EHac- %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\common;..\Interfaces;..\Proj_GuiLib;..\extlib\xtremetoolkit2022\include;..\extlib\scintilla\include;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\extlib\treesitter\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>

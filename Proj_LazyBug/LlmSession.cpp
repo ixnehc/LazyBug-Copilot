@@ -1090,7 +1090,14 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		requestJson["stream"] = false;
 
 	// 添加 temperature 参数
-    requestJson["temperature"] = 1.0;
+    requestJson["temperature"] = 0.0;
+	if (settings.apiFormat == LlmApiFormat::Kimi)
+	{
+		if (settings.api.thinkingMode == LlmThinkingMode::Disable)
+			requestJson["temperature"] = 0.6f;
+		else
+			requestJson["temperature"] = 1.0f;
+	}
 // 	requestJson["top_k"] = 40.0f;
 // 	requestJson["top_p"] = 0.95f;
 // 	requestJson["min_p"] = 0.05f;

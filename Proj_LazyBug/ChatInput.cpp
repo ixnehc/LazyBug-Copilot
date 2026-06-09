@@ -503,6 +503,15 @@ HRESULT CChatInput::InitializeWebView()
 									}
 								}
 							}
+							else if (action == "openLogFile")
+							{
+								if (jsonMsg.contains("path") && jsonMsg["path"].is_string())
+								{
+									std::wstring path = utf8_to_widechar(jsonMsg["path"].get<std::string>());
+									// 使用系统默认程序打开日志文件
+									ShellExecuteW(NULL, L"open", path.c_str(), NULL, NULL, SW_SHOWNORMAL);
+								}
+							}
 						}
 						catch (const nlohmann::json::parse_error&)
 						{
@@ -1261,6 +1270,39 @@ void CChatInput::HideStopButton()
 		return;
 
 	std::wstring jsonMessage = L"{\"action\":\"hideStopButton\"}";
+	_PostWebMessageAsJson(jsonMessage);
+}
+
+//====================== 压缩结果提示实现 ======================
+
+// 显示压缩结果提示
+void CChatInput::ShowCompressSummarizeTip(bool success, const std::wstring& message, const std::wstring& logPath)
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring safeMessage = EscapeJsonString(message);
+	std::wstring safeLogPath = EscapeJsonString(logPath);
+	
+	std::wstring jsonMessage = L"{\"action\":\"showCompressSummarizeTip\",\"success\":";
+	jsonMessage += success ? L"true" : L"false";
+	jsonMessage += L",\"message\":\"" + safeMessage + L"\"";
+	if (!logPath.empty())
+	{
+		jsonMessage += L",\"logPath\":\"" + safeLogPath + L"\"";
+	}
+	jsonMessage += L"}";
+	
+	_PostWebMessageAsJson(jsonMessage);
+}
+
+// 隐藏压缩结果提示
+void CChatInput::HideCompressSummarizeTip()
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring jsonMessage = L"{\"action\":\"hideCompressSummarizeTip\"}";
 	_PostWebMessageAsJson(jsonMessage);
 }
 

@@ -62,6 +62,7 @@ CChatDialogA::CChatDialogA( CWnd* pParent /* = NULL  */ )
 
 	_chatFileVer = 0;
 	_compressLevelOfContextUsage = ChatOpCompressIntensity::None;
+	_compressSummarizeTipVersion = 0;
 }
 
 CChatDialogA::~CChatDialogA()
@@ -489,6 +490,8 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 	_UpdateSwitchChat();
 
 	_UpdateContextUsage();
+
+	_UpdateCompressSummarizeTip();
 
 	_chatBrief.Update(*this);
 
@@ -1169,6 +1172,20 @@ void CChatDialogA::_OnStopButtonClicked()
 	if (_agent.IsWorking())
 	{
 		_agent.RequestInterrupt();
+	}
+}
+
+//====================== 压缩结果提示相关 ======================
+
+void CChatDialogA::_UpdateCompressSummarizeTip()
+{
+	std::wstring message;
+	bool success;
+	std::wstring logPath;
+
+	if (_agent.GetCompressor().GetCompressSummarizeTip(message, success, logPath, _compressSummarizeTipVersion))
+	{
+		_chatInput.ShowCompressSummarizeTip(success, message, logPath);
 	}
 }
 

@@ -50,6 +50,9 @@ const ChatOp& CChatOpsCompress::_GetSrcOp(const Op& op) const
 
 int CChatOpsCompress::_GetOpCurrentTokens(const Op& op) const
 {
+	if (op.currentLevel == Level_Remove)
+		return 0;
+
 	// 根据当前压缩等级获取有效内容
 	const ChatOp& srcOp = _GetSrcOp(op);
 	static const std::string s_empty;
@@ -1041,8 +1044,8 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 
 		// 否则：内容数据大于 50 字节才值得压缩，启动 task 进行压缩
 		const ChatOp& srcOp = _GetSrcOp(op);
-//		if (srcOp.contentUtf8.size() <= 4000)
-		if (srcOp.contentUtf8.size() <= 4)//XXXXXXXXXXXXXXXXXXXX
+		if (srcOp.contentUtf8.size() <= 4000)
+//		if (srcOp.contentUtf8.size() <= 4)//XXXXXXXXXXXXXXXXXXXX
 			continue;
 
 
@@ -1054,7 +1057,7 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 		}
 
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
-		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName,true);
+		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName,false);
 	}
 }
 
@@ -1072,7 +1075,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	// Pass 顺序原则：信息损失从小到大；同类操作 sessionAge 从大到小（先精简最旧的）
 	// ============================================================
 
-	_PASS(_Pass_SummarizeMessage(1, 999));//XXXXXXXXXXXXXXXXXXXX
+//	_PASS(_Pass_SummarizeMessage(1, 999));//XXXXXXXXXXXXXXXXXXXX
 
 	// ---- 阶段1：清除无效/冗余内容（信息损失 ~0，本就不该保留）----
 	_PASS(_Pass_RemoveFailureFileEdit(0, 999));   // 失败的文件编辑
@@ -1158,8 +1161,10 @@ bool CChatOpsCompress::_TryTrigger(const std::string& summarizeApiName, bool for
 		targetTokens = 30000;
 		break;
 	case ChatOpCompressIntensity::Extreme:
-		threshold = 3000;//XXXXXXXXXXXXXXXXXXXX
-		targetTokens = 1000;
+		threshold = 30000;
+		targetTokens = 10000;
+// 		threshold = 3000;//XXXXXXXXXXXXXXXXXXXX
+// 		targetTokens = 1000;
 		break;
 	default: 
 		return false;
@@ -1197,6 +1202,31 @@ bool CChatOpsCompress::_TryTrigger(const std::string& summarizeApiName, bool for
 		return false;
 
 	_StartCompress(reduceTokens, summarizeApiName, allowDecompress);
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// 压缩结果提示相关方法
+
+void CChatOpsCompress::_SetCompressSummarizeTip(bool success, const std::string& message, const std::string& logPath)
+{
+	_tipSuccess = success;
+	_tipMessage = message;
+	_tipLogPath = logPath;
+	_tipVersion++;
+}
+
+bool CChatOpsCompress::GetCompressSummarizeTip(std::wstring& message, bool& success, std::wstring& logPath, int& version)
+{
+	// 检查版本号是否有变化
+	if (version == _tipVersion)
+		return false;
+
+	// 更新版本号并返回消息
+	version = _tipVersion;
+	message = utf8_to_widechar(_tipMessage);
+	success = _tipSuccess;
+	logPath = utf8_to_widechar(_tipLogPath);
 	return true;
 }
 

@@ -127,6 +127,16 @@ public:
 	// 获取已减少的 token 数
 	int GetReducedTokens() const { return _reducedTokens; }
 
+	// 压缩结果提示相关
+	// 获取压缩结果消息及版本号
+	// 返回值: 是否有新消息（版本号变化）
+	bool GetCompressSummarizeTip(std::wstring& message, bool& success, std::wstring& logPath, int& version);
+	int GetCompressSummarizeTipVersion() const { return _tipVersion; }
+
+private:
+	// 设置压缩结果消息（由 CChatTask_CompressSummarize 调用）
+	void _SetCompressSummarizeTip(bool success, const std::string& message, const std::string& logPath);
+
 private:
 
 	void _StartCompress(int reduceTokenCount, const std::string& summarizeApiName, bool allowDecompress);
@@ -204,6 +214,12 @@ private:
 	int _reducedTokens = 0;           // 已减少的 token 数（累加）(Not calibrated)
 	int _currentPass = 0;             // 当前执行的 Pass
 	std::unordered_set<int> _summarized; // 本次压缩过程中已尝试 AddTask_CompressSummarize 的 workingOp 索引
+
+	// 压缩结果提示相关
+	std::string _tipMessage;      // 提示消息（utf8）
+	std::string _tipLogPath;      // 日志文件路径（utf8）
+	bool _tipSuccess = false;     // 是否成功
+	int _tipVersion = 0;          // 版本号，每次更新 +1
 
 	// 判断是否超时
 	bool _IsCompressTimeout() const;

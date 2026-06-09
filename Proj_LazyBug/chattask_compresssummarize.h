@@ -18,13 +18,21 @@ public:
 	bool NeedLlmSession() override { return true; }
 
 private:
-	void _Fail();
+	void _Fail(const std::string& reason = "");
 	void _Succeed(const std::string& result);
 
 	// 收集 session 中需要压缩的内容
 	std::string _CollectSessionContent();
 
+	// 生成压缩结果 log 字符串
+	std::string _MakeCompressLogString(const std::string& originalContent, const std::string& compressedContent, int originalTokens, int compressedTokens);
+
+	// 生成简短结果信息字符串
+	std::string _MakeShortResultString(bool success, const std::string& reason, int originalTokens = 0, int compressedTokens = 0);
+
+	std::string _originalContent;
 	int _originalTokenCount;
+	std::string _resultMessage;  // 用于 UI 显示的简短结果信息
 
 	bool _hasStartedRequest;
 	bool _requestInterrupt;

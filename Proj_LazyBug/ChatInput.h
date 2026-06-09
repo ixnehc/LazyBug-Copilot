@@ -173,6 +173,17 @@ public:
     void ShowStopButton();
     void HideStopButton();
 
+    // ===== 压缩结果提示相关方法 =====
+    
+    // 显示压缩结果提示
+    // success: 是否成功
+    // message: 显示的消息
+    // logPath: 日志文件路径（成功时显示链接）
+    void ShowCompressSummarizeTip(bool success, const std::wstring& message, const std::wstring& logPath = L"");
+    
+    // 隐藏压缩结果提示
+    void HideCompressSummarizeTip();
+
     // ===== 外观设置方法 =====
     
     // 设置占位符文字
