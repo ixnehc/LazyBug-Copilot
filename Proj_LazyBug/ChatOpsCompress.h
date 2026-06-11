@@ -112,6 +112,9 @@ public:
 	static ChatOpCompressIntensity LoadIntensityForCurrentApi();
 	static void SaveIntensityForCurrentApi(ChatOpCompressIntensity intensity);
 
+	// 获取用于 Session 摘要的 ToolCall 类型列表（供 CollectSessionContent 和 EstimateSessionAIContentToken 共用）
+	static const std::vector<LlmToolType>& GetSessionSummarizeToolTypes();
+
 	void UpdateCompressTriggering();
 	void UpdateCompress();
 

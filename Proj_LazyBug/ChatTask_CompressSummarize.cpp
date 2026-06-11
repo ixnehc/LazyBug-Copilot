@@ -187,17 +187,8 @@ std::string CChatTask_CompressSummarize::_CollectSessionContent()
 
 	int targetSrcIndex = compressor._workingOps[_workingOpIndex].srcIndex;
 
-	// 定义需要收集的 ToolCall 类型
-	std::vector<LlmToolType> toolTypes = {
-		LlmToolType::ReplaceInFile,
-		LlmToolType::CLI_Bash,
-		LlmToolType::CLI_Cmd,
-		LlmToolType::CLI_RunScript,
-		LlmToolType::Question
-	};
-
 	std::string collectedContent;
-	compressor._opsCtrl->CollectUncompressedSessionAIContent(targetSrcIndex, toolTypes, collectedContent);
+	compressor._opsCtrl->CollectUncompressedSessionAIContent(targetSrcIndex, CChatOpsCompress::GetSessionSummarizeToolTypes(), collectedContent);
 
 	return collectedContent;
 }

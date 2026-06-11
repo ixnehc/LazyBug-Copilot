@@ -495,34 +495,21 @@ int CChatOpsCompress::_ApplySummarizeSession(Op& op, CompressLevel level, const 
 	return totalReduced;
 }
 
+const std::vector<LlmToolType>& CChatOpsCompress::GetSessionSummarizeToolTypes()
+{
+	static const std::vector<LlmToolType> toolTypes = {
+		LlmToolType::ReplaceInFile,
+		LlmToolType::CLI_Bash,
+		LlmToolType::CLI_Cmd,
+		LlmToolType::CLI_RunScript,
+		LlmToolType::Question
+	};
+	return toolTypes;
+}
+
 int CChatOpsCompress::_EstimateSessionAIContentTokens(Op& op)
 {
-	int totalTokens = 0;
-
-	// 1. 找到 session 边界
-	int sessionBeginIndex = -1;
-	int sessionEndIndex = -1;
-	if (!_opsCtrl->FindSessionBoundaries(op.srcIndex, sessionBeginIndex, sessionEndIndex))
-		return totalTokens;
-
-	// 2. 统计 session 内所有 AI 内容的 token 数
-	for (auto& otherOp : _workingOps)
-	{
-		// 只处理在 session 范围内的 op（直接检测索引范围）
-		if (otherOp.srcIndex < sessionBeginIndex || otherOp.srcIndex > sessionEndIndex)
-			continue;
-
-		// 只处理指定类型
-		if (otherOp.type != ChatOp::Op_AddStreamingAIMessage &&
-			otherOp.type != ChatOp::Op_AddStreamingAIMessage_Thinking &&
-			otherOp.type != ChatOp::Op_AddToolCallResult)
-			continue;
-
-		// 累加 token 数
-		totalTokens += _GetOpCurrentTokens(otherOp);
-	}
-
-	return totalTokens;
+	return _opsCtrl->EstimateUncompressedSessionAIContentToken(op.srcIndex, GetSessionSummarizeToolTypes());
 }
 
 std::wstring CChatOpsCompress::_TruncateSearchResult(const std::wstring& content, int maxLines)
@@ -1104,7 +1091,7 @@ void CChatOpsCompress::_Pass_SummarizeSession(int startSessionAge, int endSessio
 			continue;
 		_summarized.insert(static_cast<int>(i));
 
-		if (_EstimateSessionAIContentTokens(op)<500)
+		if (_EstimateSessionAIContentTokens(op)<400)
 			continue;
 
 		//
