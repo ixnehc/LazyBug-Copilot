@@ -159,14 +159,21 @@ private:
 	// 获取 Op 对应的原始 ChatOp
 	const ChatOp& _GetSrcOp(const Op& op) const;
 
+	// 获取预存的简化版内容（优先查本次新增，再查原始 ChatOp 历史内容）
+	const std::string* _GetCompressedContent(const Op& op, CompressLevel level) const;
+
 	// 获取 Op 当前实际占用的 token 数
 	int _GetOpCurrentTokens(const Op& op) const;
 
 	// 估算单个 Op 的 token 数
 	int _EstimateOpTokens(const ChatOp& op, bool useUncompressed = false) const;
 
+	// 估算指定 op 所在 session 中所有 AI 内容的 token 总数
+	int _EstimateSessionAIContentTokens(Op& op);
+
 	// 应用压缩到单个工作 Op，返回减少的 token 数
 	int _ApplyCompressToOp(Op& op, CompressLevel level, const std::string& content);
+	int _ApplySummarizeSession(Op& op, CompressLevel level, const std::string& content);
 
 	// Pass 实现函数（参数：startSessionAge, endSessionAge，表示处理的 session 年龄范围）
 	void _Pass_RemoveFailureFileEdit(int startSessionAge, int endSessionAge);
@@ -186,7 +193,7 @@ private:
 	void _Pass_RemoveReplaceInFile(int startSessionAge, int endSessionAge);
 	void _Pass_RemoveToolCallResult(int startSessionAge, int endSessionAge, const std::vector<LlmToolType>& toolTypes);
 	void _Pass_ClearMessages(int startSessionAge, int endSessionAge);
-	void _Pass_SummarizeMessage(int startSessionAge, int endSessionAge);
+	void _Pass_SummarizeSession(int startSessionAge, int endSessionAge);
 
 	// Pass 总数
 	static constexpr int _passCount = 50;

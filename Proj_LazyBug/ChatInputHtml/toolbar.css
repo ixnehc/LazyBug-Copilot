@@ -13,6 +13,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    position: relative;
 }
 
 .toolbar-right {
@@ -162,8 +163,11 @@
 
 /* 压缩结果提示标签容器 */
 .compress-summarize-tip-container {
-    display: flex;
-    align-items: center;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 4px;
+    z-index: 100;
 }
 
 /* 压缩结果提示标签 */
@@ -183,12 +187,12 @@
 }
 
 .compress-summarize-tip.success {
-    background-color: rgba(40, 167, 69, 0.9);
+    background-color: rgba(0, 96, 0, 0.9);
     color: white;
 }
 
 .compress-summarize-tip.error {
-    background-color: rgba(220, 53, 69, 0.9);
+    background-color: rgba(96, 0, 0, 0.9);
     color: white;
 }
 
@@ -207,7 +211,7 @@
 
 .compress-summarize-tip-link:hover {
     opacity: 1;
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 .compress-summarize-tip-link.hidden {

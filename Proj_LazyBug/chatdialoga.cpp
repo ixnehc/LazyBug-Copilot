@@ -1264,6 +1264,9 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 
 		_agent.RemoveDisabledSessions();
 
+		extern void ClearCompressSummarize();
+		ClearCompressSummarize();
+
 		// dump skills 并通过 StartSession 传入，working 周期内复用
 		extern CLlmSkills g_llmSkills;
 		std::string skillsDump;

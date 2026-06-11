@@ -314,6 +314,8 @@ function handleSkillClick() {
 
 // 压缩结果提示标签相关
 let _compressSummarizeTipTimer = null;
+let _isTipHovered = false;
+let _tipEventListenersAttached = false;
 
 // 显示压缩结果提示
 // success: 是否成功
@@ -332,32 +334,67 @@ function showCompressSummarizeTip(success, message, logPath) {
         _compressSummarizeTipTimer = null;
     }
     
-    // 设置文本
-    textElement.textContent = message || '';
+    // 只绑定一次事件监听器
+    if (!_tipEventListenersAttached) {
+        tipElement.addEventListener('mouseenter', function() {
+            _isTipHovered = true;
+            // 清除当前的隐藏定时器
+            if (_compressSummarizeTipTimer) {
+                clearTimeout(_compressSummarizeTipTimer);
+                _compressSummarizeTipTimer = null;
+            }
+        });
+        
+        tipElement.addEventListener('mouseleave', function() {
+            _isTipHovered = false;
+            // 鼠标离开后，延迟2秒再隐藏
+            _compressSummarizeTipTimer = setTimeout(function() {
+                hideCompressSummarizeTip();
+            }, 2000);
+        });
+        
+        _tipEventListenersAttached = true;
+    }
     
     // 设置样式
     tipElement.classList.remove('hidden', 'success', 'error');
     tipElement.classList.add(success ? 'success' : 'error');
     
-    // 设置日志链接
+    // 设置文本和链接
     if (linkElement) {
-        if (success && logPath) {
-            linkElement.classList.remove('hidden');
+        if (success && logPath && message) {
+            // 解析消息，分离 "view detail" 部分
+            const viewDetailIndex = message.indexOf(', view detail');
+            if (viewDetailIndex !== -1) {
+                const mainMessage = message.substring(0, viewDetailIndex);
+                textElement.textContent = mainMessage + ', ';
+                linkElement.textContent = 'view detail';
+                linkElement.classList.remove('hidden');
             linkElement.onclick = function(e) {
-                e.preventDefault();
-                sendMessageToNative({
-                    action: 'openLogFile',
-                    path: logPath
-                });
-            };
+                    e.preventDefault();
+                    e.stopPropagation();
+                    sendMessageToNative({
+                        action: 'openLogFile',
+                        path: logPath
+                    });
+                };
+            } else {
+                textElement.textContent = message || '';
+                linkElement.classList.add('hidden');
+            }
         } else {
+            textElement.textContent = message || '';
             linkElement.classList.add('hidden');
         }
+    } else {
+        textElement.textContent = message || '';
     }
     
-    // 5秒后自动隐藏
+    // 5秒后自动隐藏（如果未被悬停）
     _compressSummarizeTipTimer = setTimeout(function() {
-        hideCompressSummarizeTip();
+        if (!_isTipHovered) {
+            hideCompressSummarizeTip();
+        }
     }, 5000);
 }
 

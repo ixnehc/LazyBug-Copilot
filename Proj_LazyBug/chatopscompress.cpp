@@ -48,6 +48,20 @@ const ChatOp& CChatOpsCompress::_GetSrcOp(const Op& op) const
 	return _opsCtrl->_ops[op.srcIndex];
 }
 
+const std::string* CChatOpsCompress::_GetCompressedContent(const Op& op, CompressLevel level) const
+{
+	auto it = op.newCompressedContents.find(static_cast<int>(level));
+	if (it != op.newCompressedContents.end())
+		return &it->second;
+
+	const ChatOp& srcOp = _GetSrcOp(op);
+	auto it2 = srcOp.compressedContents.find(static_cast<int>(level));
+	if (it2 != srcOp.compressedContents.end())
+		return &it2->second;
+
+	return nullptr;
+}
+
 int CChatOpsCompress::_GetOpCurrentTokens(const Op& op) const
 {
 	if (op.currentLevel == Level_Remove)
@@ -90,6 +104,8 @@ int CChatOpsCompress::_GetOpCurrentTokens(const Op& op) const
 	case ChatOp::Op_AddStreamingAIMessage:
 	case ChatOp::Op_AddStreamingAIMessage_Thinking:
 	case ChatOp::Op_AddToolCallResult:
+	case ChatOp::Op_BeginSession:
+	case ChatOp::Op_EndSession:
 		return Utils::EstimateTokenCount(*effectiveContent);
 	default:
 		return 0;
@@ -430,6 +446,83 @@ int CChatOpsCompress::_ApplyCompressToOp(Op& op, CompressLevel level, const std:
 	_reducedTokens += reduced;
 
 	return reduced;
+}
+
+int CChatOpsCompress::_ApplySummarizeSession(Op& op, CompressLevel level, const std::string& content)
+{
+	int totalReduced = 0;
+
+	// 1. 对目标 op 应用压缩
+	int targetReduced = _ApplyCompressToOp(op, level, content);
+	totalReduced += targetReduced;
+
+	// 2. 找到 session 边界
+	int sessionBeginIndex = -1;
+	int sessionEndIndex = -1;
+	if (!_opsCtrl->FindSessionBoundaries(op.srcIndex, sessionBeginIndex, sessionEndIndex))
+		return totalReduced;
+
+	// 4. 将同一 session 中所有 AI Message 和 ToolCallResult 设为 Level_Remove
+	for (auto& otherOp : _workingOps)
+	{
+		// 跳过目标 op（已经处理过了）
+		if (&otherOp == &op)
+			continue;
+
+		// 只处理在 session 范围内的 op（直接检测索引范围）
+		if (otherOp.srcIndex < sessionBeginIndex || otherOp.srcIndex > sessionEndIndex)
+			continue;
+
+		// 只处理指定类型
+		if (otherOp.type != ChatOp::Op_AddStreamingAIMessage &&
+			otherOp.type != ChatOp::Op_AddStreamingAIMessage_Thinking &&
+			otherOp.type != ChatOp::Op_AddToolCallResult)
+			continue;
+
+		// 计算移除前的 token
+		int tokensBefore = _GetOpCurrentTokens(otherOp);
+
+		// 设为 Level_Remove
+		otherOp.currentLevel = Level_Remove;
+
+		int reduced = tokensBefore;
+
+		// 累加到总减少量
+		_reducedTokens += reduced;
+		totalReduced += reduced;
+	}
+
+	return totalReduced;
+}
+
+int CChatOpsCompress::_EstimateSessionAIContentTokens(Op& op)
+{
+	int totalTokens = 0;
+
+	// 1. 找到 session 边界
+	int sessionBeginIndex = -1;
+	int sessionEndIndex = -1;
+	if (!_opsCtrl->FindSessionBoundaries(op.srcIndex, sessionBeginIndex, sessionEndIndex))
+		return totalTokens;
+
+	// 2. 统计 session 内所有 AI 内容的 token 数
+	for (auto& otherOp : _workingOps)
+	{
+		// 只处理在 session 范围内的 op（直接检测索引范围）
+		if (otherOp.srcIndex < sessionBeginIndex || otherOp.srcIndex > sessionEndIndex)
+			continue;
+
+		// 只处理指定类型
+		if (otherOp.type != ChatOp::Op_AddStreamingAIMessage &&
+			otherOp.type != ChatOp::Op_AddStreamingAIMessage_Thinking &&
+			otherOp.type != ChatOp::Op_AddToolCallResult)
+			continue;
+
+		// 累加 token 数
+		totalTokens += _GetOpCurrentTokens(otherOp);
+	}
+
+	return totalTokens;
 }
 
 std::wstring CChatOpsCompress::_TruncateSearchResult(const std::wstring& content, int maxLines)
@@ -885,22 +978,7 @@ void CChatOpsCompress::_Pass_TruncateToolCallResult(int startSessionAge, int end
 		if (op.currentLevel >= level)
 			continue;
 
-		// 检查是否有预存的简化版内容
-		// 优先查本次新增，再查原始 ChatOp 历史内容
-		const std::string* partialContent = nullptr;
-		auto it = op.newCompressedContents.find(static_cast<int>(level));
-		if (it != op.newCompressedContents.end())
-		{
-			partialContent = &it->second;
-		}
-		else
-		{
-			const ChatOp& srcOp = _GetSrcOp(op);
-			auto it2 = srcOp.compressedContents.find(static_cast<int>(level));
-			if (it2 != srcOp.compressedContents.end())
-				partialContent = &it2->second;
-		}
-
+		const std::string* partialContent = _GetCompressedContent(op, level);
 		if (!partialContent || partialContent->empty() || *partialContent == _GetSrcOp(op).contentUtf8)
 			continue;
 
@@ -992,7 +1070,7 @@ void CChatOpsCompress::_Pass_ClearMessages(int startSessionAge, int endSessionAg
 	// TODO: 清除消息
 }
 
-void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessionAge)
+void CChatOpsCompress::_Pass_SummarizeSession(int startSessionAge, int endSessionAge)
 {
 	for (size_t i = 0; i < _workingOps.size(); ++i)
 	{
@@ -1006,34 +1084,18 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 		if (op.sessionAge < startSessionAge || op.sessionAge > endSessionAge)
 			continue;
 
-		// 仅处理 AI 消息
-		if (op.type != ChatOp::Op_AddStreamingAIMessage)
+		if (op.type != ChatOp::Op_EndSession)
 			continue;
 		if (op.currentLevel != Level_None)
 			continue;  // 已压缩过
 
-		// 查找已有的压缩内容（优先本次新增，再查原始 ChatOp 历史内容）
-		const std::string* partialContent = nullptr;
-		auto it = op.newCompressedContents.find(static_cast<int>(Level_Partial));
-		if (it != op.newCompressedContents.end())
-		{
-			partialContent = &it->second;
-		}
-		else
-		{
-			const ChatOp& srcOp = _GetSrcOp(op);
-			auto it2 = srcOp.compressedContents.find(static_cast<int>(Level_Partial));
-			if (it2 != srcOp.compressedContents.end())
-				partialContent = &it2->second;
-		}
+		// 查找已有的压缩内容
+		const std::string* partialContent = _GetCompressedContent(op, Level_Partial);
 
 		// 如果已有压缩内容，则直接应用压缩
 		if (partialContent && !partialContent->empty())
 		{
-// 			std::wstring oldContent = utf8_to_widechar(_GetSrcOp(op).contentUtf8);
-// 			std::wstring newContent = utf8_to_widechar(*partialContent);
-
-			_ApplyCompressToOp(op, Level_Partial, "");
+			_ApplySummarizeSession(op, Level_Partial, "");
 			continue;
 		}
 
@@ -1042,12 +1104,8 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 			continue;
 		_summarized.insert(static_cast<int>(i));
 
-		// 否则：内容数据大于 50 字节才值得压缩，启动 task 进行压缩
-		const ChatOp& srcOp = _GetSrcOp(op);
-		if (srcOp.contentUtf8.size() <= 4000)
-//		if (srcOp.contentUtf8.size() <= 4)//XXXXXXXXXXXXXXXXXXXX
+		if (_EstimateSessionAIContentTokens(op)<500)
 			continue;
-
 
 		//
 		if (_summarizeApiName.empty())
@@ -1057,7 +1115,8 @@ void CChatOpsCompress::_Pass_SummarizeMessage(int startSessionAge, int endSessio
 		}
 
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
-		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName,false);
+		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName,true);
+
 	}
 }
 
@@ -1075,7 +1134,7 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	// Pass 顺序原则：信息损失从小到大；同类操作 sessionAge 从大到小（先精简最旧的）
 	// ============================================================
 
-//	_PASS(_Pass_SummarizeMessage(1, 999));//XXXXXXXXXXXXXXXXXXXX
+// 	_PASS(_Pass_SummarizeSession(1, 999));//XXXXXXXXXXXXXXXXXXXX
 
 	// ---- 阶段1：清除无效/冗余内容（信息损失 ~0，本就不该保留）----
 	_PASS(_Pass_RemoveFailureFileEdit(0, 999));   // 失败的文件编辑
@@ -1098,14 +1157,10 @@ void CChatOpsCompress::_ExecutePass(int pass)
 	_PASS(_Pass_TruncateFindInFiles(2, 999));
 	_PASS(_Pass_TruncateReadFile(2, 999));
 
-	_PASS(_Pass_SummarizeMessage(4, 999));
-
 	// ---- 阶段5：进一步清除/删除可恢复内容（高损失）----
 // 	_PASS(_Pass_ClearReplaceInFile(3, 999));      // 完全清除文件替换结果
 	_PASS(_Pass_RemoveFindSymbol(3, 999));        // 删除符号查找结果
 	_PASS(_Pass_RemoveSearchOps(3, 999));         // 删除搜索结果
-
-	_PASS(_Pass_SummarizeMessage(3, 999));
 
 	// ---- 阶段6：Extreme 模式 - 激进精简（极高损失，含当前 session）----
 	if (_workingEnv.intensity >= ChatOpCompressIntensity::Extreme)
@@ -1120,7 +1175,10 @@ void CChatOpsCompress::_ExecutePass(int pass)
 		_PASS(_Pass_RemoveFindSymbol(2, 999));
 		_PASS(_Pass_RemoveSearchOps(2, 999));
 
+		_PASS(_Pass_SummarizeSession(3, 999));
 	}
+	else
+		_PASS(_Pass_SummarizeSession(4, 999));
 
 
 #undef _PASS
@@ -1161,10 +1219,10 @@ bool CChatOpsCompress::_TryTrigger(const std::string& summarizeApiName, bool for
 		targetTokens = 30000;
 		break;
 	case ChatOpCompressIntensity::Extreme:
-		threshold = 30000;
-		targetTokens = 10000;
-// 		threshold = 3000;//XXXXXXXXXXXXXXXXXXXX
-// 		targetTokens = 1000;
+ 		threshold = 30000;
+ 		targetTokens = 10000;
+//  		threshold = 3000;//XXXXXXXXXXXXXXXXXXXX
+//  		targetTokens = 1000;
 		break;
 	default: 
 		return false;

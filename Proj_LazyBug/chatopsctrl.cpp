@@ -4,6 +4,7 @@
 #include <fstream>
 #include <algorithm>
 #include <unordered_set>
+#include <functional>
 #include "timer/wuid.h"
 #include "datapacket/DataPacket.h"
 #include "LlmSession.h"
@@ -14,6 +15,7 @@
 #include "Utils_Context.h"
 
 #include "chatopscompress.h"
+#include "LlmTools.h"
 
 // JSON 库
 #include "nlohmann/json.hpp"
@@ -1640,6 +1642,38 @@ int CChatOpsCtrl::_FindLastOpIndex(ChatOp::Type tp) const
 	return -1;
 }
 
+bool CChatOpsCtrl::FindSessionBoundaries(int targetSrcIndex, int& sessionBeginIndex, int& sessionEndIndex) const
+{
+	sessionBeginIndex = -1;
+	sessionEndIndex = -1;
+
+	if (targetSrcIndex < 0 || targetSrcIndex >= (int)_ops.size())
+		return false;
+
+	// 向前找 Op_BeginSession
+	for (int i = targetSrcIndex; i >= 0; i--)
+	{
+		if (_ops[i].type == ChatOp::Op_BeginSession)
+		{
+			sessionBeginIndex = i;
+			break;
+		}
+	}
+
+	// 向后找 Op_EndSession
+	for (int i = targetSrcIndex; i < (int)_ops.size(); i++)
+	{
+		if (_ops[i].type == ChatOp::Op_EndSession)
+		{
+			sessionEndIndex = i;
+			break;
+		}
+	}
+
+	// 只有当两个边界都找到时才返回 true
+	return (sessionBeginIndex >= 0 && sessionEndIndex >= 0);
+}
+
 ChatOp* CChatOpsCtrl::_GetLastOp()
 {
 	if (_ops.size() <= 0)
@@ -2735,6 +2769,19 @@ bool CChatOpsCtrl::MakeSessionRequest(LlmSessionRequest& request, int fileAttach
 			break;
 		}
 
+		case ChatOp::Op_EndSession:
+		{
+			if (op.currentCompressionLevel == CChatOpsCompress::CompressLevel::Level_Partial)
+			{
+				std::string effectiveContent = _GetEffectiveOpContent(op);
+				if (!effectiveContent.empty())
+				{
+					request.AddAssistMessage(effectiveContent.c_str());
+				}
+			}
+			break;
+		}
+
 		default:
 			// 其他操作类型忽略
 			break;
@@ -2746,6 +2793,113 @@ bool CChatOpsCtrl::MakeSessionRequest(LlmSessionRequest& request, int fileAttach
 		request.AddCacheControl();
 
 	return true;
+}
+
+void CChatOpsCtrl::CollectUncompressedSessionAIContent(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes, std::string& content)
+{
+	content.clear();
+
+	std::string collectedContent;
+	_IterateSessionAIContent(targetSrcIndex, toolTypes, [&collectedContent](const std::string& fragment, LlmToolType toolType) -> bool {
+		if (toolType == LlmToolType::None)
+		{
+			// AI 消息内容
+			collectedContent += fragment;
+			collectedContent += "\n\n";
+		}
+		else
+		{
+			// ToolCall 内容
+			collectedContent += "[ToolCall: ";
+			collectedContent += g_llmTools.GetToolTypeName(toolType);
+			collectedContent += "]\n";
+			collectedContent += fragment;
+			collectedContent += "\n\n";
+		}
+		return true; // 继续遍历
+	});
+
+	content = std::move(collectedContent);
+}
+
+int CChatOpsCtrl::EstimateUncompressedSessionAIContentToken(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes)
+{
+	int totalTokens = 0;
+	_IterateSessionAIContent(targetSrcIndex, toolTypes, [&totalTokens](const std::string& fragment, LlmToolType toolType) -> bool {
+		// 使用 Utils::EstimateTokenCount 估算 token 数
+		totalTokens += Utils::EstimateTokenCount(fragment);
+		
+		// ToolCall 的额外前缀也需要估算 token
+		if (toolType != LlmToolType::None)
+		{
+			std::string prefix = "[ToolCall: ";
+			prefix += g_llmTools.GetToolTypeName(toolType);
+			prefix += "]\n";
+			totalTokens += Utils::EstimateTokenCount(prefix);
+		}
+		
+		// 分隔符 "\n\n" 的估算
+		totalTokens += Utils::EstimateTokenCount("\n\n");
+		
+		return true; // 继续遍历
+	});
+	return totalTokens;
+}
+
+void CChatOpsCtrl::_IterateSessionAIContent(int targetSrcIndex, 
+                                               const std::vector<LlmToolType>& toolTypes,
+                                               std::function<bool(const std::string&, LlmToolType)> callback) const
+{
+	// 验证 targetSrcIndex 有效性
+	if (targetSrcIndex < 0 || targetSrcIndex >= (int)_ops.size())
+		return;
+
+	// 找到 session 边界
+	int sessionBeginIndex = -1;
+	int sessionEndIndex = -1;
+	if (!FindSessionBoundaries(targetSrcIndex, sessionBeginIndex, sessionEndIndex))
+		return;
+
+	// 定义需要收集的 ToolCall 类型（如果 toolTypes 为空，则收集所有类型）
+	auto isTargetToolType = [&toolTypes](LlmToolType toolType) {
+		if (toolTypes.empty())
+			return true;
+		for (LlmToolType t : toolTypes)
+		{
+			if (t == toolType)
+				return true;
+		}
+		return false;
+	};
+
+	// 遍历 session 内的内容
+	for (int i = sessionBeginIndex; i <= sessionEndIndex; i++)
+	{
+		const ChatOp& op = _ops[i];
+
+		if (op.type == ChatOp::Op_AddStreamingAIMessage)
+		{
+			// AI 消息内容
+			if (!op.contentUtf8.empty())
+			{
+				if (!callback(op.contentUtf8, LlmToolType::None))
+					return; // 回调返回 false，中断遍历
+			}
+		}
+		else if (op.type == ChatOp::Op_AddToolCallResult)
+		{
+			// 解析 ToolCall 类型并判断是否需要收集
+			LlmToolType toolType = CLlmTools::ParseToolTypeFromToolCallResultString(op.contentUtf8);
+			if (isTargetToolType(toolType))
+			{
+				if (!op.contentUtf8.empty())
+				{
+					if (!callback(op.contentUtf8, toolType))
+						return; // 回调返回 false，中断遍历
+				}
+			}
+		}
+	}
 }
 
 
@@ -2885,12 +3039,18 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 	for (int i = startIndex; i < endIndex; i++)
 	{
 		const ChatOp& op = _ops[i];
-		std::string effectiveContent = useUncompressed ? op.contentUtf8 : _GetEffectiveOpContent(op);
 		if (!useUncompressed)
 		{
 			if (op.currentCompressionLevel == CChatOpsCompress::Level_Remove)
 				continue;
 		}
+		if (useUncompressed)
+		{
+			if (op.type == ChatOp::Op_EndSession)
+				continue;
+		}
+
+		std::string effectiveContent = useUncompressed ? op.contentUtf8 : _GetEffectiveOpContent(op);
 
 		switch (op.type)
 		{
@@ -2905,6 +3065,7 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 		}
 
 		case ChatOp::Op_AddStreamingAIMessage:
+		case ChatOp::Op_EndSession:
 		{
 			// AI消息直接使用content
 			int tokens = Utils::EstimateTokenCount(effectiveContent);

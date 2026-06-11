@@ -262,8 +262,10 @@ public:
     // ── MakeSessionRequest ───────────────────────────────────────────────
 
     // 从 Op 队列重建 LlmSessionRequest（供 CChatAgent 发送给 LLM）
-    bool MakeSessionRequest(LlmSessionRequest& request, int fileAttaches);
-    bool MakeSessionRequest_Debug(LlmSessionRequest& request);
+	bool MakeSessionRequest(LlmSessionRequest& request, int fileAttaches);
+	bool MakeSessionRequest_Debug(LlmSessionRequest& request);
+	void CollectUncompressedSessionAIContent(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes, std::string& content);
+	int  EstimateUncompressedSessionAIContentToken(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes);
 
     // ── Title ────────────────────────────────────────────────────────────
 
@@ -353,6 +355,14 @@ public:
     size_t GetOpsCount() const { return _ops.size(); }
     int FindLastOpIndex(ChatOp::Type tp)     const { return _FindLastOpIndex(tp); }
 
+    // ── Session 边界查找 ──────────────────────────────────────────────────
+    // 查找指定 op 所在的 session 边界
+    // targetSrcIndex: 目标 op 在 _ops 中的索引
+    // sessionBeginIndex: 输出参数，Op_BeginSession 的索引（如果没有找到则为 -1）
+    // sessionEndIndex: 输出参数，Op_EndSession 的索引（如果没有找到则为 -1）
+    // 返回值: 是否成功找到 session 边界（两个边界都找到返回 true）
+    bool FindSessionBoundaries(int targetSrcIndex, int& sessionBeginIndex, int& sessionEndIndex) const;
+
     // ── 版本号（用于判断数据是否已被修改，需要保存）────────────────────
 
     DWORD GetVer() const { return _ver; }
@@ -416,6 +426,12 @@ private:
     std::wstring _BuildButtonsJson(const std::vector<FileEditBtn>& buttons);
 
 	int _EstimateTokenCountBetweenOps(int startIndex, int endIndex, bool useUncompressed = false);
+
+	// 遍历 Session 内的 AI 内容（供 CollectUncompressedSessionAIContent 和 EstimateUncompressedSessionAIContentToken 共用逻辑）
+	// callback 参数: (const std::string& contentFragment, LlmToolType toolType) -> bool，返回 false 可中断遍历
+	void _IterateSessionAIContent(int targetSrcIndex, 
+	                               const std::vector<LlmToolType>& toolTypes,
+	                               std::function<bool(const std::string&, LlmToolType)> callback) const;
 
 	void _ExecuteOp(const ChatOp& op);
 
