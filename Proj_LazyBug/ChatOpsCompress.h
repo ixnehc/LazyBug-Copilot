@@ -157,6 +157,7 @@ private:
 	void _ExecutePass(int pass);
 
 	// 将压缩结果同步回 ChatOp 数组
+	void _TrySyncBackToOps();
 	void _SyncBackToOps();
 
 	// 获取 Op 对应的原始 ChatOp

@@ -121,6 +121,12 @@ void ChatOp::Load(CDataPacket& dp,DWORD ver)
 		currentCompressionLevel = 0;
 		compressedContents.clear();
 	}
+
+// 	if (opType == ChatOp::Op_EndSession)//XXXXXXXXXXXXXXXXXXXXSummarize
+// 	{
+// 		currentCompressionLevel = 0;
+// 		compressedContents.clear();
+// 	}
 }
 
 void ChatOp::Load(std::ifstream& file,DWORD ver)

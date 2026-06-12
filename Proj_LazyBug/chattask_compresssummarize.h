@@ -8,8 +8,8 @@ class CChatTask_CompressSummarize : public CChatTask
 public:
 	// workingOpIndex: CChatOpsCompress::_workingOps 的索引
 	// summarizeApiName: 用于 summarize 的 API 名称
-	// isSessionMode: 是否为 session 模式（压缩整个 session）
-	CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, bool isSessionMode = false);
+	// originalTokenCount: 原始内容的 token 数量（已校准）
+	CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount);
 
 	const char* GetType() override { return "CompressSummarize"; }
 	void Start() override;
@@ -19,18 +19,18 @@ public:
 
 private:
 	void _Fail(const std::string& reason = "");
-	void _Succeed(const std::string& result);
+	void _Succeed(const std::string& result, const LlmSessionUsage& usage);
 
 	// 收集 session 中需要压缩的内容
 	std::string _CollectSessionContent();
 
 	// 生成压缩结果 log 字符串
-	std::string _MakeCompressLogString(const std::string& originalContent, const std::string& compressedContent, int originalTokens, int compressedTokens);
+	std::string _MakeCompressLogString(const std::string& originalContent, const std::string& compressedContent, int originalTokens, int compressedTokens, float cost);
 
 	// 生成简短结果信息字符串
 	std::string _MakeShortResultString(bool success, const std::string& reason, int originalTokens = 0, int compressedTokens = 0);
 
-	std::string _originalContent;
+	std::string _textToCompress;
 	int _originalTokenCount;
 	std::string _resultMessage;  // 用于 UI 显示的简短结果信息
 
@@ -38,5 +38,4 @@ private:
 	bool _requestInterrupt;
 	int _workingOpIndex;
 	std::string _summarizeApiName;
-	bool _isSessionMode;  // 是否为 session 模式
 };

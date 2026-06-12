@@ -654,9 +654,9 @@ void CChatTaskMgr::AddTask_CreateSkill(const LlmToolCall& toolCall)
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, bool isSessionMode)
+void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount)
 {
-	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, isSessionMode);
+	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, originalTokenCount);
 	_AddTask(task);
 }
 

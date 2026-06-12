@@ -44,11 +44,11 @@ void ClearCompressSummarize()
 	}
 }
 
-CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, bool isSessionMode)
+CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount)
 {
 	_workingOpIndex = workingOpIndex;
 	_summarizeApiName = summarizeApiName;
-	_isSessionMode = isSessionMode;
+	_originalTokenCount = originalTokenCount;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 }
@@ -67,7 +67,7 @@ void CChatTask_CompressSummarize::_Fail(const std::string& reason)
 	_status = TaskStatus::Failure;
 }
 
-void CChatTask_CompressSummarize::_Succeed(const std::string& result)
+void CChatTask_CompressSummarize::_Succeed(const std::string& result, const LlmSessionUsage& usage)
 {
 	// 将压缩结果存入 workingOp.newCompressedContents
 	if (_context && _context->chatAgent)
@@ -83,43 +83,38 @@ void CChatTask_CompressSummarize::_Succeed(const std::string& result)
 			
 			// 输出 log（追加到文件末尾）
 			{
-				std::string logStr = _MakeCompressLogString(_originalContent, result, _originalTokenCount, resultTokenCount);
+				std::string logStr = _MakeCompressLogString(_textToCompress, result, _originalTokenCount, resultTokenCount, usage.fee);
 				AppendCompressSummarize(logStr);
 			}
 			
-			// 如果压缩掉的token数不到400,仍然用原来的
-			if (!(resultTokenCount + 100 <= _originalTokenCount))
+			// 如果压缩掉的token数太少,标记为无法压缩
+			if (!(resultTokenCount + 50 <= _originalTokenCount))
 			{
-				int srcIndex = workingOp.srcIndex;
-				if (srcIndex >= 0 && srcIndex < (int)compressor._opsCtrl->GetOps().size())
-				{
-					pContentToStore = &_originalContent;
-					resultTokenCount = _originalTokenCount;
-				}
+				static std::string skip_compress = "<skip_compress>";
+				pContentToStore = &skip_compress;//标记这个session不适合压缩(通常因为过短),以后也不会再尝试压缩它
+				resultTokenCount = _originalTokenCount;
 			}
-			workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = *pContentToStore;
+			workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = *pContentToStore;//XXXXXXXXXXXXXXXXXXXXSummarize
 			
 			// 准备简短结果信息
 			_resultMessage = _MakeShortResultString(true, "", _originalTokenCount, resultTokenCount);
 			
 			// 设置提示消息到 CChatOpsCompress
 			compressor._SetCompressSummarizeTip(true, _resultMessage, GetCompressSummarizeLogPath());
+
 		}
 	}
 	_status = TaskStatus::Success;
 }
 
-std::string CChatTask_CompressSummarize::_MakeCompressLogString(const std::string& originalContent, const std::string& compressedContent, int originalTokens, int compressedTokens)
+std::string CChatTask_CompressSummarize::_MakeCompressLogString(const std::string& originalContent, const std::string& compressedContent, int originalTokens, int compressedTokens, float cost)
 {
 	std::string logStr;
 	
 	// 标题信息
 	logStr += "################################################################################\n";
 	logStr += "##                                                                            ##\n";
-	logStr += "##                     [CompressSummarize] ";
-	logStr += _isSessionMode ? "Session Mode" : "Single Op Mode";
-	logStr += std::string(_isSessionMode ? "" : " ");
-	logStr += "                       ##\n";
+	logStr += "##                     [CompressSummarize] Session Mode                       ##\n";
 	logStr += "##                                                                            ##\n";
 	logStr += "################################################################################\n";
 	logStr += "\n";
@@ -128,13 +123,18 @@ std::string CChatTask_CompressSummarize::_MakeCompressLogString(const std::strin
 	logStr += "==============================================================================\n";
 	logStr += "=                                   SUMMARY                                  =\n";
 	logStr += "==============================================================================\n";
-	logStr += "  Original tokens:    " + std::to_string(originalTokens) + "\n";
-	logStr += "  Compressed tokens:  " + std::to_string(compressedTokens) + "\n";
+	int estimatedTokens = static_cast<int>(Utils::EstimateTokenCount(_textToCompress) * CTokenCalibrate::GetCalibrationFactor());
+	logStr += "  Session tokens:                " + std::to_string(originalTokens) + "\n";
+	logStr += "  Tokens of content to compress: " + std::to_string(estimatedTokens) + "\n";
+	logStr += "  Compressed tokens:             " + std::to_string(compressedTokens) + "\n";
 	int reduced = originalTokens - compressedTokens;
 	int percent = originalTokens > 0 ? (reduced * 100 / originalTokens) : 0;
-	logStr += "  Reduced:            " + std::to_string(reduced) + " tokens (" + std::to_string(percent) + "%)\n";
-	logStr += "  Result:             " + std::string(compressedTokens + 400 <= originalTokens ? "SUCCESS" : "SKIPPED (insufficient reduction)") + "\n";
-	logStr += "  Summarize API:      " + _summarizeApiName + "\n";
+	logStr += "  Reduced:                       " + std::to_string(reduced) + " tokens (" + std::to_string(percent) + "%)\n";
+	logStr += "  Result:                        " + std::string(compressedTokens + 50 <= originalTokens ? "SUCCESS" : "SKIPPED (insufficient reduction)") + "\n";
+	logStr += "  Summarize API:                 " + _summarizeApiName + "\n";
+	char costBuffer[64];
+	sprintf_s(costBuffer, 64, "  Cost:                          $%.6f\n", cost);
+	logStr += costBuffer;
 	logStr += "\n\n";
 	
 	// 压缩后内容（先显示）
@@ -210,35 +210,15 @@ void CChatTask_CompressSummarize::Start()
 		return;
 	}
 
-	std::string textToCompress;
-
-	if (_isSessionMode)
+	// 收集整个 session 的内容
+	std::string textToCompress = _CollectSessionContent();
+	if (textToCompress.empty())
 	{
-		// Session 模式：收集整个 session 的内容
-		textToCompress = _CollectSessionContent();
-		if (textToCompress.empty())
-		{
-			_Fail("Session content is empty");
-			return;
-		}
-	}
-	else
-	{
-		// 原有模式：单个 Op 的内容
-		CChatOpsCompress::Op& workingOp = compressor._workingOps[_workingOpIndex];
-		int srcIndex = workingOp.srcIndex;
-		if (srcIndex < 0 || srcIndex >= (int)compressor._opsCtrl->GetOps().size())
-		{
-			_Fail("Invalid source op index");
-			return;
-		}
-
-		const ChatOp& srcOp = compressor._opsCtrl->GetOps()[srcIndex];
-		textToCompress = srcOp.contentUtf8;
+		_Fail("Session content is empty");
+		return;
 	}
 
-	_originalTokenCount = static_cast<int>(Utils::EstimateTokenCount(textToCompress) * CTokenCalibrate::GetCalibrationFactor());
-	_originalContent = textToCompress;
+	_textToCompress = textToCompress;
 
 	if (textToCompress.empty())
 	{
@@ -319,7 +299,7 @@ void CChatTask_CompressSummarize::Update()
 						}
 						else if (!_requestInterrupt)
 						{
-							_Succeed(output.fullContent);
+							_Succeed(output.fullContent, output.usage);
 						}
 						else
 						{

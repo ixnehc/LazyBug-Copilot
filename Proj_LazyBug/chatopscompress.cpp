@@ -233,6 +233,20 @@ void CChatOpsCompress::UpdateCompress()
 	_UpdateCompress();
 }
 
+void CChatOpsCompress::_TrySyncBackToOps()
+{
+	bool canAccept = true;
+	if (true)
+	{
+		bool isDecompressed = _initialUncompressedTokens - _reducedTokens > _initialTokens;
+		if ((!_allowDecompress) && isDecompressed)
+			canAccept = false;
+	}
+	// 同步回原数组
+	if (canAccept)
+		_SyncBackToOps();
+}
+
 
 void CChatOpsCompress::_UpdateCompress()
 {
@@ -266,19 +280,7 @@ void CChatOpsCompress::_UpdateCompress()
 	// 所有 Pass 完成或达标或超时
 	if (_currentPass >= _passCount || _reducedTokens >= _reduceTokenCount)
 	{
-		if (true)
-		{
-			bool canAccept = true;
-			if (true)
-			{
-				bool isDecompressed = _initialUncompressedTokens - _reducedTokens > _initialTokens;
-				if ((!_allowDecompress) && isDecompressed)
-					canAccept = false;
-			}
-			// 同步回原数组
-			if (canAccept)
-				_SyncBackToOps();
-		}
+		_TrySyncBackToOps();
 
 		_state = State_Idle;
 		_env = _workingEnv;
@@ -509,7 +511,22 @@ const std::vector<LlmToolType>& CChatOpsCompress::GetSessionSummarizeToolTypes()
 
 int CChatOpsCompress::_EstimateSessionAIContentTokens(Op& op)
 {
-	return _opsCtrl->EstimateUncompressedSessionAIContentToken(op.srcIndex, GetSessionSummarizeToolTypes());
+	// 1. 找到 op 所在 session 的边界（在原始 _ops 中的索引）
+	int sessionBeginIndex = -1;
+	int sessionEndIndex = -1;
+	if (!_opsCtrl->FindSessionBoundaries(op.srcIndex, sessionBeginIndex, sessionEndIndex))
+		return 0;
+
+	// 2. 遍历 _workingOps，累加范围内所有 op 的当前 token 数
+	int totalTokens = 0;
+	for (const auto& workingOp : _workingOps)
+	{
+		if (workingOp.srcIndex >= sessionBeginIndex && workingOp.srcIndex <= sessionEndIndex)
+		{
+			totalTokens += _GetOpCurrentTokens(workingOp);
+		}
+	}
+	return totalTokens;
 }
 
 std::wstring CChatOpsCompress::_TruncateSearchResult(const std::wstring& content, int maxLines)
@@ -1078,11 +1095,17 @@ void CChatOpsCompress::_Pass_SummarizeSession(int startSessionAge, int endSessio
 
 		// 查找已有的压缩内容
 		const std::string* partialContent = _GetCompressedContent(op, Level_Partial);
+		if (partialContent)
+		{
+			if ((*partialContent)=="<skip_compress>")
+				continue;//该内容(通常因为过短)不适合压缩
+		}
 
 		// 如果已有压缩内容，则直接应用压缩
 		if (partialContent && !partialContent->empty())
 		{
 			_ApplySummarizeSession(op, Level_Partial, "");
+			_TrySyncBackToOps();
 			continue;
 		}
 
@@ -1091,7 +1114,9 @@ void CChatOpsCompress::_Pass_SummarizeSession(int startSessionAge, int endSessio
 			continue;
 		_summarized.insert(static_cast<int>(i));
 
-		if (_EstimateSessionAIContentTokens(op)<400)
+		float calibration = CTokenCalibrate::GetCalibrationFactor();
+		int nTokens = _EstimateSessionAIContentTokens(op);
+		if (nTokens < 300)
 			continue;
 
 		//
@@ -1102,11 +1127,12 @@ void CChatOpsCompress::_Pass_SummarizeSession(int startSessionAge, int endSessio
 		}
 
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
-		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName,true);
+		int originalTokenCount = static_cast<int>(nTokens * calibration);
+		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName, originalTokenCount);
 
+		return;
 	}
 }
-
 
 void CChatOpsCompress::_ExecutePass(int pass)
 {
@@ -1162,10 +1188,10 @@ void CChatOpsCompress::_ExecutePass(int pass)
 		_PASS(_Pass_RemoveFindSymbol(2, 999));
 		_PASS(_Pass_RemoveSearchOps(2, 999));
 
-		_PASS(_Pass_SummarizeSession(3, 999));
+		_PASS(_Pass_SummarizeSession(4, 999));
 	}
 	else
-		_PASS(_Pass_SummarizeSession(4, 999));
+		_PASS(_Pass_SummarizeSession(5, 999));
 
 
 #undef _PASS
@@ -1206,10 +1232,10 @@ bool CChatOpsCompress::_TryTrigger(const std::string& summarizeApiName, bool for
 		targetTokens = 30000;
 		break;
 	case ChatOpCompressIntensity::Extreme:
- 		threshold = 30000;
- 		targetTokens = 10000;
-//  		threshold = 3000;//XXXXXXXXXXXXXXXXXXXX
-//  		targetTokens = 1000;
+  		threshold = 30000;
+  		targetTokens = 10000;
+// 		threshold = 3000;//XXXXXXXXXXXXXXXXXXXXSummarize
+// 		targetTokens = 1000;
 		break;
 	default: 
 		return false;
