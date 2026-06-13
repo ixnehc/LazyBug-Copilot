@@ -75,6 +75,7 @@ public:
 	const char* GetChatFileName()	{		return _agent.GetFileName();	}
 	bool HasTitle() { return _agent.HasTitle(); }
 	void SetTitle(const std::wstring& title) { _agent.SetTitle(title); }
+	const wchar_t* GetTitle() { return _agent.GetTitle(); }
 	const std::vector<ChatOp>& GetOps() const { return _agent.GetOps(); }
 	CChatOpsCtrl& GetOpsCtrl() { return _agent.GetOpsCtrl(); }
 	CChatFileWriter& GetChatFileWriter()	{	return _chatFileWriter;	}

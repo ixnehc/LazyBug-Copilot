@@ -199,6 +199,7 @@ public:
 
 	bool HasTitle() const { return _opsCtrl.HasTitle(); }
 	void SetTitle(const std::wstring& title) { _opsCtrl.SetTitle(title); }
+	const wchar_t* GetTitle() const { return _opsCtrl.GetTitle(); }
 	const std::vector<ChatOp>& GetOps() const { return _opsCtrl.GetOps(); }
 
 	CChatOpsCompress& GetCompressor()	{		return _compressor;	}

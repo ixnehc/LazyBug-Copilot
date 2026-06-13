@@ -274,6 +274,7 @@ public:
 
     void SetTitle(const std::wstring& title);
     bool HasTitle() const;
+    const wchar_t* GetTitle() const;
 
     // ── FileEdit 元数据 ───────────────────────────────────────────────────
 

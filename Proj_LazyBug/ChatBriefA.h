@@ -6,7 +6,7 @@
 #include "LlmChat.h"
 
 class CChatDialogA;
-
+struct ChatOp;
 class CChatBriefA
 {
 public:
@@ -19,6 +19,9 @@ public:
 		_availableTries = 3;
 	}
 	void Update(CChatDialogA& chatDlg);
+
+	// 从第一个user message截断取得title
+	static std::wstring GetSimpleTitle(const std::vector<ChatOp>& ops);
 
 	int _availableTries;
 	

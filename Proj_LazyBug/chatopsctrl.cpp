@@ -1091,6 +1091,14 @@ bool CChatOpsCtrl::HasTitle() const
 	return  true;
 }
 
+const wchar_t* CChatOpsCtrl::GetTitle() const
+{
+	const ChatOp* op = _FindLastOp(ChatOp::Op_SetTitle);
+	if (op)
+		return op->title.c_str();
+	return L"";
+}
+
 
 //====================== 操作记录和还原功能实现 ======================
 
