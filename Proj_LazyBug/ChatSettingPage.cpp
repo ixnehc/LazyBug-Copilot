@@ -5,6 +5,9 @@
 #include "timer/wuid.h"
 #include <nlohmann/json.hpp>
 #include "llmlibloader.h"
+#include "ChatDialogA.h"
+#include "ChatOpsCompress.h"
+#include "TokenCalibrate.h"
 
 // 外部函数声明
 extern std::string widechar_to_utf8(const wchar_t* str);
@@ -30,6 +33,7 @@ CChatSettingPage::CChatSettingPage()
     , _controller(nullptr)
     , _activeTabId(L"providers")
     , _llmLibVersion(-1)
+    , _isEvaluatingSummarize(false)
     , _needShowNoApiForValidation(false)
 {
 }
@@ -54,6 +58,9 @@ CChatSettingPage::~CChatSettingPage()
     SAFE_RELEASE(_webView);
     SAFE_RELEASE(_controller);
     SAFE_RELEASE(_webViewEnvironment);
+
+    // 终止所有任务
+    _taskMgr.Interrupt();
 }
 
 // 创建WebView2控件
@@ -82,6 +89,7 @@ BOOL CChatSettingPage::Create(const RECT& rect, CWnd* pParentWnd, UINT nID)
 
 	ChatTaskContext ctx;
 	ctx.chatSettingPage = this;
+	ctx.chatDialogA = (CChatDialogA*)GetParent();
 	_taskMgr.Init(ctx);
     return result;
 }
@@ -587,6 +595,16 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
         }
         else if (action == "exitSettings")
         {
+            // 终止所有任务
+            _taskMgr.Interrupt();
+
+            // 重置 evaluation 状态
+            if (_isEvaluatingSummarize)
+            {
+                _isEvaluatingSummarize = false;
+                _PostWebMessage(L"endEvaluateSummarize", L"");
+            }
+
             // 退出设置页面
             if (_exitCallback)
             {
@@ -637,6 +655,15 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
             {
                 std::string msg = jsonMsg["message"];
                 MessageBoxW(GetSafeHwnd(), utf8_to_widechar(msg.c_str()).c_str(), L"Error", MB_OK | MB_ICONERROR);
+            }
+        }
+        else if (action == "evaluateCompressSummarize")
+        {
+            // 评估压缩
+            if (jsonMsg.contains("apiName"))
+            {
+                std::string apiName = jsonMsg["apiName"];
+                EvaluateCompressSummarize(utf8_to_widechar(apiName));
             }
         }
         // 可以在这里添加其他消息类型的处理
@@ -1200,14 +1227,30 @@ void CChatSettingPage::Update()
 	_taskMgr.Update();
 	UpdateReload();
 
+
 	// 延迟显示消息框（因为webview回调中不能直接弹出MessageBox）
 	if (_needShowNoApiForValidation)
 	{
-		_needShowNoApiForValidation = false;
+	_needShowNoApiForValidation = false;
 		::MessageBox(GetSafeHwnd(), 
 			_T("To validate API key, at least one API with a valid model name is required."), 
 			_T("Validation Error"), 
 			MB_OK | MB_ICONWARNING);
+	}
+
+	// 检测 evaluation task 完成状态
+	if (_isEvaluatingSummarize && !_taskMgr.IsTaskTypeRunning("CompressSummarize"))
+	{
+		_isEvaluatingSummarize = false;
+
+		// 发送消息隐藏 loading 动画
+		_PostWebMessage(L"endEvaluateSummarize", L"");
+
+		// 弹出日志文件
+		extern std::string GetCompressSummarizeLogPath();
+		std::string logPath = GetCompressSummarizeLogPath();
+		std::wstring wLogPath = utf8_to_widechar(logPath);
+		ShellExecuteW(NULL, L"open", wLogPath.c_str(), NULL, NULL, SW_SHOWNORMAL);
 	}
 }
 
@@ -1216,6 +1259,49 @@ bool CChatSettingPage::IsValidatingProvider()
 	if (_taskMgr.IsTaskTypeRunning("VerifyLlmApiProvider"))
 		return true;
 	return false;
+}
+
+void CChatSettingPage::EvaluateCompressSummarize(const std::wstring& summarizeApiName)
+{
+	if (summarizeApiName.empty())
+		return;
+
+	// 从 parent 窗口获取 CChatDialogA
+	CChatDialogA* pDialog = (CChatDialogA*)GetParent();
+	if (!pDialog)
+		return;
+
+	// 获取 CChatOpsCtrl
+	CChatOpsCtrl* pOpsCtrl = &pDialog->GetOpsCtrl();
+	if (!pOpsCtrl)
+		return;
+
+	// 查找最近 3 个未 disable 的 session
+	std::vector<int> sessionEnds = pOpsCtrl->FindLastNNotDisabledSessionEnds(3);
+	if (sessionEnds.empty())
+		return;
+
+	// 发送消息让按钮显示 loading 动画
+	_PostWebMessage(L"startEvaluateSummarize", L"");
+
+	// 清空日志文件
+	extern void ClearCompressSummarize();
+	ClearCompressSummarize();
+
+	// 标记正在评估
+	_isEvaluatingSummarize = true;
+
+	// 为每个 session 创建 evaluation task
+	for (int sessionEndIndex : sessionEnds)
+	{
+		// 估算 token 数
+		int nTokens = pOpsCtrl->EstimateUncompressedSessionAIContentToken(sessionEndIndex, CChatOpsCompress::GetSessionSummarizeToolTypes());
+		int originalTokenCount = static_cast<int>(nTokens * CTokenCalibrate::GetCalibrationFactor());
+
+		// 添加 evaluation task
+		std::string apiNameUtf8 = widechar_to_utf8(summarizeApiName.c_str());
+		_taskMgr.AddTask_CompressSummarize(sessionEndIndex, apiNameUtf8, originalTokenCount, true);
+	}
 }
 
 // 检测并重新加载（如果LLM Lib配置有变化则更新显示）

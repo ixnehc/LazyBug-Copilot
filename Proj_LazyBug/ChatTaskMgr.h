@@ -18,6 +18,7 @@ class CChatTask_CompressSummarize;
 class CChatFileWriter;
 
 class CChatDialog;
+class CChatDialogA;
 class CChatCtrl;
 class CCheckpoints;
 class CChatSettingPage;
@@ -42,6 +43,7 @@ struct ChatTaskContext
 		chatOpsCtrl = nullptr;
 		chatAgent = nullptr;
 		chatUi = nullptr;
+		chatDialogA = nullptr;
 	}
 
 	CChatAgent* chatAgent;
@@ -50,6 +52,7 @@ struct ChatTaskContext
 
 	CChatFileWriter* fileWriter;
 	CChatSettingPage* chatSettingPage;
+	CChatDialogA* chatDialogA;
 };
 
 enum class TaskStatus
@@ -123,7 +126,7 @@ public:
 	void AddTask_QueryFinish(const LlmToolCall& toolCall);
 	void AddTask_ResolveSymbolLinks(const std::vector<SymbolLinkItem>& symbolLinks);
 	void AddTask_CreateSkill(const LlmToolCall& toolCall);
-	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount);
+	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
 	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls);
 
 	// 获取任务统计信息

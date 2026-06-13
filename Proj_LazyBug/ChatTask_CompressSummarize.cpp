@@ -5,6 +5,7 @@
 #include "LlmLib.h"
 #include "ChatOpsCompress.h"
 #include "ChatAgent.h"
+#include "ChatDialogA.h"
 #include "LlmTools.h"
 #include <algorithm>
 
@@ -14,7 +15,7 @@
 extern const char* GetOpenedDBFolderPath_utf8();
 
 // 获取压缩总结日志文件路径
-static std::string GetCompressSummarizeLogPath()
+std::string GetCompressSummarizeLogPath()
 {
 	std::string path = GetOpenedDBFolderPath_utf8();
 	path += "\\_log\\compress_summarize.txt";
@@ -44,11 +45,12 @@ void ClearCompressSummarize()
 	}
 }
 
-CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount)
+CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode)
 {
 	_workingOpIndex = workingOpIndex;
 	_summarizeApiName = summarizeApiName;
 	_originalTokenCount = originalTokenCount;
+	_evaluationMode = evaluationMode;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 }
@@ -69,39 +71,47 @@ void CChatTask_CompressSummarize::_Fail(const std::string& reason)
 
 void CChatTask_CompressSummarize::_Succeed(const std::string& result, const LlmSessionUsage& usage)
 {
-	// 将压缩结果存入 workingOp.newCompressedContents
-	if (_context && _context->chatAgent)
+	int resultTokenCount = static_cast<int>(Utils::EstimateTokenCount(result) * CTokenCalibrate::GetCalibrationFactor());
+	
+	// 输出 log（追加到文件末尾）
 	{
-		CChatOpsCompress& compressor = _context->chatAgent->GetCompressor();
-		if (_workingOpIndex >= 0 && _workingOpIndex < (int)compressor._workingOps.size())
+		std::string logStr = _MakeCompressLogString(_textToCompress, result, _originalTokenCount, resultTokenCount, usage.fee);
+		AppendCompressSummarize(logStr);
+	}
+	
+	if (_evaluationMode)
+	{
+		// 评估模式：只写日志，不写回结果
+		_resultMessage = _MakeShortResultString(true, "", _originalTokenCount, resultTokenCount);
+	}
+	else
+	{
+		// 正常模式：将压缩结果存入 workingOp.newCompressedContents
+		if (_context && _context->chatAgent)
 		{
-			CChatOpsCompress::Op& workingOp = compressor._workingOps[_workingOpIndex];
-
-			// 使用 Level_Partial 作为压缩等级
-			const std::string* pContentToStore = &result;
-			int resultTokenCount = static_cast<int>(Utils::EstimateTokenCount(result) * CTokenCalibrate::GetCalibrationFactor());
-			
-			// 输出 log（追加到文件末尾）
+			CChatOpsCompress& compressor = _context->chatAgent->GetCompressor();
+			if (_workingOpIndex >= 0 && _workingOpIndex < (int)compressor._workingOps.size())
 			{
-				std::string logStr = _MakeCompressLogString(_textToCompress, result, _originalTokenCount, resultTokenCount, usage.fee);
-				AppendCompressSummarize(logStr);
-			}
-			
-			// 如果压缩掉的token数太少,标记为无法压缩
-			if (!(resultTokenCount + 50 <= _originalTokenCount))
-			{
-				static std::string skip_compress = "<skip_compress>";
-				pContentToStore = &skip_compress;//标记这个session不适合压缩(通常因为过短),以后也不会再尝试压缩它
-				resultTokenCount = _originalTokenCount;
-			}
-			workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = *pContentToStore;//XXXXXXXXXXXXXXXXXXXXSummarize
-			
-			// 准备简短结果信息
-			_resultMessage = _MakeShortResultString(true, "", _originalTokenCount, resultTokenCount);
-			
-			// 设置提示消息到 CChatOpsCompress
-			compressor._SetCompressSummarizeTip(true, _resultMessage, GetCompressSummarizeLogPath());
+				CChatOpsCompress::Op& workingOp = compressor._workingOps[_workingOpIndex];
 
+				// 使用 Level_Partial 作为压缩等级
+				const std::string* pContentToStore = &result;
+				
+				// 如果压缩掉的token数太少,标记为无法压缩
+				if (!(resultTokenCount + 50 <= _originalTokenCount))
+				{
+					static std::string skip_compress = "<skip_compress>";
+					pContentToStore = &skip_compress;//标记这个session不适合压缩(通常因为过短),以后也不会再尝试压缩它
+					resultTokenCount = _originalTokenCount;
+				}
+				workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = *pContentToStore;//XXXXXXXXXXXXXXXXXXXXSummarize
+				
+				// 准备简短结果信息
+				_resultMessage = _MakeShortResultString(true, "", _originalTokenCount, resultTokenCount);
+				
+				// 设置提示消息到 CChatOpsCompress
+				compressor._SetCompressSummarizeTip(true, _resultMessage, GetCompressSummarizeLogPath());
+			}
 		}
 	}
 	_status = TaskStatus::Success;
@@ -195,32 +205,78 @@ std::string CChatTask_CompressSummarize::_CollectSessionContent()
 
 void CChatTask_CompressSummarize::Start()
 {
-	if (!_context || !_context->chatAgent)
+	if (!_context)
 	{
-		_Fail("No context or chat agent");
+		_Fail("No context");
 		return;
 	}
 
-	CChatOpsCompress& compressor = _context->chatAgent->GetCompressor();
-	
-	// 验证索引有效性
-	if (_workingOpIndex < 0 || _workingOpIndex >= (int)compressor._workingOps.size())
+	if (_evaluationMode)
 	{
-		_Fail("Invalid working op index");
-		return;
+		// 评估模式：通过 chatDialogA 获取 chatOpsCtrl
+		if (!_context->chatDialogA)
+		{
+			_Fail("No chatDialogA in context");
+			return;
+		}
+
+		CChatOpsCtrl* pOpsCtrl = &_context->chatDialogA->GetOpsCtrl();
+		if (!pOpsCtrl)
+		{
+			_Fail("Failed to get chatOpsCtrl");
+			return;
+		}
+
+		// 验证索引有效性
+		const std::vector<ChatOp>& ops = pOpsCtrl->GetOps();
+		if (_workingOpIndex < 0 || _workingOpIndex >= (int)ops.size())
+		{
+			_Fail("Invalid op index");
+			return;
+		}
+
+		// 收集 session 内容
+		std::string textToCompress;
+		pOpsCtrl->CollectUncompressedSessionAIContent(_workingOpIndex, CChatOpsCompress::GetSessionSummarizeToolTypes(), textToCompress);
+		
+		if (textToCompress.empty())
+		{
+			_Fail("Session content is empty");
+			return;
+		}
+
+		_textToCompress = textToCompress;
+	}
+	else
+	{
+		// 正常模式：使用 chatAgent->GetCompressor()
+		if (!_context->chatAgent)
+		{
+			_Fail("No chat agent");
+			return;
+		}
+
+		CChatOpsCompress& compressor = _context->chatAgent->GetCompressor();
+		
+		// 验证索引有效性
+		if (_workingOpIndex < 0 || _workingOpIndex >= (int)compressor._workingOps.size())
+		{
+			_Fail("Invalid working op index");
+			return;
+		}
+
+		// 收集整个 session 的内容
+		std::string textToCompress = _CollectSessionContent();
+		if (textToCompress.empty())
+		{
+			_Fail("Session content is empty");
+			return;
+		}
+
+		_textToCompress = textToCompress;
 	}
 
-	// 收集整个 session 的内容
-	std::string textToCompress = _CollectSessionContent();
-	if (textToCompress.empty())
-	{
-		_Fail("Session content is empty");
-		return;
-	}
-
-	_textToCompress = textToCompress;
-
-	if (textToCompress.empty())
+	if (_textToCompress.empty())
 	{
 		_Fail("Content to compress is empty");
 		return;
@@ -251,7 +307,7 @@ void CChatTask_CompressSummarize::Start()
 			"Output only the summarized content. Do not include any additional text or explanation.\n"
  			"Never start with \"This is the summary,...\" or something like that\n"
 			"Text to summarize:\n";
-		prompt += textToCompress;
+		prompt += _textToCompress;
 		
 		request.AddUserMessage(prompt.c_str());
 		request.isStreaming = true;

@@ -346,6 +346,56 @@
             color: var(--text-color);
         }
 
+        .cast-sheet-btn {
+            flex-shrink: 0;
+            margin-left: 8px;
+            padding: 4px 12px;
+            background: var(--button-bg);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 0.8em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 70px;
+            height: 26px;
+        }
+
+        .cast-sheet-btn:hover {
+            background: var(--button-hover);
+            border-color: var(--primary-color);
+        }
+
+        .cast-sheet-btn-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid transparent;
+            border-top-color: var(--primary-color);
+            border-right-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .cast-sheet-btn.loading .cast-sheet-btn-spinner {
+            display: block;
+        }
+
+        .cast-sheet-btn.loading .cast-sheet-btn-text {
+            display: none;
+        }
+
+        .cast-sheet-btn.loading {
+            pointer-events: none;
+        }
+
+        .cast-sheet-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         /* Provider列表区域 */
         .providers-list-area {
             flex: 1;
@@ -1205,6 +1255,10 @@
                             <select class="cast-sheet-select" id="cast-sheet-summarize" data-api-type="summarize">
                                 <option>Loading...</option>
                             </select>
+                            <button class="cast-sheet-btn" id="evaluate-summarize-btn" title="Evaluate the compression quality of the selected API using the latest conversations in current chat">
+                                <span class="cast-sheet-btn-text">Evaluate</span>
+                                <div class="cast-sheet-btn-spinner"></div>
+                            </button>
                         </div>
                     `;
                     providersContainer.appendChild(castSheetPanel);
@@ -1215,8 +1269,23 @@
                             const apiType = this.getAttribute('data-api-type');
                             const apiName = this.value;
                             postMsg({ action: 'updateCastSheetApi', apiType: apiType, apiName: apiName });
+                            
+                            // 如果是summarize select变化，更新Evaluate按钮状态
+                            if (apiType === 'summarize') {
+                                updateEvaluateBtnState();
+                            }
                         });
                     });
+                    
+                    // 绑定Evaluate按钮的click事件
+                    const evaluateBtn = castSheetPanel.querySelector('#evaluate-summarize-btn');
+                    if (evaluateBtn) {
+                        evaluateBtn.addEventListener('click', function() {
+                            const select = document.getElementById('cast-sheet-summarize');
+                            const apiName = select ? select.value : '';
+                            postMsg({ action: 'evaluateCompressSummarize', apiName: apiName });
+                        });
+                    }
                     
                     // 创建provider列表区域
                     const providersListArea = document.createElement('div');
@@ -1333,6 +1402,9 @@
             rebuildSelect(majorChatSelect, data.majorChatApi, majorChatApis);
             rebuildSelect(briefSelect, data.briefApi, briefApis);
             rebuildSelect(summarizeSelect, data.summarizeApi, summarizeApis);
+            
+            // 更新Evaluate按钮状态
+            updateEvaluateBtnState();
             
             // 根据major chat是否有值设置颜色样式
             castSheetPanel.classList.remove('has-value', 'no-value');
@@ -2106,6 +2178,13 @@
             tabContents.innerHTML = '';
         }
 
+        // 监听键盘事件，ESC键关闭页面
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                postMsg({ action: 'exitSettings' });
+            }
+        });
+
         // 监听来自C++的消息
         window.chrome.webview.addEventListener('message', event => {
             try {
@@ -2153,6 +2232,14 @@
                         endValidatingProvider(message.providerType, message.available);
                         break;
                         
+                    case 'startEvaluateSummarize':
+                        startEvaluateSummarize();
+                        break;
+                        
+                    case 'endEvaluateSummarize':
+                        endEvaluateSummarize();
+                        break;
+                        
                     default:
                         console.warn('Unknown message action:', message.action);
                         break;
@@ -2175,6 +2262,40 @@
             const statusDot = document.querySelector(`.provider-status-dot[data-provider-type="${providerType}"]`);
             if (statusDot) {
                 statusDot.className = `provider-status-dot ${available ? 'available' : 'unavailable'}`;
+            }
+        }
+
+        // 开始评估压缩
+        function startEvaluateSummarize() {
+            const btn = document.getElementById('evaluate-summarize-btn');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.title = 'Compressing and summarizing...';
+            }
+        }
+        
+        // 结束评估压缩
+        function endEvaluateSummarize() {
+            const btn = document.getElementById('evaluate-summarize-btn');
+            if (btn) {
+                btn.classList.remove('loading');
+                updateEvaluateBtnState();
+            }
+        }
+        
+        // 更新Evaluate按钮状态（根据选中的API）
+        function updateEvaluateBtnState() {
+            const btn = document.getElementById('evaluate-summarize-btn');
+            const select = document.getElementById('cast-sheet-summarize');
+            if (!btn || !select) return;
+            
+            const apiName = select.value;
+            if (apiName === '<auto>' || apiName === '<disable>') {
+                btn.classList.add('disabled');
+                btn.title = 'Select an API to evaluate';
+            } else {
+                btn.classList.remove('disabled');
+                btn.title = 'Evaluate the compression quality of the selected API using the latest conversations in current chat';
             }
         }
 

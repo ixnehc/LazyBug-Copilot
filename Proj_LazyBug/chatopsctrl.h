@@ -247,6 +247,9 @@ public:
     void EnableAllDisabledMessages();
 	int GetDisableAfterIndex() const	{		return _GetDisableAfterIndex();	}
 
+	// 查找最近 N 个未 disable 的 session 的 EndSession 索引
+	std::vector<int> FindLastNNotDisabledSessionEnds(int count) const;
+
     // ── Session Cost ─────────────────────────────────────────────────────
 
     // 累积某个 FileEdit 所在 session 的费用

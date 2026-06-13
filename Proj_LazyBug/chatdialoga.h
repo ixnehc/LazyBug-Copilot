@@ -76,6 +76,7 @@ public:
 	bool HasTitle() { return _agent.HasTitle(); }
 	void SetTitle(const std::wstring& title) { _agent.SetTitle(title); }
 	const std::vector<ChatOp>& GetOps() const { return _agent.GetOps(); }
+	CChatOpsCtrl& GetOpsCtrl() { return _agent.GetOpsCtrl(); }
 	CChatFileWriter& GetChatFileWriter()	{	return _chatFileWriter;	}
 	CCheckpointsFileChange& GetCheckpointsFileChange() { return _checkpointsFileChange; }
 	CFileLacator& GetFileLocator()	{	return _fileLocator;	}

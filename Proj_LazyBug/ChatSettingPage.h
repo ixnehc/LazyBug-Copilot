@@ -153,6 +153,7 @@ private:
     // 查找Tab
     SettingTab* _FindTab(const std::wstring& tabId);
     
+    
     // 初始化默认Tab
     void _InitializeDefaultTabs();
     
@@ -160,6 +161,10 @@ private:
     void _HandleWebMessage(const std::wstring& message);
 
 	CChatTaskMgr _taskMgr;
+
+	// 压缩评估相关
+	bool _isEvaluatingSummarize;  // 是否正在进行压缩评估
+	void EvaluateCompressSummarize(const std::wstring& summarizeApiName);
 
 	// 延迟显示的消息（因为webview回调中不能直接弹出MessageBox）
 	bool _needShowNoApiForValidation;

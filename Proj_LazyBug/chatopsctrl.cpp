@@ -1801,6 +1801,24 @@ int CChatOpsCtrl::_GetDisableAfterIndex() const
 	return static_cast<int>(_ops.size());
 }
 
+// 查找最近 N 个未 disable 的 session 的 EndSession 索引
+std::vector<int> CChatOpsCtrl::FindLastNNotDisabledSessionEnds(int count) const
+{
+	std::vector<int> result;
+	int disableAfter = _GetDisableAfterIndex();
+	
+	// 从 disableAfter 开始往前遍历（disableAfter 之后的都是被 disable 的）
+	for (int i = disableAfter - 1; i >= 0 && result.size() < static_cast<size_t>(count); i--)
+	{
+		if (_ops[i].type == ChatOp::Op_EndSession)
+		{
+			result.push_back(i);
+		}
+	}
+	
+	return result;
+}
+
 
 //得到要恢复到user messageId之前的状态,需要restore哪些checkpoints,按照自后到前的顺序排列
 bool CChatOpsCtrl::GetRestoreCheckpoints(const std::wstring& userMessageId, std::vector<FilesCheckpointUID>& checkpointIds)

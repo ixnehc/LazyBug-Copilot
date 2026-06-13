@@ -367,9 +367,19 @@ bool CChatTaskMgr::IsTaskTypeRunning(const char* taskType) const
 	if (!taskType)
 		return false;
 		
+	// 检查 running 队列
 	for (auto* task : _running)
 	{
 		if (task && strcmp(task->GetType(), taskType) == 0 && task->_status == TaskStatus::Running)
+		{
+			return true;
+		}
+	}
+	
+	// 检查 pending 队列
+	for (auto* task : _pending)
+	{
+		if (task && strcmp(task->GetType(), taskType) == 0)
 		{
 			return true;
 		}
@@ -654,9 +664,9 @@ void CChatTaskMgr::AddTask_CreateSkill(const LlmToolCall& toolCall)
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount)
+void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode)
 {
-	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, originalTokenCount);
+	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, originalTokenCount, evaluationMode);
 	_AddTask(task);
 }
 
