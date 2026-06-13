@@ -323,8 +323,8 @@ namespace LazyBugPlugInCSharp
                 return;
 
             // 边框厚度
-            double borderThickness = 3.0;
-            Color orangeColor = Color.FromArgb(255, 255, 165, 0); // 橘黄色
+            double borderThickness = 10.0;
+            Color orangeColor = Color.FromArgb(64, 255, 165, 0); // 橘黄色
 
             // 左边框
             var leftBorder = new Rectangle
@@ -333,42 +333,42 @@ namespace LazyBugPlugInCSharp
                 Width = borderThickness,
                 Height = _view.ViewportHeight
             };
-            Canvas.SetLeft(leftBorder, _view.ViewportLeft);
+            Canvas.SetLeft(leftBorder, -10);
             Canvas.SetTop(leftBorder, _view.ViewportTop);
             _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Left", leftBorder, null);
 
-            // 右边框
-            var rightBorder = new Rectangle
-            {
-                Fill = new SolidColorBrush(orangeColor),
-                Width = borderThickness,
-                Height = _view.ViewportHeight
-            };
-            Canvas.SetLeft(rightBorder, _view.ViewportRight - borderThickness);
-            Canvas.SetTop(rightBorder, _view.ViewportTop);
-            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Right", rightBorder, null);
-
-            // 上边框
-            var topBorder = new Rectangle
-            {
-                Fill = new SolidColorBrush(orangeColor),
-                Width = _view.ViewportWidth,
-                Height = borderThickness
-            };
-            Canvas.SetLeft(topBorder, _view.ViewportLeft);
-            Canvas.SetTop(topBorder, _view.ViewportTop);
-            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Top", topBorder, null);
-
-            // 下边框
-            var bottomBorder = new Rectangle
-            {
-                Fill = new SolidColorBrush(orangeColor),
-                Width = _view.ViewportWidth,
-                Height = borderThickness
-            };
-            Canvas.SetLeft(bottomBorder, _view.ViewportLeft);
-            Canvas.SetTop(bottomBorder, _view.ViewportBottom - borderThickness);
-            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Bottom", bottomBorder, null);
+//             // 右边框
+//             var rightBorder = new Rectangle
+//             {
+//                 Fill = new SolidColorBrush(orangeColor),
+//                 Width = borderThickness,
+//                 Height = _view.ViewportHeight
+//             };
+//             Canvas.SetLeft(rightBorder, _view.ViewportRight - borderThickness);
+//             Canvas.SetTop(rightBorder, _view.ViewportTop);
+//             _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Right", rightBorder, null);
+// 
+//             // 上边框
+//             var topBorder = new Rectangle
+//             {
+//                 Fill = new SolidColorBrush(orangeColor),
+//                 Width = _view.ViewportWidth,
+//                 Height = borderThickness
+//             };
+//             Canvas.SetLeft(topBorder, _view.ViewportLeft);
+//             Canvas.SetTop(topBorder, _view.ViewportTop);
+//             _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Top", topBorder, null);
+// 
+//             // 下边框
+//             var bottomBorder = new Rectangle
+//             {
+//                 Fill = new SolidColorBrush(orangeColor),
+//                 Width = _view.ViewportWidth,
+//                 Height = borderThickness
+//             };
+//             Canvas.SetLeft(bottomBorder, _view.ViewportLeft);
+//             Canvas.SetTop(bottomBorder, _view.ViewportBottom - borderThickness);
+//             _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Bottom", bottomBorder, null);
         }
 
         /// <summary>

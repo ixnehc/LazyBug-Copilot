@@ -48,3 +48,12 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - Fix an issue in input window that the cursor will disappear when moving between pasted lines
 - Disable some some too aggressive compression
 - Add tip for skill
+
+0.18
+- Improved context compression quality
+- Log the context compression results
+- Added an "Evaluate" button for the selected "Compress & Summarize" API on the settings page
+- Fixed an issue where showing the code diff would remove breakpoints and bookmarks
+- Added a colored frame in code diff mode
+- In the chat window, collapsed all exploration operations (file reading, keyword searching, etc.)
+- Fixed an issue where the chat title generation would occasionally fail
