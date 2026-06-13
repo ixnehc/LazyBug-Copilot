@@ -4,6 +4,8 @@
 #include "llmlib.h"
 #include "llmskills.h"
 
+#include "utils_context.h"
+
 
 void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *ui,IChatNotify *notify)
 {
@@ -358,7 +360,7 @@ void CChatAgent::_ExecuteSendUserMessage(const std::wstring& content, const std:
 	std::string summarizeApiName = g_llmLib.GetSummarizeApi();
 	if (summarizeApiName == SUMMARIZE_API_AUTO)
 	{
-		summarizeApiName = g_llmLib.GetMajorChatApi();
+		summarizeApiName = Utils::ResolveAutoSummarizeApi();
 	}
 	else if (summarizeApiName == SUMMARIZE_API_DISABLE)
 	{

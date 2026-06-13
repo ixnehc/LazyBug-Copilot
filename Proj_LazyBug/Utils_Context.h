@@ -14,4 +14,12 @@ namespace Utils
 	// 返回值：估计的Token数，失败返回0
 	int EstimateFileTokenCount(const char* filePath);
 
+	const char* ResolveAutoSummarizeApi();
+
+	// 将模型名称字符串 token 化
+	// 规则：连续的数字作为一个 token，连续的字母作为一个 token，分隔符被忽略
+	// 例如："kimi-k2.5" -> ["kimi", "k", "2", "5"]
+	//       "deepseek-v4-pro" -> ["deepseek", "v", "4", "pro"]
+	void TokenizeModelString(const std::string& str, std::vector<std::string>& outTokens);
+
 }

@@ -7,6 +7,7 @@
 #include "Utils_File.h"
 #include "stringparser/stringparser.h"
 #include <string>
+#include "llmlib.h"
 
 
 namespace Utils
@@ -243,5 +244,126 @@ namespace Utils
 		// 加载失败返回0
 		return 0;
 	}
+
+	void TokenizeModelString(const std::string& str, std::vector<std::string>& outTokens)
+	{
+		outTokens.clear();
+		std::string current;
+		bool inAlpha = false;
+		bool inDigit = false;
+
+		for (char c : str)
+		{
+			bool isAlpha = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+			bool isDigit = (c >= '0' && c <= '9');
+
+			if (isAlpha)
+			{
+				if (c >= 'A' && c <= 'Z')
+					c = c - 'A' + 'a'; // 转小写
+				if (!inAlpha)
+				{
+					if (!current.empty())
+						outTokens.push_back(current);
+					current.clear();
+					inDigit = false;
+				}
+				inAlpha = true;
+				current.push_back(c);
+			}
+			else if (isDigit)
+			{
+				if (!inDigit)
+				{
+					if (!current.empty())
+						outTokens.push_back(current);
+					current.clear();
+					inAlpha = false;
+				}
+				inDigit = true;
+				current.push_back(c);
+			}
+			else
+			{
+				// 分隔符，结束当前 token
+				inAlpha = false;
+				inDigit = false;
+				if (!current.empty())
+				{
+					outTokens.push_back(current);
+					current.clear();
+				}
+			}
+		}
+
+		if (!current.empty())
+			outTokens.push_back(current);
+	}
+
+	const char* ResolveAutoSummarizeApi()
+	{
+		// 优先级列表（从高到低）
+		static const char* priorityPatterns[] = {
+			"kimi 2.5",
+			"glm 4.7",
+			"glm 5",
+			"deepseek 4 pro",
+			"gpt 5 mini",
+			"haiku 4",
+		};
+
+		const auto& apis = g_llmLib.GetApis();
+
+		for (const char* pattern : priorityPatterns)
+		{
+			// 将 pattern 拆分成 tokens
+			std::vector<std::string> tokens;
+			TokenizeModelString(pattern, tokens);
+
+			if (tokens.empty())
+				continue;
+
+			// 在所有可用 API 中查找匹配的 model
+			for (const auto& api : apis)
+			{
+				if (!api.enable || !g_llmLib.IsApiAvailable(api.name))
+					continue;
+
+				// 将 model 字段 token 化
+				std::vector<std::string> modelTokens;
+				TokenizeModelString(api.model, modelTokens);
+
+				// 在 modelTokens 中按顺序查找 patternTokens
+				bool match = true;
+				size_t modelIdx = 0;
+				for (const auto& t : tokens)
+				{
+					bool found = false;
+					while (modelIdx < modelTokens.size())
+					{
+						if (modelTokens[modelIdx] == t)
+						{
+							found = true;
+							modelIdx++;
+							break;
+						}
+						modelIdx++;
+					}
+					if (!found)
+					{
+						match = false;
+						break;
+					}
+				}
+
+				if (match)
+					return api.name.c_str();
+			}
+		}
+
+		// 回退到 MajorChatApi
+		return g_llmLib.GetMajorChatApi().c_str();
+	}
+
 
 }
