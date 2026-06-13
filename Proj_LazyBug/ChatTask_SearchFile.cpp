@@ -270,7 +270,7 @@ void CChatTask_SearchFile::Update()
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
 			_SendToolCallResult(_threadResult.c_str());
-			_SendToolCallMessage(_threadMessage.c_str());
+			_SendToolCallMessage_Exploring(_threadMessage.c_str());
 		}
 		
 		// 清理线程

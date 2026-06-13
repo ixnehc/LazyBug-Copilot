@@ -261,7 +261,7 @@ void CChatTask_ReadFile::Update()
 			toolCallSimple.params_int["startLine"] = _threadSimpleStartLine;
 			toolCallSimple.params_int["endLine"] = _threadSimpleEndLine;
 			_SendToolCallResult(_threadResult.c_str(), _threadResultSimple.c_str(), &toolCallSimple);
-			_SendToolCallMessage(_threadMessage.c_str());
+			_SendToolCallMessage_Exploring(_threadMessage.c_str());
 		}
 		
 		// 清理线程

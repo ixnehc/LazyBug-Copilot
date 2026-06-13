@@ -1256,9 +1256,9 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 		break;
 	}
 
-	case ChatOp::Op_AddToolCallMessage:
+	case ChatOp::Op_AddToolCallMessage_Exploring:
 	{
-		AddToolCallMessage(op.messageId, op.contentUtf8);
+		AddToolCallMessage_Exploring(op.messageId, op.contentUtf8);
 		break;
 	}
 
@@ -2293,7 +2293,7 @@ void CChatOpsCtrl::AddInterjectToLastToolCallResult(const std::string& interject
 }
 
 
-void CChatOpsCtrl::AddToolCallMessage(const std::wstring& messageId, const std::string& message)
+void CChatOpsCtrl::AddToolCallMessage_Exploring(const std::wstring& messageId, const std::string& message)
 {
 
 	if (_ui)
@@ -2302,14 +2302,14 @@ void CChatOpsCtrl::AddToolCallMessage(const std::wstring& messageId, const std::
 		std::wstring safeMessage = EscapeJsonString(utf8_to_widechar(message));
 
 		// 构造JSON消息，作为AI消息的一部分添加
-		std::wstring jsonMessage = L"{\"action\":\"addToolCallMessageToAIMessage\",\"content\":\"" + safeMessage + L"\",\"id\":\"" + messageId + L"\"}";
+		std::wstring jsonMessage = L"{\"action\":\"addToolCallMessageToAIMessage_Exploring\",\"content\":\"" + safeMessage + L"\",\"id\":\"" + messageId + L"\"}";
 
 		// 发送消息到WebView
 		_ui->PostJsonMessage(jsonMessage);
 	}
 
 	// 记录操作
-	ChatOp op(ChatOp::Op_AddToolCallMessage);
+	ChatOp op(ChatOp::Op_AddToolCallMessage_Exploring);
 	op.contentUtf8 = message;
 	op.messageId = messageId;
 	_AddOp(op);

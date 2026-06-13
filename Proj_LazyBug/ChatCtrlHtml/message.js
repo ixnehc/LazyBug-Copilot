@@ -116,6 +116,9 @@ function appendToAIMessage(id, incrementalContent, isFinalChunk) {
     const thinkingContainers = messageContentElem.querySelectorAll('.ai-thinking-container');
     thinkingContainers.forEach(container => container.remove());
 
+    // 删除 thinking 后，合并相邻的 exploring-group
+    _MergeAdjacentExploringGroups(messageContentElem);
+
     let targetTextContainer;
     const lastChild = messageContentElem.lastElementChild;
 
@@ -195,11 +198,41 @@ function appendToAIMessage_Thinking(id, incrementalContent, isFinalChunk) {
 }
 
 /**
- * 添加 Tool Call 消息到 AI 消息
+ * 合并 messageContentElem 中相邻的 exploring-group
+ * 当中间隔的元素（如 thinking）被删除后，原本不连续的 exploring-group 变为相邻，需要合并
+ */
+function _MergeAdjacentExploringGroups(messageContentElem) {
+    const children = Array.from(messageContentElem.children);
+    for (let i = children.length - 2; i >= 0; i--) {
+        const curr = children[i];
+        const next = children[i + 1];
+        if (curr.classList.contains('exploring-group') && next.classList.contains('exploring-group')) {
+            // 将 next 的所有 tool-call-message 移入 curr 的 content 容器
+            const currContent = curr.querySelector('.exploring-group-content');
+            const nextContent = next.querySelector('.exploring-group-content');
+            if (currContent && nextContent) {
+                while (nextContent.firstChild) {
+                    currContent.appendChild(nextContent.firstChild);
+                }
+            }
+            // 更新 curr 的计数
+            const count = currContent.querySelectorAll('.tool-call-message').length;
+            const countSpan = curr.querySelector('.exploring-group-count');
+            if (countSpan) {
+                countSpan.textContent = count;
+            }
+            // 删除 next
+            next.remove();
+        }
+    }
+}
+
+/**
+ * 添加 Tool Call 消息到 AI 消息（Exploring类型，支持连续消息折叠）
  * @param {string} id - 消息 ID
  * @param {string} textContent - 消息内容
  */
-function addToolCallMessageToAIMessage(id, textContent) {
+function addToolCallMessageToAIMessage_Exploring(id, textContent) {
     const messageElem = document.getElementById(id);
     if (!messageElem) {
         console.error('AI Message element not found for tool call message:', id);
@@ -217,8 +250,57 @@ function addToolCallMessageToAIMessage(id, textContent) {
     toolCallElem.className = 'tool-call-message';
     toolCallElem.textContent = textContent;
 
-    // 添加到 AI 消息内容的末尾
-    messageContentElem.appendChild(toolCallElem);
+    // 检查最后一个子元素是否是 exploring-group，如果是则追加到该组
+    const lastChild = messageContentElem.lastElementChild;
+    let group = null;
+
+    if (lastChild && lastChild.classList.contains('exploring-group')) {
+        group = lastChild;
+    } else {
+        // 创建新的 exploring-group
+        group = document.createElement('div');
+        group.className = 'exploring-group';
+
+        // 创建可点击的 label
+        const label = document.createElement('div');
+        label.className = 'exploring-group-label';
+
+        const countSpan = document.createElement('span');
+        countSpan.className = 'exploring-group-count';
+        countSpan.textContent = '0';
+
+        label.appendChild(document.createTextNode(' Triggers '));
+        label.appendChild(countSpan);
+        label.appendChild(document.createTextNode(' exploring operation(s)'));
+
+
+        // 创建折叠内容容器
+        const content = document.createElement('div');
+        content.className = 'exploring-group-content';
+        content.style.display = 'none'; // 默认折叠
+
+        // 点击 label 切换展开/折叠
+        label.onclick = function() {
+            const isCollapsed = content.style.display === 'none';
+            content.style.display = isCollapsed ? 'block' : 'none';
+            label.classList.toggle('exploring-group-label-expanded', isCollapsed);
+        };
+
+        group.appendChild(label);
+        group.appendChild(content);
+        messageContentElem.appendChild(group);
+    }
+
+    // 将消息添加到组的内容容器中
+    const contentContainer = group.querySelector('.exploring-group-content');
+    contentContainer.appendChild(toolCallElem);
+
+    // 更新计数
+    const count = contentContainer.querySelectorAll('.tool-call-message').length;
+    const countSpan = group.querySelector('.exploring-group-count');
+    if (countSpan) {
+        countSpan.textContent = count;
+    }
 
     // 如果聊天窗口在底部附近，滚动到底部
     if (isNearBottom()) {

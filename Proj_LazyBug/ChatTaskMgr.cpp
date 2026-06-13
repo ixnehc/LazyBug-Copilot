@@ -196,7 +196,7 @@ void CChatTask::_SendToolCallResult(const char *result, const char* resultPartia
 	}
 }
 
-void CChatTask::_SendToolCallMessage(const char* result)
+void CChatTask::_SendToolCallMessage_Exploring(const char* result)
 {
 	if (!_context || !result)
 		return;
@@ -208,12 +208,12 @@ void CChatTask::_SendToolCallMessage(const char* result)
 		if (_context->chatAgent)
 		{
 			const std::wstring& aiMessageId = _context->chatAgent->GetCurrentAIMessageId();
-			_context->chatOpsCtrl->AddToolCallMessage(aiMessageId, std::string(result));
+			_context->chatOpsCtrl->AddToolCallMessage_Exploring(aiMessageId, std::string(result));
 		}
 		else
 		{
 			// 如果没有 chatAgent，使用空的消息 ID（可能需要调整）
-			_context->chatOpsCtrl->AddToolCallMessage(L"",  std::string(result));
+			_context->chatOpsCtrl->AddToolCallMessage_Exploring(L"",  std::string(result));
 		}
 	}
 }

@@ -158,7 +158,7 @@ void CChatTask_CreateSkill::Start()
 	// 返回成功结果
 	std::string result = "Skill '" + pureSkillName + "' created successfully at: " + skillFolderPath;
 	_SendToolCallResult(result.c_str());
-	_SendToolCallMessage(result.c_str());
+	_SendToolCallMessage_Exploring(result.c_str());
 	_Succeed();
 }
 

@@ -332,11 +332,11 @@ void CChatTask_FindInFiles::Start()
 // 		std::string message = "Finding \"";
 // 		message += keyword;
 // 		message += "\"...";
-// 		_SendToolCallMessage(message.c_str());
+// 		_SendToolCallMessage_Exploring(message.c_str());
 // 	}
 
-// 	_SendToolCallMessage("aaaa");
-// 	_SendToolCallMessage("bbbb");
+// 	_SendToolCallMessage_Exploring("aaaa");
+// 	_SendToolCallMessage_Exploring("bbbb");
 
 	// 启动工作线程
 	_workerThread = new std::thread(&CChatTask_FindInFiles::_ThreadFunc, this);
@@ -360,7 +360,7 @@ void CChatTask_FindInFiles::Update()
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
 			_SendToolCallResult(_threadResult.c_str(), _threadResultSimple.c_str());
-			_SendToolCallMessage(_threadMessage.c_str());
+			_SendToolCallMessage_Exploring(_threadMessage.c_str());
 		}
 		
 		// 清理线程

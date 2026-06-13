@@ -126,8 +126,8 @@ function setupWebViewMessageListener() {
                 case 'addSystemMessage':
                     addUserOrSystemMessage(message.id, message.content, 'system');
                     break;
-                case 'addToolCallMessageToAIMessage':
-                    addToolCallMessageToAIMessage(message.id, message.content);
+                case 'addToolCallMessageToAIMessage_Exploring':
+                    addToolCallMessageToAIMessage_Exploring(message.id, message.content);
                     break;
                 case 'clearChat': 
                     clearChat(); 

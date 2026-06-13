@@ -54,7 +54,7 @@ struct ChatOp
         Op_AddToolCallResult,
         Op_AddStreamingAIMessage_Thinking,
         Op_AddReplaceInFileResult_Obsolete,
-        Op_AddToolCallMessage,
+        Op_AddToolCallMessage_Exploring,
         Op_AddFileSummarizeToAIMessage,
 		Op_AddUserInterject,
 		Op_CliDisplay,
@@ -163,7 +163,7 @@ public:
                                         const std::string& incrementalContentUtf8);
 
     // 追加 ToolCall 消息（记录 Tool 调用信息）
-    void AddToolCallMessage(const std::wstring& messageId,
+    void AddToolCallMessage_Exploring(const std::wstring& messageId,
                             const std::string& message);
 
     // 完成流式 AI 消息
