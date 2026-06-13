@@ -6,6 +6,7 @@
 
 
 class CCommandFilter;
+
 class CFileChangeAttach
 {
 public:
@@ -29,4 +30,9 @@ public:
 
 	CCommandFilter* _commandFilter;
 	CComPtr<IVsTextView> _pVsTextView;
+
+	// 断点/书签 保存
+	std::string _savedBreakpoints;
+	std::string _savedBookmarks;
+	std::string _originalText; // Attach前的原始文本，用于行号映射
 };

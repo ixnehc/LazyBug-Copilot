@@ -11,6 +11,8 @@
 
 #include "CommandFilter.h"
 
+#include <comutil.h>
+
 std::wstring CFileChangeAttach::GetFullPath(const FileChange& fileChange)
 {
 	std::wstring pathW = utf8_to_widechar(fileChange.lowerCaseFullPath);
@@ -78,9 +80,16 @@ bool CFileChangeAttach::Attach(const FileChange& fileChange, FILETIME fileTimeOf
 	_comparingContent.Clear();
 	MakeCodeComparing_Lines(oldContent, newContent, _comparingContent);
 
+	// 在替换缓冲区之前，保存断点、书签和原始文本
+	Util_GetText(pVsTextView, _originalText);
+	_savedBreakpoints = Util_SaveBreakpointsForFile(pathW);
+	_savedBookmarks = Util_SaveBookmarksForFile(pathW);
+
 	Util_SetComparingContent(pathW,pVsTextView, _comparingContent);
 	_commandFilter=Util_AddCommandFilter(pVsTextView);
 // 	Util_DisableReloadFile(pathW.c_str());
+
+	Util_SetFileChangeBorder(pVsTextView, true); // 显示橘黄色边框
 
 	Util_NavigateNextDiff(pathW, _comparingContent, true, false);
 
@@ -96,6 +105,9 @@ void CFileChangeAttach::Detach()
 {
 	if (_change.IsEmpty())
 		return;
+
+	Util_SetFileChangeBorder(_pVsTextView, false); // 移除橘黄色边框
+
 	if (_commandFilter)
 	{
 		_pVsTextView->RemoveCommandFilter(_commandFilter);
@@ -147,12 +159,47 @@ void CFileChangeAttach::Detach()
 			Util_SetFirstVisibleLine(pNewTextView, newFirstVisibleLine);
 	}
 
+	// 恢复断点和书签
+	{
+		std::vector<int> lineMap;
+
+		// 使用 Attach 前保存的原始文本与重新加载后的文本做比较，建立行号映射
+		std::string reloadedText;
+		CComPtr<IVsTextView> pReloadedView = Util_GetTextViewForFile(_filePath);
+		if (pReloadedView)
+			Util_GetText(pReloadedView, reloadedText);
+
+		if (!_originalText.empty() && !reloadedText.empty())
+		{
+			// 有原始文本和重新加载后的文本，做 diff 比较建立精确映射
+			std::deque<CodeDiffLine> diffsForMap;
+			CompareCodeStrings(_originalText, reloadedText, diffsForMap);
+
+			int oldLineCount = 1;
+			for (size_t i = 0; i < _originalText.size(); i++)
+			{
+				if (_originalText[i] == '\n')
+					oldLineCount++;
+			}
+			lineMap.resize(oldLineCount, -1);
+			for (int i = 0; i < oldLineCount; i++)
+				lineMap[i] = ClosestNewLineFromOldLine(i, diffsForMap);
+		}
+		// 若 lineMap 为空，C# 端将按 1:1 映射处理
+
+		Util_RestoreBreakpoints(_filePath, _savedBreakpoints, lineMap);
+		Util_RestoreBookmarks(_filePath, _savedBookmarks, lineMap);
+	}
+
 	_pVsTextView = NULL;
 
 	_change.Clear();
 	_comparingContent.Clear();
 	_filePath.clear();
 	_fileTimeWhenAttach = Util_GetZeroFileTime();
+	_savedBreakpoints.clear();
+	_savedBookmarks.clear();
+	_originalText.clear();
 }
 void CFileChangeAttach::Validate()
 {

@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.Text.Formatting;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Text.Differencing;
 
@@ -67,6 +68,7 @@ namespace LazyBugPlugInCSharp
         private readonly IAdornmentLayer _layer;
         private readonly ITextBuffer _buffer;
         private bool _isDisposed = false;
+        private bool _showFileChangeBorder = false;
         private Dictionary<int, int> _lineTypes = null;
         private bool _isLineTypesBuilt = false;
 
@@ -192,6 +194,13 @@ namespace LazyBugPlugInCSharp
             // 但对于大多数情况，全部移除并重新添加是可接受的。
             _layer.RemoveAllAdornments();
 
+            // 检查是否显示 FileChange 边框
+            _showFileChangeBorder = CheckFileChangeBorderFlag();
+            if (_showFileChangeBorder)
+            {
+                DrawFileChangeBorder();
+            }
+
             // 获取当前视口中可见的文本行集合。
             // TextViewLines 包含了已经过布局和可能的几何变换（如行高变化）的行。
             foreach (ITextViewLine viewLine in _view.TextViewLines)
@@ -276,6 +285,90 @@ namespace LazyBugPlugInCSharp
                 return propertyValue;
             }
             return 0; // 默认不高亮
+        }
+
+        /// <summary>
+        /// 检查是否显示 FileChange 边框
+        /// </summary>
+        private bool CheckFileChangeBorderFlag()
+        {
+            var vsUserData = GetVsUserDataFromTextView(_view);
+            if (vsUserData == null)
+                return false;
+
+            // {A1B2C3D4-E5F6-7890-ABCD-EF1234567890} - 与 C++ 端相同的 GUID
+            Guid guidFileChangeBorder = new Guid("A1B2C3D4-E5F6-7890-ABCD-EF1234567890");
+            Guid key = guidFileChangeBorder;
+
+            int hr = vsUserData.GetData(ref key, out object dataValue);
+            if (ErrorHandler.Succeeded(hr) && dataValue != null)
+            {
+                if (dataValue is bool boolValue)
+                    return boolValue;
+                // VARIANT_BOOL (short) 的情况
+                if (dataValue is short shortValue)
+                    return shortValue != 0;
+                if (dataValue is int intValue)
+                    return intValue != 0;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 绘制 FileChange 边框（橘黄色）
+        /// </summary>
+        private void DrawFileChangeBorder()
+        {
+            if (!_showFileChangeBorder)
+                return;
+
+            // 边框厚度
+            double borderThickness = 3.0;
+            Color orangeColor = Color.FromArgb(255, 255, 165, 0); // 橘黄色
+
+            // 左边框
+            var leftBorder = new Rectangle
+            {
+                Fill = new SolidColorBrush(orangeColor),
+                Width = borderThickness,
+                Height = _view.ViewportHeight
+            };
+            Canvas.SetLeft(leftBorder, _view.ViewportLeft);
+            Canvas.SetTop(leftBorder, _view.ViewportTop);
+            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Left", leftBorder, null);
+
+            // 右边框
+            var rightBorder = new Rectangle
+            {
+                Fill = new SolidColorBrush(orangeColor),
+                Width = borderThickness,
+                Height = _view.ViewportHeight
+            };
+            Canvas.SetLeft(rightBorder, _view.ViewportRight - borderThickness);
+            Canvas.SetTop(rightBorder, _view.ViewportTop);
+            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Right", rightBorder, null);
+
+            // 上边框
+            var topBorder = new Rectangle
+            {
+                Fill = new SolidColorBrush(orangeColor),
+                Width = _view.ViewportWidth,
+                Height = borderThickness
+            };
+            Canvas.SetLeft(topBorder, _view.ViewportLeft);
+            Canvas.SetTop(topBorder, _view.ViewportTop);
+            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Top", topBorder, null);
+
+            // 下边框
+            var bottomBorder = new Rectangle
+            {
+                Fill = new SolidColorBrush(orangeColor),
+                Width = _view.ViewportWidth,
+                Height = borderThickness
+            };
+            Canvas.SetLeft(bottomBorder, _view.ViewportLeft);
+            Canvas.SetTop(bottomBorder, _view.ViewportBottom - borderThickness);
+            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Bottom", bottomBorder, null);
         }
 
         /// <summary>
@@ -395,19 +488,379 @@ namespace LazyBugPlugInCSharp
     }
 
     /// <summary>
+    /// IBreakpointBookmarkService: C++ 插件保存/恢复断点和书签的 COM 接口
+    /// </summary>
+    [Guid("A7B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D")]
+    [ComVisible(true)]
+    [InterfaceType(ComInterfaceType.InterfaceIsDual)]
+    public interface IBreakpointBookmarkService
+    {
+        /// <summary>
+        /// 保存指定文件的断点信息，返回 "line|condition|enabled\tline|condition|enabled\t..."
+        /// line 是 1-based，不包含文件路径
+        /// </summary>
+        string SaveBreakpoints(string filePath);
+
+        /// <summary>
+        /// 恢复断点，bpData 格式同 SaveBreakpoints 返回值，lineMap 格式: "oldLine:newLine;oldLine:newLine;..."
+        /// </summary>
+        void RestoreBreakpoints(string filePath, string bpData, string lineMapData);
+
+        /// <summary>
+        /// 保存指定文件的书签信息，返回格式: "line;type;line;type;..."
+        /// line 是 1-based, type: 3=Bookmark, 4=Shortcut
+        /// </summary>
+        string SaveBookmarks(string filePath);
+
+        /// <summary>
+        /// 恢复书签，bmData 格式同 SaveBookmarks 返回值，lineMapData 同 RestoreBreakpoints
+        /// </summary>
+        void RestoreBookmarks(string filePath, string bmData, string lineMapData);
+    }
+
+    /// <summary>
+    /// 服务的接口标识 (SID)
+    /// </summary>
+    [Guid("B8C9D0E1-F2A3-4B4C-5D6E-7F8A9B0C1D2E")]
+    public interface SBreakpointBookmarkService { }
+
+    /// <summary>
+    /// BreakpointBookmarkService: 保存/恢复断点和书签的实际逻辑实现
+    /// </summary>
+    [Guid("C9D0E1F2-A3B4-4C5D-6E7F-8A9B0C1D2E3F")]
+    [ComVisible(true)]
+    public class BreakpointBookmarkService : IBreakpointBookmarkService, SBreakpointBookmarkService
+    {
+        private readonly EnvDTE80.DTE2 _dte;
+
+        public BreakpointBookmarkService(EnvDTE80.DTE2 dte)
+        {
+            _dte = dte;
+        }
+
+        /// <summary>
+        /// 保存指定文件的断点，返回 "line|condition|enabled\tline|condition|enabled\t..."
+        /// line 是 1-based，不包含文件路径
+        /// </summary>
+        public string SaveBreakpoints(string filePath)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (_dte == null || string.IsNullOrEmpty(filePath))
+                return string.Empty;
+
+            try
+            {
+                var result = new System.Text.StringBuilder();
+                string normalizedPath = System.IO.Path.GetFullPath(filePath);
+
+                foreach (EnvDTE.Breakpoint bp in _dte.Debugger.Breakpoints)
+                {
+                    try
+                    {
+                        if (string.IsNullOrEmpty(bp.File))
+                            continue;
+
+                        string bpPath = System.IO.Path.GetFullPath(bp.File);
+                        if (!string.Equals(bpPath, normalizedPath, StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        if (result.Length > 0)
+                            result.Append('\t');
+
+                        // line|condition|enabled
+                        result.Append(bp.FileLine); // 1-based
+                        result.Append('|');
+                        result.Append(bp.Condition ?? string.Empty);
+                        result.Append('|');
+                        result.Append(bp.Enabled ? "1" : "0");
+                    }
+                    catch { }
+                }
+
+                return result.ToString();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SaveBreakpoints error: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 恢复断点。bpData 格式同 SaveBreakpoints 返回值。
+        /// lineMapData 格式: "oldLine:newLine;oldLine:newLine;..." (均为 0-based)
+        /// </summary>
+        public void RestoreBreakpoints(string filePath, string bpData, string lineMapData)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (_dte == null || string.IsNullOrEmpty(bpData))
+                return;
+
+            try
+            {
+                // 解析行号映射
+                var lineMap = new Dictionary<int, int>();
+                if (!string.IsNullOrEmpty(lineMapData))
+                {
+                    foreach (string pair in lineMapData.Split(';'))
+                    {
+                        string[] parts = pair.Split(':');
+                        if (parts.Length == 2 && int.TryParse(parts[0], out int oldLine) && int.TryParse(parts[1], out int newLine))
+                        {
+                            lineMap[oldLine] = newLine;
+                        }
+                    }
+                }
+
+                // 解析并恢复断点
+                string[] entries = bpData.Split('\t');
+                foreach (string entry in entries)
+                {
+                    if (string.IsNullOrEmpty(entry))
+                        continue;
+
+                    string[] fields = entry.Split('|');
+                    if (fields.Length < 3)
+                        continue;
+
+                    if (!int.TryParse(fields[0], out int oldLine1)) // 1-based
+                        continue;
+                    string condition = fields[1];
+                    bool enabled = fields[2] == "1";
+
+                    // 映射行号: oldLine1(1-based) -> oldLine0(0-based) -> newLine0(0-based) -> newLine1(1-based)
+                    int oldLine0 = oldLine1 - 1;
+                    int newLine0 = oldLine0;
+                    if (lineMap.TryGetValue(oldLine0, out int mappedLine0))
+                        newLine0 = mappedLine0;
+
+                    int newLine1 = newLine0 + 1;
+
+                    try
+                    {
+                        // Breakpoints.Add(Function, File, Line, Column, Condition, ConditionType,
+                        //                  Language, Data, DataCount, Address, HitCount, HitCountType)
+                        EnvDTE.Breakpoints bps = _dte.Debugger.Breakpoints.Add(
+                            string.Empty,                                   // Function
+                            filePath,                                       // File
+                            newLine1,                                       // Line (1-based)
+                            1,                                              // Column
+                            condition ?? string.Empty,                      // Condition
+                            EnvDTE.dbgBreakpointConditionType.dbgBreakpointConditionTypeWhenTrue, // ConditionType
+                            string.Empty,                                   // Language
+                            string.Empty,                                   // Data
+                            0,                                              // DataCount
+                            string.Empty,                                   // Address
+                            0,                                              // HitCount
+                            EnvDTE.dbgHitCountType.dbgHitCountTypeNone       // HitCountType
+                        );
+
+                        // 如果原断点是禁用状态，设置新断点为禁用
+                        if (!enabled && bps != null && bps.Count > 0)
+                        {
+                            foreach (EnvDTE.Breakpoint newBp in bps)
+                            {
+                                newBp.Enabled = false;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"RestoreBreakpoint failed for {filePath}:{newLine1}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"RestoreBreakpoints error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 保存指定文件的书签，返回 "line;line;..." (1-based)
+        /// 使用 EnvDTE.EditPoint.NextBookmark() 枚举现代 VS 书签
+        /// </summary>
+        public string SaveBookmarks(string filePath)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (_dte == null || string.IsNullOrEmpty(filePath))
+                return string.Empty;
+
+            try
+            {
+                // 找到对应的 Document
+                EnvDTE.Document doc = null;
+                string normalizedPath = System.IO.Path.GetFullPath(filePath);
+                foreach (EnvDTE.Document d in _dte.Documents)
+                {
+                    try
+                    {
+                        if (string.Equals(System.IO.Path.GetFullPath(d.FullName), normalizedPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            doc = d;
+                            break;
+                        }
+                    }
+                    catch { }
+                }
+
+                if (doc == null)
+                    return string.Empty;
+
+                var textDoc = doc.Object("TextDocument") as EnvDTE.TextDocument;
+                if (textDoc == null)
+                    return string.Empty;
+
+                var result = new System.Text.StringBuilder();
+
+                // 从文档开头创建 EditPoint，用 NextBookmark() 遍历所有书签
+                // NextBookmark() 到达末尾后会回绕到开头，需用已访问行号集合防止死循环
+                EnvDTE.EditPoint ep = textDoc.StartPoint.CreateEditPoint();
+                var visitedLines = new HashSet<int>();
+                while (ep.NextBookmark())
+                {
+                    int line = ep.Line;
+                    if (visitedLines.Contains(line))
+                        break; // 已回绕，退出
+                    visitedLines.Add(line);
+
+                    if (result.Length > 0)
+                        result.Append(';');
+                    result.Append(line); // 1-based
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[SaveBookmarks] result={result}");
+                return result.ToString();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"SaveBookmarks error: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 恢复书签。bmData 格式: "line;type;line;type;..." (1-based line)
+        /// lineMapData 格式同 RestoreBreakpoints
+        /// </summary>
+        public void RestoreBookmarks(string filePath, string bmData, string lineMapData)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (string.IsNullOrEmpty(bmData))
+                return;
+
+            try
+            {
+                // 解析行号映射 (0-based old -> 0-based new)
+                var lineMap = new Dictionary<int, int>();
+                if (!string.IsNullOrEmpty(lineMapData))
+                {
+                    foreach (string pair in lineMapData.Split(';'))
+                    {
+                        string[] parts = pair.Split(':');
+                        if (parts.Length == 2 && int.TryParse(parts[0], out int oldLine) && int.TryParse(parts[1], out int newLine))
+                            lineMap[oldLine] = newLine;
+                    }
+                }
+
+                // 找到对应的 Document，若未打开则打开它
+                EnvDTE.Document doc = null;
+                string normalizedPath = System.IO.Path.GetFullPath(filePath);
+                foreach (EnvDTE.Document d in _dte.Documents)
+                {
+                    try
+                    {
+                        if (string.Equals(System.IO.Path.GetFullPath(d.FullName), normalizedPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            doc = d;
+                            break;
+                        }
+                    }
+                    catch { }
+                }
+
+                if (doc == null)
+                {
+                    // 文档未打开，用 OpenFile 打开（使用 ViewKind:=EnvDTE.Constants.vsViewKindTextView 避免打开设计器）
+                    try
+                    {
+                        EnvDTE.Window win = _dte.ItemOperations.OpenFile(filePath, EnvDTE.Constants.vsViewKindTextView);
+                        if (win != null)
+                            doc = win.Document;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[RestoreBookmarks] OpenFile failed: {ex.Message}");
+                        return;
+                    }
+                }
+
+                if (doc == null)
+                    return;
+
+                var textDoc = doc.Object("TextDocument") as EnvDTE.TextDocument;
+                if (textDoc == null)
+                    return;
+
+                // 解析书签行号并用 EditPoint.SetBookmark() 恢复
+                // bmData 格式: "line;line;..." (1-based)
+                foreach (string token in bmData.Split(';'))
+                {
+                    if (!int.TryParse(token, out int oldLine1)) // 1-based
+                        continue;
+
+                    // 映射行号: 1-based -> 0-based -> map -> 1-based
+                    int oldLine0 = oldLine1 - 1;
+                    int newLine0 = lineMap.TryGetValue(oldLine0, out int mapped) ? mapped : oldLine0;
+                    int newLine1 = newLine0 + 1;
+
+                    try
+                    {
+                        int totalLines = textDoc.EndPoint.Line;
+                        if (newLine1 < 1 || newLine1 > totalLines)
+                            continue;
+
+                        EnvDTE.EditPoint ep = textDoc.StartPoint.CreateEditPoint();
+                        ep.MoveToLineAndOffset(newLine1, 1);
+                        ep.SetBookmark();
+                        System.Diagnostics.Debug.WriteLine($"[RestoreBookmarks] set bookmark at line={newLine1}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[RestoreBookmarks] failed at line={newLine1}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"RestoreBookmarks error: {ex.Message}");
+            }
+        }
+    }
+
+    /// <summary>
     /// LazyBugCSharpBridgePackage: 用于将我们的服务注册到 Visual Studio 全局环境中
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid(PackageGuidString)]
     [ProvideService(typeof(SSymbolQueryService), IsAsyncQueryable = true)]
+    [ProvideService(typeof(SBreakpointBookmarkService), IsAsyncQueryable = true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class LazyBugCSharpBridgePackage : AsyncPackage
     {
         public const string PackageGuidString = "B66902EB-87C8-4F8C-98AE-FA3787D4F4EE";
 
+        public static LazyBugCSharpBridgePackage Instance { get; private set; }
+
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            Instance = this;
 
             // 获取 DTE，以便传给 Service
             EnvDTE80.DTE2 dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE80.DTE2;
@@ -416,6 +869,12 @@ namespace LazyBugPlugInCSharp
             this.AddService(typeof(SSymbolQueryService), (container, cancellation, type) =>
             {
                 return Task.FromResult<object>(new SymbolQueryService(dte));
+            }, true);
+
+            // 注册断点/书签服务
+            this.AddService(typeof(SBreakpointBookmarkService), (container, cancellation, type) =>
+            {
+                return Task.FromResult<object>(new BreakpointBookmarkService(dte));
             }, true);
         }
     }

@@ -503,6 +503,41 @@ void Util_ClearUserData(CComPtr<IVsTextView> pVsTextView)
 	pUserData->SetData(guidDiffData, vtEmpty); 
 }
 
+// {A1B2C3D4-E5F6-7890-ABCD-EF1234567890} - FileChange border flag GUID
+static GUID guidFileChangeBorder = { 0xa1b2c3d4, 0xe5f6, 0x7890, { 0xab, 0xcd, 0xef, 0x12, 0x34, 0x56, 0x78, 0x90 } };
+
+void Util_SetFileChangeBorder(CComPtr<IVsTextView> pVsTextView, bool show)
+{
+	if (!pVsTextView)
+	{
+		return;
+	}
+
+	CComPtr<IVsTextLines> pTextLines;
+	HRESULT hr = pVsTextView->GetBuffer(&pTextLines);
+	if (FAILED(hr) || !pTextLines)
+	{
+		return;
+	}
+
+	CComPtr<IVsUserData> pUserData;
+	if (FAILED(pTextLines->QueryInterface(IID_IVsUserData, (void**)&pUserData)) || !pUserData)
+	{
+		return;
+	}
+
+	if (show)
+	{
+		CComVariant vtTrue(true);
+		pUserData->SetData(guidFileChangeBorder, vtTrue);
+	}
+	else
+	{
+		CComVariant vtEmpty; // VT_EMPTY 表示清除
+		pUserData->SetData(guidFileChangeBorder, vtEmpty);
+	}
+}
+
 static void StoreDiffInUserData(IVsTextLines* pVsTextLines, const CodeComparingLines& comparaingContent)
 {
 	if (!pVsTextLines) return;
@@ -1047,5 +1082,175 @@ void Util_SetFirstVisibleLine(CComPtr<IVsTextView> pVsTextView, int line)
 			pVsTextView->EnsureSpanVisible(ts);
 		}
 	}
+}
+
+// ==================== 断点/书签 保存与恢复（通过 C# COM 服务） ====================
+
+// IBreakpointBookmarkService 的 COM 接口 GUID
+// {A7B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}
+static const GUID IID_IBreakpointBookmarkService =
+{ 0xA7B2C3D4, 0xE5F6, 0x4A7B, { 0x8C, 0x9D, 0x0E, 0x1F, 0x2A, 0x3B, 0x4C, 0x5D } };
+
+// SBreakpointBookmarkService 的 SID GUID
+// {B8C9D0E1-F2A3-4B4C-5D6E-7F8A9B0C1D2E}
+static const GUID SID_SBreakpointBookmarkService =
+{ 0xB8C9D0E1, 0xF2A3, 0x4B4C, { 0x5D, 0x6E, 0x7F, 0x8A, 0x9B, 0x0C, 0x1D, 0x2E } };
+
+// 获取 C# BreakpointBookmarkService 的 COM 接口
+static CComPtr<IDispatch> Util_GetBreakpointBookmarkService()
+{
+	CComPtr<IServiceProvider> sp = g_ps.pServiceProvider;
+	if (!sp)
+		return nullptr;
+
+	CComPtr<IUnknown> pUnk;
+	if (FAILED(sp->QueryService(SID_SBreakpointBookmarkService, IID_IDispatch, (void**)&pUnk)) || !pUnk)
+		return nullptr;
+
+	CComPtr<IDispatch> pDisp;
+	pUnk->QueryInterface(IID_IDispatch, (void**)&pDisp);
+	return pDisp;
+}
+
+std::string Util_SaveBreakpointsForFile(const std::wstring& filePath)
+{
+	CComPtr<IDispatch> pService = Util_GetBreakpointBookmarkService();
+	if (!pService)
+		return {};
+
+	// 调用 SaveBreakpoints(BSTR filePath) -> BSTR
+	DISPID dispId = DISPID_UNKNOWN;
+	OLECHAR* methodName = const_cast<OLECHAR*>(L"SaveBreakpoints");
+	if (FAILED(pService->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_USER_DEFAULT, &dispId)))
+		return {};
+
+	CComVariant arg(filePath.c_str());
+	DISPPARAMS dp;
+	dp.cArgs = 1;
+	dp.rgvarg = &arg;
+	dp.cNamedArgs = 0;
+	dp.rgdispidNamedArgs = nullptr;
+
+	CComVariant result;
+	if (FAILED(pService->Invoke(dispId, IID_NULL, LOCALE_USER_DEFAULT,
+		DISPATCH_METHOD, &dp, &result, nullptr, nullptr)))
+		return {};
+
+	if (FAILED(result.ChangeType(VT_BSTR)))
+		return {};
+
+	return result.bstrVal ? std::string(_bstr_t(result.bstrVal)) : std::string();
+}
+
+std::string Util_SaveBookmarksForFile(const std::wstring& filePath)
+{
+	CComPtr<IDispatch> pService = Util_GetBreakpointBookmarkService();
+	if (!pService)
+		return {};
+
+	DISPID dispId = DISPID_UNKNOWN;
+	OLECHAR* methodName = const_cast<OLECHAR*>(L"SaveBookmarks");
+	if (FAILED(pService->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_USER_DEFAULT, &dispId)))
+		return {};
+
+	CComVariant arg(filePath.c_str());
+	DISPPARAMS dp;
+	dp.cArgs = 1;
+	dp.rgvarg = &arg;
+	dp.cNamedArgs = 0;
+	dp.rgdispidNamedArgs = nullptr;
+
+	CComVariant result;
+	if (FAILED(pService->Invoke(dispId, IID_NULL, LOCALE_USER_DEFAULT,
+		DISPATCH_METHOD, &dp, &result, nullptr, nullptr)))
+		return {};
+
+	if (FAILED(result.ChangeType(VT_BSTR)))
+		return {};
+
+	return result.bstrVal ? std::string(_bstr_t(result.bstrVal)) : std::string();
+}
+
+// 辅助：将 lineMap (0-based old -> 0-based new) 转为字符串格式 "old:new;old:new;..."
+static std::string LineMapToString(const std::vector<int>& lineMap)
+{
+	std::string result;
+	for (int i = 0; i < (int)lineMap.size(); i++)
+	{
+		if (!result.empty())
+			result += ';';
+		result += std::to_string(i) + ':' + std::to_string(lineMap[i]);
+	}
+	return result;
+}
+
+void Util_RestoreBreakpoints(const std::wstring& filePath, const std::string& bpData, const std::vector<int>& lineMap)
+{
+	if (bpData.empty())
+		return;
+
+	CComPtr<IDispatch> pService = Util_GetBreakpointBookmarkService();
+	if (!pService)
+		return;
+
+	DISPID dispId = DISPID_UNKNOWN;
+	OLECHAR* methodName = const_cast<OLECHAR*>(L"RestoreBreakpoints");
+	if (FAILED(pService->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_USER_DEFAULT, &dispId)))
+		return;
+
+	std::string lineMapStr = LineMapToString(lineMap);
+	std::wstring wLineMap(lineMapStr.begin(), lineMapStr.end());
+	std::wstring wBpData(bpData.begin(), bpData.end());
+
+	// 参数逆序: arg2=lineMapData, arg1=bpData, arg0=filePath
+	CComVariant args[3];
+	args[0] = wLineMap.c_str();
+	args[1] = wBpData.c_str();
+	args[2] = filePath.c_str();
+
+	DISPPARAMS dp;
+	dp.cArgs = 3;
+	dp.rgvarg = args;
+	dp.cNamedArgs = 0;
+	dp.rgdispidNamedArgs = nullptr;
+
+	CComVariant result;
+	pService->Invoke(dispId, IID_NULL, LOCALE_USER_DEFAULT,
+		DISPATCH_METHOD, &dp, &result, nullptr, nullptr);
+}
+
+void Util_RestoreBookmarks(const std::wstring& filePath, const std::string& bmData, const std::vector<int>& lineMap)
+{
+	if (bmData.empty())
+		return;
+
+	CComPtr<IDispatch> pService = Util_GetBreakpointBookmarkService();
+	if (!pService)
+		return;
+
+	DISPID dispId = DISPID_UNKNOWN;
+	OLECHAR* methodName = const_cast<OLECHAR*>(L"RestoreBookmarks");
+	if (FAILED(pService->GetIDsOfNames(IID_NULL, &methodName, 1, LOCALE_USER_DEFAULT, &dispId)))
+		return;
+
+	std::string lineMapStr = LineMapToString(lineMap);
+	std::wstring wLineMap(lineMapStr.begin(), lineMapStr.end());
+	std::wstring wBmData(bmData.begin(), bmData.end());
+
+	// 参数逆序: arg2=lineMapData, arg1=bmData, arg0=filePath
+	CComVariant args[3];
+	args[0] = wLineMap.c_str();
+	args[1] = wBmData.c_str();
+	args[2] = filePath.c_str();
+
+	DISPPARAMS dp;
+	dp.cArgs = 3;
+	dp.rgvarg = args;
+	dp.cNamedArgs = 0;
+	dp.rgdispidNamedArgs = nullptr;
+
+	CComVariant result;
+	pService->Invoke(dispId, IID_NULL, LOCALE_USER_DEFAULT,
+		DISPATCH_METHOD, &dp, &result, nullptr, nullptr);
 }
 
