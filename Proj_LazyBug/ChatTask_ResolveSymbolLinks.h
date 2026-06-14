@@ -43,6 +43,8 @@ public:
 	// 文件索引表（全局唯一，无需考虑多线程）
 	static int GetFileIndex(const std::string& filePath);
 	static const std::string& GetFilePath(int fileIndex);
+	// 获取文件的基名（去后缀的全路径，用于同名文件判断，如 src\Foo.h 与 src\Foo.cpp 基名相同）
+	static const std::string& GetFileBaseName(int fileIndex);
 	static void ClearFileTable();
 
 	// 模糊查询符号位置
@@ -75,4 +77,6 @@ private:
 	// 文件索引表
 	static std::vector<std::string> s_fileTable;
 	static std::unordered_map<std::string, int> s_fileToIndex;
+	// 文件基名表（去后缀全路径，与 s_fileTable 同序），用于同名文件判断
+	static std::vector<std::string> s_fileBaseNames;
 };

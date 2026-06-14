@@ -409,6 +409,19 @@ bool ConvertFileContentIntoUTF8(const std::vector<BYTE>& raw_content, std::vecto
 
 }
 
+bool ConvertStringIntoUtf8(const std::string& raw_str, std::string& str)
+{
+	if (is_valid_utf8(raw_str))
+	{
+		str = raw_str;
+	}
+	else
+	{
+		str = local_to_utf8(raw_str);
+	}
+	return true;
+}
+
 // 内部辅助函数：读取文件并处理编码
 static bool ReadFileIntoUTF8(const char* path, std::vector<BYTE>& processed_content, FileContentCodingFormat& codingFmt)
 {

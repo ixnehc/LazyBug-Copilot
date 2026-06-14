@@ -28,6 +28,7 @@ extern const char* GetOpenedDBFolderPath_utf8();
 // 静态成员定义
 std::vector<std::string> CChatTask_ResolveSymbolLinks::s_fileTable;
 std::unordered_map<std::string, int> CChatTask_ResolveSymbolLinks::s_fileToIndex;
+std::vector<std::string> CChatTask_ResolveSymbolLinks::s_fileBaseNames;
 
 int CChatTask_ResolveSymbolLinks::GetFileIndex(const std::string& filePath)
 {
@@ -37,6 +38,10 @@ int CChatTask_ResolveSymbolLinks::GetFileIndex(const std::string& filePath)
 	int idx = (int)s_fileTable.size();
 	s_fileTable.push_back(filePath);
 	s_fileToIndex[filePath] = idx;
+	// 计算基名：文件夹路径 + 去后缀文件名（小写，便于不区分大小写比较）
+	std::string baseName = GetFileFolderPath(filePath) + "\\" + GetFileTitle(filePath);
+	StringLower(baseName);
+	s_fileBaseNames.push_back(baseName);
 	return idx;
 }
 
@@ -45,10 +50,16 @@ const std::string& CChatTask_ResolveSymbolLinks::GetFilePath(int fileIndex)
 	return s_fileTable[fileIndex];
 }
 
+const std::string& CChatTask_ResolveSymbolLinks::GetFileBaseName(int fileIndex)
+{
+	return s_fileBaseNames[fileIndex];
+}
+
 void CChatTask_ResolveSymbolLinks::ClearFileTable()
 {
 	s_fileTable.clear();
 	s_fileToIndex.clear();
+	s_fileBaseNames.clear();
 }
 
 // 辅助函数：判断字符串是否可能是文件路径（包含路径分隔符或文件扩展名）
@@ -281,7 +292,7 @@ static std::vector<SymbolResolveResult> ResolveAsSymbol(const std::string& dbFol
 	
 	// 第一次搜索：直接搜索符号
 	SolutionDBMsg_SymbolDefines symbolResult;
-	SolutionDB_FindSymbolDefines(dbFolderPath.c_str(), text.c_str(), 200, symbolResult);
+	SolutionDB_FindSymbolDefines(dbFolderPath.c_str(), text.c_str(), 50, symbolResult);
 	
 	for (auto& loc : symbolResult.locations)
 	{
@@ -395,9 +406,17 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 			_threadFinished = true;
 			return;
 		}
+
+		
 		
 		const SymbolLinkItem& item = _symbolLinks[i];
 		std::string symbolNameNarrow = widechar_to_utf8(item.symbol.c_str());
+
+		if (symbolNameNarrow == "Detach")
+		{
+			int v = 0;
+			v++;
+		}
 		resolvedAll[i] = FuzzyResolveSymbol(_dbFolderPath, symbolNameNarrow);
 	}
 	
@@ -423,6 +442,9 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 	// ===== 第二阶段：全局后处理 =====
 	// 文件集 A（用 int 索引）
 	std::unordered_set<int> fileSetA;
+	// 文件集 A 中所有文件的基名集合（用于同名文件判断：
+	// 若结果文件的同名文件(只是后缀不同)已被接受，则该结果也可被接受）
+	std::unordered_set<std::string> baseSetA;
 	
 	// 每个 symbol link 中哪些结果被接受
 	std::vector<std::vector<bool>> acceptedFlags(n);
@@ -435,13 +457,27 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 		if (!resolvedAll[i].empty())
 			isRemaining[i] = true;
 	
-	// 辅助：接受 symbol link idx 中文件索引在 fileSetA 中的结果
+	// 辅助：将文件加入 fileSetA（同时维护基名集合 baseSetA）
+	auto addFileToSetA = [&](int fidx) {
+		fileSetA.insert(fidx);
+		baseSetA.insert(CChatTask_ResolveSymbolLinks::GetFileBaseName(fidx));
+	};
+	
+	// 辅助：判断某个结果文件是否被 fileSetA 接受
+	// 条件：文件索引本身在 fileSetA 中，或其同名文件(基名相同)已被接受
+	auto isFileAccepted = [&](int fidx) -> bool {
+		if (fileSetA.count(fidx))
+			return true;
+		return baseSetA.count(CChatTask_ResolveSymbolLinks::GetFileBaseName(fidx)) > 0;
+	};
+	
+	// 辅助：接受 symbol link idx 中文件被 fileSetA 接受的结果
 	// 返回是否有结果被接受
 	auto acceptFromSetA = [&](size_t idx) -> bool {
 		bool any = false;
 		for (size_t j = 0; j < resolvedAll[idx].size(); ++j)
 		{
-			if (!acceptedFlags[idx][j] && fileSetA.count(resolvedAll[idx][j].fileIndex))
+			if (!acceptedFlags[idx][j] && isFileAccepted(resolvedAll[idx][j].fileIndex))
 			{
 				acceptedFlags[idx][j] = true;
 				any = true;
@@ -456,58 +492,39 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 		if (!isRemaining[i])
 			continue;
 		
-		if (linkFileSets[i].size() < 2)
+		if (linkFileSets[i].size() <= 2)
 		{
 			// 接受所有结果
 			for (size_t j = 0; j < resolvedAll[i].size(); ++j)
 				acceptedFlags[i][j] = true;
 			for (int fidx : linkFileSets[i])
-				fileSetA.insert(fidx);
+				addFileToSetA(fidx);
 			isRemaining[i] = false;
 		}
 	}
 	
-	// 步骤2：剩余的 symbol link，如果某个结果在 fileSetA 中，则接受
-	// 使用工作队列：只把新加入 fileSetA 的文件索引入队，增量扫描
+	// 步骤2：剩余的 symbol link，如果某个结果被 fileSetA 接受，则接受
+	// 接受新结果后其文件加入 fileSetA，可能触发更多匹配，循环直到稳定
 	{
-		// 初始队列：fileSetA 中已有的所有文件
-		std::queue<int> workQueue;
-		for (int fidx : fileSetA)
-			workQueue.push(fidx);
-		
-		while (!workQueue.empty())
+		bool changed = true;
+		while (changed)
 		{
-			int fidx = workQueue.front();
-			workQueue.pop();
-			
+			changed = false;
 			for (size_t i = 0; i < n; ++i)
 			{
 				if (!isRemaining[i])
 					continue;
 				
-				// 检查该 symbol link 是否包含文件 fidx
-				bool hasFile = false;
-				for (int fi : linkFileSets[i])
-				{
-					if (fi == fidx) { hasFile = true; break; }
-				}
-				if (!hasFile)
-					continue;
-				
-				// 尝试接受 fileSetA 中的结果
 				if (acceptFromSetA(i))
 				{
-					// 将新接受结果中的文件加入 fileSetA 和工作队列
+					// 将新接受结果中的文件加入 fileSetA
 					for (size_t j = 0; j < resolvedAll[i].size(); ++j)
 					{
 						if (acceptedFlags[i][j])
-						{
-							int rFidx = resolvedAll[i][j].fileIndex;
-							if (fileSetA.insert(rFidx).second)
-								workQueue.push(rFidx);
-						}
+							addFileToSetA(resolvedAll[i][j].fileIndex);
 					}
 					isRemaining[i] = false;
+					changed = true;
 				}
 			}
 		}
@@ -551,7 +568,7 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 				if (!intersection.empty() && intersection.size() <= 2)
 				{
 					for (int fidx : intersection)
-						fileSetA.insert(fidx);
+						addFileToSetA(fidx);
 				}
 			}
 		}

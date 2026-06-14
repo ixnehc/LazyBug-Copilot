@@ -422,10 +422,18 @@ void CChatSkillTip::_SendSkillContent()
         jsonData["description"] = description;
         jsonData["content"] = content;
 
-        std::string jsonStr = jsonData.dump();
-        std::wstring wJsonStr = utf8_to_widechar(jsonStr);
-
-        _PostWebMessage(L"setSkillContent", wJsonStr);
+        try
+        {
+            std::string jsonStr = jsonData.dump();
+            std::wstring wJsonStr = utf8_to_widechar(jsonStr);
+            _PostWebMessage(L"setSkillContent", wJsonStr);
+        }
+        catch (const std::exception& e)
+        {
+            // dump失败，忽略
+			int v = 0;
+			v++;
+        }
     }
 }
 

@@ -39,6 +39,7 @@ extern bool SetFileTick(const char* path, AbsTick tick);
 extern bool SetFileTime(const char* path, const FILETIME& fileTime);
 extern bool EqualFileTime(const FILETIME& a, const FILETIME& b);
 extern bool ConvertFileContentIntoUTF8(const std::vector<BYTE>& raw_content, std::vector<BYTE>& processed_content, FileContentCodingFormat& codingFmt);
+extern bool ConvertStringIntoUtf8(const std::string& raw_str, std::string& str);
 extern bool ConvertFileContentFromUTF8(std::vector<BYTE>& raw_content, const std::vector<BYTE>& processed_content, FileContentCodingFormat codingFmt);
 extern bool GetFileContentIntoUTF8(const char* path, std::string& content, FileContentCodingFormat &codingFmt);
 extern bool GetFileContentIntoUTF8(const char* path, std::vector<BYTE>& content, FileContentCodingFormat& codingFmt);

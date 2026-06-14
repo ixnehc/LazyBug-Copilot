@@ -54,6 +54,9 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - Log the context compression results
 - Added an "Evaluate" button for the selected "Compress & Summarize" API on the settings page
 - Fixed an issue where showing the code diff would remove breakpoints and bookmarks
-- Added a colored frame in code diff mode
+- 在代码窗口左侧添加条带来标识当前处于code diff mode下
 - In the chat window, collapsed all exploration operations (file reading, keyword searching, etc.)
 - Fixed an issue where the chat title generation would occasionally fail
+- Recognize symbol link in chat window more smartly(more links recognized)
+- 修复了显示skill tip时会crash的问题
+- 提高了CLI tool 的命令行兼容性(BASH,CMD)

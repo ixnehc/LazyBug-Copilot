@@ -71,6 +71,7 @@ bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string
 			firstLine = false;
 		}
 
+		Utils::ConvertStringIntoUtf8(line, line);
 		line = _Trim(line);
 		if (line.empty())
 			continue;  // 跳过空行
@@ -95,6 +96,7 @@ bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string
 	bool foundSecondMarker = false;
 	while (std::getline(file, line))
 	{
+		Utils::ConvertStringIntoUtf8(line, line);
 		std::string trimmedLine = _Trim(line);
 		if (trimmedLine == "---")
 		{
@@ -114,6 +116,7 @@ bool ParseSkillMd(const std::string& filePath, std::string& outName, std::string
 			std::ostringstream contentStream;
 			while (std::getline(file, line))
 			{
+				Utils::ConvertStringIntoUtf8(line, line);
 				contentStream << line << "\n";
 			}
 			*outContent = contentStream.str();
