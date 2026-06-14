@@ -131,7 +131,7 @@ void CChatBriefA::Update(CChatDialogA& chatDlg)
 	}
 
 	settings.api.tools.clear();
-	settings.api.thinkingMode = LlmThinkingMode::Disable;
+//	settings.api.thinkingMode = LlmThinkingMode::Disable;
 	settings.api.rule = "";
 
 	_llmChat.Request(request, settings);
