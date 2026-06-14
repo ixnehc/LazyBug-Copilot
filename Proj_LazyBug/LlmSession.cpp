@@ -105,8 +105,9 @@ void LlmSessionRequest::_ProcessReasoning(const LlmSessionSetting& setting)
 {
 	bool isKimi = (setting.apiFormat == LlmApiFormat::Kimi);
 	bool isDeepSeek = (setting.apiFormat == LlmApiFormat::DeepSeek);
+	bool isGLM = (setting.apiFormat == LlmApiFormat::GLM);
 
-	if (isKimi||isDeepSeek)
+	if (isKimi||isDeepSeek||isGLM)
 		return;
 
 	// 需要处理的情况：reasoning后面紧跟一个tool call
@@ -154,8 +155,9 @@ void LlmSessionRequest::_ProcessReasoning2(const LlmSessionSetting& setting)
 {
 	bool isKimi = (setting.apiFormat == LlmApiFormat::Kimi);
 	bool isDeepSeek = (setting.apiFormat == LlmApiFormat::DeepSeek);
+	bool isGLM = (setting.apiFormat == LlmApiFormat::GLM);
 
-	if ((!isKimi) && (!isDeepSeek))
+	if ((!isKimi) && (!isDeepSeek)&&(!isGLM))
 		return;
 
 	std::string recentReasoningContent;
@@ -1083,8 +1085,8 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	if (request.isStreaming)
 	{
 		requestJson["stream"] = true;
-		if (settings.api.providerTypeName == "Aliyun")
-			requestJson["stream_options"] = { {"include_usage", true} };
+		if (settings.apiFormat==LlmApiFormat::GLM)
+			requestJson["tool_stream"] = true;
 	}
 	else
 		requestJson["stream"] = false;
