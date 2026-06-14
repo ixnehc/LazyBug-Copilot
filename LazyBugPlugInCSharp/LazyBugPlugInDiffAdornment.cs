@@ -196,10 +196,7 @@ namespace LazyBugPlugInCSharp
 
             // 检查是否显示 FileChange 边框
             _showFileChangeBorder = CheckFileChangeBorderFlag();
-            if (_showFileChangeBorder)
-            {
-                DrawFileChangeBorder();
-            }
+            DrawFileChangeBorder();
 
             // 获取当前视口中可见的文本行集合。
             // TextViewLines 包含了已经过布局和可能的几何变换（如行高变化）的行。
@@ -315,60 +312,11 @@ namespace LazyBugPlugInCSharp
         }
 
         /// <summary>
-        /// 绘制 FileChange 边框（橘黄色）
+        /// 绘制 FileChange 边框（橘黄色）：通知左侧 margin 更新可见性
         /// </summary>
         private void DrawFileChangeBorder()
         {
-            if (!_showFileChangeBorder)
-                return;
-
-            // 边框厚度
-            double borderThickness = 10.0;
-            Color orangeColor = Color.FromArgb(64, 255, 165, 0); // 橘黄色
-
-            // 左边框
-            var leftBorder = new Rectangle
-            {
-                Fill = new SolidColorBrush(orangeColor),
-                Width = borderThickness,
-                Height = _view.ViewportHeight
-            };
-            Canvas.SetLeft(leftBorder, -10);
-            Canvas.SetTop(leftBorder, _view.ViewportTop);
-            _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Left", leftBorder, null);
-
-//             // 右边框
-//             var rightBorder = new Rectangle
-//             {
-//                 Fill = new SolidColorBrush(orangeColor),
-//                 Width = borderThickness,
-//                 Height = _view.ViewportHeight
-//             };
-//             Canvas.SetLeft(rightBorder, _view.ViewportRight - borderThickness);
-//             Canvas.SetTop(rightBorder, _view.ViewportTop);
-//             _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Right", rightBorder, null);
-// 
-//             // 上边框
-//             var topBorder = new Rectangle
-//             {
-//                 Fill = new SolidColorBrush(orangeColor),
-//                 Width = _view.ViewportWidth,
-//                 Height = borderThickness
-//             };
-//             Canvas.SetLeft(topBorder, _view.ViewportLeft);
-//             Canvas.SetTop(topBorder, _view.ViewportTop);
-//             _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Top", topBorder, null);
-// 
-//             // 下边框
-//             var bottomBorder = new Rectangle
-//             {
-//                 Fill = new SolidColorBrush(orangeColor),
-//                 Width = _view.ViewportWidth,
-//                 Height = borderThickness
-//             };
-//             Canvas.SetLeft(bottomBorder, _view.ViewportLeft);
-//             Canvas.SetTop(bottomBorder, _view.ViewportBottom - borderThickness);
-//             _layer.AddAdornment(AdornmentPositioningBehavior.ViewportRelative, null, "FileChangeBorder_Bottom", bottomBorder, null);
+            FileChangeBorderMargin.SetVisible(_view, _showFileChangeBorder);
         }
 
         /// <summary>
@@ -391,6 +339,9 @@ namespace LazyBugPlugInCSharp
                 // if (_buffer != null) _buffer.Changed -= OnBufferChanged; // 如果订阅了
                 _view.Closed -= OnViewClosed;
 
+                // 清理 margin 注册
+                FileChangeBorderMargin.Unregister(_view);
+
                 // （可选）移除所有添加的装饰，尽管当层或视图销毁时它们通常也会被清理
                 if (_layer != null)
                 {
@@ -408,6 +359,117 @@ namespace LazyBugPlugInCSharp
         // {
         //     Dispose();
         // }
+    }
+
+    // -------------------------------------------------------------------------
+    // FileChange 左侧 Margin 实现
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Margin 工厂：MEF 导出，负责为每个文本视图创建 FileChangeBorderMargin 实例。
+    /// MarginContainer 指定为 LeftSelection，紧贴 viewport 左边缘（所有 margin 最右侧）。
+    /// </summary>
+    [Export(typeof(IWpfTextViewMarginProvider))]
+    [Name("FileChangeBorderMargin")]
+    [MarginContainer(PredefinedMarginNames.LeftSelection)]
+    [Order(Before = PredefinedMarginNames.Spacer)]
+    [ContentType("text")]
+    [TextViewRole(PredefinedTextViewRoles.Document)]
+    internal class FileChangeBorderMarginProvider : IWpfTextViewMarginProvider
+    {
+        public IWpfTextViewMargin CreateMargin(IWpfTextViewHost wpfTextViewHost, IWpfTextViewMargin marginContainer)
+        {
+            return new FileChangeBorderMargin(wpfTextViewHost.TextView);
+        }
+    }
+
+    /// <summary>
+    /// 左侧 Margin 实体：宽度固定 10px，显示橘黄色条带。
+    /// 自身不继承任何 WPF 类型，通过 VisualElement 属性返回一个 Border 作为可视元素。
+    /// 通过静态字典与 LazyBugDiffAdornment 通信，由后者调用 SetVisible() 驱动显示/隐藏。
+    /// </summary>
+    internal class FileChangeBorderMargin : IWpfTextViewMargin
+    {
+        public const double MarginWidth = 5.0;
+        private static readonly Color OrangeColor = Color.FromArgb(64, 255, 165, 0);
+
+        // 静态字典：view -> margin，供 LazyBugDiffAdornment 查找并通知
+        private static readonly Dictionary<IWpfTextView, FileChangeBorderMargin> s_instances
+            = new Dictionary<IWpfTextView, FileChangeBorderMargin>();
+
+        private readonly IWpfTextView _view;
+        private bool _isDisposed = false;
+
+        // 作为 VisualElement 的 Border，背景色即橘黄色条带
+        private readonly System.Windows.Controls.Border _border;
+
+        public FileChangeBorderMargin(IWpfTextView view)
+        {
+            _view = view;
+
+            _border = new System.Windows.Controls.Border
+            {
+                Background = new SolidColorBrush(OrangeColor),
+                Width = 0,          // 默认隐藏
+                ClipToBounds = true,
+            };
+
+            // 注册到静态字典
+            lock (s_instances)
+                s_instances[view] = this;
+
+            view.Closed += OnViewClosed;
+        }
+
+        // ---- 显示/隐藏 ----
+        private void SetVisibleInternal(bool visible)
+        {
+            _border.Width = visible ? MarginWidth : 0;
+        }
+
+        /// <summary>
+        /// 由 LazyBugDiffAdornment.DrawFileChangeBorder() 调用，驱动 margin 显示/隐藏。
+        /// </summary>
+        public static void SetVisible(IWpfTextView view, bool visible)
+        {
+            FileChangeBorderMargin margin;
+            lock (s_instances)
+                s_instances.TryGetValue(view, out margin);
+            margin?.SetVisibleInternal(visible);
+        }
+
+        /// <summary>
+        /// 由 LazyBugDiffAdornment.Dispose() 调用，清理静态字典中的注册。
+        /// </summary>
+        public static void Unregister(IWpfTextView view)
+        {
+            lock (s_instances)
+                s_instances.Remove(view);
+        }
+
+        private void OnViewClosed(object sender, EventArgs e)
+        {
+            Dispose();
+        }
+
+        // ---- IWpfTextViewMargin ----
+        public System.Windows.FrameworkElement VisualElement => _border;
+        public double MarginSize => _border.Width;
+        public bool Enabled => true;
+
+        public ITextViewMargin GetTextViewMargin(string marginName)
+            => marginName == "FileChangeBorderMargin" ? this : null;
+
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                _view.Closed -= OnViewClosed;
+                lock (s_instances)
+                    s_instances.Remove(_view);
+                _isDisposed = true;
+            }
+        }
     }
 
     /// <summary>
