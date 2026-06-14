@@ -194,7 +194,7 @@ static std::string PreprocessSymbolText(const std::string& rawSymbolText)
 }
 
 // 当作文件路径搜索
-// 返回结果数量 <= 2 时有效，> 2 或 0 时返回空数组
+// 返回所有匹配结果
 static std::vector<SymbolResolveResult> ResolveAsFilePath(const std::string& dbFolderPath, const std::string& rawSymbolText)
 {
 	std::vector<SymbolResolveResult> results;
@@ -234,17 +234,11 @@ static std::vector<SymbolResolveResult> ResolveAsFilePath(const std::string& dbF
 		results.push_back(r);
 	}
 	
-	// 返回结果数量 <= 2 时有效
-	if (results.size() >= 1 && results.size() <= 2)
-		return results;
-	
-	// 否则返回空数组
-	results.clear();
 	return results;
 }
 
 // 当作代码符号搜索
-// 返回结果数量 <= 2 时有效，或牵涉到的文件数 <= 1 时有效，否则返回空数组
+// 返回所有匹配结果
 static std::vector<SymbolResolveResult> ResolveAsSymbol(const std::string& dbFolderPath, const std::string& rawSymbolText)
 {
 	std::vector<SymbolResolveResult> results;
@@ -258,63 +252,15 @@ static std::vector<SymbolResolveResult> ResolveAsSymbol(const std::string& dbFol
 	
 	// 第一次搜索：直接搜索符号
 	SolutionDBMsg_SymbolDefines symbolResult;
-	SolutionDB_FindSymbolDefines(dbFolderPath.c_str(), text.c_str(), 10, symbolResult);
+	SolutionDB_FindSymbolDefines(dbFolderPath.c_str(), text.c_str(), 500, symbolResult);
 	
-	// 统计牵涉到的不同文件数量
-	std::set<std::string> uniqueFiles;
 	for (auto& loc : symbolResult.locations)
 	{
-		uniqueFiles.insert(loc.filePath);
+		SymbolResolveResult r;
+		r.filePath = loc.filePath;
+		r.lineNumber = loc.lineRange.start;
+		results.push_back(r);
 	}
-	
-	// 如果结果数在 1-2 之间，或牵涉的文件数 <= 2，则接受
-	if ((symbolResult.locations.size() >= 1 && symbolResult.locations.size() <= 2) || uniqueFiles.size() <= 2)
-	{
-		for (auto& loc : symbolResult.locations)
-		{
-			SymbolResolveResult r;
-			r.filePath = loc.filePath;
-			r.lineNumber = loc.lineRange.start;
-			results.push_back(r);
-		}
-		return results;
-	}
-	else
-	{
-		// 牵涉文件太多，直接放弃
-		return results;
-	}
-// 	
-// 	// 结果为 0，尝试降级匹配：提取符号的最后一部分
-// 	if (ContainsSymbolSeparator(text))
-// 	{
-// 		std::string lastPart = ExtractLastSymbolPart(text);
-// 		if (!lastPart.empty() && lastPart != text)
-// 		{
-// 			SolutionDBMsg_SymbolDefines symbolResult2;
-// 			SolutionDB_FindSymbolDefines(dbFolderPath.c_str(), lastPart.c_str(), 50, symbolResult2);
-// 			
-// 			// 按数量限制返回前2个
-// 			std::vector<SymbolResolveResult> filteredResults;
-// 			for (auto& loc : symbolResult2.locations)
-// 			{
-// 				SymbolResolveResult r;
-// 				r.filePath = loc.filePath;
-// 				r.lineNumber = loc.lineRange.lineStart;
-// 				filteredResults.push_back(r);
-// 			}
-// 			
-// 			if (filteredResults.size() >= 1 && filteredResults.size() <= 2)
-// 				return filteredResults;
-// 			else if (filteredResults.size() > 2)
-// 			{
-// 				// 只返回前2个
-// 				results.push_back(filteredResults[0]);
-// 				results.push_back(filteredResults[1]);
-// 				return results;
-// 			}
-// 		}
-// 	}
 	
 	return results;
 }
@@ -355,7 +301,29 @@ std::vector<SymbolResolveResult> CChatTask_ResolveSymbolLinks::FuzzyResolveSymbo
 		SolutionDBMsg_SearchFileResult fileResult;
 		SolutionDB_SearchFile(dbFolderPath.c_str(), text.c_str(), 10, fileResult);
 		
-		if (fileResult.results.fileInfos.size() >= 1 && fileResult.results.fileInfos.size() <= 2)
+		// 优先严格匹配：文件名（不含扩展名）完全等于 text
+		std::vector<SymbolResolveResult> strictResults;
+		for (auto& fi : fileResult.results.fileInfos)
+		{
+			std::string fileName = GetFileName(fi.filePath);
+			// 去除扩展名
+			size_t dotPos = fileName.rfind('.');
+			if (dotPos != std::string::npos)
+				fileName = fileName.substr(0, dotPos);
+			
+			if (fileName == text)
+			{
+				SymbolResolveResult r;
+				r.filePath = fi.filePath;
+				r.lineNumber = -1;
+				strictResults.push_back(r);
+			}
+		}
+		if (!strictResults.empty())
+			return strictResults;
+		
+		// 严格匹配无结果，返回所有搜索结果
+		if (!fileResult.results.fileInfos.empty())
 		{
 			for (auto& fi : fileResult.results.fileInfos)
 			{
@@ -365,29 +333,6 @@ std::vector<SymbolResolveResult> CChatTask_ResolveSymbolLinks::FuzzyResolveSymbo
 				results.push_back(r);
 			}
 			return results;
-		}
-		else if (fileResult.results.fileInfos.size() > 2)
-		{
-			// 尝试严格匹配：文件名（不含扩展名）完全等于 text
-			std::vector<SymbolResolveResult> strictResults;
-			for (auto& fi : fileResult.results.fileInfos)
-			{
-				std::string fileName = GetFileName(fi.filePath);
-				// 去除扩展名
-				size_t dotPos = fileName.rfind('.');
-				if (dotPos != std::string::npos)
-					fileName = fileName.substr(0, dotPos);
-				
-				if (fileName == text)
-				{
-					SymbolResolveResult r;
-					r.filePath = fi.filePath;
-					r.lineNumber = -1;
-					strictResults.push_back(r);
-				}
-			}
-			if (strictResults.size() >= 1 && strictResults.size() <= 2)
-				return strictResults;
 		}
 	}
 	
@@ -406,12 +351,12 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 		return;
 	}
 	
-	int totalFound = 0;
-	int totalProcessed = 0;
+	// ===== 第一阶段：收集所有 symbol link 的查询结果 =====
+	// resolvedAll[i] 存储 _symbolLinks[i] 的所有匹配结果
+	std::vector<std::vector<SymbolResolveResult>> resolvedAll(_symbolLinks.size());
 	
 	for (size_t i = 0; i < _symbolLinks.size(); ++i)
 	{
-		// 检查是否被中断
 		if (_shouldStop)
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
@@ -423,38 +368,177 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 		}
 		
 		const SymbolLinkItem& item = _symbolLinks[i];
-		totalProcessed++;
-		
-		// 转换 symbol 为窄字符串
 		std::string symbolNameNarrow = widechar_to_utf8(item.symbol.c_str());
-		
-		// 使用模糊查询函数查找符号位置
-		std::vector<SymbolResolveResult> results = FuzzyResolveSymbol(_dbFolderPath, symbolNameNarrow);
-		
-		// 如果找到了定义（结果数量 1~2 个），则添加到已解析队列
-		if (!results.empty())
+		resolvedAll[i] = FuzzyResolveSymbol(_dbFolderPath, symbolNameNarrow);
+	}
+	
+	// ===== 第二阶段：全局后处理 =====
+	// 文件集 A
+	std::set<std::string> fileSetA;
+	
+	// 每个 symbol link 的最终接受结果
+	std::vector<std::vector<SymbolResolveResult>> acceptedResults(_symbolLinks.size());
+	
+	// 记录哪些 symbol link 尚未被处理（尚未接受结果）
+	std::set<size_t> remaining;
+	for (size_t i = 0; i < _symbolLinks.size(); ++i)
+		remaining.insert(i);
+	
+	// 步骤1：牵涉文件数 < 2 的 symbol link，直接接受，文件加入 fileSetA
+	for (auto it = remaining.begin(); it != remaining.end(); )
+	{
+		size_t idx = *it;
+		const auto& results = resolvedAll[idx];
+		if (results.empty())
 		{
-			// 构建 results 的 JSON 字符串
-			std::wstring resultsJson = L"[";
-			for (size_t j = 0; j < results.size(); j++)
-			{
-				if (j > 0)
-					resultsJson += L",";
-				
-				std::wstring filePathW = utf8_to_widechar(results[j].filePath.c_str());
-				resultsJson += L"{\"filePath\":\"" + EscapeJsonString(filePathW) + L"\"";
-				resultsJson += L",\"lineNumber\":" + std::to_wstring(results[j].lineNumber);
-				resultsJson += L"}";
-			}
-			resultsJson += L"]";
-			
-			std::lock_guard<std::mutex> lock(_resolvedQueueMutex);
-			_resolvedQueue.push_back(std::make_tuple(item.messageId, item.symbol, resultsJson));
-			totalFound++;
+			it = remaining.erase(it);
+			continue;
+		}
+		
+		std::set<std::string> files;
+		for (const auto& r : results)
+			files.insert(r.filePath);
+		
+		if (files.size() < 2)
+		{
+			acceptedResults[idx] = results;
+			for (const auto& f : files)
+				fileSetA.insert(f);
+			it = remaining.erase(it);
+		}
+		else
+		{
+			++it;
 		}
 	}
 	
+	// 步骤2：剩余的 symbol link，如果某个结果在 fileSetA 中，则接受
+	bool changed = true;
+	while (changed)
+	{
+		changed = false;
+		for (auto it = remaining.begin(); it != remaining.end(); )
+		{
+			size_t idx = *it;
+			const auto& results = resolvedAll[idx];
+			std::vector<SymbolResolveResult> matched;
+			for (const auto& r : results)
+			{
+				if (fileSetA.count(r.filePath))
+					matched.push_back(r);
+			}
+			if (!matched.empty())
+			{
+				acceptedResults[idx] = matched;
+				// 将匹配结果中的文件也加入 fileSetA
+				for (const auto& r : matched)
+					fileSetA.insert(r.filePath);
+				it = remaining.erase(it);
+				changed = true;
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+	
+	// 步骤3：对仍剩余的 symbol link，如果任意两个不同名 symbol 的结果文件交集 ≤ 2，
+	// 则将交集文件加入 fileSetA
+	if (remaining.size() >= 2)
+	{
+		// 收集剩余 symbol link 的索引（按 symbol 名去重，同名只保留一个）
+		std::vector<size_t> uniqueRemaining;
+		std::set<std::wstring> seenNames;
+		for (size_t idx : remaining)
+		{
+			const std::wstring& name = _symbolLinks[idx].symbol;
+			if (seenNames.insert(name).second)
+				uniqueRemaining.push_back(idx);
+		}
+		
+		// 对每对不同名的 symbol link，计算结果文件交集
+		for (size_t i = 0; i < uniqueRemaining.size(); ++i)
+		{
+			for (size_t j = i + 1; j < uniqueRemaining.size(); ++j)
+			{
+				const auto& resultsI = resolvedAll[uniqueRemaining[i]];
+				const auto& resultsJ = resolvedAll[uniqueRemaining[j]];
+				
+				std::set<std::string> filesI, filesJ;
+				for (const auto& r : resultsI) filesI.insert(r.filePath);
+				for (const auto& r : resultsJ) filesJ.insert(r.filePath);
+				
+				std::set<std::string> intersection;
+				for (const auto& f : filesI)
+				{
+					if (filesJ.count(f))
+						intersection.insert(f);
+				}
+				
+				if (!intersection.empty() && intersection.size() <= 2)
+				{
+					for (const auto& f : intersection)
+						fileSetA.insert(f);
+				}
+			}
+		}
+	}
+	
+	// 步骤4：再过一遍剩余的 symbol link，接受 fileSetA 中的结果
+	for (auto it = remaining.begin(); it != remaining.end(); )
+	{
+		size_t idx = *it;
+		const auto& results = resolvedAll[idx];
+		std::vector<SymbolResolveResult> matched;
+		for (const auto& r : results)
+		{
+			if (fileSetA.count(r.filePath))
+				matched.push_back(r);
+		}
+		if (!matched.empty())
+		{
+			acceptedResults[idx] = matched;
+			it = remaining.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	
+	// ===== 第三阶段：将接受的结果推入解析队列 =====
+	int totalFound = 0;
+	
+	for (size_t i = 0; i < _symbolLinks.size(); ++i)
+	{
+		if (acceptedResults[i].empty())
+			continue;
+		
+		const SymbolLinkItem& item = _symbolLinks[i];
+		const auto& results = acceptedResults[i];
+		
+		// 构建 results 的 JSON 字符串
+		std::wstring resultsJson = L"[";
+		for (size_t j = 0; j < results.size(); j++)
+		{
+			if (j > 0)
+				resultsJson += L",";
+			
+			std::wstring filePathW = utf8_to_widechar(results[j].filePath.c_str());
+			resultsJson += L"{\"filePath\":\"" + EscapeJsonString(filePathW) + L"\"";
+			resultsJson += L",\"lineNumber\":" + std::to_wstring(results[j].lineNumber);
+			resultsJson += L"}";
+		}
+		resultsJson += L"]";
+		
+		std::lock_guard<std::mutex> lock(_resolvedQueueMutex);
+		_resolvedQueue.push_back(std::make_tuple(item.messageId, item.symbol, resultsJson));
+		totalFound++;
+	}
+	
 	// 构建返回结果
+	int totalProcessed = (int)_symbolLinks.size();
 	std::string resultStr = "Processed " + std::to_string(totalProcessed) + " symbol links, found " + std::to_string(totalFound) + " definitions";
 	std::string messageStr = "Successfully resolved " + std::to_string(totalFound) + "/" + std::to_string(totalProcessed) + " symbol links";
 	

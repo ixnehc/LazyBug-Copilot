@@ -40,7 +40,7 @@ public:
 	void SetSymbolLinks(const std::vector<SymbolLinkItem>& symbolLinks);
 
 	// 模糊查询符号位置
-	// 返回结果数量 <= 2 时有效，> 2 或 0 时返回空数组
+	// 返回所有匹配结果，不再限制数量
 	static std::vector<SymbolResolveResult> FuzzyResolveSymbol(const std::string& dbFolderPath, const std::string& rawSymbolText);
 
 private:
