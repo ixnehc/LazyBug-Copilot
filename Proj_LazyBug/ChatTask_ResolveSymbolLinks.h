@@ -7,6 +7,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <vector>
+#include <unordered_map>
 
 
 struct SymbolLinkItem
@@ -18,7 +19,7 @@ struct SymbolLinkItem
 // 符号解析结果
 struct SymbolResolveResult
 {
-	std::string filePath;
+	int fileIndex; // 文件索引，通过 CChatTask_ResolveSymbolLinks::GetFilePath() 获取路径
 	int lineNumber; // -1 表示没有行号
 };
 
@@ -38,6 +39,11 @@ public:
 	bool DependsOn(CChatTask* task) override;
 
 	void SetSymbolLinks(const std::vector<SymbolLinkItem>& symbolLinks);
+
+	// 文件索引表（全局唯一，无需考虑多线程）
+	static int GetFileIndex(const std::string& filePath);
+	static const std::string& GetFilePath(int fileIndex);
+	static void ClearFileTable();
 
 	// 模糊查询符号位置
 	// 返回所有匹配结果，不再限制数量
@@ -65,4 +71,8 @@ private:
 	std::mutex _resolvedQueueMutex;
 	// <messageId, symbol, resultsJson>
 	std::vector<std::tuple<std::wstring, std::wstring, std::wstring>> _resolvedQueue;
+
+	// 文件索引表
+	static std::vector<std::string> s_fileTable;
+	static std::unordered_map<std::string, int> s_fileToIndex;
 };

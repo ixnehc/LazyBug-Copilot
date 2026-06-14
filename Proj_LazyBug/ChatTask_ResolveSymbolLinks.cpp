@@ -19,8 +19,37 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
 
 extern const char* GetOpenedDBFolderPath_utf8();
+
+// 静态成员定义
+std::vector<std::string> CChatTask_ResolveSymbolLinks::s_fileTable;
+std::unordered_map<std::string, int> CChatTask_ResolveSymbolLinks::s_fileToIndex;
+
+int CChatTask_ResolveSymbolLinks::GetFileIndex(const std::string& filePath)
+{
+	auto it = s_fileToIndex.find(filePath);
+	if (it != s_fileToIndex.end())
+		return it->second;
+	int idx = (int)s_fileTable.size();
+	s_fileTable.push_back(filePath);
+	s_fileToIndex[filePath] = idx;
+	return idx;
+}
+
+const std::string& CChatTask_ResolveSymbolLinks::GetFilePath(int fileIndex)
+{
+	return s_fileTable[fileIndex];
+}
+
+void CChatTask_ResolveSymbolLinks::ClearFileTable()
+{
+	s_fileTable.clear();
+	s_fileToIndex.clear();
+}
 
 // 辅助函数：判断字符串是否可能是文件路径（包含路径分隔符或文件扩展名）
 static bool IsLikelyFilePath(const std::string& text)
@@ -229,7 +258,7 @@ static std::vector<SymbolResolveResult> ResolveAsFilePath(const std::string& dbF
 			continue;
 		
 		SymbolResolveResult r;
-		r.filePath = fi.filePath;
+		r.fileIndex = CChatTask_ResolveSymbolLinks::GetFileIndex(fi.filePath);
 		r.lineNumber = -1;
 		results.push_back(r);
 	}
@@ -252,12 +281,12 @@ static std::vector<SymbolResolveResult> ResolveAsSymbol(const std::string& dbFol
 	
 	// 第一次搜索：直接搜索符号
 	SolutionDBMsg_SymbolDefines symbolResult;
-	SolutionDB_FindSymbolDefines(dbFolderPath.c_str(), text.c_str(), 500, symbolResult);
+	SolutionDB_FindSymbolDefines(dbFolderPath.c_str(), text.c_str(), 200, symbolResult);
 	
 	for (auto& loc : symbolResult.locations)
 	{
 		SymbolResolveResult r;
-		r.filePath = loc.filePath;
+		r.fileIndex = CChatTask_ResolveSymbolLinks::GetFileIndex(loc.filePath);
 		r.lineNumber = loc.lineRange.start;
 		results.push_back(r);
 	}
@@ -314,7 +343,7 @@ std::vector<SymbolResolveResult> CChatTask_ResolveSymbolLinks::FuzzyResolveSymbo
 			if (fileName == text)
 			{
 				SymbolResolveResult r;
-				r.filePath = fi.filePath;
+				r.fileIndex = CChatTask_ResolveSymbolLinks::GetFileIndex(fi.filePath);
 				r.lineNumber = -1;
 				strictResults.push_back(r);
 			}
@@ -328,7 +357,7 @@ std::vector<SymbolResolveResult> CChatTask_ResolveSymbolLinks::FuzzyResolveSymbo
 			for (auto& fi : fileResult.results.fileInfos)
 			{
 				SymbolResolveResult r;
-				r.filePath = fi.filePath;
+				r.fileIndex = CChatTask_ResolveSymbolLinks::GetFileIndex(fi.filePath);
 				r.lineNumber = -1;
 				results.push_back(r);
 			}
@@ -372,160 +401,199 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 		resolvedAll[i] = FuzzyResolveSymbol(_dbFolderPath, symbolNameNarrow);
 	}
 	
+	// ===== 构建文件索引集 =====
+	// 预计算每个 symbol link 的文件索引集（有序，便于后续交集计算）
+	// linkFileSets[i] 存放 resolvedAll[i] 中所有不同文件的索引，排序去重
+	size_t n = _symbolLinks.size();
+	std::vector<std::vector<int>> linkFileSets(n);
+	
+	for (size_t i = 0; i < n; ++i)
+	{
+		if (resolvedAll[i].empty())
+			continue;
+		
+		std::unordered_set<int> fileSet;
+		for (const auto& r : resolvedAll[i])
+			fileSet.insert(r.fileIndex);
+		
+		linkFileSets[i].assign(fileSet.begin(), fileSet.end());
+		std::sort(linkFileSets[i].begin(), linkFileSets[i].end());
+	}
+	
 	// ===== 第二阶段：全局后处理 =====
-	// 文件集 A
-	std::set<std::string> fileSetA;
+	// 文件集 A（用 int 索引）
+	std::unordered_set<int> fileSetA;
 	
-	// 每个 symbol link 的最终接受结果
-	std::vector<std::vector<SymbolResolveResult>> acceptedResults(_symbolLinks.size());
+	// 每个 symbol link 中哪些结果被接受
+	std::vector<std::vector<bool>> acceptedFlags(n);
+	for (size_t i = 0; i < n; ++i)
+		acceptedFlags[i].resize(resolvedAll[i].size(), false);
 	
-	// 记录哪些 symbol link 尚未被处理（尚未接受结果）
-	std::set<size_t> remaining;
-	for (size_t i = 0; i < _symbolLinks.size(); ++i)
-		remaining.insert(i);
+	// 记录哪些 symbol link 尚未被处理
+	std::vector<bool> isRemaining(n, false);
+	for (size_t i = 0; i < n; ++i)
+		if (!resolvedAll[i].empty())
+			isRemaining[i] = true;
+	
+	// 辅助：接受 symbol link idx 中文件索引在 fileSetA 中的结果
+	// 返回是否有结果被接受
+	auto acceptFromSetA = [&](size_t idx) -> bool {
+		bool any = false;
+		for (size_t j = 0; j < resolvedAll[idx].size(); ++j)
+		{
+			if (!acceptedFlags[idx][j] && fileSetA.count(resolvedAll[idx][j].fileIndex))
+			{
+				acceptedFlags[idx][j] = true;
+				any = true;
+			}
+		}
+		return any;
+	};
 	
 	// 步骤1：牵涉文件数 < 2 的 symbol link，直接接受，文件加入 fileSetA
-	for (auto it = remaining.begin(); it != remaining.end(); )
+	for (size_t i = 0; i < n; ++i)
 	{
-		size_t idx = *it;
-		const auto& results = resolvedAll[idx];
-		if (results.empty())
-		{
-			it = remaining.erase(it);
+		if (!isRemaining[i])
 			continue;
-		}
 		
-		std::set<std::string> files;
-		for (const auto& r : results)
-			files.insert(r.filePath);
-		
-		if (files.size() < 2)
+		if (linkFileSets[i].size() < 2)
 		{
-			acceptedResults[idx] = results;
-			for (const auto& f : files)
-				fileSetA.insert(f);
-			it = remaining.erase(it);
-		}
-		else
-		{
-			++it;
+			// 接受所有结果
+			for (size_t j = 0; j < resolvedAll[i].size(); ++j)
+				acceptedFlags[i][j] = true;
+			for (int fidx : linkFileSets[i])
+				fileSetA.insert(fidx);
+			isRemaining[i] = false;
 		}
 	}
 	
 	// 步骤2：剩余的 symbol link，如果某个结果在 fileSetA 中，则接受
-	bool changed = true;
-	while (changed)
+	// 使用工作队列：只把新加入 fileSetA 的文件索引入队，增量扫描
 	{
-		changed = false;
-		for (auto it = remaining.begin(); it != remaining.end(); )
+		// 初始队列：fileSetA 中已有的所有文件
+		std::queue<int> workQueue;
+		for (int fidx : fileSetA)
+			workQueue.push(fidx);
+		
+		while (!workQueue.empty())
 		{
-			size_t idx = *it;
-			const auto& results = resolvedAll[idx];
-			std::vector<SymbolResolveResult> matched;
-			for (const auto& r : results)
+			int fidx = workQueue.front();
+			workQueue.pop();
+			
+			for (size_t i = 0; i < n; ++i)
 			{
-				if (fileSetA.count(r.filePath))
-					matched.push_back(r);
-			}
-			if (!matched.empty())
-			{
-				acceptedResults[idx] = matched;
-				// 将匹配结果中的文件也加入 fileSetA
-				for (const auto& r : matched)
-					fileSetA.insert(r.filePath);
-				it = remaining.erase(it);
-				changed = true;
-			}
-			else
-			{
-				++it;
+				if (!isRemaining[i])
+					continue;
+				
+				// 检查该 symbol link 是否包含文件 fidx
+				bool hasFile = false;
+				for (int fi : linkFileSets[i])
+				{
+					if (fi == fidx) { hasFile = true; break; }
+				}
+				if (!hasFile)
+					continue;
+				
+				// 尝试接受 fileSetA 中的结果
+				if (acceptFromSetA(i))
+				{
+					// 将新接受结果中的文件加入 fileSetA 和工作队列
+					for (size_t j = 0; j < resolvedAll[i].size(); ++j)
+					{
+						if (acceptedFlags[i][j])
+						{
+							int rFidx = resolvedAll[i][j].fileIndex;
+							if (fileSetA.insert(rFidx).second)
+								workQueue.push(rFidx);
+						}
+					}
+					isRemaining[i] = false;
+				}
 			}
 		}
 	}
 	
 	// 步骤3：对仍剩余的 symbol link，如果任意两个不同名 symbol 的结果文件交集 ≤ 2，
 	// 则将交集文件加入 fileSetA
-	if (remaining.size() >= 2)
 	{
 		// 收集剩余 symbol link 的索引（按 symbol 名去重，同名只保留一个）
 		std::vector<size_t> uniqueRemaining;
-		std::set<std::wstring> seenNames;
-		for (size_t idx : remaining)
+		std::unordered_map<std::wstring, size_t> seenNames;
+		for (size_t i = 0; i < n; ++i)
 		{
-			const std::wstring& name = _symbolLinks[idx].symbol;
-			if (seenNames.insert(name).second)
-				uniqueRemaining.push_back(idx);
+			if (!isRemaining[i])
+				continue;
+			const std::wstring& name = _symbolLinks[i].symbol;
+			if (seenNames.find(name) == seenNames.end())
+			{
+				seenNames[name] = i;
+				uniqueRemaining.push_back(i);
+			}
 		}
 		
-		// 对每对不同名的 symbol link，计算结果文件交集
-		for (size_t i = 0; i < uniqueRemaining.size(); ++i)
+		// 对每对不同名的 symbol link，用双指针计算有序文件集交集
+		for (size_t a = 0; a < uniqueRemaining.size(); ++a)
 		{
-			for (size_t j = i + 1; j < uniqueRemaining.size(); ++j)
+			for (size_t b = a + 1; b < uniqueRemaining.size(); ++b)
 			{
-				const auto& resultsI = resolvedAll[uniqueRemaining[i]];
-				const auto& resultsJ = resolvedAll[uniqueRemaining[j]];
+				const auto& setA = linkFileSets[uniqueRemaining[a]];
+				const auto& setB = linkFileSets[uniqueRemaining[b]];
 				
-				std::set<std::string> filesI, filesJ;
-				for (const auto& r : resultsI) filesI.insert(r.filePath);
-				for (const auto& r : resultsJ) filesJ.insert(r.filePath);
-				
-				std::set<std::string> intersection;
-				for (const auto& f : filesI)
+				std::vector<int> intersection;
+				size_t ia = 0, ib = 0;
+				while (ia < setA.size() && ib < setB.size())
 				{
-					if (filesJ.count(f))
-						intersection.insert(f);
+					if (setA[ia] < setB[ib]) ++ia;
+					else if (setA[ia] > setB[ib]) ++ib;
+					else { intersection.push_back(setA[ia]); ++ia; ++ib; }
 				}
 				
 				if (!intersection.empty() && intersection.size() <= 2)
 				{
-					for (const auto& f : intersection)
-						fileSetA.insert(f);
+					for (int fidx : intersection)
+						fileSetA.insert(fidx);
 				}
 			}
 		}
 	}
 	
 	// 步骤4：再过一遍剩余的 symbol link，接受 fileSetA 中的结果
-	for (auto it = remaining.begin(); it != remaining.end(); )
+	for (size_t i = 0; i < n; ++i)
 	{
-		size_t idx = *it;
-		const auto& results = resolvedAll[idx];
-		std::vector<SymbolResolveResult> matched;
-		for (const auto& r : results)
-		{
-			if (fileSetA.count(r.filePath))
-				matched.push_back(r);
-		}
-		if (!matched.empty())
-		{
-			acceptedResults[idx] = matched;
-			it = remaining.erase(it);
-		}
-		else
-		{
-			++it;
-		}
+		if (!isRemaining[i])
+			continue;
+		
+		if (acceptFromSetA(i))
+			isRemaining[i] = false;
 	}
 	
 	// ===== 第三阶段：将接受的结果推入解析队列 =====
 	int totalFound = 0;
 	
-	for (size_t i = 0; i < _symbolLinks.size(); ++i)
+	for (size_t i = 0; i < n; ++i)
 	{
-		if (acceptedResults[i].empty())
+		bool hasAny = false;
+		for (bool f : acceptedFlags[i]) { if (f) { hasAny = true; break; } }
+		if (!hasAny)
 			continue;
 		
 		const SymbolLinkItem& item = _symbolLinks[i];
-		const auto& results = acceptedResults[i];
+		const auto& results = resolvedAll[i];
+		const auto& flags = acceptedFlags[i];
 		
 		// 构建 results 的 JSON 字符串
 		std::wstring resultsJson = L"[";
+		bool first = true;
 		for (size_t j = 0; j < results.size(); j++)
 		{
-			if (j > 0)
-				resultsJson += L",";
+			if (!flags[j])
+				continue;
 			
-			std::wstring filePathW = utf8_to_widechar(results[j].filePath.c_str());
+			if (!first)
+				resultsJson += L",";
+			first = false;
+			
+			std::wstring filePathW = utf8_to_widechar(GetFilePath(results[j].fileIndex).c_str());
 			resultsJson += L"{\"filePath\":\"" + EscapeJsonString(filePathW) + L"\"";
 			resultsJson += L",\"lineNumber\":" + std::to_wstring(results[j].lineNumber);
 			resultsJson += L"}";
@@ -538,7 +606,7 @@ void CChatTask_ResolveSymbolLinks::_ThreadFunc()
 	}
 	
 	// 构建返回结果
-	int totalProcessed = (int)_symbolLinks.size();
+	int totalProcessed = (int)n;
 	std::string resultStr = "Processed " + std::to_string(totalProcessed) + " symbol links, found " + std::to_string(totalFound) + " definitions";
 	std::string messageStr = "Successfully resolved " + std::to_string(totalFound) + "/" + std::to_string(totalProcessed) + " symbol links";
 	
