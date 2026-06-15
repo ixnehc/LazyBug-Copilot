@@ -1274,6 +1274,9 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 		g_llmSkills.Dump(skillsDump);
 		_agent.StartSession(content, g_llmLib.GetMajorChatApi(), _chatInput.GetTags(), skillsDump.c_str());
 
+		if (!HasTitle())
+			_chatBrief.Activate();
+
 		// 显示stop按钮
 		_chatInput.ShowStopButton();
 
