@@ -1574,6 +1574,7 @@ c:\sound.exe
     <ClInclude Include="LlmLibDefines.h" />
     <ClInclude Include="LlmFormatter.h" />
     <ClInclude Include="LlmLibLoader.h" />
+    <ClInclude Include="LlmMcps.h" />
     <ClInclude Include="LlmSkills.h" />
     <ClInclude Include="ProjFileScanner.h" />
     <ClInclude Include="RepairWndG.h">
@@ -1662,6 +1663,7 @@ c:\sound.exe
     <ClInclude Include="UnifiedDiff.h" />
     <ClInclude Include="Utils_Context.h" />
     <ClInclude Include="Utils_CliWhitelist.h" />
+    <ClInclude Include="Utils_Bash.h" />
     <ClInclude Include="Utils_Skill.h" />
     <ClInclude Include="Utils_Image.h" />
     <ClInclude Include="Utils_SolutionDump.h" />
@@ -1714,6 +1716,7 @@ c:\sound.exe
     <ClCompile Include="CodingHistory.cpp" />
     <ClCompile Include="LlmFormatter.cpp" />
     <ClCompile Include="LlmLibLoader.cpp" />
+    <ClCompile Include="LlmMcps.cpp" />
     <ClCompile Include="LlmSkills.cpp" />
     <ClCompile Include="ProjFileScanner.cpp" />
     <ClCompile Include="RepairWndG.cpp">
@@ -1807,6 +1810,7 @@ c:\sound.exe
     <ClCompile Include="UnifiedDiff.cpp" />
     <ClCompile Include="Utils_Context.cpp" />
     <ClCompile Include="Utils_CliWhitelist.cpp" />
+    <ClCompile Include="Utils_Bash.cpp" />
     <ClCompile Include="Utils_Skill.cpp" />
     <ClCompile Include="Utils_Image.cpp" />
     <ClCompile Include="Utils_FindInFile.cpp" />

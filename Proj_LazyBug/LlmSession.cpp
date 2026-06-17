@@ -86,7 +86,8 @@ struct LlmResponse
 	struct
 	{
 		int prompt_tokens_ = 0;
-		int prompt_tokens_equivalent = 0;
+		int prompt_tokens_cacheRead = 0;
+		int prompt_tokens_cacheWrite = 0;
 		int completion_tokens = 0;
 		int total_tokens = 0;
 		float cost = 0.0f;
@@ -634,8 +635,9 @@ void parseLlmResponse(const char* response, CLlmToolCallParser &toolCallParser, 
 					// 检查usage是否为null
 					if (!choice[u8"usage"].is_null())
 					{
-						result.usage.prompt_tokens_ = choice[u8"usage"].value(u8"prompt_tokens", result.usage.prompt_tokens_);
-						result.usage.prompt_tokens_equivalent = choice[u8"usage"].value(u8"prompt_tokens_equivalent", result.usage.prompt_tokens_);
+					result.usage.prompt_tokens_ = choice[u8"usage"].value(u8"prompt_tokens", result.usage.prompt_tokens_);
+						result.usage.prompt_tokens_cacheRead = choice[u8"usage"].value(u8"prompt_tokens_cacheRead", result.usage.prompt_tokens_cacheRead);
+						result.usage.prompt_tokens_cacheWrite = choice[u8"usage"].value(u8"prompt_tokens_cacheWrite", result.usage.prompt_tokens_cacheWrite);
 						result.usage.completion_tokens = choice[u8"usage"].value(u8"completion_tokens", result.usage.completion_tokens);
 						result.usage.total_tokens = choice[u8"usage"].value(u8"total_tokens", result.usage.total_tokens);
 						result.usage.cost = choice[u8"usage"].value(u8"cost", result.usage.cost);
@@ -678,8 +680,9 @@ void parseLlmResponse(const char* response, CLlmToolCallParser &toolCallParser, 
 			// 检查usage是否为null
 			if (!j[u8"usage"].is_null())
 			{
-				result.usage.prompt_tokens_ = j[u8"usage"].value(u8"prompt_tokens", result.usage.prompt_tokens_);
-				result.usage.prompt_tokens_equivalent = j[u8"usage"].value(u8"prompt_tokens_equivalent", result.usage.prompt_tokens_equivalent);
+			result.usage.prompt_tokens_ = j[u8"usage"].value(u8"prompt_tokens", result.usage.prompt_tokens_);
+				result.usage.prompt_tokens_cacheRead = j[u8"usage"].value(u8"prompt_tokens_cacheRead", result.usage.prompt_tokens_cacheRead);
+				result.usage.prompt_tokens_cacheWrite = j[u8"usage"].value(u8"prompt_tokens_cacheWrite", result.usage.prompt_tokens_cacheWrite);
 				result.usage.completion_tokens = j[u8"usage"].value(u8"completion_tokens", result.usage.completion_tokens);
 				result.usage.total_tokens = j[u8"usage"].value(u8"total_tokens", result.usage.total_tokens);
 				result.usage.cost = j[u8"usage"].value(u8"cost", result.usage.cost);
@@ -753,7 +756,8 @@ void ParseLine(std::string& line, CLlmSession* session)
 		}
 	}
 	session->m_usage.inputToken_ += response.usage.prompt_tokens_;
-	session->m_usage.inputToken_equivalent += response.usage.prompt_tokens_equivalent;
+	session->m_usage.inputToken_CacheRead += response.usage.prompt_tokens_cacheRead;
+	session->m_usage.inputToken_CacheWrite += response.usage.prompt_tokens_cacheWrite;
 	session->m_usage.outputToken += response.usage.completion_tokens;
 	session->m_usage.fee += response.usage.cost;
 }
@@ -1003,6 +1007,86 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		g_llmTools.FillToolsJson(settings.api.tools, requestJson);
 	}
 
+
+	if (settings.api.providerTypeName == "OpenRouter")
+	{
+		if (settings.api.role == LlmApiRole::Auxiliary)
+		{
+			requestJson["provider"]["sort"] = "latency";
+			//			requestJson["provider"]["quantizations"] = { "fp8","fp16","fp32","unknown"};
+		}
+		if (settings.api.openRouterOptions.only.size() > 0)
+		{
+			requestJson["provider"]["only"] = settings.api.openRouterOptions.only;
+		}
+	}
+
+	// 	if (settings.api.providerTypeName!="Ubisoft LiteLLM")
+	// 		requestJson["usage"] = {	{"include", true}	};
+
+		// 添加 stream 参数
+	if (request.isStreaming)
+	{
+		requestJson["stream"] = true;
+		if (settings.apiFormat == LlmApiFormat::GLM)
+			requestJson["tool_stream"] = true;
+	}
+	else
+		requestJson["stream"] = false;
+
+	// 添加 temperature 参数
+	requestJson["temperature"] = 0.0;
+	if (settings.apiFormat == LlmApiFormat::Kimi)
+	{
+		if (settings.api.thinkingMode == LlmThinkingMode::Disable)
+			requestJson["temperature"] = 0.6f;
+		else
+			requestJson["temperature"] = 1.0f;
+	}
+	// 	requestJson["top_k"] = 40.0f;
+	// 	requestJson["top_p"] = 0.95f;
+	// 	requestJson["min_p"] = 0.05f;
+	// 	requestJson["repetition_penalty"] = 1.1f;
+	//	requestJson["stop"] = { "<|editable_region_end|>" };
+
+		// 添加 max_tokens 参数
+	if (settings.api.maxToken > 0)
+		requestJson["max_tokens"] = settings.api.maxToken;
+
+	// 处理 thinkingMode 设置（必须在 max_tokens 之后，以便计算 budget_tokens）
+	if (settings.api.thinkingMode == LlmThinkingMode::Disable)
+	{
+		if (settings.api.providerTypeName == "OpenRouter")
+		{
+			requestJson["reasoning"]["effort"] = "low";
+		}
+		else
+		{
+			requestJson["thinking"] = { {"type", "disabled"} };
+		}
+	}
+	else if (settings.api.thinkingMode == LlmThinkingMode::Enable)
+	{
+		if (settings.api.providerTypeName == "OpenRouter")
+		{
+			requestJson["reasoning"]["effort"] = "high";
+		}
+		else
+		{
+			// Anthropic 要求 budget_tokens 必须小于 max_tokens 且至少 1024
+			// 如果 maxToken 未设置，使用默认 4096 作为基准
+			int maxTok = settings.api.maxToken > 0 ? settings.api.maxToken : 4096;
+			int budget = maxTok - 1024;
+			if (budget < 1024)
+				budget = 1024;
+			if (budget > 16000)
+				budget = 16000;
+			requestJson["thinking"] = { {"type", "enabled"}, {"budget_tokens", budget} };
+		}
+	}
+	// LlmThinkingMode::Auto 时不进行特殊处理，使用 API 默认行为
+
+
 	if (request.prompt.empty())
 	{
 
@@ -1064,84 +1148,6 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	{
 		requestJson["prompt"] = request.prompt;
 	}
-
-	if (settings.api.providerTypeName == "OpenRouter")
-	{
-		if (settings.api.role == LlmApiRole::Auxiliary)
-		{
-			requestJson["provider"]["sort"] = "latency";
-//			requestJson["provider"]["quantizations"] = { "fp8","fp16","fp32","unknown"};
-		}
-		if (settings.api.openRouterOptions.only.size() > 0)
-		{
-			requestJson["provider"]["only"] = settings.api.openRouterOptions.only;
-		}
-	}
-
-// 	if (settings.api.providerTypeName!="Ubisoft LiteLLM")
-// 		requestJson["usage"] = {	{"include", true}	};
-
-    // 添加 stream 参数
-	if (request.isStreaming)
-	{
-		requestJson["stream"] = true;
-		if (settings.apiFormat==LlmApiFormat::GLM)
-			requestJson["tool_stream"] = true;
-	}
-	else
-		requestJson["stream"] = false;
-
-	// 添加 temperature 参数
-    requestJson["temperature"] = 0.0;
-	if (settings.apiFormat == LlmApiFormat::Kimi)
-	{
-		if (settings.api.thinkingMode == LlmThinkingMode::Disable)
-			requestJson["temperature"] = 0.6f;
-		else
-			requestJson["temperature"] = 1.0f;
-	}
-// 	requestJson["top_k"] = 40.0f;
-// 	requestJson["top_p"] = 0.95f;
-// 	requestJson["min_p"] = 0.05f;
-// 	requestJson["repetition_penalty"] = 1.1f;
-//	requestJson["stop"] = { "<|editable_region_end|>" };
-
-    // 添加 max_tokens 参数
-	if (settings.api.maxToken > 0)
-		requestJson["max_tokens"] = settings.api.maxToken;
-
-	// 处理 thinkingMode 设置（必须在 max_tokens 之后，以便计算 budget_tokens）
-	if (settings.api.thinkingMode == LlmThinkingMode::Disable)
-	{
-		if (settings.api.providerTypeName == "OpenRouter")
-		{
-			requestJson["reasoning"]["effort"] = "low";
-		}
-		else
-		{
-			requestJson["thinking"] = { {"type", "disabled"} };
-		}
-	}
-	else if (settings.api.thinkingMode == LlmThinkingMode::Enable)
-	{
-		if (settings.api.providerTypeName == "OpenRouter")
-		{
-			requestJson["reasoning"]["effort"] = "high";
-		}
-		else
-		{
-			// Anthropic 要求 budget_tokens 必须小于 max_tokens 且至少 1024
-			// 如果 maxToken 未设置，使用默认 4096 作为基准
-			int maxTok = settings.api.maxToken > 0 ? settings.api.maxToken : 4096;
-			int budget = maxTok - 1024;
-			if (budget < 1024)
-				budget = 1024;
-			if (budget > 16000)
-				budget = 16000;
-			requestJson["thinking"] = { {"type", "enabled"}, {"budget_tokens", budget} };
-		}
-	}
-	// LlmThinkingMode::Auto 时不进行特殊处理，使用 API 默认行为
 
  	std::string requestBodyOpenAI = requestJson.dump();
 
@@ -1230,12 +1236,6 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		ParseRawLine(line, session);
 	}
 
-	if (session->m_usage.inputToken_ <= 0)
-	{
-		int v = 0;
-		v++;
-	}
-    
     // 处理结果
     {
         std::lock_guard<std::mutex> lock(session->m_mutex);

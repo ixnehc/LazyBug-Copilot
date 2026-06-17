@@ -447,6 +447,7 @@
     <ClCompile Include="..\Proj_LazyBug\TreeSitterFiles.cpp" />
     <ClCompile Include="..\Proj_LazyBug\UnifiedDiff.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_Bash.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils_CliWhitelist.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils_Context.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp" />
@@ -654,6 +655,7 @@
     <ClInclude Include="..\Proj_LazyBug\TreeSitterFiles.h" />
     <ClInclude Include="..\Proj_LazyBug\UnifiedDiff.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_Bash.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils_CliWhitelist.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils_Context.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils_File.h" />

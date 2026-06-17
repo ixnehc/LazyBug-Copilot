@@ -5,6 +5,7 @@
 #include "llmskills.h"
 
 #include "utils_context.h"
+#include "Utils_Bash.h"
 
 
 void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *ui,IChatNotify *notify)
@@ -451,6 +452,13 @@ bool CChatAgent::_DoRequest(const LlmSessionRequest& request, bool isUserMessage
 	bool solutionLoaded = !_ctx.dbFolderPath.empty();
 	if (!solutionLoaded)
 		setting.api.tools.clear();
+
+	// 检查系统是否支持 bash，不支持则移除 CLI_Bash
+	if (!Utils::IsBashAvailable())
+	{
+		auto& tools = setting.api.tools;
+		tools.erase(std::remove(tools.begin(), tools.end(), LlmToolType::CLI_Bash), tools.end());
+	}
 
 	setting.skillsDump = _skillsDump;
 

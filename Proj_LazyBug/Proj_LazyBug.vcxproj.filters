@@ -608,6 +608,12 @@
     <ClInclude Include="ChatSkillTip.h">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
     </ClInclude>
+    <ClInclude Include="LlmMcps.h">
+      <Filter>Core\Llm</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils_Bash.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBug.cpp">
@@ -999,6 +1005,12 @@
     </ClCompile>
     <ClCompile Include="ChatSkillTip.cpp">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
+    </ClCompile>
+    <ClCompile Include="LlmMcps.cpp">
+      <Filter>Core\Llm</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils_Bash.cpp">
+      <Filter>Core\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

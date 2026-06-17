@@ -495,7 +495,7 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 						msgId = data["message"].value("id", "");
 						modelName = data["message"].value("model", "");
 
-						int inputTokens = 0;
+					int inputTokens = 0;
 						int outputTokens = 0;
 						int originalInputTokens = 0;
 
@@ -507,28 +507,16 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 							if (data["message"].contains("usage"))
 							{
 								originalInputTokens = data["message"]["usage"].value("input_tokens", 0);
-								// 读取 cache read 和 cache write 数量
 								cacheReadTokens = data["message"]["usage"].value("cache_read_input_tokens", 0);
 								cacheWriteTokens = data["message"]["usage"].value("cache_creation_input_tokens", 0);
 
-								// 读取 output_tokens（如果存在，某些场景下 message_start 可能包含）
 								msgOutputTokens = data["message"]["usage"].value("output_tokens", 0);
 								if (msgOutputTokens > 0)
 								{
 									outputTokens += msgOutputTokens;
 								}
 
-								// 将 cache read 和 cache write 都折算成标准的 input 数量
-								// 使用 API 的价格数据进行换算，而不是固定值
 								inputTokens = originalInputTokens;
-								if (api.priceInputToken > 0.0f)
-								{
-									float cacheReadEquivalent = cacheReadTokens * (api.priceCacheRead / api.priceInputToken);
-									float cacheWriteEquivalent = cacheWriteTokens * (api.priceCacheWrite / api.priceInputToken);
-									inputTokens = originalInputTokens + static_cast<int>(cacheReadEquivalent + cacheWriteEquivalent);
-								}
-
-								originalInputTokens += cacheReadTokens + cacheWriteTokens;
 							}
 
 						json choice;
@@ -548,7 +536,8 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 						{
 							json usage;
 							usage["prompt_tokens"] = originalInputTokens;
-							usage["prompt_tokens_equivalent"] = inputTokens;
+							usage["prompt_tokens_cacheRead"] = cacheReadTokens;
+							usage["prompt_tokens_cacheWrite"] = cacheWriteTokens;
 							usage["completion_tokens"] = outputTokens;
 							usage["total_tokens"] = inputTokens + outputTokens;
 							chunk["usage"] = usage;
@@ -677,13 +666,12 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 				{
 					std::string stopReason;
 
-					int inputTokens = 0;
+				int inputTokens = 0;
 					int outputTokens = 0;
 					int originalInputTokens = 0;
 
 					int cacheReadTokens = 0;
 					int cacheWriteTokens = 0;
-					int msgOutputTokens = 0;
 
 					if (data.contains("delta"))
 					{
@@ -700,23 +688,9 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 					if (data.contains("usage"))
 					{
 						originalInputTokens = data["usage"].value("input_tokens", 0);
-						// 读取 cache read 和 cache write 数量
 						cacheReadTokens = data["usage"].value("cache_read_input_tokens", 0);
 						cacheWriteTokens = data["usage"].value("cache_creation_input_tokens", 0);
-
 						outputTokens = data["usage"].value("output_tokens", 0);
-
-						// 将 cache read 和 cache write 都折算成标准的 input 数量
-						// 使用 API 的价格数据进行换算，而不是固定值
-						inputTokens = originalInputTokens;
-						if (api.priceInputToken > 0.0f)
-						{
-							float cacheReadEquivalent = cacheReadTokens * (api.priceCacheRead / api.priceInputToken);
-							float cacheWriteEquivalent = cacheWriteTokens * (api.priceCacheWrite / api.priceInputToken);
-							inputTokens = originalInputTokens + static_cast<int>(cacheReadEquivalent + cacheWriteEquivalent);
-						}
-
-						originalInputTokens += cacheReadTokens + cacheWriteTokens;
 					}
 
 					json choice;
@@ -731,11 +705,12 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 					chunk["model"] = modelName;
 					chunk["choices"] = json::array({ choice });
 
-					chunk["usage"] = {
+				chunk["usage"] = {
 						{"prompt_tokens", originalInputTokens},
-						{"prompt_tokens_equivalent", inputTokens},
+						{"prompt_tokens_cacheRead", cacheReadTokens},
+						{"prompt_tokens_cacheWrite", cacheWriteTokens},
 						{"completion_tokens", outputTokens},
-						{"total_tokens", inputTokens + outputTokens}
+						{"total_tokens", originalInputTokens + cacheReadTokens + cacheWriteTokens + outputTokens}
 					};
 					emitChunk(chunk);
 				}
@@ -1344,15 +1319,6 @@ bool CLlmFormatter::ProcessLlmResponseFromGeminiFormat(std::deque<std::string>& 
 					int completionTokens = usage.value("candidatesTokenCount", 0);
 					int cacheReadTokens = usage.value("cachedContentTokenCount", 0);
 
-					// 将 cache read 折算成标准的 input 数量
-					// 使用 API 的价格数据进行换算，而不是固定值
-					int promptTokens = originalPromptTokens;
-					if (promptTokens > cacheReadTokens && api.priceInputToken > 0.0f)
-					{
-						float cacheReadEquivalent = cacheReadTokens * (api.priceCacheRead / api.priceInputToken);
-						promptTokens = (promptTokens - cacheReadTokens) + static_cast<int>(cacheReadEquivalent);
-					}
-
 					json chunk;
 					chunk["id"] = msgId;
 					chunk["object"] = "chat.completion.chunk";
@@ -1361,9 +1327,10 @@ bool CLlmFormatter::ProcessLlmResponseFromGeminiFormat(std::deque<std::string>& 
 					chunk["choices"] = json::array();
 					chunk["usage"] = {
 						{"prompt_tokens", originalPromptTokens},
-						{"prompt_tokens_equivalent", promptTokens},
+						{"prompt_tokens_cacheRead", cacheReadTokens},
+						{"prompt_tokens_cacheWrite", 0},
 						{"completion_tokens", completionTokens},
-						{"total_tokens", promptTokens + completionTokens},
+						{"total_tokens", originalPromptTokens + cacheReadTokens + completionTokens},
 					};
 					emitChunk(chunk);
 				}
@@ -1513,7 +1480,7 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAiCompatibleFormat(std::deque<std:
 				}
 
 				// 处理 usage 字段中的 cache token
-				if (usage != nullptr && api.priceInputToken > 0.0f)
+				if (usage != nullptr)
 				{
 					int originalPromptTokens = usage->value("prompt_tokens", 0);
 					int cacheReadTokens = 0;
@@ -1529,19 +1496,15 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAiCompatibleFormat(std::deque<std:
 						cacheReadTokens = usage->value("cached_tokens", 0);
 					}
 
-					// 如果有 cache read tokens，进行换算并更新 prompt_tokens
+					// prompt_tokens 包含了 cached tokens，需要减去得到实际非缓存输入量
 					if (cacheReadTokens > 0)
 					{
-						float cacheReadEquivalent = cacheReadTokens * (api.priceCacheRead / api.priceInputToken);
-						int promptTokensEquivalent = originalPromptTokens - cacheReadTokens + static_cast<int>(cacheReadEquivalent);
-						(*usage)["prompt_tokens_equivalent"] = promptTokensEquivalent;
-						(*usage)["total_tokens"] = promptTokensEquivalent + usage->value("completion_tokens", 0);
+						(*usage)["prompt_tokens"] = originalPromptTokens - cacheReadTokens;
 					}
-					else
-					{
-						(*usage)["prompt_tokens_equivalent"] = originalPromptTokens;
-						(*usage)["total_tokens"] = originalPromptTokens + usage->value("completion_tokens", 0);
-					}
+
+					(*usage)["prompt_tokens_cacheRead"] = cacheReadTokens;
+					(*usage)["prompt_tokens_cacheWrite"] = 0;
+					(*usage)["total_tokens"] = usage->value("prompt_tokens", 0) + cacheReadTokens + usage->value("completion_tokens", 0);
 				}
 
 				// 处理流式响应中的 usage（某些 API 在最后一个 chunk 中返回 usage）

@@ -1137,31 +1137,49 @@ void CChatOpsCtrl::_AddOp(const ChatOp& op)
 
 void CChatOpsCtrl::AddSessionCost(const LlmSessionUsage& usage, const std::wstring& messageId)
 {
-	// 使用新的格式化方法生成显示文本
-	std::string displayText = usage.FormatToCostText();
-	_SetSessionCostDisplay(displayText, messageId);
+	// 使用新的格式化方法生成存储文本
+	std::string costText = usage.FormatToCostText();
+	_SetSessionCostDisplay(usage, false, messageId);
 
 	// 记录操作，将费用信息存储在content字段中
 	ChatOp op(ChatOp::Op_SetSessionCost);
 	op.messageId = messageId;
-	op.contentUtf8 = displayText;
+	op.contentUtf8 = costText;
 	_AddOp(op);
 }
 
 void CChatOpsCtrl::NotifyPromptCache(const LlmSessionUsage& usage)
 {
-	_recentPrompToken = usage.inputToken_;
+	_recentPrompToken = usage.inputToken_+usage.inputToken_CacheRead+usage.inputToken_CacheWrite;
 }
 
 
 // 内部函数：设置会话费用显示（不记录操作，供_ExecuteOp调用）
-void CChatOpsCtrl::_SetSessionCostDisplay(const std::string& costText, const std::wstring& messageId)
+void CChatOpsCtrl::_SetSessionCostDisplay(const LlmSessionUsage& usage, bool isLegacy, const std::wstring& messageId)
 {
 	if (!_ui)
 		return;
 
+	std::string displayText;
+	if (isLegacy)
+	{
+		// 旧格式：$price(inputToken -> outputToken)
+		char buffer[256];
+		sprintf_s(buffer, 256, "$%.4f(%d -> %d)", usage.fee, usage.inputToken_ + usage.inputToken_CacheRead + usage.inputToken_CacheWrite, usage.outputToken);
+		displayText = buffer;
+	}
+	else
+	{
+		// 新格式：$price(input token -> output token),cacherate%
+		int totalInput = usage.inputToken_ + usage.inputToken_CacheRead + usage.inputToken_CacheWrite;
+		int cacheRate = (totalInput > 0) ? (usage.inputToken_CacheRead * 100 / totalInput) : 0;
+		char buffer[256];
+		sprintf_s(buffer, 256, "$%.4f(%d -> %d),%d%%", usage.fee, totalInput, usage.outputToken, cacheRate);
+		displayText = buffer;
+	}
+
 	// 转义显示文本以防止JSON格式错误
-	std::wstring safeDisplayText = EscapeJsonString(utf8_to_widechar(costText));
+	std::wstring safeDisplayText = EscapeJsonString(utf8_to_widechar(displayText));
 
 	// 构造JSON消息，发送费用信息给WebView
 	std::wstring jsonMessage = L"{\"action\":\"setCostDisplay\",\"costText\":\"" + safeDisplayText + L"\"";
@@ -1239,8 +1257,8 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 
 	case ChatOp::Op_SetSessionCost:
 	{
-		LlmSessionUsage usage = LlmSessionUsage::ParseFromCostText(op.contentUtf8);
-		AddSessionCost(usage, op.messageId);
+		auto parseResult = LlmSessionUsage::ParseFromCostText(op.contentUtf8);
+		_SetSessionCostDisplay(parseResult.first, parseResult.second, op.messageId);
 		break;
 	}
 
@@ -1395,26 +1413,26 @@ void CChatOpsCtrl::AccumulateSessionCostForFileEdit(const std::wstring& fileEdit
 
 	ChatOp* existingCostOp = &_ops[firstOpIndex];
 
-	std::string newDisplayText;
-
 	if (existingCostOp != nullptr)
 	{
 		// 已存在费用操作，需要累加
 		// 解析现有的费用信息
-		LlmSessionUsage existingUsage = LlmSessionUsage::ParseFromCostText(existingCostOp->contentUtf8);
+		auto parseResult = LlmSessionUsage::ParseFromCostText(existingCostOp->contentUtf8);
+		LlmSessionUsage& existingUsage = parseResult.first;
+		bool isLegacy = parseResult.second;
 
 		// 累加费用
 		LlmSessionUsage totalUsage;
 		totalUsage.Accumulate(existingUsage);
 
-		// 格式化新的显示文本
-		newDisplayText = totalUsage.FormatToCostText();
+		// 格式化新的存储文本
+		std::string newCostText = totalUsage.FormatToCostText();
 
 		// 更新现有操作的内容
-		existingCostOp->contentUtf8 = newDisplayText;
+		existingCostOp->contentUtf8 = newCostText;
 		_ver++; // 操作记录已更改，增加版本号
 
-		_SetSessionCostDisplay(newDisplayText);
+		_SetSessionCostDisplay(totalUsage, isLegacy);
 	}
 }
 

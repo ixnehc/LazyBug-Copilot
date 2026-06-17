@@ -60,3 +60,9 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - Recognize symbol link in chat window more smartly(more links recognized)
 - 修复了显示skill tip时会crash的问题
 - 提高了CLI tool 的命令行兼容性(BASH,CMD)
+
+0.19
+- Disable bash tool if bash is not available on current system
+- Enabel stream tool call for GLM api 
+- Fix了当回退所有对话后又开始新的对话会造成chat 标题重置的问题
+- Add cache rate

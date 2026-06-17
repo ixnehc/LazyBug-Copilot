@@ -129,71 +129,93 @@ struct LlmSessionUsage
 	{
 		fee = 0.0f;
 		inputToken_ = 0;
-		inputToken_equivalent = 0;
+		inputToken_CacheRead = 0;
+		inputToken_CacheWrite = 0;
 		outputToken = 0;
 	}
 	void Accumulate(const LlmSessionUsage &other)
 	{
 		fee += other.fee;
 		inputToken_ += other.inputToken_;
-		inputToken_equivalent += other.inputToken_equivalent;
+		inputToken_CacheRead += other.inputToken_CacheRead;
+		inputToken_CacheWrite += other.inputToken_CacheWrite;
 		outputToken += other.outputToken;
 	}
 
-	// Session Cost 格式化函数
+	// Session Cost 格式化函数（JSON格式）
 	std::string FormatToCostText() const
 	{
-		char buffer[256];
-		sprintf_s(buffer, 256, "$%.4f(%d -> %d)", fee, inputToken_equivalent, outputToken);
-		return std::string(buffer);
+		json j;
+		j["fee"] = fee;
+		j["in"] = inputToken_;
+		j["cr"] = inputToken_CacheRead;
+		j["cw"] = inputToken_CacheWrite;
+		j["out"] = outputToken;
+		return j.dump();
 	}
 
-	// Session Cost 解析函数
-	static LlmSessionUsage ParseFromCostText(const std::string& costText)
+	// Session Cost 解析函数，返回是否为旧格式(Legacy)
+	static std::pair<LlmSessionUsage, bool> ParseFromCostText(const std::string& costText)
 	{
 		LlmSessionUsage usage;
-		
-		// 验证输入格式：$price(inputToken -> outputToken)
+		bool isLegacy = false;
+
+		if (costText.empty())
+			return { usage, isLegacy };
+
+		// 尝试 JSON 格式解析
+		try
+		{
+			auto j = json::parse(costText);
+			if (j.is_object())
+			{
+				usage.fee = j.value("fee", 0.0f);
+				usage.inputToken_ = j.value("in", 0);
+				usage.inputToken_CacheRead = j.value("cr", 0);
+				usage.inputToken_CacheWrite = j.value("cw", 0);
+				usage.outputToken = j.value("out", 0);
+				return { usage, isLegacy };
+			}
+		}
+		catch (...) {}
+
+		// 旧格式兼容：$price(inputToken -> outputToken)
+		isLegacy = true;
 		size_t dollarPos = costText.find('$');
 		size_t leftParenPos = costText.find('(');
 		size_t arrowPos = costText.find(" -> ");
 		size_t rightParenPos = costText.find(')');
-		
-		// 检查格式是否正确
-		if (dollarPos == std::string::npos || leftParenPos == std::string::npos || 
+
+		if (dollarPos == std::string::npos || leftParenPos == std::string::npos ||
 			arrowPos == std::string::npos || rightParenPos == std::string::npos ||
 			dollarPos >= leftParenPos || leftParenPos >= arrowPos || arrowPos >= rightParenPos)
 		{
-			// 格式不正确，返回零值
-			return usage;
+			return { usage, isLegacy };
 		}
-		
+
 		try
 		{
-			// 解析价格部分
 			std::string priceStr = costText.substr(dollarPos + 1, leftParenPos - dollarPos - 1);
 			usage.fee = std::stof(priceStr);
-				
-			// 解析输入token部分
-			std::string inputTokenStr = costText.substr(leftParenPos + 1, arrowPos - leftParenPos - 1);
-			usage.inputToken_equivalent = usage.inputToken_ = std::stoi(inputTokenStr);
 
-			// 解析输出token部分
+			std::string inputTokenStr = costText.substr(leftParenPos + 1, arrowPos - leftParenPos - 1);
+			usage.inputToken_ = std::stoi(inputTokenStr);
+
 			std::string outputTokenStr = costText.substr(arrowPos + 4, rightParenPos - arrowPos - 4);
 			usage.outputToken = std::stoi(outputTokenStr);
 		}
 		catch (...)
 		{
-			// 解析出错，返回零值
 			usage.Zero();
 		}
-		
-		return usage;
+
+		return { usage, isLegacy };
 	}
 
 	float fee;
-	int inputToken_;
-	int inputToken_equivalent;
+	int inputToken_;//Uncached
+	int inputToken_CacheRead;
+	int inputToken_CacheWrite;
 	int outputToken;
 };
 

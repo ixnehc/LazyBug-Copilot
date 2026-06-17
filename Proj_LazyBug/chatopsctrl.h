@@ -425,7 +425,7 @@ private:
                              std::vector<ChatInputTag>& tags) const;
 
     // ── 内部辅助 ──────────────────────────────────────────────────────────
-    void _SetSessionCostDisplay(const std::string& costText, const std::wstring& messageId = L"");
+    void _SetSessionCostDisplay(const LlmSessionUsage& usage, bool isLegacy = false, const std::wstring& messageId = L"");
     void _SendFileEditMsg(const std::wstring& action, const FileEdit& window);
     std::wstring _BuildButtonsJson(const std::vector<FileEditBtn>& buttons);
 

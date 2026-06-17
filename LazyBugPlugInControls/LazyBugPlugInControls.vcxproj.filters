@@ -521,6 +521,9 @@
     <ClCompile Include="..\Proj_LazyBug\ChatSkillTip.cpp">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
     </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_Bash.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -949,6 +952,9 @@
     </ClInclude>
     <ClInclude Include="..\Proj_LazyBug\ChatSkillTip.h">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_Bash.h">
+      <Filter>Core\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -114,7 +114,10 @@ bool CLlmChat::Process(LlmSessionOutput& output,bool interrupt)
 
         m_activeSession->GetTokenUsage(output.usage);
 
-		float calculatedFee = (m_setting.api.priceInputToken * (float)output.usage.inputToken_equivalent) / 1000000.0f + (m_setting.api.priceOutputToken * (float)output.usage.outputToken) / 1000000.0f;
+		float calculatedFee = (m_setting.api.priceInputToken * (float)output.usage.inputToken_ 
+			+ m_setting.api.priceCacheRead * (float)output.usage.inputToken_CacheRead 
+			+ m_setting.api.priceCacheWrite * (float)output.usage.inputToken_CacheWrite) / 1000000.0f 
+			+ (m_setting.api.priceOutputToken * (float)output.usage.outputToken) / 1000000.0f;
 		if (output.usage.fee <= 0.0f)
 			output.usage.fee = calculatedFee;
         
