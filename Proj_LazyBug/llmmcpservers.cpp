@@ -28,25 +28,25 @@ static int _Priority(CLlmMcps::Mcp::Type tp)
 
 CLlmMcpServers::~CLlmMcpServers()
 {
-	// 等待worker线程结束
-	if (_workerThread.joinable())
+	// 请求所有server停止，等待线程退出并销毁
+	for (auto& kv : _servers)
 	{
-		_workerThread.join();
+		_RequestStop(*kv.second);
 	}
-
-	// 销毁所有server
-	for (auto& server : _servers)
+	for (auto& s : _removing)
 	{
-		_DestroyServer(server);
+		_RequestStop(*s);
+	}
+	for (auto& kv : _servers)
+	{
+		_JoinAndDestroy(*kv.second);
+	}
+	for (auto& s : _removing)
+	{
+		_JoinAndDestroy(*s);
 	}
 	_servers.clear();
-
-	// 销毁pending servers
-	for (auto& server : _pendingServers)
-	{
-		_DestroyServer(server);
-	}
-	_pendingServers.clear();
+	_removing.clear();
 }
 
 bool CLlmMcpServers::_NeedSync() const
@@ -56,167 +56,178 @@ bool CLlmMcpServers::_NeedSync() const
 
 bool CLlmMcpServers::UpdateSync()
 {
-	// 1. 检查 worker 状态
-	if (_workerRunning)
-	{
-		bool isServerModified = false;
+	// 1. 回收已结束线程的server，收集状态变化
+	bool isServerModified = _ReapFinished();
 
-		// worker 正在运行，检查是否完成
-		if (_workerDone)
+	// 2. 版本变化时做增量同步（非阻塞，仅做diff和线程调度）
+	if (_NeedSync())
+	{
+		_Sync();
+		isServerModified = true;
+	}
+
+	return isServerModified;
+}
+
+bool CLlmMcpServers::_ReapFinished()
+{
+	bool modified = false;
+
+	// 回收迁出到_removing的旧server（已请求停止）
+	for (auto it = _removing.begin(); it != _removing.end(); )
+	{
+		Server& server = **it;
+		if (server.done.load())
 		{
-			// worker 已完成
-			std::lock_guard<std::mutex> lock(_mutex);
-
-			// 清理 worker 状态
-			_workerDone = false;
-			_workerRunning = false;
-			if (_workerThread.joinable())
-				_workerThread.detach();
-
-			// 检查版本是否仍然匹配
-			if (_pendingVer == g_llmMcps._ver)
-			{
-				// 版本匹配，同步成功
-				// 使用 _pendingRemoveUids 销毁不再需要的旧servers
-				for (auto& old : _servers)
-				{
-					if (_pendingRemoveUids.find(old.mcpUid) != _pendingRemoveUids.end())
-					{
-						_DestroyServer(old);
-					}
-				}
-
-				// 移除已销毁的servers，保留仍然需要的
-				_servers.erase(
-					std::remove_if(_servers.begin(), _servers.end(),
-						[this](const Server& s) { return _pendingRemoveUids.find(s.mcpUid) != _pendingRemoveUids.end(); }),
-					_servers.end());
-
-				// 添加新创建的servers
-				for (auto& pending : _pendingServers)
-				{
-					_servers.push_back(std::move(pending));
-				}
-
-				_pendingRemoveUids.clear();
-				_pendingServers.clear();
-				_syncedVer = _pendingVer;
-
-				isServerModified = true;
-			}
-			else
-			{
-				// 版本已变化，丢弃 _pendingServers
-				for (auto& pending : _pendingServers)
-				{
-					_DestroyServer(pending);
-				}
-				_pendingServers.clear();
-			}
-			// _NeedSync() 会返回 true，重新启动 worker
+			_JoinAndDestroy(server);
+			it = _removing.erase(it);
+			modified = true;
 		}
-		return isServerModified;
+		else
+		{
+			++it;
+		}
 	}
 
-	// 2. 检查是否需要同步
-	if (!_NeedSync())
-		return false;
-
-	// 3. 启动后台同步线程
-	_StartWorker();
-
-	return false;
-}
-
-void CLlmMcpServers::_StartWorker()
-{
-	_workerRunning = true;
-	_workerDone = false;
-	_pendingVer = g_llmMcps._ver;
-
-	// 收集现有servers的信息（uid 和 fileTime）
-	std::vector<std::pair<WUID, FILETIME>> existingServers;
-	for (const auto& s : _servers)
+	for (auto it = _servers.begin(); it != _servers.end(); )
 	{
-		existingServers.push_back({ s.mcpUid, s.fileTime });
+		Server& server = *it->second;
+
+		if (server.done.load())
+		{
+			if (server.pendingRemove)
+			{
+				// 已请求停止：join并销毁，从map移除
+				_JoinAndDestroy(server);
+				it = _servers.erase(it);
+				modified = true;
+				continue;
+			}
+			else if (server.thread.joinable())
+			{
+				// 线程刚完成创建（成功或失败）：join回收线程，状态视为已变化
+				server.thread.join();
+				modified = true;
+			}
+		}
+		++it;
 	}
 
-	_workerThread = std::thread(&CLlmMcpServers::_WorkerFunc, this, _pendingVer, std::move(existingServers));
+	return modified;
 }
 
-void CLlmMcpServers::_WorkerFunc(int targetVer, const std::vector<std::pair<WUID, FILETIME>>& existingServers)
+void CLlmMcpServers::_Sync()
 {
-	// 1. 收集目标 servers
-	std::vector<Server> targetServers;
-	_CollectTargetServers(targetServers);
+	// 1. 收集目标servers
+	std::vector<Target> targets;
+	_CollectTargetServers(targets);
 
-	// 2. 构建需要移除的server集合（existingServers中不在targetServers里的，或fileTime变化的）
 	std::unordered_set<WUID> targetUids;
-	for (const auto& target : targetServers)
-		targetUids.insert(target.mcpUid);
+	for (const auto& t : targets)
+		targetUids.insert(t.mcpUid);
 
-	std::unordered_set<WUID> removeUids;
-	for (const auto& existing : existingServers)
+	// 2. 停止不再需要的server（不在目标列表中）
+	for (auto& kv : _servers)
 	{
-		auto it = targetUids.find(existing.first);
-		if (it == targetUids.end())
+		Server& server = *kv.second;
+		if (server.pendingRemove)
+			continue;
+		if (targetUids.find(server.mcpUid) == targetUids.end())
 		{
-			// 不在目标列表中，需要移除
-			removeUids.insert(existing.first);
+			_RequestStop(server);
 		}
 	}
 
-	// 3. 只创建需要新创建的servers（uid不存在 或 fileTime变化）
-	std::vector<Server> newServers;
-	for (const auto& target : targetServers)
+	// 3. 处理目标servers：新建或重建
+	for (const auto& target : targets)
 	{
-		// 检查是否已存在且fileTime未变化
-		bool needCreate = true;
-		for (const auto& existing : existingServers)
+		auto it = _servers.find(target.mcpUid);
+		if (it != _servers.end() && !it->second->pendingRemove)
 		{
-			if (existing.first == target.mcpUid)
-			{
-				// uid 匹配，检查 fileTime
-				if (CompareFileTime(&existing.second, &target.fileTime) == 0)
-				{
-					// fileTime 未变化，不需要重新创建
-					needCreate = false;
-				}
-				else
-				{
-					// fileTime 已变化，需要移除旧的并重建
-					removeUids.insert(target.mcpUid);
-				}
-				break;
-			}
+			// 已存在：fileTime未变化则保留，变化则停止旧的并重建
+			if (CompareFileTime(&it->second->fileTime, &target.fileTime) == 0)
+				continue;
+			_RequestStop(*it->second);
 		}
 
-		if (needCreate)
-		{
-			// 需要创建新的server
-			Server newServer;
-			newServer.mcpUid = target.mcpUid;
-			newServer.command = target.command;
-			newServer.args = target.args;
-			newServer.env = target.env;
-			newServer.fileTime = target.fileTime;
+		// 需要创建新的server
+		auto server = std::make_unique<Server>();
+		server->mcpUid = target.mcpUid;
+		server->command = target.command;
+		server->args = target.args;
+		server->env = target.env;
+		server->fileTime = target.fileTime;
 
-			_CreateServer(newServer);  // 无论成功失败都添加，以便回填错误信息
-			newServers.push_back(std::move(newServer));
-		}
+		_StartServer(std::move(server));
 	}
 
-	// 4. 更新结果
+	_syncedVer = g_llmMcps._ver;
+}
+
+void CLlmMcpServers::_StartServer(std::unique_ptr<Server> server)
+{
+	WUID uid = server->mcpUid;
+
+	// 创建中断事件（手动复位，初始未置位）
+	server->hCancelEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+	server->state.store(State::Starting);
+	server->done.store(false);
+
+	Server* raw = server.get();
+
+	// 若map中已存在该uid（旧的正在停止中），为避免key冲突，
+	// 将正在停止的旧server迁出到_removing保管，待其线程退出后由_ReapFinished回收
+	auto existing = _servers.find(uid);
+	if (existing != _servers.end())
 	{
-		std::lock_guard<std::mutex> lock(_mutex);
-		_pendingServers = std::move(newServers);
-		_pendingRemoveUids = std::move(removeUids);
-		_workerDone = true;
+		_RequestStop(*existing->second);
+		_removing.push_back(std::move(existing->second));
+		_servers.erase(existing);
+	}
+
+	raw->thread = std::thread(&CLlmMcpServers::_ServerThreadFunc, this, raw);
+	_servers[uid] = std::move(server);
+}
+
+void CLlmMcpServers::_ServerThreadFunc(Server* server)
+{
+	bool ok = _CreateServer(*server, server->hCancelEvent);
+	server->state.store(ok ? State::Ready : State::Failed);
+	server->toolsFetched = ok;
+	server->done.store(true);
+}
+
+void CLlmMcpServers::_RequestStop(Server& server)
+{
+	server.pendingRemove = true;
+	if (server.hCancelEvent)
+		SetEvent(server.hCancelEvent);
+}
+
+void CLlmMcpServers::_JoinAndDestroy(Server& server)
+{
+	if (server.hCancelEvent)
+		SetEvent(server.hCancelEvent);
+	if (server.thread.joinable())
+		server.thread.join();
+	_DestroyServer(server);
+	if (server.hCancelEvent)
+	{
+		CloseHandle(server.hCancelEvent);
+		server.hCancelEvent = nullptr;
 	}
 }
 
-bool CLlmMcpServers::_CreateServer(Server& server)
+
+bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 {
+	// 起步前检查是否已被请求中断
+	if (hCancel && WaitForSingleObject(hCancel, 0) == WAIT_OBJECT_0)
+	{
+		server.AppendOutput("Cancelled before start");
+		return false;
+	}
+
 	// 1. 创建管道用于与子进程通信
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -370,9 +381,9 @@ bool CLlmMcpServers::_CreateServer(Server& server)
 	server.hPipeRead = hChildStdOutRead;
 
 	// 7. 发送MCP初始化请求
-	if (!_SendMcpInitialize(server))
+	if (!_SendMcpInitialize(server, hCancel))
 	{
-		std::string pipeOutput = _FlushPipeRead(server);
+		std::string pipeOutput = _FlushPipeRead(server, hCancel);
 		if (!pipeOutput.empty())
 			server.AppendOutput("Process output: " + pipeOutput);
 		_DestroyServer(server);
@@ -380,9 +391,9 @@ bool CLlmMcpServers::_CreateServer(Server& server)
 	}
 
 	// 8. 获取工具列表
-	if (!_FetchTools(server))
+	if (!_FetchTools(server, hCancel))
 	{
-		std::string pipeOutput = _FlushPipeRead(server);
+		std::string pipeOutput = _FlushPipeRead(server, hCancel);
 		if (!pipeOutput.empty())
 			server.AppendOutput("Process output: " + pipeOutput);
 		_DestroyServer(server);
@@ -394,7 +405,7 @@ bool CLlmMcpServers::_CreateServer(Server& server)
 	return true;
 }
 
-std::string CLlmMcpServers::_FlushPipeRead(Server& server)
+std::string CLlmMcpServers::_FlushPipeRead(Server& server, HANDLE hCancel)
 {
 	std::string result;
 	if (!server.hPipeRead) return result;
@@ -407,6 +418,10 @@ std::string CLlmMcpServers::_FlushPipeRead(Server& server)
 
 	while (GetTickCount() - lastReadTime < waitMs)
 	{
+		// 被请求中断则立即返回
+		if (hCancel && WaitForSingleObject(hCancel, 0) == WAIT_OBJECT_0)
+			break;
+
 		available = 0;
 		if (PeekNamedPipe(server.hPipeRead, NULL, 0, NULL, &available, NULL) && available > 0)
 		{
@@ -427,7 +442,7 @@ std::string CLlmMcpServers::_FlushPipeRead(Server& server)
 void CLlmMcpServers::_DestroyServer(Server& server)
 {
 	// 关闭管道
-	if (server.hPipeRead)
+	if (server.hPipeRead)	
 	{
 		CloseHandle(server.hPipeRead);
 		server.hPipeRead = nullptr;
@@ -457,7 +472,7 @@ void CLlmMcpServers::_DestroyServer(Server& server)
 	server.tools.clear();
 }
 
-bool CLlmMcpServers::_SendMcpRequest(Server& server, const std::string& request, std::string& response, int timeoutMs, bool outputResponse)
+bool CLlmMcpServers::_SendMcpRequest(Server& server, HANDLE hCancel, const std::string& request, std::string& response, int timeoutMs, bool outputResponse)
 {
 	if (!server.hPipeWrite || !server.hPipeRead)
 		return false;
@@ -497,6 +512,13 @@ bool CLlmMcpServers::_SendMcpRequest(Server& server, const std::string& request,
 	DWORD startTime = GetTickCount();
 	while (true)
 	{
+		// 被请求中断则立即放弃
+		if (hCancel && WaitForSingleObject(hCancel, 0) == WAIT_OBJECT_0)
+		{
+			server.AppendOutput("MCP request cancelled");
+			return false;
+		}
+
 		// 检查超时
 		if (GetTickCount() - startTime > (DWORD)timeoutMs)
 		{
@@ -516,7 +538,11 @@ bool CLlmMcpServers::_SendMcpRequest(Server& server, const std::string& request,
 
 		if (available == 0)
 		{
-			Sleep(10);
+			// 用cancel事件等待，被置位则下一轮循环立即退出
+			if (hCancel)
+				WaitForSingleObject(hCancel, 10);
+			else
+				Sleep(10);
 			continue;
 		}
 
@@ -585,13 +611,13 @@ bool CLlmMcpServers::_SendMcpRequest(Server& server, const std::string& request,
 }
 
 
-bool CLlmMcpServers::_SendMcpInitialize(Server& server)
+bool CLlmMcpServers::_SendMcpInitialize(Server& server, HANDLE hCancel)
 {
 	// MCP initialize 请求
 	std::string request = R"({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"LazyBug","version":"1.0.0"}}})";
 
 	std::string response;
-	if (!_SendMcpRequest(server, request, response, 60000,true))
+	if (!_SendMcpRequest(server, hCancel, request, response, 60000,true))
 	{
 		return false;
 	}
@@ -631,13 +657,13 @@ bool CLlmMcpServers::_SendMcpInitialize(Server& server)
 	return true;
 }
 
-bool CLlmMcpServers::_FetchTools(Server& server)
+bool CLlmMcpServers::_FetchTools(Server& server, HANDLE hCancel)
 {
 	// 获取工具列表请求
 	std::string request = R"({"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}})";
 
 	std::string response;
-	if (!_SendMcpRequest(server, request, response, 5000,true))
+	if (!_SendMcpRequest(server, hCancel, request, response, 5000,true))
 	{
 		return false;
 	}
@@ -686,28 +712,48 @@ void CLlmMcpServers::LoadToolsToMcps()
 	}
 
 	// 回填 tools 到对应的 mcp
-	for (auto& server : _servers)
+	for (auto& kv : _servers)
 	{
+		Server& server = *kv.second;
+		// 正在停止的server不回填
+		if (server.pendingRemove)
+			continue;
+
 		// 查找对应的 mcp，通过 uid 匹配
 		for (auto& mcp : g_llmMcps._mcps)
 		{
 			if (mcp.uid == server.mcpUid)
 			{
-				mcp.tools = server.tools;
-				mcp.toolsLoaded = server.toolsFetched;
-				mcp.lastError = server.output;
+				State st = server.state.load();
+				if (st == State::Ready)
+				{
+					mcp.tools = server.tools;
+					mcp.toolsLoaded = true;
+					mcp.lastError = server.output;
+				}
+				else if (st == State::Failed)
+				{
+					mcp.toolsLoaded = false;
+					mcp.lastError = server.output;
+				}
+				else // Starting
+				{
+					mcp.toolsLoaded = false;
+					mcp.lastError = "";
+				}
 				break;
 			}
 		}
 	}
 }
 
-void CLlmMcpServers::_CollectTargetServers(std::vector<Server>& outServers)
+void CLlmMcpServers::_CollectTargetServers(std::vector<Target>& outTargets)
 {
-	outServers.clear();
+	outTargets.clear();
 
 	// 同名 mcp 按优先级去重
-	std::unordered_map<std::string, size_t> nameToIndex;
+	std::unordered_map<std::string, size_t> nameToIndex;       // name -> outTargets下标
+	std::vector<CLlmMcps::Mcp::Type> targetTypes;              // 与outTargets平行，记录各target的优先级类型
 
 	for (const auto& mcp : g_llmMcps._mcps)
 	{
@@ -717,25 +763,28 @@ void CLlmMcpServers::_CollectTargetServers(std::vector<Server>& outServers)
 		auto it = nameToIndex.find(mcp.name);
 		if (it == nameToIndex.end())
 		{
-			nameToIndex[mcp.name] = outServers.size();
-			Server s;
-			s.mcpUid = mcp.uid;
-			s.command = mcp.command;
-			s.args = mcp.args;
-			s.env = mcp.env;
-			s.fileTime = mcp.fileTime;
-			outServers.push_back(std::move(s));
+			nameToIndex[mcp.name] = outTargets.size();
+			Target t;
+			t.mcpUid = mcp.uid;
+			t.command = mcp.command;
+			t.args = mcp.args;
+			t.env = mcp.env;
+			t.fileTime = mcp.fileTime;
+			outTargets.push_back(std::move(t));
+			targetTypes.push_back(mcp.tp);
 		}
 		else
 		{
 			// 检查优先级
-			if (_Priority(mcp.tp) > _Priority(g_llmMcps._mcps[nameToIndex[mcp.name]].tp))
+			size_t idx = it->second;
+			if (_Priority(mcp.tp) > _Priority(targetTypes[idx]))
 			{
-				outServers[it->second].mcpUid = mcp.uid;
-				outServers[it->second].command = mcp.command;
-				outServers[it->second].args = mcp.args;
-				outServers[it->second].env = mcp.env;
-				outServers[it->second].fileTime = mcp.fileTime;
+				outTargets[idx].mcpUid = mcp.uid;
+				outTargets[idx].command = mcp.command;
+				outTargets[idx].args = mcp.args;
+				outTargets[idx].env = mcp.env;
+				outTargets[idx].fileTime = mcp.fileTime;
+				targetTypes[idx] = mcp.tp;
 			}
 		}
 	}
