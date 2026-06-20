@@ -617,7 +617,7 @@ bool CLlmMcpServers::_SendMcpInitialize(Server& server, HANDLE hCancel)
 	std::string request = R"({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"LazyBug","version":"1.0.0"}}})";
 
 	std::string response;
-	if (!_SendMcpRequest(server, hCancel, request, response, 60000,true))
+	if (!_SendMcpRequest(server, hCancel, request, response, 10000,true))
 	{
 		return false;
 	}
