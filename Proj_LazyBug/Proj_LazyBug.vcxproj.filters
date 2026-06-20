@@ -177,6 +177,12 @@
     <Filter Include="GUI\ChatDialog\ChatInput\ChatSkillTip">
       <UniqueIdentifier>{c1acea4f-401f-4083-a747-d8c931fc4917}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Llm\mcp">
+      <UniqueIdentifier>{173ddee7-2550-4aea-bb29-796bb75f8e01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput\ChatMcpsTree">
+      <UniqueIdentifier>{1d2faa51-90cf-45f4-ab53-42d88838983b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DockPaneWnd.h">
@@ -608,10 +614,22 @@
     <ClInclude Include="ChatSkillTip.h">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
     </ClInclude>
-    <ClInclude Include="LlmMcps.h">
-      <Filter>Core\Llm</Filter>
-    </ClInclude>
     <ClInclude Include="Utils_Bash.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="LlmMcps.h">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClInclude>
+    <ClInclude Include="LlmMcpServers.h">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClInclude>
+    <ClInclude Include="McpUpdater.h">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatMcpsTree.h">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpsTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils_Mcp.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1006,10 +1024,22 @@
     <ClCompile Include="ChatSkillTip.cpp">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
     </ClCompile>
-    <ClCompile Include="LlmMcps.cpp">
-      <Filter>Core\Llm</Filter>
-    </ClCompile>
     <ClCompile Include="Utils_Bash.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="LlmMcps.cpp">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClCompile>
+    <ClCompile Include="LlmMcpServers.cpp">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClCompile>
+    <ClCompile Include="McpUpdater.cpp">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatMcpsTree.cpp">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpsTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils_Mcp.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1191,6 +1221,9 @@
     </None>
     <None Include="ChatCtrlHtml\favorite.js">
       <Filter>GUI\ChatDialog\ChatUi\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="ChatMcpsTree.html">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpsTree</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

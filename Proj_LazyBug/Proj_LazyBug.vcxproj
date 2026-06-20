@@ -1518,6 +1518,7 @@ c:\sound.exe
     <ClInclude Include="ChatAgentDefines.h" />
     <ClInclude Include="ChatNotify.h" />
     <ClInclude Include="ChatOpsCompress.h" />
+    <ClInclude Include="ChatMcpsTree.h" />
     <ClInclude Include="ChatSkillTip.h" />
     <ClInclude Include="ChatTask_CompressSummarize.h" />
     <ClInclude Include="ChatTokenStats.h" />
@@ -1547,6 +1548,7 @@ c:\sound.exe
     <ClCompile Include="BackupDepot.cpp" />
     <ClCompile Include="ChatNotify.cpp" />
     <ClCompile Include="ChatOpsCompress.cpp" />
+    <ClCompile Include="ChatMcpsTree.cpp" />
     <ClCompile Include="ChatSkillTip.cpp" />
     <ClCompile Include="ChatTask_CompressSummarize.cpp" />
     <ClCompile Include="ChatTokenStats.cpp" />
@@ -1574,6 +1576,8 @@ c:\sound.exe
     <ClInclude Include="LlmLibDefines.h" />
     <ClInclude Include="LlmFormatter.h" />
     <ClInclude Include="LlmLibLoader.h" />
+    <ClInclude Include="McpUpdater.h" />
+    <ClInclude Include="LlmMcpServers.h" />
     <ClInclude Include="LlmMcps.h" />
     <ClInclude Include="LlmSkills.h" />
     <ClInclude Include="ProjFileScanner.h" />
@@ -1664,6 +1668,7 @@ c:\sound.exe
     <ClInclude Include="Utils_Context.h" />
     <ClInclude Include="Utils_CliWhitelist.h" />
     <ClInclude Include="Utils_Bash.h" />
+    <ClInclude Include="Utils_Mcp.h" />
     <ClInclude Include="Utils_Skill.h" />
     <ClInclude Include="Utils_Image.h" />
     <ClInclude Include="Utils_SolutionDump.h" />
@@ -1716,6 +1721,8 @@ c:\sound.exe
     <ClCompile Include="CodingHistory.cpp" />
     <ClCompile Include="LlmFormatter.cpp" />
     <ClCompile Include="LlmLibLoader.cpp" />
+    <ClCompile Include="McpUpdater.cpp" />
+    <ClCompile Include="LlmMcpServers.cpp" />
     <ClCompile Include="LlmMcps.cpp" />
     <ClCompile Include="LlmSkills.cpp" />
     <ClCompile Include="ProjFileScanner.cpp" />
@@ -1811,6 +1818,7 @@ c:\sound.exe
     <ClCompile Include="Utils_Context.cpp" />
     <ClCompile Include="Utils_CliWhitelist.cpp" />
     <ClCompile Include="Utils_Bash.cpp" />
+    <ClCompile Include="Utils_Mcp.cpp" />
     <ClCompile Include="Utils_Skill.cpp" />
     <ClCompile Include="Utils_Image.cpp" />
     <ClCompile Include="Utils_FindInFile.cpp" />
@@ -1897,6 +1905,7 @@ c:\sound.exe
     <None Include="ChatInputHtml\ui-controls.js" />
     <None Include="ChatInputHtml\utils.js" />
     <None Include="ChatSettingMenu.html" />
+    <None Include="ChatMcpsTree.html" />
     <None Include="ChatSkillTip.html" />
     <None Include="ChatSkillsTree.html" />
     <None Include="ChatSettingPage.html" />

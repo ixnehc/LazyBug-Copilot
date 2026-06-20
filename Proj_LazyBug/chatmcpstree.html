@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mcps Tree</title>
+    <style>
+        :root {
+            --body-bg: #121212;
+            --text-color: #e0e0e0;
+            --text-secondary: #aaaaaa;
+            --primary-color: #004d40;
+            --primary-hover: #00796b;
+            --secondary-bg: #1e1e1e;
+            --border-color: #404040;
+            --hover-bg: #2a2a2a;
+            --leaf-color: #4caf50;
+            --leaf-hover: #66bb6a;
+            --folder-color: #ffc107;
+            --folder-hover: #ffcd38;
+            --root-icon-color: #ff9800;
+            --mcp-color: #29b6f6;
+            --mcp-hover: #4fc3f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.4;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .mcps-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .mcps-header {
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3px 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mcps-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .mcps-subtitle {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+
+        .tree-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+            min-height: 0;
+        }
+
+        .tree-node {
+            cursor: pointer;
+        }
+
+        .tree-row:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .tree-row {
+            display: flex;
+            align-items: center;
+            padding: 3px 6px;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .tree-arrow {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            border-radius: 3px;
+        }
+
+        .tree-arrow:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .tree-arrow.no-children {
+            visibility: hidden;
+        }
+
+        .tree-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .tree-icon.root-global { color: var(--root-icon-color); }
+        .tree-icon.root-project { color: var(--root-icon-color); }
+        .tree-icon.folder { color: var(--folder-color); }
+        .tree-icon.mcp { color: var(--mcp-color); font-size: 13px; }
+        .tree-icon.tool { color: var(--leaf-color); font-size: 11px; }
+
+        .tree-checkbox {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            border: 1px solid var(--text-secondary);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 2px;
+        }
+
+        .tree-checkbox:hover {
+            border-color: var(--mcp-color);
+        }
+
+        .tree-checkbox.checked {
+            background-color: var(--mcp-color);
+            border-color: var(--mcp-color);
+        }
+
+        .tree-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .tree-checkbox.indeterminate {
+            background-color: var(--mcp-color);
+            border-color: var(--mcp-color);
+        }
+
+        .tree-checkbox.indeterminate::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 1px;
+        }
+
+        /* Tool checkbox: ☐ / ☑ / ◉ (indeterminate) */
+        .tree-checkbox.tool-checkbox {
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: transparent;
+            font-size: 18px;
+            font-weight: 300;
+            color: var(--text-secondary);
+        }
+
+        .tree-checkbox.tool-checkbox::after {
+            content: '\2610'; /* ☐ */
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .tree-checkbox.tool-checkbox:hover {
+            border: none;
+        }
+
+        .tree-checkbox.tool-checkbox:hover::after {
+            color: var(--text-secondary);
+        }
+
+        .tree-checkbox.tool-checkbox.checked {
+            background: transparent;
+            border: none;
+        }
+
+        .tree-checkbox.tool-checkbox.checked::after {
+            content: '\2611'; /* ☑ */
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        /* Indeterminate state: box with dot */
+        .tree-checkbox.tool-checkbox.indeterminate {
+            background: transparent;
+            border: none;
+        }
+
+        .tree-checkbox.tool-checkbox.indeterminate::after {
+            content: '\25A3'; /* ▣ square with inner dot */
+            color: var(--text-secondary);
+            font-size: 18px;
+            font-weight: 300;
+            width: auto;
+            height: auto;
+            background-color: transparent;
+            border-radius: 0;
+        }
+
+        .tree-label {
+            font-size: 0.85em;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tree-label.root {
+            font-weight: 800;
+            font-size: 0.9em;
+        }
+
+        .tree-label.folder {
+            color: var(--text-color);
+            font-weight: 800;
+        }
+
+        .tree-label.mcp {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .tree-label.tool {
+            color: var(--text-secondary);
+        }
+
+        .tree-label-input {
+            font-size: 0.85em;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--mcp-color);
+            border-radius: 3px;
+            padding: 2px 4px;
+            outline: none;
+            min-width: 80px;
+            max-width: 200px;
+        }
+
+        .tree-desc {
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            margin-left: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        .tree-status {
+            font-size: 0.7em;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        .tree-status.loaded {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .tree-status.error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .tree-status.loading {
+            background-color: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        /* 复制错误按钮（与Skills树复制按钮样式一致） */
+        .copy-error-btn {
+            padding: 1px 2px;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 2px;
+        }
+
+        .copy-error-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--text-color);
+        }
+
+        .copy-error-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .tree-row:hover .copy-error-btn {
+            opacity: 1;
+        }
+
+        .button-group {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .open-folder-btn {
+            padding: 2px 6px;
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+        }
+
+        .open-folder-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--folder-color);
+        }
+
+        .tree-row:hover .open-folder-btn {
+            opacity: 1;
+        }
+
+        .new-folder-btn {
+            padding: 2px 6px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-folder-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--folder-color);
+        }
+
+        .tree-row:hover .new-folder-btn {
+            opacity: 1;
+        }
+
+        .new-mcp-btn {
+            padding: 2px 6px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s, background-color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .new-mcp-btn:hover {
+            color: var(--text-color);
+            background-color: var(--hover-bg);
+            border-color: var(--mcp-color);
+        }
+
+        .tree-row:hover .new-mcp-btn {
+            opacity: 1;
+        }
+
+        .tree-children {
+            overflow: hidden;
+        }
+
+        .tree-children.collapsed {
+            max-height: 0 !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #202020;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="mcps-container">
+        <div class="mcps-header">
+            <div>
+                <span class="mcps-title">MCPs</span>
+                <span class="mcps-subtitle" id="mcps-count">Loading...</span>
+            </div>
+        </div>
+        <div class="tree-area" id="tree-area">
+        </div>
+    </div>
+
+    <script>
+        // ============ 全局状态 ============
+        let mcpTreeData = [];
+        let expandedNodes = new Set();
+        let clickTimer = null;
+
+        // ============ DOM引用 ============
+        const treeArea = document.getElementById('tree-area');
+        const mcpsCount = document.getElementById('mcps-count');
+
+        // ============ 节点类型判断 ============
+        // 深度0 = 根节点(Global/Project)
+        // isLeaf && mcpName存在 = tool叶子
+        // isLeaf && mcpName不存在 = MCP叶子节点(包含tools子节点)
+        // !isLeaf && depth>0 = 中间目录
+        function isRootNode(node, depth) { return depth === 0; }
+        function isToolNode(node) { return node.isLeaf && node.mcpName; }
+        function isMcpNode(node, depth) { return node.isLeaf && !node.mcpName && depth > 0; }
+        function isFolderNode(node, depth) { return !node.isLeaf && depth > 0; }
+
+        // ============ 统计 ============
+        function countNodes(nodes) {
+            let mcpCount = 0;
+            let mcpEnabledCount = 0;
+            let toolCount = 0;
+            let toolEnabledCount = 0;
+            function countRecursive(nodes) {
+                for (const node of nodes) {
+                    if (isMcpNode(node, 1)) {
+                        mcpCount++;
+                        if (node.enable) mcpEnabledCount++;
+                        if (node.children) {
+                            for (const tool of node.children) {
+                                if (isToolNode(tool)) {
+                                    toolCount++;
+                                    if (tool.enable) toolEnabledCount++;
+                                }
+                            }
+                        }
+                    } else if (isToolNode(node)) {
+                        toolCount++;
+                        if (node.enable) toolEnabledCount++;
+                    } else if (node.children && node.children.length > 0) {
+                        countRecursive(node.children);
+                    }
+                }
+            }
+            countRecursive(nodes);
+            return { mcpCount, mcpEnabledCount, toolCount, toolEnabledCount };
+        }
+
+        // 待编辑的节点信息（用于新建后自动进入编辑模式）
+        let pendingEditNode = null;
+        let pendingEditTimer = null;
+
+        function tryStartPendingEdit() {
+            if (!pendingEditNode) return;
+            const target = pendingEditNode;
+            pendingEditNode = null;
+            const nodeDivs = document.querySelectorAll('.tree-node');
+            for (const nodeDiv of nodeDivs) {
+                const node = nodeDiv._nodeData;
+                if (node && node.name === target.name && node.fullPath === target.fullPath) {
+                    const row = nodeDiv._row;
+                    const label = row?.querySelector('.tree-label');
+                    if (row && label) {
+                        // 确保父节点展开
+                        const parentDiv = nodeDiv.parentElement?.parentElement;
+                        if (parentDiv && parentDiv._childrenDiv) {
+                            const arrow = parentDiv._arrow;
+                            if (arrow && arrow.textContent === '+') arrow.click();
+                        }
+                        handleLabelClick(node, label, row);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // ============ 构建树UI ============
+        function buildTree(data) {
+            mcpTreeData = data || [];
+            treeArea.innerHTML = '';
+
+            const { mcpCount, mcpEnabledCount, toolCount, toolEnabledCount } = countNodes(mcpTreeData);
+            mcpsCount.textContent = `(${mcpEnabledCount}/${mcpCount} mcps, ${toolEnabledCount}/${toolCount} tools)`;
+
+            for (const rootNode of mcpTreeData) {
+                const rootEl = createNodeElement(rootNode, 0);
+                treeArea.appendChild(rootEl);
+            }
+
+            setTimeout(() => {
+                updateAllFolderCheckboxes();
+            }, 0);
+        }
+
+        function getRootIconClass(name) {
+            switch (name) {
+                case 'Global':  return 'root-global';
+                case 'Project': return 'root-project';
+                default: return 'root-global';
+            }
+        }
+
+        function getNodeKey(node, depth) {
+            if (depth === 0) return node.name;
+            return node.fullPath || node.name;
+        }
+
+        // ============ 创建节点 ============
+        function createNodeElement(node, depth) {
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node';
+            nodeDiv.setAttribute('data-depth', depth);
+
+            const row = document.createElement('div');
+            row.className = 'tree-row';
+            row.style.paddingLeft = (8 + depth * 18) + 'px';
+
+            const _isRoot = isRootNode(node, depth);
+            const _isMcp = isMcpNode(node, depth);
+            const _isTool = isToolNode(node);
+            const _isFolder = isFolderNode(node, depth);
+
+            // 箭头
+            const arrow = document.createElement('span');
+            arrow.className = 'tree-arrow';
+            const hasChildren = node.children && node.children.length > 0;
+            if (hasChildren) {
+                arrow.textContent = '-';
+                arrow.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleNodeClick(node, row, arrow, hasChildren, depth);
+                });
+            } else {
+                arrow.classList.add('no-children');
+            }
+            row.appendChild(arrow);
+
+            // checkbox - 所有节点都有
+            const checkbox = document.createElement('span');
+            checkbox.className = 'tree-checkbox';
+            if (_isTool) {
+                checkbox.classList.add('tool-checkbox');
+            }
+            if (_isRoot || _isFolder) {
+                // 根/目录节点：根据子MCP的enable状态计算
+                const mcpNodes = getAllMcpNodes(node);
+                const enabledCount = mcpNodes.filter(n => n.enable).length;
+                if (mcpNodes.length > 0 && enabledCount === mcpNodes.length) {
+                    checkbox.classList.add('checked');
+                } else if (enabledCount > 0) {
+                    checkbox.classList.add('indeterminate');
+                }
+            } else if (node.enable) {
+                checkbox.classList.add('checked');
+            }
+            checkbox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleCheckboxClick(node, checkbox);
+            });
+            row.appendChild(checkbox);
+
+            // 图标
+            const icon = document.createElement('span');
+            icon.className = 'tree-icon';
+            if (_isTool) {
+                icon.innerHTML = '&#128295;'; // 🔧
+                icon.className = 'tree-icon tool';
+            } else if (_isMcp) {
+                icon.innerHTML = '&#128736;&#65039;'; // 🛠️
+                icon.className = 'tree-icon mcp';
+            } else if (_isRoot) {
+                icon.innerHTML = '&#8857;'; // ⊙
+                icon.className = 'tree-icon ' + getRootIconClass(node.name);
+            } else if (_isFolder) {
+                icon.innerHTML = '&#128193;'; // 📁
+                icon.className = 'tree-icon folder';
+            }
+            row.appendChild(icon);
+
+            // 标签
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            if (_isRoot) label.classList.add('root');
+            else if (_isFolder) label.classList.add('folder');
+            else if (_isMcp) label.classList.add('mcp');
+            else if (_isTool) label.classList.add('tool');
+            label.textContent = node.name;
+            row.appendChild(label);
+
+            // MCP状态标签（仅当MCP启用时显示）
+            if (_isMcp && node.enable) {
+                const status = document.createElement('span');
+                status.className = 'tree-status';
+                if (node.toolsLoaded) {
+                    status.classList.add('loaded');
+                    const toolChildren = (node.children || []).filter(c => isToolNode(c));
+                    status.textContent = toolChildren.length + ' tools';
+                    row.appendChild(status);
+                } else if (node.lastError) {
+                    status.classList.add('error');
+                    status.textContent = 'error';
+                    status.title = node.lastError; // 鼠标悬停显示错误信息
+                    row.appendChild(status);
+                    
+                    // 复制错误按钮（与Skills树复制按钮样式一致）
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-error-btn';
+                    copyBtn.title = 'Copy error';
+                    copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                    copyBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (node.lastError && navigator.clipboard) {
+                            navigator.clipboard.writeText(node.lastError).then(() => {
+                                // 显示复制成功提示
+                                const originalHTML = copyBtn.innerHTML;
+                                copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                                copyBtn.title = 'Copied!';
+                                setTimeout(() => {
+                                    copyBtn.innerHTML = originalHTML;
+                                    copyBtn.title = 'Copy error';
+                                }, 1000);
+                            });
+                        }
+                    });
+                    row.appendChild(copyBtn);
+                } else {
+                    status.classList.add('loading');
+                    status.textContent = 'connecting';
+                    row.appendChild(status);
+                }
+            }
+
+            // ========= 按钮容器 =========
+            const buttonGroup = document.createElement('div');
+            buttonGroup.className = 'button-group';
+
+            // 根节点和目录节点：新建目录 + 新建MCP
+            if ((_isRoot || _isFolder) && node.fullPath) {
+                const newFolderBtn = document.createElement('button');
+                newFolderBtn.className = 'new-folder-btn';
+                newFolderBtn.title = 'New folder';
+                newFolderBtn.innerHTML = '<svg width="20" height="18" viewBox="0 0 24 24"><text x="2" y="18" font-size="18">&#128193;</text><text x="1" y="11" font-size="14" fill="#4caf50" font-weight="900">+</text></svg>';
+                newFolderBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleNewFolder(node);
+                });
+                buttonGroup.appendChild(newFolderBtn);
+
+                const newMcpBtn = document.createElement('button');
+                newMcpBtn.className = 'new-mcp-btn';
+                newMcpBtn.title = 'New MCP';
+                newMcpBtn.innerHTML = '<svg width="20" height="18" viewBox="0 0 24 24"><text x="1" y="16" font-size="15" fill="#29b6f6">&#128736;&#65039;</text><text x="1" y="11" font-size="14" fill="#4caf50" font-weight="900">+</text></svg>';
+                newMcpBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleNewMcp(node);
+                });
+                buttonGroup.appendChild(newMcpBtn);
+            }
+
+            // 有fullPath的节点添加打开目录按钮(Tool除外)
+            if (node.fullPath && !_isTool) {
+                const openBtn = document.createElement('span');
+                openBtn.className = 'open-folder-btn';
+                openBtn.textContent = '📁';
+                openBtn.title = 'Open folder';
+                openBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleOpenFolder(node);
+                });
+                buttonGroup.appendChild(openBtn);
+            }
+
+            if (buttonGroup.children.length > 0) {
+                row.appendChild(buttonGroup);
+            }
+
+            // ========= 事件 =========
+            // 行双击 - 展开/折叠, 或打开MCP.json(未enable或未加载成功的MCP)
+            row.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (_isMcp && node.fullPath && (!node.enable || !node.toolsLoaded)) {
+                    // MCP未enable或未加载成功时，双击打开MCP.json文件
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage({
+                            action: 'openMcpJson',
+                            data: {
+                                fullPath: node.fullPath
+                            }
+                        });
+                    }
+                } else if (!_isTool) {
+                    handleNodeClick(node, row, arrow, hasChildren, depth);
+                }
+            });
+
+            // 标签单击 - 进入编辑模式(根节点除外)
+            label.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (_isRoot) return;
+                if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+                clickTimer = setTimeout(() => {
+                    clickTimer = null;
+                    handleLabelClick(node, label, row);
+                }, 250);
+            });
+
+            // 标签双击 - MCP未enable或未加载成功时打开文件，否则展开/折叠
+            label.addEventListener('dblclick', (e) => {
+                e.stopPropagation();
+                if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+                if (_isMcp && node.fullPath && (!node.enable || !node.toolsLoaded)) {
+                    // MCP未enable或未加载成功时，双击打开MCP.json文件
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage({
+                            action: 'openMcpJson',
+                            data: {
+                                fullPath: node.fullPath
+                            }
+                        });
+                    }
+                } else if (!_isTool) {
+                    handleNodeClick(node, row, arrow, hasChildren, depth);
+                }
+            });
+
+            nodeDiv.appendChild(row);
+
+            // 子节点容器
+            if (hasChildren) {
+                const childrenDiv = document.createElement('div');
+                childrenDiv.className = 'tree-children';
+
+                // MCP节点：第一个子节点是"Select All"
+                if (_isMcp) {
+                    const selectAllNode = {
+                        name: '(Select All)',
+                        isSelectAll: true,
+                        _parentMcp: node
+                    };
+                    const selectAllEl = createSelectAllElement(selectAllNode, depth + 1, node);
+                    childrenDiv.appendChild(selectAllEl);
+                }
+
+                for (const child of node.children) {
+                    const childEl = createNodeElement(child, depth + 1);
+                    childrenDiv.appendChild(childEl);
+                }
+
+                const nodeKey = getNodeKey(node, depth);
+                const shouldExpand = expandedNodes.has(nodeKey);
+                if (shouldExpand) {
+                    childrenDiv.style.maxHeight = 'none';
+                    arrow.textContent = '-';
+                } else {
+                    childrenDiv.classList.add('collapsed');
+                    childrenDiv.style.maxHeight = '0px';
+                    arrow.textContent = '+';
+                }
+                nodeDiv.appendChild(childrenDiv);
+                nodeDiv._childrenDiv = childrenDiv;
+            }
+
+            nodeDiv._nodeData = node;
+            nodeDiv._row = row;
+            nodeDiv._arrow = arrow;
+
+            return nodeDiv;
+        }
+
+        // ============ Select All 节点 ============
+        function createSelectAllElement(node, depth, parentMcp) {
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'tree-node select-all-node';
+            nodeDiv.setAttribute('data-depth', depth);
+
+            const row = document.createElement('div');
+            row.className = 'tree-row';
+            row.style.paddingLeft = (8 + depth * 18) + 'px';
+
+            // 箭头（占位，无功能）
+            const arrow = document.createElement('span');
+            arrow.className = 'tree-arrow no-children';
+            row.appendChild(arrow);
+
+            // checkbox
+            const checkbox = document.createElement('span');
+            checkbox.className = 'tree-checkbox tool-checkbox';
+            updateSelectAllCheckboxState(checkbox, parentMcp);
+            checkbox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                handleSelectAllClick(parentMcp, checkbox);
+            });
+            row.appendChild(checkbox);
+
+            // 标签
+            const label = document.createElement('span');
+            label.className = 'tree-label';
+            label.style.fontWeight = '600';
+            label.textContent = node.name;
+            row.appendChild(label);
+
+            nodeDiv.appendChild(row);
+            nodeDiv._nodeData = node;
+            nodeDiv._parentMcp = parentMcp;
+            nodeDiv._isSelectAll = true;
+            nodeDiv._selectAllCheckbox = checkbox;
+
+            return nodeDiv;
+        }
+
+        function updateSelectAllCheckboxState(checkbox, parentMcp) {
+            const tools = (parentMcp.children || []).filter(isToolNode);
+            if (tools.length === 0) return;
+
+            const enabledCount = tools.filter(t => t.enable).length;
+            checkbox.classList.remove('checked', 'indeterminate');
+
+            if (enabledCount === 0) {
+                // 未选中 - 默认状态（☐）
+            } else if (enabledCount === tools.length) {
+                checkbox.classList.add('checked'); // ☑
+            } else {
+                checkbox.classList.add('indeterminate'); // ▣（中间圆点）
+            }
+        }
+
+        function handleSelectAllClick(parentMcp, checkbox) {
+            const tools = (parentMcp.children || []).filter(isToolNode);
+            if (tools.length === 0) return;
+
+            const isChecked = checkbox.classList.contains('checked');
+            const isIndeterminate = checkbox.classList.contains('indeterminate');
+
+            // 如果是半选状态，点击后变为全选；否则取反
+            const shouldSelectAll = isIndeterminate || !isChecked;
+
+            // 更新所有tool的状态
+            const mcpDiv = findMcpNodeDiv(parentMcp);
+            const toolNames = [];
+
+            for (const tool of tools) {
+                tool.enable = shouldSelectAll;
+                toolNames.push(tool.name);
+
+                // 更新tool的checkbox视觉
+                if (mcpDiv) {
+                    const childrenContainer = mcpDiv.querySelector(':scope > .tree-children');
+                    if (childrenContainer) {
+                        const toolDivs = childrenContainer.querySelectorAll(':scope > .tree-node');
+                        for (const toolDiv of toolDivs) {
+                            const toolNode = toolDiv._nodeData;
+                            if (isToolNode(toolNode) && toolNode.name === tool.name) {
+                                const toolCheckbox = toolDiv.querySelector(':scope > .tree-row > .tree-checkbox');
+                                if (toolCheckbox) {
+                                    if (shouldSelectAll) {
+                                        toolCheckbox.classList.add('checked');
+                                    } else {
+                                        toolCheckbox.classList.remove('checked');
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 更新Select All自身的checkbox状态
+            checkbox.classList.remove('checked', 'indeterminate');
+            if (shouldSelectAll) {
+                checkbox.classList.add('checked');
+            }
+
+            // 批量发送消息给C++（一次性传递toolNames数组）
+            if (toolNames.length > 0 && window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'mcpToolChecked',
+                    data: {
+                        uid: String(parentMcp.uid || '0'),
+                        toolNames: toolNames,
+                        checked: shouldSelectAll
+                    }
+                });
+            }
+
+            updateMcpCount();
+        }
+
+        function findMcpNodeDiv(mcpNode) {
+            const allNodeDivs = document.querySelectorAll('.tree-node');
+            for (const div of allNodeDivs) {
+                const node = div._nodeData;
+                if (node === mcpNode) return div;
+            }
+            return null;
+        }
+
+        function updateAllSelectAllCheckboxes() {
+            const allNodeDivs = document.querySelectorAll('.tree-node');
+            for (const div of allNodeDivs) {
+                if (div._isSelectAll && div._parentMcp && div._selectAllCheckbox) {
+                    updateSelectAllCheckboxState(div._selectAllCheckbox, div._parentMcp);
+                }
+            }
+        }
+
+        // ============ 展开/折叠 ============
+        function handleNodeClick(node, row, arrow, hasChildren, depth) {
+            if (hasChildren) {
+                const nodeDiv = row.parentElement;
+                const childrenDiv = nodeDiv._childrenDiv;
+                if (childrenDiv) {
+                    const isCollapsed = childrenDiv.classList.contains('collapsed');
+                    const nodeKey = getNodeKey(node, depth);
+                    if (isCollapsed) {
+                        childrenDiv.classList.remove('collapsed');
+                        childrenDiv.style.maxHeight = 'none';
+                        arrow.textContent = '-';
+                        expandedNodes.add(nodeKey);
+                    } else {
+                        childrenDiv.classList.add('collapsed');
+                        childrenDiv.style.maxHeight = '0px';
+                        arrow.textContent = '+';
+                        expandedNodes.delete(nodeKey);
+                    }
+                }
+            }
+        }
+
+        // ============ 标签编辑 ============
+        function handleLabelClick(node, label, row) {
+            if (row._isEditing) return;
+            row._isEditing = true;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'tree-label-input';
+            input.value = node.name;
+            input.style.position = 'relative';
+            input.style.zIndex = '10000';
+
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.zIndex = '9999';
+            overlay.style.backgroundColor = 'transparent';
+            document.body.appendChild(overlay);
+
+            label.style.display = 'none';
+            row.insertBefore(input, label.nextSibling);
+            input.focus();
+            input.select();
+
+            const finishEdit = (save) => {
+                if (!row._isEditing) return;
+                row._isEditing = false;
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                const newName = input.value.trim();
+                input.remove();
+                label.style.display = '';
+
+                if (save && newName && newName !== node.name) {
+                    // MCP节点重命名时检查同名根类型下唯一性
+                    if (isMcpNode(node, 1)) {
+                        const mcpType = node.type || '';
+                        const existingNames = collectAllMcpNames(mcpType);
+                        if (existingNames.has(newName)) {
+                            // 名称已存在，恢复原名
+                            label.textContent = node.name;
+                            return;
+                        }
+                    }
+                    if (window.chrome && window.chrome.webview) {
+                        window.chrome.webview.postMessage({
+                            action: 'renameMcp',
+                            data: {
+                                oldName: node.name,
+                                newName: newName,
+                                fullPath: node.fullPath || ''
+                            }
+                        });
+                    }
+                }
+            };
+
+            overlay.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                finishEdit(true);
+            });
+
+            input.addEventListener('mousedown', (e) => e.stopPropagation());
+            input.addEventListener('click', (e) => e.stopPropagation());
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); finishEdit(true); }
+                else if (e.key === 'Escape') { e.preventDefault(); finishEdit(false); }
+            });
+        }
+
+        // ============ checkbox逻辑 ============
+        function getAllToolNodes(node, result = []) {
+            if (isToolNode(node)) {
+                result.push(node);
+            } else if (node.children) {
+                for (const child of node.children) {
+                    getAllToolNodes(child, result);
+                }
+            }
+            return result;
+        }
+
+        // 收集节点下所有MCP叶子节点
+        function getAllMcpNodes(node, result = []) {
+            if (isMcpNode(node, 1)) {
+                result.push(node);
+            } else if (node.children) {
+                for (const child of node.children) {
+                    getAllMcpNodes(child, result);
+                }
+            }
+            return result;
+        }
+
+        function updateCheckboxState(node, checked, parentNodeDiv) {
+            node.enable = checked;
+
+            if (parentNodeDiv) {
+                const checkbox = parentNodeDiv.querySelector(':scope > .tree-row > .tree-checkbox');
+                if (checkbox) {
+                    if (checked) {
+                        checkbox.classList.add('checked');
+                        checkbox.classList.remove('indeterminate');
+                    } else {
+                        checkbox.classList.remove('checked');
+                        checkbox.classList.remove('indeterminate');
+                    }
+                }
+            }
+
+            // 根/目录节点：级联更新所有子MCP（容器节点 = 非叶子节点）
+            if (!node.isLeaf) {
+                const mcpNodes = getAllMcpNodes(node);
+                const uids = [];
+                for (const mcp of mcpNodes) {
+                    mcp.enable = checked;
+                    // 找到MCP的DOM元素并更新
+                    let mcpDiv = null;
+                    if (parentNodeDiv) {
+                        const allNodeDivs = parentNodeDiv.querySelectorAll('.tree-node');
+                        for (const div of allNodeDivs) {
+                            if (div._nodeData === mcp) { mcpDiv = div; break; }
+                        }
+                    }
+                    if (mcpDiv) {
+                        const mcpCheckbox = mcpDiv.querySelector(':scope > .tree-row > .tree-checkbox');
+                        if (mcpCheckbox) {
+                            if (checked) {
+                                mcpCheckbox.classList.add('checked');
+                                mcpCheckbox.classList.remove('indeterminate');
+                            } else {
+                                mcpCheckbox.classList.remove('checked');
+                                mcpCheckbox.classList.remove('indeterminate');
+                            }
+                        }
+                    }
+                    uids.push(String(mcp.uid || '0'));
+                    // 级联更新MCP下的tools
+                    if (mcp.children) {
+                        for (const tool of mcp.children) {
+                            if (isToolNode(tool)) {
+                                tool.enable = checked;
+                                let toolDiv = null;
+                                if (mcpDiv) {
+                                    const childrenContainer = mcpDiv.querySelector(':scope > .tree-children');
+                                    if (childrenContainer) {
+                                        const childDivs = childrenContainer.querySelectorAll(':scope > .tree-node');
+                                        for (const div of childDivs) {
+                                            if (div._nodeData === tool) { toolDiv = div; break; }
+                                        }
+                                    }
+                                }
+                                if (toolDiv) {
+                                    const toolCheckbox = toolDiv.querySelector(':scope > .tree-row > .tree-checkbox');
+                                    if (toolCheckbox) {
+                                        if (checked) {
+                                            toolCheckbox.classList.add('checked');
+                                            toolCheckbox.classList.remove('indeterminate');
+                                        } else {
+                                            toolCheckbox.classList.remove('checked');
+                                            toolCheckbox.classList.remove('indeterminate');
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                // 一次性发送所有uid
+                if (uids.length > 0 && window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'mcpChecked',
+                        data: {
+                            uids: uids,
+                            checked: checked
+                        }
+                    });
+                }
+                return;
+            }
+
+            // MCP节点：通知C++（叶子节点且无mcpName）
+            if (node.isLeaf && !node.mcpName) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'mcpChecked',
+                        data: {
+                            mcpType: node.type || '',
+                            uid: String(node.uid || '0'),
+                            checked: checked
+                        }
+                    });
+                }
+                // 不级联更新tools，每个tool独立管理
+            }
+
+            // Tool节点：直接修改setting文件，不通过回调
+            if (isToolNode(node)) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'mcpToolChecked',
+                        data: {
+                            uid: String(node.uid || '0'),
+                            toolName: node.name,
+                            checked: checked
+                        }
+                    });
+                }
+                // 更新父MCP的Select All状态
+                if (parentNodeDiv && parentNodeDiv.parentElement) {
+                    const mcpDiv = parentNodeDiv.parentElement.parentElement;
+                    if (mcpDiv && mcpDiv._nodeData && !mcpDiv._nodeData.isLeaf) {
+                        const selectAllDiv = mcpDiv.querySelector('.select-all-node');
+                        if (selectAllDiv && selectAllDiv._selectAllCheckbox) {
+                            updateSelectAllCheckboxState(selectAllDiv._selectAllCheckbox, mcpDiv._nodeData);
+                        }
+                    }
+                }
+                return;
+            }
+        }
+
+        function updateFolderCheckboxVisual(nodeDiv, node) {
+            const checkbox = nodeDiv.querySelector(':scope > .tree-row > .tree-checkbox');
+            if (!checkbox) return;
+
+            // 根/目录节点：根据子MCP的enable状态计算
+            const mcpNodes = getAllMcpNodes(node);
+            if (mcpNodes.length === 0) return;
+
+            const checkedCount = mcpNodes.filter(n => n.enable).length;
+            if (checkedCount === 0) {
+                checkbox.classList.remove('checked');
+                checkbox.classList.remove('indeterminate');
+            } else if (checkedCount === mcpNodes.length) {
+                checkbox.classList.add('checked');
+                checkbox.classList.remove('indeterminate');
+            } else {
+                checkbox.classList.remove('checked');
+                checkbox.classList.add('indeterminate');
+            }
+        }
+
+        function updateAllFolderCheckboxes() {
+            document.querySelectorAll('.tree-node').forEach(nodeDiv => {
+                const node = nodeDiv._nodeData;
+                if (node && (isRootNode(node, 0) || isFolderNode(node))) {
+                    updateFolderCheckboxVisual(nodeDiv, node);
+                }
+            });
+        }
+
+        function updateMcpCount() {
+            const { mcpCount, mcpEnabledCount, toolCount, toolEnabledCount } = countNodes(mcpTreeData);
+            mcpsCount.textContent = `(${mcpEnabledCount}/${mcpCount} mcps, ${toolEnabledCount}/${toolCount} tools)`;
+        }
+
+        function handleCheckboxClick(node, checkbox) {
+            const isChecked = checkbox.classList.contains('checked');
+            const newChecked = !isChecked;
+
+            if (newChecked) {
+                checkbox.classList.add('checked');
+                checkbox.classList.remove('indeterminate');
+            } else {
+                checkbox.classList.remove('checked');
+                checkbox.classList.remove('indeterminate');
+            }
+
+            const nodeDiv = checkbox.closest('.tree-node');
+            updateCheckboxState(node, newChecked, nodeDiv);
+            updateAllFolderCheckboxes();
+            updateMcpCount();
+        }
+
+        // ============ 打开目录 ============
+        function handleOpenFolder(node) {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'openFolder',
+                    data: {
+                        name: node.name,
+                        fullPath: node.fullPath || ''
+                    }
+                });
+            }
+        }
+
+        // ============ 新建目录 ============
+        function generateUniqueFolderName(parentNode) {
+            const baseName = 'New Folder';
+            if (!parentNode.children || parentNode.children.length === 0) return baseName;
+            const existingNames = new Set();
+            for (const child of parentNode.children) {
+                existingNames.add(child.name);
+            }
+            if (!existingNames.has(baseName)) return baseName;
+            let counter = 2;
+            while (existingNames.has(`${baseName} (${counter})`)) counter++;
+            return `${baseName} (${counter})`;
+        }
+
+        function handleNewFolder(node) {
+            const newFolderName = generateUniqueFolderName(node);
+            const newFullPath = node.fullPath ? node.fullPath + '\\' + newFolderName : newFolderName;
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'newFolder',
+                    data: {
+                        name: node.name,
+                        fullPath: node.fullPath || '',
+                        newFolderName: newFolderName,
+                        newFullPath: newFullPath
+                    }
+                });
+            }
+            pendingEditNode = { name: newFolderName, fullPath: newFullPath };
+            if (pendingEditTimer) clearTimeout(pendingEditTimer);
+            pendingEditTimer = setTimeout(() => { pendingEditTimer = null; tryStartPendingEdit(); }, 500);
+        }
+
+        // ============ 新建MCP ============
+        // 收集同一根类型(Global/Project)下所有MCP的名称
+        function collectAllMcpNames(rootType) {
+            const names = new Set();
+            function collect(nodes) {
+                for (const node of nodes) {
+                    if (isMcpNode(node, 1) && node.type === rootType) {
+                        names.add(node.name);
+                    }
+                    if (node.children && node.children.length > 0) {
+                        collect(node.children);
+                    }
+                }
+            }
+            collect(mcpTreeData);
+            return names;
+        }
+
+        function generateUniqueMcpName(node) {
+            const mcpType = node.type || (node.name === 'Global' ? 'Global' : node.name === 'Project' ? 'Project' : '');
+            const existingNames = collectAllMcpNames(mcpType);
+            const baseName = 'New MCP';
+            if (!existingNames.has(baseName)) return baseName;
+            let counter = 2;
+            while (existingNames.has(`${baseName} (${counter})`)) counter++;
+            return `${baseName} (${counter})`;
+        }
+
+        function handleNewMcp(node) {
+            const newMcpName = generateUniqueMcpName(node);
+            const newFullPath = node.fullPath ? node.fullPath + '\\' + newMcpName : newMcpName;
+            let mcpType = node.type || '';
+            if (!mcpType) {
+                mcpType = node.name === 'Global' ? 'Global' : node.name === 'Project' ? 'Project' : '';
+            }
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'newMcp',
+                    data: {
+                        name: node.name,
+                        fullPath: node.fullPath || '',
+                        newMcpName: newMcpName,
+                        newFullPath: newFullPath,
+                        mcpType: mcpType
+                    }
+                });
+            }
+            pendingEditNode = { name: newMcpName, fullPath: newFullPath };
+            if (pendingEditTimer) clearTimeout(pendingEditTimer);
+            pendingEditTimer = setTimeout(() => { pendingEditTimer = null; tryStartPendingEdit(); }, 500);
+        }
+
+        // ============ 消息处理 ============
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.addEventListener('message', event => {
+                try {
+                    const message = event.data;
+                    if (typeof message !== 'object' || message === null) return;
+
+                    switch (message.action) {
+                        case 'initializeComplete':
+                            console.log('Mcps Tree UI initialized');
+                            break;
+                        case 'setMcpTree':
+                            buildTree(message.data);
+                            break;
+                        default:
+                            console.warn('Unknown message action:', message.action);
+                            break;
+                    }
+                } catch (e) {
+                    console.error('Error processing message from C++:', e, 'Raw data:', event.data);
+                }
+            });
+
+            window.chrome.webview.postMessage({ action: 'jsInitialized' });
+        } else {
+            console.error('window.chrome.webview not available.');
+        }
+
+        // ESC键关闭窗口
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({ action: 'escapePressed' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

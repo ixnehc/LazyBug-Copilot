@@ -28,7 +28,10 @@
 
 #include "ChatTokenStats.h"
 
+#include "McpUpdater.h"
+
 #include "ChatSkillsTree.h"
+#include "ChatMcpsTree.h"
 #include "ChatSettingMenu.h"
 
 #include "ChatNotify.h"
@@ -119,6 +122,8 @@ protected:
 	double _splitterRatio; // 分隔条位置比例（0.0-1.0），表示上部分占总高度的比例
 
 	CChatSkillsTree _chatSkillsTree; // Skills弹出窗口
+	CChatMcpsTree _chatMcpsTree;    // Mcps弹出窗口
+	CMcpUpdater _mcpUpdater;
 	CChatSettingMenu _settingMenuWindow; // 设置菜单弹出窗口
 
 	void _ShutdownAgent();
@@ -183,6 +188,7 @@ protected:
 	void _HandleTagClicked(const std::wstring& tagId);
 	void _HandleEscape();
 	void _HandleSkillButtonClicked(const RECT& btnRect);
+	void _HandleMcpButtonClicked(const RECT& btnRect);
 
 	// CLI 白名单处理
 	void _HandleCliWhitelist(const std::wstring& cliId);

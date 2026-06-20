@@ -189,7 +189,7 @@ namespace Utils
 		}
 
 		// 根据权重计算token数
-		double estimatedTokens = (numChinese / 1.5) + (numAlnum / 3.5) + (numSymbols * 1.0);
+		double estimatedTokens = (numChinese / 2) + (numAlnum / 2.5) + (numSymbols * 1.0);
 
 		return static_cast<int>(estimatedTokens);
 	}

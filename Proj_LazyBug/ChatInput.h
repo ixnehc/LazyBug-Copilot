@@ -26,6 +26,7 @@ using InputEscapeCallback = std::function<void()>; // Esc键按下回调
 using InputReadyCallback = std::function<void()>; // WebView和Input准备就绪回调
 using InputFilePastedCallback = std::function<void(const std::wstring&)>; // 文件粘贴回调，参数为文件类型：L"files"或L"image"
 using InputSkillButtonClickedCallback = std::function<void(const RECT&)>; // Skill按钮点击回调，参数为按钮屏幕绝对坐标
+using InputMcpButtonClickedCallback = std::function<void(const RECT&)>; // MCP按钮点击回调，参数为按钮屏幕绝对坐标
 using InputCompressIntensityChangedCallback = std::function<void(int)>; // 压缩强度改变回调，参数为强度值(0-5)
 
 // 工具栏按钮结构
@@ -75,6 +76,7 @@ public:
     void SetReadyCallback(InputReadyCallback callback);
     void SetFilePastedCallback(InputFilePastedCallback callback);
     void SetSkillButtonClickedCallback(InputSkillButtonClickedCallback callback);
+    void SetMcpButtonClickedCallback(InputMcpButtonClickedCallback callback);
     void SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback);
     
     // 获取WebView2环境和核心WebView
@@ -269,6 +271,7 @@ private:
     InputReadyCallback _readyCallback;
     InputFilePastedCallback _filePastedCallback;
     InputSkillButtonClickedCallback _skillButtonClickedCallback;
+    InputMcpButtonClickedCallback _mcpButtonClickedCallback;
     InputCompressIntensityChangedCallback _compressIntensityChangedCallback;
     
     // 脚本执行回调映射

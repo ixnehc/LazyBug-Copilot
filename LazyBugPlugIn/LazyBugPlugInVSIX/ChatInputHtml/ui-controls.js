@@ -280,18 +280,55 @@ function handleStopClick() {
     });
 }
 
+// 保存编辑器失去焦点时的选区
+let _savedSelectionRange = null;
+// 正在恢复焦点期间，暂停保存，避免获焦时浏览器默认选区覆盖已保存的位置
+let _restoringFocus = false;
+
+// 保存当前选区（在编辑器内光标变化时持续调用，以便恢复焦点时能回到原位）
+function saveSelection() {
+    if (_restoringFocus) return;
+
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return;
+
+    const selection = window.getSelection();
+    if (selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    // 只保存在 inputEditor 内部的选区（包含折叠光标）
+    if (inputEditor.contains(range.commonAncestorContainer)) {
+        _savedSelectionRange = range.cloneRange();
+    }
+}
+
+
 // 焦点编辑器
 function focusEditor() {
     const inputEditor = document.getElementById('inputEditor');
     if (inputEditor) {
+        // 先取出要恢复的位置，防止 focus 引发的事件覆盖已保存的选区
+        const rangeToRestore = (_savedSelectionRange && inputEditor.contains(_savedSelectionRange.commonAncestorContainer))
+            ? _savedSelectionRange.cloneRange()
+            : null;
+
+        _restoringFocus = true;
         inputEditor.focus();
-        
+
         const selection = window.getSelection();
-        const range = document.createRange();
-        range.selectNodeContents(inputEditor);
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        if (rangeToRestore) {
+            // 恢复之前保存的选区位置
+            selection.removeAllRanges();
+            selection.addRange(rangeToRestore);
+        } else {
+            // 没有保存的选区，则将光标移到末尾
+            const range = document.createRange();
+            range.selectNodeContents(inputEditor);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        _restoringFocus = false;
     }
 }
 
@@ -301,6 +338,23 @@ function handleSkillClick() {
     const rect = skillButton ? skillButton.getBoundingClientRect() : null;
     sendMessageToNative({
         action: 'skillButtonClicked',
+        rect: rect ? {
+            left: rect.left,
+            top: rect.top,
+            right: rect.right,
+            bottom: rect.bottom,
+            width: rect.width,
+            height: rect.height
+        } : null
+    });
+}
+
+// 处理MCP按钮点击
+function handleMcpClick() {
+    const mcpButton = document.getElementById('mcpButton');
+    const rect = mcpButton ? mcpButton.getBoundingClientRect() : null;
+    sendMessageToNative({
+        action: 'mcpButtonClicked',
         rect: rect ? {
             left: rect.left,
             top: rect.top,
@@ -429,6 +483,7 @@ window.handleAtButtonClick = handleAtButtonClick;
 window.handleSendClick = handleSendClick;
 window.handleStopClick = handleStopClick;
 window.handleSkillClick = handleSkillClick;
+window.handleMcpClick = handleMcpClick;
 window.focusEditor = focusEditor;
 window.showCompressSummarizeTip = showCompressSummarizeTip;
 window.hideCompressSummarizeTip = hideCompressSummarizeTip;

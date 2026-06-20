@@ -66,3 +66,5 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - Enabel stream tool call for GLM api 
 - Fix了当回退所有对话后又开始新的对话会造成chat 标题重置的问题
 - Add cache rate
+- Fix了当visual studio窗口从后台切回前台 chat input window无法重新获得focus的问题
+- Restore the cursor to previous position after chat input window re-gains focus

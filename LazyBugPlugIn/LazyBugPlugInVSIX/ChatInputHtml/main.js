@@ -131,6 +131,12 @@ function initializeEventListeners() {
         skillButton.addEventListener('click', handleSkillClick);
     }
 
+    // MCP按钮点击
+    const mcpButton = document.getElementById('mcpButton');
+    if (mcpButton) {
+        mcpButton.addEventListener('click', handleMcpClick);
+    }
+
     // Stop按钮点击
     if (stopButton) {
         stopButton.addEventListener('click', handleStopClick);

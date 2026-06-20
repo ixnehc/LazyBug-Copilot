@@ -489,7 +489,31 @@ HRESULT CChatInput::InitializeWebView()
 										btnRect.right += chatInputRect.left;
 										btnRect.bottom += chatInputRect.top;
 									}
-									_skillButtonClickedCallback(btnRect);
+								_skillButtonClickedCallback(btnRect);
+								}
+							}
+							else if (action == "mcpButtonClicked")
+							{
+								if (_mcpButtonClickedCallback)
+								{
+									RECT btnRect = { 0, 0, 0, 0 };
+									if (jsonMsg.contains("rect") && jsonMsg["rect"].is_object())
+									{
+										auto& r = jsonMsg["rect"];
+										if (r.contains("left") && r["left"].is_number())     btnRect.left = r["left"].get<int>();
+										if (r.contains("top") && r["top"].is_number())       btnRect.top = r["top"].get<int>();
+										if (r.contains("right") && r["right"].is_number())   btnRect.right = r["right"].get<int>();
+										if (r.contains("bottom") && r["bottom"].is_number()) btnRect.bottom = r["bottom"].get<int>();
+
+										// 转换为屏幕坐标
+										CRect chatInputRect;
+										GetWindowRect(&chatInputRect);
+										btnRect.left += chatInputRect.left;
+										btnRect.top += chatInputRect.top;
+										btnRect.right += chatInputRect.left;
+										btnRect.bottom += chatInputRect.top;
+									}
+									_mcpButtonClickedCallback(btnRect);
 								}
 							}
 							else if (action == "compressIntensityChanged")
@@ -694,6 +718,11 @@ void CChatInput::SetFilePastedCallback(InputFilePastedCallback callback)
 void CChatInput::SetSkillButtonClickedCallback(InputSkillButtonClickedCallback callback)
 {
 	_skillButtonClickedCallback = callback;
+}
+
+void CChatInput::SetMcpButtonClickedCallback(InputMcpButtonClickedCallback callback)
+{
+	_mcpButtonClickedCallback = callback;
 }
 
 void CChatInput::SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback)
@@ -1732,11 +1761,11 @@ void CChatInput::_UpdateGainFocus()
 		return;
 	}
 
-	CWnd* pMainWnd = AfxGetMainWnd();
-	if (!pMainWnd) return;
+	HWND hMainWnd = ::GetAncestor(m_hWnd, GA_ROOT);
+	if (!hMainWnd) return;
 
 	HWND hForeWnd = ::GetForegroundWindow();
-	bool isForeground = (pMainWnd->GetSafeHwnd() == hForeWnd) || ::IsChild(pMainWnd->GetSafeHwnd(), hForeWnd);
+	bool isForeground = (hMainWnd == hForeWnd) || ::IsChild(hMainWnd, hForeWnd);
 
 	HWND hFocusWnd = ::GetFocus();
 	bool hasFocus = (hFocusWnd == m_hWnd || (hFocusWnd && ::IsChild(m_hWnd, hFocusWnd)));
@@ -1765,9 +1794,13 @@ void CChatInput::_UpdateGainFocus()
 
 void CChatInput::OccupyFocus()
 {
-	// 	SetFocus();
 	if (_controller)
 	{
+		// 先让 CChatInput 窗口本身获得焦点（MoveFocus 需要宿主窗口有焦点才能正确工作）
+		if (GetSafeHwnd() && ::GetFocus() != m_hWnd)
+		{
+			SetFocus();
+		}
 		// 使用ICoreWebView2Controller::MoveFocus，这是更可靠的、官方推荐的将焦点移入WebView的方式
 		_controller->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
 		FocusEditor();

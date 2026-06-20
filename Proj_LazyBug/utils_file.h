@@ -43,6 +43,7 @@ extern bool ConvertStringIntoUtf8(const std::string& raw_str, std::string& str);
 extern bool ConvertFileContentFromUTF8(std::vector<BYTE>& raw_content, const std::vector<BYTE>& processed_content, FileContentCodingFormat codingFmt);
 extern bool GetFileContentIntoUTF8(const char* path, std::string& content, FileContentCodingFormat &codingFmt);
 extern bool GetFileContentIntoUTF8(const char* path, std::vector<BYTE>& content, FileContentCodingFormat& codingFmt);
+extern bool GetFileContentIntoUTF8(const wchar_t* path, std::string& content, FileContentCodingFormat &codingFmt);
 extern bool SetFileContentFromUTF8(const char* path, const std::vector<BYTE>& content, FileContentCodingFormat codingFmt);
 extern bool SetFileContentFromUTF8(const char* path, const std::string& content, FileContentCodingFormat codingFmt);
 extern bool GetFilePartIntoUTF8(const char* path, int startLine, int endLine, std::string& content, FileContentCodingFormat& codingFmt);//返回[startLine,endLine]的内容,为0-base的行号

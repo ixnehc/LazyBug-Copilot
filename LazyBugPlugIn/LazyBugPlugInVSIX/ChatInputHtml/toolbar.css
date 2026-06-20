@@ -87,6 +87,14 @@
     background-color: #30363d;
 }
 
+/* MCP按钮 - 浅蓝色图标，悬停时用不同边框色区分 */
+.mcp-button {
+    color: #29b6f6;
+}
+.mcp-button:hover:not(:disabled) {
+    border-color: #29b6f6;
+}
+
 /* 发送按钮 */
 .send-button {
     background-color: var(--send-button-bg);

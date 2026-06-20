@@ -1125,6 +1125,11 @@ function handleTagDeletion(event) {
 function handleSelectionChange() {
     const inputEditor = document.getElementById('inputEditor');
     if (!inputEditor) return;
+
+    // 持续保存当前光标位置，以便失去焦点后恢复
+    if (typeof saveSelection === 'function') {
+        saveSelection();
+    }
     
     const allTags = inputEditor.querySelectorAll('.inline-tag');
     allTags.forEach(tag => tag.classList.remove('selected'));

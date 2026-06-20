@@ -589,6 +589,69 @@ bool GetFileContentIntoUTF8(const char* path, std::string& content, FileContentC
 	return true;
 }
 
+bool GetFileContentIntoUTF8(const wchar_t* path, std::string& content, FileContentCodingFormat& codingFmt)
+{
+	if (!path || path[0] == L'\0')
+	{
+		content.clear();
+		return false;
+	}
+
+	codingFmt = FileContentCodingFormat::None;
+
+	std::ifstream file;
+	file.open(path, std::ios::in | std::ios::binary);
+
+	if (!file.is_open())
+	{
+		content.clear();
+		return false;
+	}
+
+	// 获取文件大小
+	file.seekg(0, std::ios::end);
+	size_t size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	// 如果文件为空，直接返回
+	if (size == 0)
+	{
+		content.clear();
+		file.close();
+		return true;
+	}
+
+	// 读取整个文件到临时向量
+	std::vector<BYTE> raw_content;
+	raw_content.resize(size);
+	if (!file.read(reinterpret_cast<char*>(raw_content.data()), size))
+	{
+		content.clear();
+		file.close();
+		return false;
+	}
+	file.close();
+
+	std::vector<BYTE> processed_content;
+	if (!ConvertFileContentIntoUTF8(raw_content, processed_content, codingFmt))
+	{
+		content.clear();
+		return false;
+	}
+
+	// 将处理后的字节数组转换为字符串
+	if (!processed_content.empty())
+	{
+		content.assign(reinterpret_cast<const char*>(processed_content.data()), processed_content.size());
+	}
+	else
+	{
+		content.clear();
+	}
+
+	return true;
+}
+
 // 带重试的文件移动，应对杀毒软件等短暂锁定目标文件导致 ACCESS_DENIED
 static bool MoveFileWithRetry(const char* tempPath, const char* targetPath)
 {

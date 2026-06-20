@@ -254,6 +254,11 @@ BOOL CChatDialogA::OnInitDialog()
 		_HandleSkillButtonClicked(btnRect);
 	});
 
+	// 设置MCP按钮点击回调
+	_chatInput.SetMcpButtonClickedCallback([this](const RECT& btnRect) {
+		_HandleMcpButtonClicked(btnRect);
+	});
+
 	// 设置压缩强度改变回调
 	_chatInput.SetCompressIntensityChangedCallback([this](int intensity) {
 		CChatOpsCompress::SaveIntensityForCurrentApi(static_cast<ChatOpCompressIntensity>(intensity));
@@ -296,6 +301,15 @@ BOOL CChatDialogA::OnInitDialog()
 		}
 	});
 
+	// 创建Mcps弹出窗口
+	_chatMcpsTree.CreateMcpsTreeWindow(this);
+	_chatMcpsTree.SetMcpJsonOpenCallback([this](const std::wstring& mcpJsonPath) {
+		// 在Visual Studio中打开MCP.json文件
+		std::string filePathA = widechar_to_utf8(mcpJsonPath.c_str());
+		FileLocation loc;
+		GetFileLocator().Request(filePathA.c_str(), loc);
+	});
+
 	// 创建设置菜单窗口
 	_settingMenuWindow.CreateSettingMenuWindow(this);
 	_settingMenuWindow.SetItemSelectedCallback([this](const std::wstring& itemName) {
@@ -316,6 +330,8 @@ BOOL CChatDialogA::OnInitDialog()
 	Utils::SyncBuiltInSkills();
 
 	Utils::LoadLlmSkills(g_llmSkills, "");
+
+	_mcpUpdater.Reset();
 
 	_InitAgent("");
 
@@ -478,6 +494,10 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 	_chatSkillsTree.Update();
 
+	if (_mcpUpdater.Update())
+		_chatMcpsTree.SendMcpTreeData();
+	_chatMcpsTree.Update();
+
 	_settingMenuWindow.Update();
 
 //	_UpdateSyncImageTags();
@@ -570,6 +590,7 @@ void CChatDialogA::_UpdateLoadChatCtrl()
 			_chatHistory.Init(chatsFolder.c_str());
 
 		Utils::LoadLlmSkills(g_llmSkills, GetOpenedDBFolderPath_utf8());
+		_mcpUpdater.Reset();
 
 		_ShutdownAgent();
 
@@ -1525,6 +1546,12 @@ void CChatDialogA::_HandleSkillButtonClicked(const RECT& btnRect)
 	// 弹出Skills选择窗口
 	Utils::LoadLlmSkills(g_llmSkills, GetOpenedDBFolderPath_utf8());
 	_chatSkillsTree.ShowWindow(btnRect);
+}
+
+void CChatDialogA::_HandleMcpButtonClicked(const RECT& btnRect)
+{
+	// 弹出Mcps选择窗口
+	_chatMcpsTree.ShowWindow(btnRect);
 }
 
 void CChatDialogA::_HandleCliWhitelist(const std::wstring& cliId)
