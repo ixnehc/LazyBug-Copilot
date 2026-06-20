@@ -21,6 +21,7 @@ public:
 	struct Server
 	{
 		WUID mcpUid = 0;  // MCP的唯一标识
+		std::string url;              // HTTP MCP server 的 URL (与command互斥)
 		std::string command;
 		std::vector<std::string> args;
 		std::unordered_map<std::string, std::string> env;  // 自定义环境变量

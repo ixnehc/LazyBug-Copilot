@@ -743,6 +743,21 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 			_ui.SetCliStatus(cliId, status);
 		}
 	}
+	else if (action == "mcpStatusChange")
+	{
+		// 处理 MCP 状态变化（stop）
+		if (jsonMsg.contains("mcpId") && jsonMsg.contains("mcpStatus"))
+		{
+			std::wstring mcpId = utf8_to_widechar(jsonMsg["mcpId"].get<std::string>());
+			std::wstring mcpStatus = utf8_to_widechar(jsonMsg["mcpStatus"].get<std::string>());
+			
+			McpStatus status = McpStatus::None;
+			if (mcpStatus == L"stop")
+				status = McpStatus::Stop;
+			
+			_ui.SetMcpStatus(mcpId, status);
+		}
+	}
 	else if (action == "cliWhitelist")
 	{
 		// 处理 CLI 白名单按钮点击事件

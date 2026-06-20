@@ -1524,6 +1524,7 @@ c:\sound.exe
     <ClInclude Include="ChatTokenStats.h" />
     <ClInclude Include="ChatSettingMenu.h" />
     <ClInclude Include="ChatTask_CreateSkill.h" />
+    <ClInclude Include="ChatTask_Mcp.h" />
     <ClInclude Include="CliWhitelist.h" />
     <ClInclude Include="ChatBriefA.h" />
     <ClInclude Include="ChatDialogA.h" />
@@ -1554,6 +1555,7 @@ c:\sound.exe
     <ClCompile Include="ChatTokenStats.cpp" />
     <ClCompile Include="ChatSettingMenu.cpp" />
     <ClCompile Include="ChatTask_CreateSkill.cpp" />
+    <ClCompile Include="ChatTask_Mcp.cpp" />
     <ClCompile Include="CliWhitelist.cpp" />
     <ClCompile Include="ChatBriefA.cpp" />
     <ClCompile Include="ChatDialogA.cpp" />

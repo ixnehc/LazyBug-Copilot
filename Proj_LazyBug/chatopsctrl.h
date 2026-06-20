@@ -59,7 +59,7 @@ struct ChatOp
 		Op_AddUserInterject,
 		Op_CliDisplay,
 		Op_QuestionDisplay,
-		Op_Stats_Obsolete,
+		Op_McpDisplay,
         // 重要：后添加的 Op 一定要加在末尾
     };
 
@@ -235,6 +235,14 @@ public:
     // 添加问题和答案显示
     void AddQuestionDisplay(const std::wstring& messageId, const std::wstring& question, const std::string& answer);
 
+    // ── MCP Display ──────────────────────────────────────────────────────
+
+    // 添加 MCP 工具调用显示，返回 MCP ID
+    std::wstring AddMcpDisplay(const std::wstring& messageId, const std::string& toolName, const std::string& arguments);
+
+    // 设置最后一个 MCP 显示的结果
+    void SetMcpResultToLastMcpDisplay(const std::wstring& messageId, const std::string& result);
+
     // ── Undo Checkpoints ─────────────────────────────────────────────────
 
     void SetUndoCheckpoint(FilesCheckpointUID checkpointId);
@@ -389,6 +397,7 @@ private:
     std::wstring _GenFileEditId();
     std::wstring _GenFileEditBtnId();
     std::wstring _GenCliId();  // 生成 CLI ID
+    std::wstring _GenMcpId();  // 生成 MCP ID
 
     // ── FileEdit 查找 ─────────────────────────────────────────────────────
     FileEdit* _FindFileEdit(const std::wstring& fileEditId);
@@ -448,6 +457,14 @@ private:
 	                                      const std::string& output,
 	                                      const std::string& shellType = "") const;
 
+	void _ParseMcpDisplayContent(const std::string& content,
+	                              std::string& toolName,
+	                              std::string& arguments,
+	                              std::string& result) const;
+	std::string _BuildMcpDisplayContent(const std::string& toolName,
+	                                      const std::string& arguments,
+	                                      const std::string& result = "") const;
+
     // ── 成员变量 ──────────────────────────────────────────────────────────
 	IChatUi *_ui;
 
@@ -476,5 +493,6 @@ private:
     std::wstring _currentStreamingMessageId;  // 当前正在流式写入的 AI 消息 ID
     
     int _cliCounter;  // CLI ID 计数器，确保唯一性
+    int _mcpCounter;  // MCP ID 计数器，确保唯一性
 
 };

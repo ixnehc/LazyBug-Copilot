@@ -19,14 +19,24 @@ struct LlmToolCall
 	}
 	bool IsValid() const
 	{
-		if ((tp != LlmToolType::None) && (!id.empty()))
+		if (!id.empty())
 		{
-			if (!params_int.empty())
-				return true;
-			if (!params_string.empty())
-				return true;
-			if (IsComplete())
-				return true;
+			if (tp == LlmToolType::Mcp)
+			{
+				// MCP工具: 有id即可,参数通过raw_arguments传递
+				if (!mcpName.empty())
+					return true;
+			}
+			else if (tp != LlmToolType::None)
+			{
+				// 内置工具
+				if (!params_int.empty())
+					return true;
+				if (!params_string.empty())
+					return true;
+				if (IsComplete())
+					return true;
+			}
 		}
 		return false;
 	}
@@ -40,6 +50,7 @@ struct LlmToolCall
 
 	LlmToolType tp;
 	std::string id;
+	std::string mcpName;  // MCP工具名称(仅当tp==Mcp时有效)
 	std::unordered_map<std::string, std::string> params_string;
 	std::unordered_map<std::string, int> params_int;
 	std::string raw_arguments;

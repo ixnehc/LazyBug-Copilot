@@ -185,15 +185,32 @@ static std::string _RemoveBOMAndUnreadable(const std::string& str)
 	return str.substr(start);
 }
 
-// 递归查找并列的 cmd/command 和 args
+// 递归查找并列的 cmd/command+args 或 url
 static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
 	std::string& outCommand, std::vector<std::string>& outArgs,
-	std::unordered_map<std::string, std::string>& outEnv)
+	std::unordered_map<std::string, std::string>& outEnv,
+	std::string& outUrl)
 {
 	if (!j.is_object())
 		return false;
 
-	// 检查当前对象是否有 command/cmd 和 args
+	// 检查当前对象是否有 url (HTTP 模式)
+	if (j.contains("url") && j["url"].is_string())
+	{
+		outUrl = j["url"].get<std::string>();
+		outCommand.clear();
+		outArgs.clear();
+		outEnv.clear();
+
+		// 同时提取 description（如果存在）
+		outDescription.clear();
+		if (j.contains("description") && j["description"].is_string())
+			outDescription = j["description"].get<std::string>();
+
+		return true;
+	}
+
+	// 检查当前对象是否有 command/cmd 和 args (stdio 模式)
 	std::string cmd;
 	bool hasCmd = false;
 	if (j.contains("command") && j["command"].is_string())
@@ -211,6 +228,7 @@ static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
 	{
 		// 找到有效的 cmd + args 组合
 		outCommand = cmd;
+		outUrl.clear();
 		outArgs.clear();
 		for (const auto& arg : j["args"])
 		{
@@ -240,7 +258,7 @@ static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
 	// 递归检查所有子对象
 	for (json::const_iterator it = j.begin(); it != j.end(); ++it)
 	{
-		if (_FindCmdAndArgs(it.value(), outDescription, outCommand, outArgs, outEnv))
+		if (_FindCmdAndArgs(it.value(), outDescription, outCommand, outArgs, outEnv, outUrl))
 			return true;
 	}
 

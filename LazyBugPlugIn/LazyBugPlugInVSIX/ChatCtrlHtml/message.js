@@ -1303,3 +1303,187 @@ function appendCliOutput(messageId, deltaOutput) {
         scrollToBottom();
     }
 }
+
+// ====== MCP Display 相关 ======
+
+/**
+ * 添加 MCP 工具调用显示
+ * @param {string} messageId - 消息 ID
+ * @param {string} mcpId - MCP 显示容器的唯一 ID
+ * @param {string} toolName - 工具名称
+ * @param {string} arguments - 工具参数 JSON 字符串
+ */
+function addMcpDisplay(messageId, mcpId, toolName, arguments) {
+    const shouldScroll = isNearBottom();
+    
+    const messageElem = document.getElementById(messageId);
+    if (!messageElem) return;
+    
+    const messageContentElem = messageElem.querySelector('.message-content');
+    if (!messageContentElem) return;
+    
+    // 创建 MCP 显示容器
+    const mcpContainer = document.createElement('div');
+    mcpContainer.className = 'mcp-display-container';
+    mcpContainer.id = mcpId;
+    mcpContainer.setAttribute('data-message-id', messageId);
+    
+    // 创建可折叠的标题栏
+    const mcpHeader = document.createElement('div');
+    mcpHeader.className = 'mcp-collapsible-header';
+    mcpHeader.onclick = function() {
+        toggleMcpContent(mcpId);
+    };
+    
+    // 展开按钮
+    const expandIcon = document.createElement('span');
+    expandIcon.className = 'mcp-expand-icon';
+    expandIcon.textContent = '+';
+    
+    // MCP 标签
+    const mcpLabel = document.createElement('span');
+    mcpLabel.className = 'mcp-tool-label';
+    mcpLabel.textContent = 'MCP';
+    
+    // 标题文本
+    const headerText = document.createElement('span');
+    headerText.className = 'mcp-header-text';
+    headerText.textContent = toolName;
+    
+    // 停止按钮（在结果未设置时显示）
+    const stopBtn = document.createElement('span');
+    stopBtn.className = 'cli-action-button cli-stop-button mcp-stop-button';
+    stopBtn.innerHTML = '⏹';
+    stopBtn.title = 'Stop';
+    stopBtn.id = mcpId + '-stop-btn';
+    stopBtn.onclick = function(e) {
+        e.stopPropagation();
+        onMcpAction(mcpId, 'stop');
+    };
+    
+    mcpHeader.appendChild(expandIcon);
+    mcpHeader.appendChild(mcpLabel);
+    mcpHeader.appendChild(headerText);
+    mcpHeader.appendChild(stopBtn);
+    
+    // 创建内容区域
+    const mcpContent = document.createElement('div');
+    mcpContent.className = 'mcp-collapsible-content';
+    mcpContent.id = mcpId + '-content';
+    mcpContent.style.display = 'none';
+    
+    // 上半部分: 参数区域
+    const argsSection = document.createElement('div');
+    argsSection.className = 'mcp-args-section';
+    
+    const argsTitle = document.createElement('div');
+    argsTitle.className = 'mcp-section-title';
+    argsTitle.textContent = 'Arguments';
+    argsSection.appendChild(argsTitle);
+    
+    const argsContent = document.createElement('div');
+    argsContent.className = 'mcp-args-content';
+    // 尝试格式化 JSON
+    try {
+        const parsed = JSON.parse(arguments);
+        argsContent.textContent = JSON.stringify(parsed, null, 2);
+    } catch (e) {
+        argsContent.textContent = arguments;
+    }
+    argsSection.appendChild(argsContent);
+    
+    // 下半部分: 结果区域
+    const resultSection = document.createElement('div');
+    resultSection.className = 'mcp-result-section';
+    
+    const resultTitle = document.createElement('div');
+    resultTitle.className = 'mcp-section-title';
+    resultTitle.textContent = 'Result';
+    resultSection.appendChild(resultTitle);
+    
+    const resultContent = document.createElement('div');
+    resultContent.className = 'mcp-result-content';
+    resultContent.id = mcpId + '-result';
+    resultContent.textContent = '...';
+    resultSection.appendChild(resultContent);
+    
+    mcpContent.appendChild(argsSection);
+    mcpContent.appendChild(resultSection);
+    
+    mcpContainer.appendChild(mcpHeader);
+    mcpContainer.appendChild(mcpContent);
+    messageContentElem.appendChild(mcpContainer);
+    
+    if (shouldScroll) {
+        scrollToBottom();
+    }
+}
+
+/**
+ * 设置 MCP 工具调用的结果
+ * @param {string} messageId - 消息 ID
+ * @param {string} result - 结果内容
+ */
+function setMcpResult(messageId, result) {
+    // 查找该 messageId 下最后一个 MCP 容器
+    const messageElem = document.getElementById(messageId);
+    if (!messageElem) return;
+    
+    const mcpContainers = messageElem.querySelectorAll('.mcp-display-container[data-message-id="' + messageId + '"]');
+    if (!mcpContainers || mcpContainers.length === 0) return;
+    
+    const lastContainer = mcpContainers[mcpContainers.length - 1];
+    const resultContent = lastContainer.querySelector('.mcp-result-content');
+    if (!resultContent) return;
+    
+    // 隐藏停止按钮
+    const stopBtn = lastContainer.querySelector('.mcp-stop-button');
+    if (stopBtn) {
+        stopBtn.style.display = 'none';
+    }
+    
+    // 尝试格式化 JSON
+    try {
+        const parsed = JSON.parse(result);
+        resultContent.textContent = JSON.stringify(parsed, null, 2);
+    } catch (e) {
+        resultContent.textContent = result;
+    }
+}
+
+/**
+ * 处理 MCP 操作（如停止）
+ * @param {string} mcpId - MCP 容器的 ID
+ * @param {string} action - 操作类型（stop）
+ */
+function onMcpAction(mcpId, action) {
+    if (action === 'stop') {
+        // 发送停止消息到 C++
+        window.chrome.webview.postMessage({
+            action: 'mcpStatusChange',
+            mcpId: mcpId,
+            mcpStatus: 'stop'
+        });
+    }
+}
+
+/**
+ * 切换 MCP 显示的展开/折叠状态
+ * @param {string} mcpId - MCP 容器的 ID
+ */
+function toggleMcpContent(mcpId) {
+    const content = document.getElementById(mcpId + '-content');
+    const container = document.getElementById(mcpId);
+    
+    if (!content || !container) return;
+    
+    const icon = container.querySelector('.mcp-expand-icon');
+    
+    if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        if (icon) icon.textContent = '-';
+    } else {
+        content.style.display = 'none';
+        if (icon) icon.textContent = '+';
+    }
+}

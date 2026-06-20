@@ -12,6 +12,7 @@
 #include "Utils.h"
 #include "LlmTools.h"
 #include "LlmSkills.h"
+#include "LlmMcps.h"
 #include "utils_image.h"
 #include <fstream>
 
@@ -955,6 +956,28 @@ static int LlmProgressCallback(void *clientp,   double dltotal,   double dlnow, 
 }
 
 int g_instances = 0;
+
+void CLlmSession::AddToolsCacheControl(json& requestJson)
+{
+	if (!IsPrompCachingEnabled())
+		return;
+
+	if (!requestJson.contains("tools") || !requestJson["tools"].is_array())
+		return;
+
+	json& tools = requestJson["tools"];
+	if (tools.empty())
+		return;
+
+	json& lastTool = tools[tools.size() - 1];
+	if (lastTool.is_object())
+	{
+		json cache_control_obj;
+		cache_control_obj["type"] = "ephemeral";
+		lastTool["cache_control"] = cache_control_obj;
+	}
+}
+
 void CLlmSession::RequestThreadFunction(CLlmSession* session)
 {
     if (!session)
@@ -1006,6 +1029,12 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	{
 		g_llmTools.FillToolsJson(settings.api.tools, requestJson);
 	}
+
+	// 添加 MCP tools
+	g_llmMcps.FillToolsJson(requestJson);
+
+	// 给tools数组最后一个tool添加cache_control
+	AddToolsCacheControl(requestJson);
 
 
 	if (settings.api.providerTypeName == "OpenRouter")

@@ -1080,3 +1080,56 @@ void CChatUi::SetCliStatus(const std::wstring& cliId, CliStatus status)
 	_cliStatus[cliId] = status;
 }
 
+McpStatus CChatUi::GetMcpStatus(const std::wstring& mcpId)
+{
+	std::lock_guard<std::mutex> lock(_mcpStatusMutex);
+	auto it = _mcpStatus.find(mcpId);
+	if (it != _mcpStatus.end())
+		return it->second;
+	return McpStatus::None;
+}
+
+void CChatUi::SetMcpStatus(const std::wstring& mcpId, McpStatus status)
+{
+	std::lock_guard<std::mutex> lock(_mcpStatusMutex);
+	_mcpStatus[mcpId] = status;
+}
+
+void CChatUi::AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& toolName, const std::wstring& arguments)
+{
+	if (mcpId.empty())
+		return;
+
+	if (!_IsReady())
+		return;
+
+	std::wstring safeMessageId = EscapeJsonString(messageId);
+	std::wstring safeMcpId = EscapeJsonString(mcpId);
+	std::wstring safeToolName = EscapeJsonString(toolName);
+	std::wstring safeArguments = EscapeJsonString(arguments);
+
+	std::wstring jsonMessage = L"{\"action\":\"addMcpDisplay\",\"messageId\":\"" + safeMessageId +
+		L"\",\"mcpId\":\"" + safeMcpId +
+		L"\",\"toolName\":\"" + safeToolName +
+		L"\",\"arguments\":\"" + safeArguments + L"\"}";
+
+	PostJsonMessage(jsonMessage);
+}
+
+void CChatUi::SetMcpResult(const std::wstring& mcpId, const std::wstring& result)
+{
+	if (mcpId.empty())
+		return;
+
+	if (!_IsReady())
+		return;
+
+	std::wstring safeMcpId = EscapeJsonString(mcpId);
+	std::wstring safeResult = EscapeJsonString(result);
+
+	std::wstring jsonMessage = L"{\"action\":\"setMcpResult\",\"mcpId\":\"" + safeMcpId +
+		L"\",\"result\":\"" + safeResult + L"\"}";
+
+	PostJsonMessage(jsonMessage);
+}
+

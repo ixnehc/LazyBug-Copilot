@@ -276,5 +276,9 @@ public:
 
 	// 发送请求到LLM
 	static void RequestThreadFunction(CLlmSession* session);
+
+	// 给requestJson中"tools"数组的最后一个tool添加cache_control: ephemeral
+	// 需要IsPrompCachingEnabled()返回true时才生效
+	static void AddToolsCacheControl(json& requestJson);
 	
 };

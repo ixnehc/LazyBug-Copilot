@@ -632,6 +632,9 @@
     <ClInclude Include="Utils_Mcp.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="ChatTask_Mcp.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBug.cpp">
@@ -1041,6 +1044,9 @@
     </ClCompile>
     <ClCompile Include="Utils_Mcp.cpp">
       <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ChatTask_Mcp.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

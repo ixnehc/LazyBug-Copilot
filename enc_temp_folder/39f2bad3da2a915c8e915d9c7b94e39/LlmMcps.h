@@ -23,6 +23,7 @@ public:
 		std::string name;//这个名字在同一个type下的所有mcp中是唯一的,注意这个name其实是folderPath的folder name,不是从文件里读出来的
 		std::string description;
 		std::string folderPath;
+		std::string url;              // HTTP MCP server 的 URL (从MCP.json解析, 与command互斥)
 		std::string command;            // 启动mcp server的命令 (从MCP.json解析)
 		std::vector<std::string> args;  // 启动参数列表 (从MCP.json解析)
 		std::unordered_map<std::string, std::string> env;  // 自定义环境变量 (从MCP.json解析)

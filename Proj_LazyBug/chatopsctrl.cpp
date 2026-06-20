@@ -250,6 +250,7 @@ void CChatOpsCtrl::Zero()
 	_restoredCheckpointId = FilesCheckpointUID_Invalid;
 	_recentPrompToken = 0;
 	_cliCounter = 0;
+	_mcpCounter = 0;
 	_verEstimateTokens = 0xffffffff;
 	_verUncompressedEstimateTokens = 0xffffffff;
 	_estimateTokensCache = 0;
@@ -323,6 +324,13 @@ std::wstring CChatOpsCtrl::_GenCliId()
 	__int64 timestamp = GetAbsTick();
 	int counter = _cliCounter++;
 	return L"cli-" + std::to_wstring(timestamp) + L"-" + std::to_wstring(counter);
+}
+
+std::wstring CChatOpsCtrl::_GenMcpId()
+{
+	__int64 timestamp = GetAbsTick();
+	int counter = _mcpCounter++;
+	return L"mcp-" + std::to_wstring(timestamp) + L"-" + std::to_wstring(counter);
 }
 
 
@@ -1313,6 +1321,22 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 	{
 		// 从 title 字段获取 question，从 content 字段获取 answer
 		AddQuestionDisplay(op.messageId, op.title, op.contentUtf8);
+		break;
+	}
+
+	case ChatOp::Op_McpDisplay:
+	{
+		// 从 content 中解析 toolName、arguments 和 result
+		std::string toolName, arguments, result;
+		_ParseMcpDisplayContent(op.contentUtf8, toolName, arguments, result);
+
+		std::wstring mcpId = AddMcpDisplay(op.messageId, toolName, arguments);
+
+		// 如果有结果（重放历史时），设置结果
+		if (!result.empty() && !mcpId.empty())
+		{
+			SetMcpResultToLastMcpDisplay(op.messageId, result);
+		}
 		break;
 	}
 
@@ -2445,6 +2469,57 @@ std::string CChatOpsCtrl::_BuildCliDisplayContent(const std::string& cmd,
 	}
 }
 
+// ── MCP Display content 构建与解析 ──────────────────────────────────────────
+
+std::string CChatOpsCtrl::_BuildMcpDisplayContent(const std::string& toolName,
+                                                    const std::string& arguments,
+                                                    const std::string& result) const
+{
+	try
+	{
+		json j;
+		j["toolName"] = toolName;
+		j["arguments"] = arguments;
+		if (!result.empty())
+		{
+			j["result"] = result;
+		}
+		return j.dump();
+	}
+	catch (const json::exception&)
+	{
+		return toolName;
+	}
+}
+
+void CChatOpsCtrl::_ParseMcpDisplayContent(const std::string& content,
+                                             std::string& toolName,
+                                             std::string& arguments,
+                                             std::string& result) const
+{
+	if (!content.empty() && content[0] == '{')
+	{
+		try
+		{
+			json j = json::parse(content);
+			if (j.contains("toolName"))
+				toolName = j["toolName"].get<std::string>();
+			if (j.contains("arguments"))
+				arguments = j["arguments"].get<std::string>();
+			if (j.contains("result"))
+				result = j["result"].get<std::string>();
+		}
+		catch (const json::parse_error&)
+		{
+			toolName = content;
+		}
+	}
+	else
+	{
+		toolName = content;
+	}
+}
+
 
 std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc, CliDisplayStatus displayStatus, const std::string& shellType)
 {
@@ -2563,6 +2638,66 @@ void CChatOpsCtrl::AddQuestionDisplay(const std::wstring& messageId, const std::
 	op.contentUtf8 = answer;     // 答案存储在 content 字段
 	op.messageId = messageId;
 	_AddOp(op);
+}
+
+// ── MCP Display ──────────────────────────────────────────────────────────────
+
+std::wstring CChatOpsCtrl::AddMcpDisplay(const std::wstring& messageId, const std::string& toolName, const std::string& arguments)
+{
+	if (toolName.empty())
+		return L"";
+
+	std::wstring mcpId = _GenMcpId();
+
+	// 通过 CChatUi 创建 MCP 显示
+	if (_ui)
+	{
+		_ui->AddMcpDisplay(messageId, mcpId, utf8_to_widechar(toolName), utf8_to_widechar(arguments));
+	}
+
+	// 记录操作：toolName 存储在 title，content 存储JSON
+	ChatOp op(ChatOp::Op_McpDisplay);
+	op.title = utf8_to_widechar(toolName);
+	op.contentUtf8 = _BuildMcpDisplayContent(toolName, arguments);
+	op.messageId = messageId;
+	_AddOp(op);
+
+	return mcpId;
+}
+
+void CChatOpsCtrl::SetMcpResultToLastMcpDisplay(const std::wstring& messageId, const std::string& result)
+{
+	if (result.empty())
+		return;
+
+	// 查找最后一个 Op_McpDisplay
+	ChatOp* lastMcpOp = nullptr;
+	for (int i = static_cast<int>(_ops.size()) - 1; i >= 0; --i)
+	{
+		if (_ops[i].type == ChatOp::Op_McpDisplay && _ops[i].messageId == messageId)
+		{
+			lastMcpOp = &_ops[i];
+			break;
+		}
+	}
+
+	if (!lastMcpOp)
+		return;
+
+	// 解析现有 content，重新构建含 result 的 JSON
+	std::string toolName, arguments, oldResult;
+	_ParseMcpDisplayContent(lastMcpOp->contentUtf8, toolName, arguments, oldResult);
+	lastMcpOp->contentUtf8 = _BuildMcpDisplayContent(toolName, arguments, result);
+
+	if (_ui)
+	{
+		std::wstring safeMessageId = EscapeJsonString(messageId);
+		std::wstring safeResult = EscapeJsonString(utf8_to_widechar(result));
+		std::wstring jsonMessage = L"{\"action\":\"setMcpResult\",\"messageId\":\"" + safeMessageId + L"\",\"result\":\"" + safeResult + L"\"}";
+		_ui->PostJsonMessage(jsonMessage);
+	}
+
+	_ver++;
 }
 
 void CChatOpsCtrl::_GetFileAttachesList(int fileAttaches, std::vector<std::string>& filePathes)

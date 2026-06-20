@@ -22,6 +22,13 @@ enum class CliStatus
 	Stop     // 用户点击停止（终止运行中的CLI）
 };
 
+// MCP 运行时状态枚举
+enum class McpStatus
+{
+	None,    // 正常状态
+	Stop     // 用户点击停止
+};
+
 class IChatUi
 {
 public:
@@ -59,6 +66,12 @@ public:
 	virtual void RemovePendingCli(const std::wstring& cliId) { }
 	virtual CliStatus GetCliStatus(const std::wstring& cliId) { return CliStatus::None; }
 	virtual void SetCliStatus(const std::wstring& cliId, CliStatus status) { }
+
+	// MCP Display 相关方法
+	virtual void AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& toolName, const std::wstring& arguments) { }
+	virtual void SetMcpResult(const std::wstring& mcpId, const std::wstring& result) { }
+	virtual McpStatus GetMcpStatus(const std::wstring& mcpId) { return McpStatus::None; }
+	virtual void SetMcpStatus(const std::wstring& mcpId, McpStatus status) { }
 
 };
 

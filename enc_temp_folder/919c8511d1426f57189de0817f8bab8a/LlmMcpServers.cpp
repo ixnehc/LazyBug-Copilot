@@ -766,6 +766,7 @@ void CLlmMcpServers::_CollectTargetServers(std::vector<Target>& outTargets)
 			nameToIndex[mcp.name] = outTargets.size();
 			Target t;
 			t.mcpUid = mcp.uid;
+			t.url = mcp.url;
 			t.command = mcp.command;
 			t.args = mcp.args;
 			t.env = mcp.env;
@@ -780,10 +781,11 @@ void CLlmMcpServers::_CollectTargetServers(std::vector<Target>& outTargets)
 			if (_Priority(mcp.tp) > _Priority(targetTypes[idx]))
 			{
 				outTargets[idx].mcpUid = mcp.uid;
+				outTargets[idx].url = mcp.url;
 				outTargets[idx].command = mcp.command;
 				outTargets[idx].args = mcp.args;
 				outTargets[idx].env = mcp.env;
-			outTargets[idx].fileTime = mcp.fileTime;
+				outTargets[idx].fileTime = mcp.fileTime;
 				targetTypes[idx] = mcp.tp;
 			}
 		}

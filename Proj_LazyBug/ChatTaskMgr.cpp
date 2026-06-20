@@ -12,6 +12,7 @@
 #include "ChatTask_QueryFinish.h"
 #include "ChatTask_ResolveSymbolLinks.h"
 #include "ChatTask_CreateSkill.h"
+#include "ChatTask_Mcp.h"
 #include "ChatTask_CompressSummarize.h"
 #include <algorithm>
 #include <cstring>
@@ -664,6 +665,13 @@ void CChatTaskMgr::AddTask_CreateSkill(const LlmToolCall& toolCall)
 	_AddTask(task);
 }
 
+void CChatTaskMgr::AddTask_Mcp(const LlmToolCall& toolCall)
+{
+	CChatTask_Mcp* task = new CChatTask_Mcp;
+	task->SetToolCall(toolCall);
+	_AddTask(task);
+}
+
 void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode)
 {
 	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, originalTokenCount, evaluationMode);
@@ -769,6 +777,12 @@ void CChatTaskMgr::UpdateToolCalls(std::vector<LlmToolCall>& toolCalls)
 		{
 			if (toolCall.IsComplete())
 				AddTask_CreateSkill(toolCall);
+			break;
+		}
+		case LlmToolType::Mcp:
+		{
+			if (toolCall.IsComplete())
+				AddTask_Mcp(toolCall);
 			break;
 		}
 		}

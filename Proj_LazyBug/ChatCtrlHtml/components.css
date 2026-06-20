@@ -328,6 +328,131 @@
     opacity: 1;
 }
 
+/* ====== MCP Display 样式 ====== */
+.mcp-display-container {
+    background-color: #000000;
+    border: 1px solid #333333;
+    border-radius: 8px;
+    margin: 10px 0;
+    overflow: hidden;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.mcp-collapsible-header {
+    background-color: #1a1a1a;
+    color: #cccccc;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.mcp-collapsible-header:hover {
+    background-color: #2a2a2a;
+}
+
+.mcp-expand-icon {
+    color: #888888;
+    margin-right: 8px;
+    font-size: 0.8em;
+    transition: transform 0.2s;
+    width: 12px;
+    display: inline-block;
+}
+
+.mcp-tool-label {
+    font-weight: bold;
+    font-size: 0.75em;
+    padding: 2px 6px;
+    margin-right: 8px;
+    border-radius: 3px;
+    background-color: #2d3a5a;
+    color: #6699ff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mcp-header-text {
+    font-weight: bold;
+    font-size: 0.9em;
+    flex: 1;
+}
+
+.mcp-collapsible-content {
+    border-top: 1px solid #333333;
+}
+
+.mcp-args-section {
+    border-bottom: 1px solid #333333;
+}
+
+.mcp-section-title {
+    color: #888888;
+    font-size: 0.75em;
+    font-weight: bold;
+    padding: 6px 12px 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mcp-args-content {
+    color: #00ff00;
+    padding: 2px 12px 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.9em;
+    line-height: 1.4;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.mcp-args-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.mcp-args-content::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.mcp-args-content::-webkit-scrollbar-thumb {
+    background: #444444;
+    border-radius: 4px;
+}
+
+.mcp-args-content::-webkit-scrollbar-thumb:hover {
+    background: #555555;
+}
+
+.mcp-result-content {
+    color: #cccccc;
+    padding: 2px 12px 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.9em;
+    line-height: 1.4;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.mcp-result-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.mcp-result-content::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.mcp-result-content::-webkit-scrollbar-thumb {
+    background: #444444;
+    border-radius: 4px;
+}
+
+.mcp-result-content::-webkit-scrollbar-thumb:hover {
+    background: #555555;
+}
+
 .cli-copy-button:hover {
     background-color: rgba(80, 80, 80, 0.8);
     border-color: #606060;

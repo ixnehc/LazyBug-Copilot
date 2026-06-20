@@ -44,6 +44,7 @@ enum class LlmToolType
 	Question,
 	QueryFinish,
 	CreateSkill,
+	Mcp,
 };
 
 enum class LlmThinkingMode

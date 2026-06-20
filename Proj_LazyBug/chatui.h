@@ -85,6 +85,12 @@ public:
 	CliStatus GetCliStatus(const std::wstring& cliId) override;
 	void SetCliStatus(const std::wstring& cliId, CliStatus status) override;
 
+	// MCP Display 方法
+	void AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& toolName, const std::wstring& arguments) override;
+	void SetMcpResult(const std::wstring& mcpId, const std::wstring& result) override;
+	McpStatus GetMcpStatus(const std::wstring& mcpId) override;
+	void SetMcpStatus(const std::wstring& mcpId, McpStatus status) override;
+
     
     // 添加Web消息处理
 	void PostJsonMessage(const std::wstring& message) override;
@@ -224,5 +230,9 @@ private:
 	// CLI 状态管理
 	std::map<std::wstring, CliStatus> _cliStatus;
 	std::mutex _cliStatusMutex;
+
+	// MCP 状态管理
+	std::map<std::wstring, McpStatus> _mcpStatus;
+	std::mutex _mcpStatusMutex;
 
 };

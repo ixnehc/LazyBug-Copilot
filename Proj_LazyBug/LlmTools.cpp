@@ -209,6 +209,12 @@ void CLlmToolCallParser::Update(json& deltaResponseJson)
 					{
 						parsing_call.name = function_delta["name"];
 						final_tool_call.tp = g_llmTools.GetToolTypeByName(parsing_call.name);
+						if (final_tool_call.tp == LlmToolType::None)
+						{
+							// 非内置工具,视为MCP工具
+							final_tool_call.tp = LlmToolType::Mcp;
+							final_tool_call.mcpName = parsing_call.name;
+						}
 					}
 					if (function_delta.contains("arguments") && !function_delta["arguments"].is_null())
 					{
@@ -219,6 +225,12 @@ void CLlmToolCallParser::Update(json& deltaResponseJson)
 
 				if (!parsing_call.arguments.empty())
 				{
+					if (final_tool_call.tp == LlmToolType::Mcp)
+					{
+						// MCP工具: 参数通过raw_arguments传递,不需要拆解
+						continue;
+					}
+
 					const auto* toolDef = g_llmTools.GetToolDefinition(final_tool_call.tp);
 					if (!toolDef) continue;
 
@@ -505,7 +517,6 @@ void CLlmTools::EndTool()
 	_pCurrentToolDef = nullptr;
 }
 
-extern bool IsPrompCachingEnabled();
 void CLlmTools::FillToolsJson(const std::vector<LlmToolType>& toolTypes, json& requestJson)
 {
 	if (toolTypes.empty())
@@ -513,7 +524,12 @@ void CLlmTools::FillToolsJson(const std::vector<LlmToolType>& toolTypes, json& r
 		return;
 	}
 
-	json tools_array = json::array();
+	// 如果requestJson已有"tools"数组,则追加;否则新建
+	json tools_array;
+	if (requestJson.contains("tools") && requestJson["tools"].is_array())
+		tools_array = requestJson["tools"];
+	else
+		tools_array = json::array();
 
     for (int i=0;i<toolTypes.size();i++)
 	{
@@ -544,26 +560,12 @@ void CLlmTools::FillToolsJson(const std::vector<LlmToolType>& toolTypes, json& r
 			parameters_obj["required"] = def.required_params;
 		}
 
-		if (true)
-		{
-			tool_def["type"] = "function";
-			json function_obj;
-			function_obj["name"] = def.name;
-			function_obj["description"] = def.description;
-			function_obj["parameters"] = parameters_obj;
-			//如果it是最后一个元素，则设置cache_control为ephemeral
-// 			if (false)
-			if (IsPrompCachingEnabled())
-			{
-				if (i == toolTypes.size() - 1)
-				{
-					json cache_control_obj;
-					cache_control_obj["type"] = "ephemeral";
-					tool_def["cache_control"] = cache_control_obj;
-				}
-			}
-			tool_def["function"] = function_obj;
-		}
+		tool_def["type"] = "function";
+		json function_obj;
+		function_obj["name"] = def.name;
+		function_obj["description"] = def.description;
+		function_obj["parameters"] = parameters_obj;
+		tool_def["function"] = function_obj;
 
 		tools_array.push_back(tool_def);
 	}
@@ -587,8 +589,11 @@ LlmToolType CLlmTools::ParseToolTypeFromToolCallResultString(const std::string& 
 				auto& toolCalls = firstMsg["tool_calls"];
 				if (toolCalls.size() > 0 && toolCalls[0].contains("function"))
 				{
-					std::string toolName = toolCalls[0]["function"]["name"].get<std::string>();
-					return g_llmTools.GetToolTypeByName(toolName);
+				std::string toolName = toolCalls[0]["function"]["name"].get<std::string>();
+					LlmToolType tp = g_llmTools.GetToolTypeByName(toolName);
+					if (tp == LlmToolType::None)
+						return LlmToolType::Mcp;  // 非内置工具视为MCP工具
+					return tp;
 				}
 			}
 		}
@@ -614,6 +619,8 @@ LlmToolType CLlmTools::GetToolTypeByName(const std::string& name)
 
 const char* CLlmTools::GetToolTypeName(LlmToolType tp)
 {
+	if (tp == LlmToolType::Mcp)
+		return "MCP";
 	auto it = _tools.find(tp);
 	if (it != _tools.end())
 	{
@@ -637,19 +644,35 @@ std::string CLlmTools::MakeToolCallResultString(const LlmToolCall& toolCall, con
 {
 	using json = nlohmann::json;
 	
-	const char* tool_name = GetToolTypeName(toolCall.tp);
-	if (!tool_name)
-		tool_name = "";
+	// 确定工具名称
+	std::string tool_name;
+	if (toolCall.tp == LlmToolType::Mcp)
+		tool_name = toolCall.mcpName;
+	else
+	{
+		const char* name = GetToolTypeName(toolCall.tp);
+		tool_name = name ? name : "";
+	}
 
 	// 构建工具调用的参数
-	json arguments = json::object();
-	for (const auto& param : toolCall.params_string)
+	std::string arguments_str;
+	if (toolCall.tp == LlmToolType::Mcp)
 	{
-		arguments[param.first] = param.second;
+		// MCP工具: 直接使用raw_arguments
+		arguments_str = toolCall.raw_arguments.empty() ? "{}" : toolCall.raw_arguments;
 	}
-	for (const auto& param : toolCall.params_int)
+	else
 	{
-		arguments[param.first] = param.second;
+		json arguments = json::object();
+		for (const auto& param : toolCall.params_string)
+		{
+			arguments[param.first] = param.second;
+		}
+		for (const auto& param : toolCall.params_int)
+		{
+			arguments[param.first] = param.second;
+		}
+		arguments_str = arguments.dump();
 	}
 
 	// 处理 result 的编码问题
@@ -681,7 +704,7 @@ std::string CLlmTools::MakeToolCallResultString(const LlmToolCall& toolCall, con
 				{"type", "function"},
 				{"function", json{
 					{"name", tool_name},
-					{"arguments", arguments.dump()}
+					{"arguments", arguments_str}
 				}}
 			}
 		})}
@@ -787,14 +810,24 @@ bool CLlmTools::ParseToolCallResultString(const char* jsonString, LlmToolCall& t
 					const auto& func = call["function"];
 					std::string tool_name = func.value("name", "");
 					toolCall.tp = GetToolTypeByName(tool_name);
+					if (toolCall.tp == LlmToolType::None)
+					{
+						// 非内置工具,视为MCP工具
+						toolCall.tp = LlmToolType::Mcp;
+						toolCall.mcpName = tool_name;
+					}
 						
 					// 解析参数
 					if (func.contains("arguments"))
 					{
 						std::string args_str = func.value("arguments", "");
 						toolCall.raw_arguments = args_str;
-							
-						if (json::accept(args_str))
+
+						if (toolCall.tp == LlmToolType::Mcp)
+						{
+							// MCP工具: 参数通过raw_arguments传递,不需要拆解
+						}
+						else if (json::accept(args_str))
 						{
 							json args = json::parse(args_str);
 							const auto* toolDef = GetToolDefinition(toolCall.tp);

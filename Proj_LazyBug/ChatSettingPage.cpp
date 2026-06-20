@@ -823,6 +823,7 @@ void CChatSettingPage::SendProviderDataToWebView()
         case LlmToolType::Question:         return "Question";
         case LlmToolType::QueryFinish:      return "QueryFinish";
         case LlmToolType::CreateSkill:      return "CreateSkill";
+        case LlmToolType::Mcp:              return "Mcp";
         default:                            return "None";
         }
     };

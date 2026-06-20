@@ -126,6 +126,7 @@ public:
 	void AddTask_QueryFinish(const LlmToolCall& toolCall);
 	void AddTask_ResolveSymbolLinks(const std::vector<SymbolLinkItem>& symbolLinks);
 	void AddTask_CreateSkill(const LlmToolCall& toolCall);
+	void AddTask_Mcp(const LlmToolCall& toolCall);
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
 	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls);
 

@@ -238,6 +238,14 @@ function setupWebViewMessageListener() {
                     completeCliDisplay(message.cliId, message.exitCode);
                     break;
                 
+                // ====== MCP 显示相关 ======
+                case 'addMcpDisplay':
+                    addMcpDisplay(message.messageId, message.mcpId, message.toolName, message.arguments);
+                    break;
+                case 'setMcpResult':
+                    setMcpResult(message.messageId, message.result);
+                    break;
+                
                 // ====== Question 相关 ======
                 case 'addQuestion':
                     addQuestion(message.messageId, message.questionId, message.question, message.options);
