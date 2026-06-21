@@ -648,7 +648,8 @@
                 if (node.toolsLoaded) {
                     status.classList.add('loaded');
                     const toolChildren = (node.children || []).filter(c => isToolNode(c));
-                    status.textContent = toolChildren.length + ' tools';
+                    const enabledCount = toolChildren.filter(c => c.enable).length;
+                    status.textContent = enabledCount + '/' + toolChildren.length + ' tools';
                     row.appendChild(status);
                 } else if (node.lastError) {
                     status.classList.add('error');
@@ -879,6 +880,11 @@
         }
 
         function handleSelectAllClick(parentMcp, checkbox) {
+            // 只读模式下，不处理Select All点击
+            if (!enableModify) {
+                return;
+            }
+
             const tools = (parentMcp.children || []).filter(isToolNode);
             if (tools.length === 0) return;
 
@@ -983,6 +989,8 @@
 
         // ============ 标签编辑 ============
         function handleLabelClick(node, label, row) {
+            // 只读模式下，禁止重命名
+            if (!enableModify) return;
             if (row._isEditing) return;
             row._isEditing = true;
 
@@ -1242,6 +1250,11 @@
         }
 
         function handleCheckboxClick(node, checkbox) {
+            // 只读模式下，不处理checkbox点击
+            if (!enableModify) {
+                return;
+            }
+
             const isChecked = checkbox.classList.contains('checked');
             const newChecked = !isChecked;
 
@@ -1273,20 +1286,10 @@
         }
 
         // ============ 新建目录 ============
-        function generateUniqueFolderName(parentNode) {
-            const baseName = 'New Folder';
-            if (!parentNode.children || parentNode.children.length === 0) return baseName;
-            const existingNames = new Set();
-            for (const child of parentNode.children) {
-                existingNames.add(child.name);
-            }
-            if (!existingNames.has(baseName)) return baseName;
-            let counter = 2;
-            while (existingNames.has(`${baseName} (${counter})`)) counter++;
-            return `${baseName} (${counter})`;
-        }
-
         function handleNewFolder(node) {
+            // 只读模式下，禁止新建目录
+            if (!enableModify) return;
+
             const newFolderName = generateUniqueFolderName(node);
             const newFullPath = node.fullPath ? node.fullPath + '\\' + newFolderName : newFolderName;
             if (window.chrome && window.chrome.webview) {
@@ -1305,7 +1308,47 @@
             pendingEditTimer = setTimeout(() => { pendingEditTimer = null; tryStartPendingEdit(); }, 500);
         }
 
+        function generateUniqueFolderName(parentNode) {
+            const baseName = 'New Folder';
+            if (!parentNode.children || parentNode.children.length === 0) return baseName;
+            const existingNames = new Set();
+            for (const child of parentNode.children) {
+                existingNames.add(child.name);
+            }
+            if (!existingNames.has(baseName)) return baseName;
+            let counter = 2;
+            while (existingNames.has(`${baseName} (${counter})`)) counter++;
+            return `${baseName} (${counter})`;
+        }
+
         // ============ 新建MCP ============
+        function handleNewMcp(node) {
+            // 只读模式下，禁止新建MCP
+            if (!enableModify) return;
+
+            const newMcpName = generateUniqueMcpName(node);
+            const newFullPath = node.fullPath ? node.fullPath + '\\' + newMcpName : newMcpName;
+            let mcpType = node.type || '';
+            if (!mcpType) {
+                mcpType = node.name === 'Global' ? 'Global' : node.name === 'Project' ? 'Project' : '';
+            }
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'newMcp',
+                    data: {
+                        name: node.name,
+                        fullPath: node.fullPath || '',
+                        newMcpName: newMcpName,
+                        newFullPath: newFullPath,
+                        mcpType: mcpType
+                    }
+                });
+            }
+            pendingEditNode = { name: newMcpName, fullPath: newFullPath };
+            if (pendingEditTimer) clearTimeout(pendingEditTimer);
+            pendingEditTimer = setTimeout(() => { pendingEditTimer = null; tryStartPendingEdit(); }, 500);
+        }
+
         // 收集同一根类型(Global/Project)下所有MCP的名称
         function collectAllMcpNames(rootType) {
             const names = new Set();
@@ -1333,29 +1376,8 @@
             return `${baseName} (${counter})`;
         }
 
-        function handleNewMcp(node) {
-            const newMcpName = generateUniqueMcpName(node);
-            const newFullPath = node.fullPath ? node.fullPath + '\\' + newMcpName : newMcpName;
-            let mcpType = node.type || '';
-            if (!mcpType) {
-                mcpType = node.name === 'Global' ? 'Global' : node.name === 'Project' ? 'Project' : '';
-            }
-            if (window.chrome && window.chrome.webview) {
-                window.chrome.webview.postMessage({
-                    action: 'newMcp',
-                    data: {
-                        name: node.name,
-                        fullPath: node.fullPath || '',
-                        newMcpName: newMcpName,
-                        newFullPath: newFullPath,
-                        mcpType: mcpType
-                    }
-                });
-            }
-            pendingEditNode = { name: newMcpName, fullPath: newFullPath };
-            if (pendingEditTimer) clearTimeout(pendingEditTimer);
-            pendingEditTimer = setTimeout(() => { pendingEditTimer = null; tryStartPendingEdit(); }, 500);
-        }
+        // 修改权限控制
+        let enableModify = true;  // 默认允许修改
 
         // ============ 消息处理 ============
         if (window.chrome && window.chrome.webview) {
@@ -1370,6 +1392,11 @@
                             break;
                         case 'setMcpTree':
                             buildTree(message.data);
+                            break;
+                        case 'setEnableModify':
+                            // 设置修改权限
+                            enableModify = message.data === true || message.data === 'true' || message.data === 1;
+                            console.log('Modify permission:', enableModify ? 'enabled' : 'readonly');
                             break;
                         default:
                             console.warn('Unknown message action:', message.action);

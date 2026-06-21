@@ -338,6 +338,7 @@ static void _ScanMcps(const std::wstring& wRootPath, std::vector<CLlmMcps::Mcp>&
 					CLlmMcps::Mcp mcp;
 					mcp.tp = tp;
 					mcp.name = widechar_to_utf8(findData.cFileName);  // 使用 folder name
+					mcp.GenerateLegalName();                          // 生成合法名称
 					mcp.uid = Utils::EnsureMcpUid(fullPath);          // 确保 uid 存在
 					mcp.description = description;
 				mcp.folderPath = fullPath;
@@ -364,6 +365,7 @@ static void _ScanMcps(const std::wstring& wRootPath, std::vector<CLlmMcps::Mcp>&
 					CLlmMcps::Mcp mcp;
 					mcp.tp = tp;
 					mcp.name = "";  // name 为空
+					mcp.GenerateLegalName();  // 会生成 "mcp"
 					mcp.description = "";
 					mcp.folderPath = fullPath;
 					mcp.connect.command = "";
@@ -612,22 +614,17 @@ void CLlmMcps::FillToolsJson(json& requestJson)
 	{
 		for (const auto& tool : mcp->tools)
 		{
-			// 跳过未启用的tool
+		// 跳过未启用的tool
 			if (!mcp->IsToolEnabled(tool.name))
 				continue;
 
-			// 确定唯一名称（处理冲突）
-			std::string uniqueName = tool.name;
-			if (usedNames.count(tool.name) > 0)
+			// 生成唯一名称：legalName-toolName，冲突时加数字后缀
+			std::string aliasBase = mcp->legalName + "-" + tool.name;
+			std::string uniqueName = aliasBase;
+			int suffix = 1;
+			while (usedNames.count(uniqueName) > 0)
 			{
-				// 冲突，生成别名: toolName_mcpName
-				std::string aliasBase = tool.name + "_" + mcp->name;
-				uniqueName = aliasBase;
-				int suffix = 1;
-				while (usedNames.count(uniqueName) > 0)
-				{
-					uniqueName = aliasBase + "_" + std::to_string(suffix++);
-				}
+				uniqueName = aliasBase + "-" + std::to_string(suffix++);
 			}
 			usedNames.insert(uniqueName);
 

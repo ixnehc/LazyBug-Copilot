@@ -35,7 +35,21 @@ public:
 		Type tp;
 		WUID uid = 0;                // 唯一标识
 		std::string name;//这个名字在同一个type下的所有mcp中是唯一的,注意这个name其实是folderPath的folder name,不是从文件里读出来的
+		std::string legalName;       // name的合法版本，只包含字母数字"-""_"，用于生成唯一tool名称
 		std::string description;
+
+		// 根据name生成legalName（只保留字母数字"-""_"，为空则设为"mcp"）
+		void GenerateLegalName()
+		{
+			legalName.clear();
+			for (char c : name)
+			{
+				if (std::isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_')
+					legalName.push_back(c);
+			}
+			if (legalName.empty())
+				legalName = "mcp";
+		}
 		std::string folderPath;
 		McpConnectSetting connect;      // MCP 连接设置（HTTP 或 stdio 模式）
 		FILETIME fileTime = { 0 };      // MCP.json 文件的修改时间

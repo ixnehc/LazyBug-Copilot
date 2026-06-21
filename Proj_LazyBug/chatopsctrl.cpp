@@ -3231,7 +3231,6 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 	int userMsgTokens = 0;
 	int aiMsgTokens = 0;
 	int thinkingTokens = 0;
-	int toolCallTokens[12] = {0};  // 按tool type分类 (LlmToolType枚举值数量)
 
 	for (int i = startIndex; i < endIndex; i++)
 	{
@@ -3285,8 +3284,6 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 			// 工具调用结果
 			int tokens = Utils::EstimateTokenCount(effectiveContent);
 			totalTokens += tokens;
-			LlmToolType toolType = CLlmTools::ParseToolTypeFromToolCallResultString(effectiveContent);
-			toolCallTokens[static_cast<int>(toolType)] += tokens;
 			break;
 		}
 

@@ -475,13 +475,17 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 {
 	_checkpointsFileChange.SetCheckpoints(GetCheckpoints());
 
+	bool	stopWorking = false;
 	if (true)
 	{
 		bool wasWorking = _agent.IsWorking();
 		_agent.Update();
 		if (wasWorking && (!_agent.IsWorking()))
-			_chatInput.HideStopButton();
+			stopWorking = true;
 	}
+
+	if (stopWorking)
+		_chatInput.HideStopButton();
 
 	_chatTaskMgrBg.Update();
 
@@ -494,8 +498,13 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 	_chatSkillsTree.Update();
 
-	if (_mcpUpdater.Update())
-		_chatMcpsTree.SendMcpTreeData();
+	if (stopWorking)
+		_chatMcpsTree.EnableModify(true);
+	if (!_agent.IsWorking())
+	{
+		if (_mcpUpdater.Update())
+			_chatMcpsTree.SendMcpTreeData();
+	}
 	_chatMcpsTree.Update();
 
 	_settingMenuWindow.Update();
@@ -1315,6 +1324,7 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 
 		// 显示stop按钮
 		_chatInput.ShowStopButton();
+		_chatMcpsTree.EnableModify(false);
 
 		// 清空编辑框
 		_inputHistory.OnSendCurrent();

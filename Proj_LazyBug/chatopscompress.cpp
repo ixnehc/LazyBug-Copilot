@@ -504,7 +504,9 @@ const std::vector<LlmToolType>& CChatOpsCompress::GetSessionSummarizeToolTypes()
 		LlmToolType::CLI_Bash,
 		LlmToolType::CLI_Cmd,
 		LlmToolType::CLI_RunScript,
-		LlmToolType::Question
+		LlmToolType::Question,
+		LlmToolType::Mcp,
+		//XXXXX: more tool type
 	};
 	return toolTypes;
 }

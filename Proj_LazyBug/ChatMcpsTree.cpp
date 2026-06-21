@@ -289,10 +289,11 @@ void CChatMcpsTree::ShowWindow(const RECT& btnRect)
 		}
 	}
 
-	// 刷新Mcps树数据
+	// 刷新Mcps树数据和权限状态
 	if (_isUIInitialized)
 	{
 		SendMcpTreeData();
+		SendEnableModify();
 	}
 
 	// 计算窗口位置和大小
@@ -305,6 +306,8 @@ void CChatMcpsTree::ShowWindow(const RECT& btnRect)
 
 	// 调整WebView大小
 	ResizeWebView();
+
+//	EnableModify(false);
 }
 
 void CChatMcpsTree::HideWindow()
@@ -384,6 +387,26 @@ void CChatMcpsTree::Update()
 	CheckForegroundWindow();
 }
 
+//====================== 修改权限控制 ======================
+
+void CChatMcpsTree::EnableModify(bool enable)
+{
+	_enableModify = enable;
+	// 如果UI已初始化，立即发送状态更新
+	if (_isUIInitialized)
+	{
+		SendEnableModify();
+	}
+}
+
+void CChatMcpsTree::SendEnableModify()
+{
+	if (!_IsReady())
+		return;
+
+	_PostWebMessage(L"setEnableModify", _enableModify ? L"true" : L"false");
+}
+
 //====================== UI初始化 ======================
 
 void CChatMcpsTree::InitializeUI()
@@ -395,6 +418,9 @@ void CChatMcpsTree::InitializeUI()
 
 	// 发送Mcps树数据
 	SendMcpTreeData();
+
+	// 发送修改权限状态
+	SendEnableModify();
 
 	_PostWebMessage(L"initializeComplete", L"");
 }
@@ -704,6 +730,15 @@ void CChatMcpsTree::_HandleWebMessage(const std::wstring& message)
 		}
 
 		std::string action = jsonMsg["action"];
+
+		// 修改操作：检查是否允许修改
+		bool isModifyAction = (action == "mcpChecked" || action == "mcpToolChecked" ||
+		                       action == "newFolder" || action == "newMcp" || action == "renameMcp");
+		if (isModifyAction && !_enableModify)
+		{
+			// 只读模式，忽略修改操作
+			return;
+		}
 
 		if (action == "mcpChecked")
 		{

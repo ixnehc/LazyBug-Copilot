@@ -32,6 +32,13 @@ public:
     // 设置MCP JSON打开回调（双击未enable的MCP时）
     void SetMcpJsonOpenCallback(McpJsonOpenCallback callback) { _mcpJsonOpenCallback = callback; }
 
+    // 设置是否允许修改（enable/disable MCP/tool, new MCP等）
+    // 如果为false，则只允许只读操作（如打开目录、查看错误等）
+    void EnableModify(bool enable);
+
+    // 发送修改权限状态到WebView
+    void SendEnableModify();
+
     // 导航方法
     void Navigate(const std::wstring& url);
 
@@ -97,6 +104,9 @@ private:
 
     // 前台窗口监控
     DWORD _currentProcessId;
+
+    // 修改权限控制
+    bool _enableModify = true;  // 默认允许修改
 
     // 计算窗口大小和位置
     CRect CalculateWindowRect(const RECT& btnRect);
