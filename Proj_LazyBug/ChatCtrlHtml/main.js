@@ -240,7 +240,7 @@ function setupWebViewMessageListener() {
                 
                 // ====== MCP 显示相关 ======
                 case 'addMcpDisplay':
-                    addMcpDisplay(message.messageId, message.mcpId, message.toolName, message.arguments);
+                    addMcpDisplay(message.messageId, message.mcpId, message.mcpName, message.toolName, message.arguments, message.argsSummary);
                     break;
                 case 'setMcpResult':
                     setMcpResult(message.messageId, message.result);

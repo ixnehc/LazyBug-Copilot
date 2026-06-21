@@ -238,7 +238,7 @@ public:
     // ── MCP Display ──────────────────────────────────────────────────────
 
     // 添加 MCP 工具调用显示，返回 MCP ID
-    std::wstring AddMcpDisplay(const std::wstring& messageId, const std::string& toolName, const std::string& arguments);
+    std::wstring AddMcpDisplay(const std::wstring& messageId, const std::string& mcpName, const std::string& toolName, const std::string& arguments, const std::string& argsSummary = "[]");
 
     // 设置最后一个 MCP 显示的结果
     void SetMcpResultToLastMcpDisplay(const std::wstring& messageId, const std::string& result);
@@ -458,12 +458,16 @@ private:
 	                                      const std::string& shellType = "") const;
 
 	void _ParseMcpDisplayContent(const std::string& content,
+	                              std::string& mcpName,
 	                              std::string& toolName,
 	                              std::string& arguments,
-	                              std::string& result) const;
-	std::string _BuildMcpDisplayContent(const std::string& toolName,
+	                              std::string& result,
+	                              std::string& argsSummary) const;
+	std::string _BuildMcpDisplayContent(const std::string& mcpName,
+	                                      const std::string& toolName,
 	                                      const std::string& arguments,
-	                                      const std::string& result = "") const;
+	                                      const std::string& result = "",
+	                                      const std::string& argsSummary = "[]") const;
 
     // ── 成员变量 ──────────────────────────────────────────────────────────
 	IChatUi *_ui;

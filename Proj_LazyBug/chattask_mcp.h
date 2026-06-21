@@ -23,6 +23,8 @@ private:
 	void _Fail();
 	void _Succeed();
 
+	static std::string _ExtractArgsSummary(const std::string& rawArguments);
+
 	std::thread _thread;
 	std::atomic<bool> _done{ false };
 	std::atomic<bool> _success{ false };

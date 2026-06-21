@@ -68,7 +68,7 @@ public:
 	virtual void SetCliStatus(const std::wstring& cliId, CliStatus status) { }
 
 	// MCP Display 相关方法
-	virtual void AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& toolName, const std::wstring& arguments) { }
+	virtual void AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& mcpName, const std::wstring& toolName, const std::wstring& arguments, const std::wstring& argsSummary) { }
 	virtual void SetMcpResult(const std::wstring& mcpId, const std::wstring& result) { }
 	virtual McpStatus GetMcpStatus(const std::wstring& mcpId) { return McpStatus::None; }
 	virtual void SetMcpStatus(const std::wstring& mcpId, McpStatus status) { }

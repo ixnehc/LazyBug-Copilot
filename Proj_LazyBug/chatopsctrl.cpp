@@ -1326,11 +1326,11 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 
 	case ChatOp::Op_McpDisplay:
 	{
-		// 从 content 中解析 toolName、arguments 和 result
-		std::string toolName, arguments, result;
-		_ParseMcpDisplayContent(op.contentUtf8, toolName, arguments, result);
+		// 从 content 中解析 mcpName、toolName、arguments、result 和 argsSummary
+		std::string mcpName, toolName, arguments, result, argsSummary;
+		_ParseMcpDisplayContent(op.contentUtf8, mcpName, toolName, arguments, result, argsSummary);
 
-		std::wstring mcpId = AddMcpDisplay(op.messageId, toolName, arguments);
+		std::wstring mcpId = AddMcpDisplay(op.messageId, mcpName, toolName, arguments, argsSummary);
 
 		// 如果有结果（重放历史时），设置结果
 		if (!result.empty() && !mcpId.empty())
@@ -2471,15 +2471,19 @@ std::string CChatOpsCtrl::_BuildCliDisplayContent(const std::string& cmd,
 
 // ── MCP Display content 构建与解析 ──────────────────────────────────────────
 
-std::string CChatOpsCtrl::_BuildMcpDisplayContent(const std::string& toolName,
+std::string CChatOpsCtrl::_BuildMcpDisplayContent(const std::string& mcpName,
+                                                    const std::string& toolName,
                                                     const std::string& arguments,
-                                                    const std::string& result) const
+                                                    const std::string& result,
+                                                    const std::string& argsSummary) const
 {
 	try
 	{
 		json j;
+		j["mcpName"] = mcpName;
 		j["toolName"] = toolName;
 		j["arguments"] = arguments;
+		j["argsSummary"] = argsSummary;
 		if (!result.empty())
 		{
 			j["result"] = result;
@@ -2493,21 +2497,29 @@ std::string CChatOpsCtrl::_BuildMcpDisplayContent(const std::string& toolName,
 }
 
 void CChatOpsCtrl::_ParseMcpDisplayContent(const std::string& content,
+                                             std::string& mcpName,
                                              std::string& toolName,
                                              std::string& arguments,
-                                             std::string& result) const
+                                             std::string& result,
+                                             std::string& argsSummary) const
 {
 	if (!content.empty() && content[0] == '{')
 	{
 		try
 		{
 			json j = json::parse(content);
+			if (j.contains("mcpName"))
+				mcpName = j["mcpName"].get<std::string>();
+			if (mcpName.empty())
+				mcpName = "MCP";
 			if (j.contains("toolName"))
 				toolName = j["toolName"].get<std::string>();
 			if (j.contains("arguments"))
 				arguments = j["arguments"].get<std::string>();
 			if (j.contains("result"))
 				result = j["result"].get<std::string>();
+			if (j.contains("argsSummary"))
+				argsSummary = j["argsSummary"].get<std::string>();
 		}
 		catch (const json::parse_error&)
 		{
@@ -2642,7 +2654,7 @@ void CChatOpsCtrl::AddQuestionDisplay(const std::wstring& messageId, const std::
 
 // ── MCP Display ──────────────────────────────────────────────────────────────
 
-std::wstring CChatOpsCtrl::AddMcpDisplay(const std::wstring& messageId, const std::string& toolName, const std::string& arguments)
+std::wstring CChatOpsCtrl::AddMcpDisplay(const std::wstring& messageId, const std::string& mcpName, const std::string& toolName, const std::string& arguments, const std::string& argsSummary)
 {
 	if (toolName.empty())
 		return L"";
@@ -2652,13 +2664,13 @@ std::wstring CChatOpsCtrl::AddMcpDisplay(const std::wstring& messageId, const st
 	// 通过 CChatUi 创建 MCP 显示
 	if (_ui)
 	{
-		_ui->AddMcpDisplay(messageId, mcpId, utf8_to_widechar(toolName), utf8_to_widechar(arguments));
+		_ui->AddMcpDisplay(messageId, mcpId, utf8_to_widechar(mcpName), utf8_to_widechar(toolName), utf8_to_widechar(arguments), utf8_to_widechar(argsSummary));
 	}
 
 	// 记录操作：toolName 存储在 title，content 存储JSON
 	ChatOp op(ChatOp::Op_McpDisplay);
 	op.title = utf8_to_widechar(toolName);
-	op.contentUtf8 = _BuildMcpDisplayContent(toolName, arguments);
+	op.contentUtf8 = _BuildMcpDisplayContent(mcpName, toolName, arguments, "", argsSummary);
 	op.messageId = messageId;
 	_AddOp(op);
 
@@ -2685,9 +2697,9 @@ void CChatOpsCtrl::SetMcpResultToLastMcpDisplay(const std::wstring& messageId, c
 		return;
 
 	// 解析现有 content，重新构建含 result 的 JSON
-	std::string toolName, arguments, oldResult;
-	_ParseMcpDisplayContent(lastMcpOp->contentUtf8, toolName, arguments, oldResult);
-	lastMcpOp->contentUtf8 = _BuildMcpDisplayContent(toolName, arguments, result);
+	std::string mcpName, toolName, arguments, oldResult, argsSummary;
+	_ParseMcpDisplayContent(lastMcpOp->contentUtf8, mcpName, toolName, arguments, oldResult, argsSummary);
+	lastMcpOp->contentUtf8 = _BuildMcpDisplayContent(mcpName, toolName, arguments, result, argsSummary);
 
 	if (_ui)
 	{

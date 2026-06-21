@@ -86,7 +86,7 @@ public:
 	void SetCliStatus(const std::wstring& cliId, CliStatus status) override;
 
 	// MCP Display 方法
-	void AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& toolName, const std::wstring& arguments) override;
+	void AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& mcpName, const std::wstring& toolName, const std::wstring& arguments, const std::wstring& argsSummary) override;
 	void SetMcpResult(const std::wstring& mcpId, const std::wstring& result) override;
 	McpStatus GetMcpStatus(const std::wstring& mcpId) override;
 	void SetMcpStatus(const std::wstring& mcpId, McpStatus status) override;

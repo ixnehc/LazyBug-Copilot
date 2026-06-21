@@ -21,9 +21,7 @@ public:
 	struct Server
 	{
 		WUID mcpUid = 0;  // MCP的唯一标识
-		std::string command;
-		std::vector<std::string> args;
-		std::unordered_map<std::string, std::string> env;  // 自定义环境变量
+		CLlmMcps::McpConnectSetting connect;  // MCP 连接设置（HTTP 或 stdio 模式）
 		FILETIME fileTime = { 0 };  // MCP.json 文件时间
 
 		// 运行时数据
@@ -68,9 +66,7 @@ private:
 	struct Target
 	{
 		WUID mcpUid = 0;
-		std::string command;
-		std::vector<std::string> args;
-		std::unordered_map<std::string, std::string> env;
+		CLlmMcps::McpConnectSetting connect;
 		FILETIME fileTime = { 0 };
 	};
 
@@ -109,6 +105,9 @@ private:
 
 	// 发送MCP请求并读取响应（可被hCancel打断）
 	bool _SendMcpRequest(Server& server, HANDLE hCancel, const std::string& request, std::string& response, int timeoutMs = 5000, bool outputResponse = false);
+
+	// 发送MCP HTTP请求（可被hCancel打断）
+	bool _SendMcpRequestHttp(Server& server, HANDLE hCancel, const std::string& request, std::string& response, int timeoutMs, bool outputResponse);
 
 	// 发送MCP初始化请求（可被hCancel打断）
 	bool _SendMcpInitialize(Server& server, HANDLE hCancel);

@@ -1095,7 +1095,7 @@ void CChatUi::SetMcpStatus(const std::wstring& mcpId, McpStatus status)
 	_mcpStatus[mcpId] = status;
 }
 
-void CChatUi::AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& toolName, const std::wstring& arguments)
+void CChatUi::AddMcpDisplay(const std::wstring& messageId, const std::wstring& mcpId, const std::wstring& mcpName, const std::wstring& toolName, const std::wstring& arguments, const std::wstring& argsSummary)
 {
 	if (mcpId.empty())
 		return;
@@ -1105,13 +1105,17 @@ void CChatUi::AddMcpDisplay(const std::wstring& messageId, const std::wstring& m
 
 	std::wstring safeMessageId = EscapeJsonString(messageId);
 	std::wstring safeMcpId = EscapeJsonString(mcpId);
+	std::wstring safeMcpName = EscapeJsonString(mcpName);
 	std::wstring safeToolName = EscapeJsonString(toolName);
 	std::wstring safeArguments = EscapeJsonString(arguments);
+	std::wstring safeArgsSummary = EscapeJsonString(argsSummary);
 
 	std::wstring jsonMessage = L"{\"action\":\"addMcpDisplay\",\"messageId\":\"" + safeMessageId +
 		L"\",\"mcpId\":\"" + safeMcpId +
+		L"\",\"mcpName\":\"" + safeMcpName +
 		L"\",\"toolName\":\"" + safeToolName +
-		L"\",\"arguments\":\"" + safeArguments + L"\"}";
+		L"\",\"arguments\":\"" + safeArguments +
+		L"\",\"argsSummary\":\"" + safeArgsSummary + L"\"}";
 
 	PostJsonMessage(jsonMessage);
 }

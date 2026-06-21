@@ -185,15 +185,32 @@ static std::string _RemoveBOMAndUnreadable(const std::string& str)
 	return str.substr(start);
 }
 
-// 递归查找并列的 cmd/command 和 args
+// 递归查找并列的 cmd/command+args 或 url
 static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
 	std::string& outCommand, std::vector<std::string>& outArgs,
-	std::unordered_map<std::string, std::string>& outEnv)
+	std::unordered_map<std::string, std::string>& outEnv,
+	std::string& outUrl)
 {
 	if (!j.is_object())
 		return false;
 
-	// 检查当前对象是否有 command/cmd 和 args
+	// 检查当前对象是否有 url (HTTP 模式)
+	if (j.contains("url") && j["url"].is_string())
+	{
+		outUrl = j["url"].get<std::string>();
+		outCommand.clear();
+		outArgs.clear();
+		outEnv.clear();
+
+		// 同时提取 description（如果存在）
+		outDescription.clear();
+		if (j.contains("description") && j["description"].is_string())
+			outDescription = j["description"].get<std::string>();
+
+		return true;
+	}
+
+	// 检查当前对象是否有 command/cmd 和 args (stdio 模式)
 	std::string cmd;
 	bool hasCmd = false;
 	if (j.contains("command") && j["command"].is_string())
@@ -211,6 +228,7 @@ static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
 	{
 		// 找到有效的 cmd + args 组合
 		outCommand = cmd;
+		outUrl.clear();
 		outArgs.clear();
 		for (const auto& arg : j["args"])
 		{
@@ -240,7 +258,7 @@ static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
 	// 递归检查所有子对象
 	for (json::const_iterator it = j.begin(); it != j.end(); ++it)
 	{
-		if (_FindCmdAndArgs(it.value(), outDescription, outCommand, outArgs, outEnv))
+		if (_FindCmdAndArgs(it.value(), outDescription, outCommand, outArgs, outEnv, outUrl))
 			return true;
 	}
 
@@ -249,7 +267,9 @@ static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
 
 bool ParseMcpJson(const wchar_t* filePath, std::string& outDescription,
 	std::string& outCommand, std::vector<std::string>& outArgs,
-	std::unordered_map<std::string, std::string>& outEnv, std::string* outContent)
+	std::unordered_map<std::string, std::string>& outEnv,
+	std::string& outUrl,
+	std::string* outContent)
 {
 	// 读取文件内容
 	std::string content;
@@ -272,8 +292,8 @@ bool ParseMcpJson(const wchar_t* filePath, std::string& outDescription,
 		return false;
 	}
 
-	// 递归查找 cmd/command 和 args
-	return _FindCmdAndArgs(j, outDescription, outCommand, outArgs, outEnv);
+	// 递归查找 cmd/command+args 或 url
+	return _FindCmdAndArgs(j, outDescription, outCommand, outArgs, outEnv, outUrl);
 }
 
 // 递归扫描目录，收集所有包含 MCP.json 的子目录
@@ -309,21 +329,22 @@ static void _ScanMcps(const std::wstring& wRootPath, std::vector<CLlmMcps::Mcp>&
 			DWORD mcpJsonAttrs = GetFileAttributesW(wMcpJsonPath.c_str());
 			if (mcpJsonAttrs != INVALID_FILE_ATTRIBUTES && !(mcpJsonAttrs & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				// MCP.json 存在，解析它
-				std::string description, command;
+			// MCP.json 存在，解析它
+				std::string description, command, url;
 				std::vector<std::string> args;
 				std::unordered_map<std::string, std::string> env;
-				if (ParseMcpJson(wMcpJsonPath.c_str(), description, command, args, env))
+				if (ParseMcpJson(wMcpJsonPath.c_str(), description, command, args, env, url))
 				{
 					CLlmMcps::Mcp mcp;
 					mcp.tp = tp;
 					mcp.name = widechar_to_utf8(findData.cFileName);  // 使用 folder name
 					mcp.uid = Utils::EnsureMcpUid(fullPath);          // 确保 uid 存在
 					mcp.description = description;
-					mcp.folderPath = fullPath;
-					mcp.command = command;
-					mcp.args = args;
-					mcp.env = env;
+				mcp.folderPath = fullPath;
+				mcp.connect.url = url;
+				mcp.connect.command = command;
+				mcp.connect.args = args;
+				mcp.connect.env = env;
 					mcp.fileTime = Utils::GetFileTime(wMcpJsonPath.c_str());  // 记录文件时间
 					// enable 默认为 false，由 ReLoadSettings() 从设置文件读取
 					outMcps.push_back(mcp);
@@ -345,7 +366,7 @@ static void _ScanMcps(const std::wstring& wRootPath, std::vector<CLlmMcps::Mcp>&
 					mcp.name = "";  // name 为空
 					mcp.description = "";
 					mcp.folderPath = fullPath;
-					mcp.command = "";
+					mcp.connect.command = "";
 					// enable 默认为 false
 					outMcps.push_back(mcp);
 				}
@@ -414,15 +435,16 @@ void CLlmMcps::UpdateReLoadOutdated()
 		if (CompareFileTime(&currentTime, &mcp.fileTime) != 0)
 		{
 			// 文件有变化，重新载入
-			std::string description, command;
+			std::string description, command, url;
 			std::vector<std::string> args;
 			std::unordered_map<std::string, std::string> env;
-			if (ParseMcpJson(wMcpJsonPath.c_str(), description, command, args, env))
+			if (ParseMcpJson(wMcpJsonPath.c_str(), description, command, args, env, url))
 			{
 				mcp.description = description;
-				mcp.command = command;
-				mcp.args = args;
-				mcp.env = env;
+				mcp.connect.url = url;
+				mcp.connect.command = command;
+				mcp.connect.args = args;
+				mcp.connect.env = env;
 				mcp.fileTime = currentTime;
 				mcp.toolsLoaded = false;  // 需要重新加载 tools
 				mcp.tools.clear();
@@ -513,6 +535,7 @@ bool CLlmMcps::ReLoadSettings(const char* settingPath)
 				if (mcpSetting.contains("enable") && mcpSetting["enable"].is_boolean())
 					mcp.enable = mcpSetting["enable"].get<bool>();
 
+				mcp.disabledTools.clear();
 				// 读取disabledTools数组
 				if (mcpSetting.contains("disabledTools") && mcpSetting["disabledTools"].is_array())
 				{
@@ -533,6 +556,12 @@ bool CLlmMcps::ReLoadSettings(const char* settingPath)
 
 void CLlmMcps::FillToolsJson(json& requestJson)
 {
+	// 重建别名查询表
+	_toolsAlias.clear();
+
+	// 用于检测名称冲突的集合（包括真实名称和已生成的别名）
+	std::unordered_set<std::string> usedNames;
+
 	// 优先级: Project > Global
 	auto priority = [](Mcp::Type tp) -> int {
 		switch (tp)
@@ -587,11 +616,32 @@ void CLlmMcps::FillToolsJson(json& requestJson)
 			if (!mcp->IsToolEnabled(tool.name))
 				continue;
 
+			// 确定唯一名称（处理冲突）
+			std::string uniqueName = tool.name;
+			if (usedNames.count(tool.name) > 0)
+			{
+				// 冲突，生成别名: toolName_mcpName
+				std::string aliasBase = tool.name + "_" + mcp->name;
+				uniqueName = aliasBase;
+				int suffix = 1;
+				while (usedNames.count(uniqueName) > 0)
+				{
+					uniqueName = aliasBase + "_" + std::to_string(suffix++);
+				}
+			}
+			usedNames.insert(uniqueName);
+
+			// 记录别名映射关系（即使没冲突也记录，方便统一查询）
+			ToolAliasInfo info;
+			info.mcpUid = mcp->uid;
+			info.realToolName = tool.name;
+			_toolsAlias[uniqueName] = info;
+
 			json tool_def;
 			tool_def["type"] = "function";
 
 			json function_obj;
-			function_obj["name"] = tool.name;
+			function_obj["name"] = uniqueName;
 			function_obj["description"] = tool.description;
 
 			// 解析inputSchema为JSON对象
@@ -620,4 +670,12 @@ void CLlmMcps::FillToolsJson(json& requestJson)
 
 	if (!tools_array.empty())
 		requestJson["tools"] = tools_array;
+}
+
+const CLlmMcps::ToolAliasInfo* CLlmMcps::FindToolByAlias(const std::string& alias) const
+{
+	auto it = _toolsAlias.find(alias);
+	if (it != _toolsAlias.end())
+		return &it->second;
+	return nullptr;
 }

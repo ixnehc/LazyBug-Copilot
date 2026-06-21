@@ -10,6 +10,20 @@ using json = nlohmann::ordered_json;
 class CLlmMcps
 {
 public:
+	// MCP 连接设置（HTTP 或 stdio 模式）
+	struct McpConnectSetting
+	{
+		std::string url;              // HTTP MCP server 的 URL
+		std::string command;          // 启动mcp server的命令 (stdio模式)
+		std::vector<std::string> args;  // 启动参数列表 (stdio模式)
+		std::unordered_map<std::string, std::string> env;  // 自定义环境变量 (stdio模式)
+
+		// 判断是否为 HTTP 模式
+		bool IsHttpMode() const { return !url.empty(); }
+		// 判断是否为 stdio 模式
+		bool IsStdioMode() const { return !command.empty(); }
+	};
+
 	struct Mcp
 	{
 		enum class Type
@@ -23,9 +37,7 @@ public:
 		std::string name;//这个名字在同一个type下的所有mcp中是唯一的,注意这个name其实是folderPath的folder name,不是从文件里读出来的
 		std::string description;
 		std::string folderPath;
-		std::string command;            // 启动mcp server的命令 (从MCP.json解析)
-		std::vector<std::string> args;  // 启动参数列表 (从MCP.json解析)
-		std::unordered_map<std::string, std::string> env;  // 自定义环境变量 (从MCP.json解析)
+		McpConnectSetting connect;      // MCP 连接设置（HTTP 或 stdio 模式）
 		FILETIME fileTime = { 0 };      // MCP.json 文件的修改时间
 		bool enable = false;            // mcp默认不启用
 
@@ -58,12 +70,24 @@ public:
 
 	void Clear();
 
+	// 工具别名信息：用于解决不同mcp中tool名称冲突
+	struct ToolAliasInfo
+	{
+		WUID mcpUid;               // 所属mcp的唯一标识
+		std::string realToolName;  // tool的真实名称（非别名）
+	};
+
 	//将所有enable且已加载运行时tools的Mcp信息,填充到requestJson的"tools"数组中
 	//只输出mcp.enable && tool.enable 的tool
 	//如果requestJson里已有"tools",则追加到已有数组中
+	//同时重建_toolsAlias查询表，确保tool名称唯一（冲突时生成别名）
 	void FillToolsJson(json& requestJson);
 
+	//根据别名查找tool信息（返回nullptr表示未找到）
+	const ToolAliasInfo* FindToolByAlias(const std::string& alias) const;
+
 	std::vector<Mcp> _mcps;
+	std::unordered_map<std::string, ToolAliasInfo> _toolsAlias;  // 别名 -> (mcpName, realToolName)
 	int _ver = 0;  // 版本号，每次ReLoad或ReLoadSettings加1
 
 };
@@ -71,8 +95,10 @@ public:
 extern CLlmMcps g_llmMcps;
 
 // 解析 MCP.json 文件
-// 从中提取 description, command, args, env
+// 从中提取 description, command/args/env (stdio模式) 或 url (http模式)
 // outContent: 可选，填充 MCP.json 的完整内容
 bool ParseMcpJson(const wchar_t* filePath, std::string& outDescription,
                   std::string& outCommand, std::vector<std::string>& outArgs,
-                  std::unordered_map<std::string, std::string>& outEnv, std::string* outContent = nullptr);
+                  std::unordered_map<std::string, std::string>& outEnv,
+                  std::string& outUrl,
+                  std::string* outContent = nullptr);

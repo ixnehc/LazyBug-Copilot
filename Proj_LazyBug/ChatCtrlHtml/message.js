@@ -1310,10 +1310,12 @@ function appendCliOutput(messageId, deltaOutput) {
  * 添加 MCP 工具调用显示
  * @param {string} messageId - 消息 ID
  * @param {string} mcpId - MCP 显示容器的唯一 ID
+ * @param {string} mcpName - MCP 名称
  * @param {string} toolName - 工具名称
  * @param {string} arguments - 工具参数 JSON 字符串
+ * @param {string} argsSummary - 参数摘要 JSON 字符串
  */
-function addMcpDisplay(messageId, mcpId, toolName, arguments) {
+function addMcpDisplay(messageId, mcpId, mcpName, toolName, arguments, argsSummary) {
     const shouldScroll = isNearBottom();
     
     const messageElem = document.getElementById(messageId);
@@ -1321,6 +1323,14 @@ function addMcpDisplay(messageId, mcpId, toolName, arguments) {
     
     const messageContentElem = messageElem.querySelector('.message-content');
     if (!messageContentElem) return;
+    
+    // 解析参数摘要
+    let parsedArgs = [];
+    try {
+        parsedArgs = JSON.parse(argsSummary || '[]');
+    } catch (e) {
+        parsedArgs = [];
+    }
     
     // 创建 MCP 显示容器
     const mcpContainer = document.createElement('div');
@@ -1340,15 +1350,25 @@ function addMcpDisplay(messageId, mcpId, toolName, arguments) {
     expandIcon.className = 'mcp-expand-icon';
     expandIcon.textContent = '+';
     
-    // MCP 标签
+    // MCP 名称标签（左边方框）
     const mcpLabel = document.createElement('span');
-    mcpLabel.className = 'mcp-tool-label';
-    mcpLabel.textContent = 'MCP';
+    mcpLabel.className = 'mcp-name-label';
+    mcpLabel.textContent = '🛠️ ' + (mcpName || 'MCP');
     
-    // 标题文本
+    // Tool 名称标签（右边方框）
+    const toolLabel = document.createElement('span');
+    toolLabel.className = 'mcp-tool-name-label';
+    toolLabel.textContent = toolName;
+    
+    // 标题文本（带参数摘要，key灰色 value白色）
     const headerText = document.createElement('span');
     headerText.className = 'mcp-header-text';
-    headerText.textContent = toolName;
+    if (parsedArgs.length > 0) {
+        parsedArgs.forEach((arg, idx) => {
+            if (idx > 0) headerText.innerHTML += '<span class="mcp-arg-sep">, </span>';
+            headerText.innerHTML += '<span class="mcp-arg-key">' + escapeHtml(arg.k) + '=</span><span class="mcp-arg-val">' + escapeHtml(arg.v) + '</span>';
+        });
+    }
     
     // 停止按钮（在结果未设置时显示）
     const stopBtn = document.createElement('span');
@@ -1363,6 +1383,7 @@ function addMcpDisplay(messageId, mcpId, toolName, arguments) {
     
     mcpHeader.appendChild(expandIcon);
     mcpHeader.appendChild(mcpLabel);
+    mcpHeader.appendChild(toolLabel);
     mcpHeader.appendChild(headerText);
     mcpHeader.appendChild(stopBtn);
     
@@ -1383,12 +1404,22 @@ function addMcpDisplay(messageId, mcpId, toolName, arguments) {
     
     const argsContent = document.createElement('div');
     argsContent.className = 'mcp-args-content';
-    // 尝试格式化 JSON
-    try {
-        const parsed = JSON.parse(arguments);
-        argsContent.textContent = JSON.stringify(parsed, null, 2);
-    } catch (e) {
-        argsContent.textContent = arguments;
+    // 每个参数一行，key蓝色 value绿色
+    if (parsedArgs.length > 0) {
+        parsedArgs.forEach(arg => {
+            const line = document.createElement('div');
+            line.className = 'mcp-arg-line';
+            line.innerHTML = '<span class="mcp-arg-key">' + escapeHtml(arg.k) + '=</span><span class="mcp-arg-val">' + escapeHtml(arg.v) + '</span>';
+            argsContent.appendChild(line);
+        });
+    } else {
+        // 回退: 尝试格式化 JSON
+        try {
+            const parsed = JSON.parse(arguments);
+            argsContent.textContent = JSON.stringify(parsed, null, 2);
+        } catch (e) {
+            argsContent.textContent = arguments;
+        }
     }
     argsSection.appendChild(argsContent);
     

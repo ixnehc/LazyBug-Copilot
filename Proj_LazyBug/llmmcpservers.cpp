@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <curl/curl.h>
 
 // 使用项目中已有的json库
 using json = nlohmann::ordered_json;
@@ -153,9 +154,7 @@ void CLlmMcpServers::_Sync()
 		// 需要创建新的server
 		auto server = std::make_unique<Server>();
 		server->mcpUid = target.mcpUid;
-		server->command = target.command;
-		server->args = target.args;
-		server->env = target.env;
+		server->connect = target.connect;
 		server->fileTime = target.fileTime;
 
 		_StartServer(std::move(server));
@@ -228,6 +227,30 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 		return false;
 	}
 
+	// HTTP 模式：url 非空，跳过进程创建
+	if (server.connect.IsHttpMode())
+	{
+		server.AppendOutput("Using HTTP transport: " + server.connect.url);
+
+		// 发送MCP初始化请求
+		if (!_SendMcpInitialize(server, hCancel))
+		{
+			_DestroyServer(server);
+			return false;
+		}
+
+		// 获取工具列表
+		if (!_FetchTools(server, hCancel))
+		{
+			_DestroyServer(server);
+			return false;
+		}
+
+		server.toolsFetched = true;
+		return true;
+	}
+
+	// stdio 模式：command 非空，创建子进程
 	// 1. 创建管道用于与子进程通信
 	SECURITY_ATTRIBUTES sa;
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -281,18 +304,18 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 	// 包裹成 "/c", cmd.exe 就不会将其识别为开关, 导致后续命令解析错乱
 	// (npx/npm 会推算出错误的 prefix 路径并崩溃)。
 	// 因此仅对包含空格或为空的参数加引号。
-	std::string cmdLine = server.command;
-	for (const auto& arg : server.args)
+	std::string cmdLine = server.connect.command;
+	for (const auto& arg : server.connect.args)
 	{
 		cmdLine += " ";
 		cmdLine += arg;
 	}
 
 	// 3. 构建环境块
-	// 如果 server.env 有自定义环境变量，需要创建自定义环境块
+	// 如果 server.connect.env 有自定义环境变量，需要创建自定义环境块
 	std::wstring envBlock;
 	LPVOID lpEnv = NULL;
-	if (!server.env.empty())
+	if (!server.connect.env.empty())
 	{
 		// 获取当前进程的环境块
 		LPWCH currentEnv = GetEnvironmentStringsW();
@@ -315,8 +338,8 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 			}
 			FreeEnvironmentStringsW(currentEnv);
 
-			// 合入 server.env（覆盖同名变量）
-			for (const auto& kv : server.env)
+			// 合入 server.connect.env（覆盖同名变量）
+			for (const auto& kv : server.connect.env)
 			{
 				envMap[utf8_to_widechar(kv.first)] = utf8_to_widechar(kv.second);
 			}
@@ -474,6 +497,13 @@ void CLlmMcpServers::_DestroyServer(Server& server)
 
 bool CLlmMcpServers::_SendMcpRequest(Server& server, HANDLE hCancel, const std::string& request, std::string& response, int timeoutMs, bool outputResponse)
 {
+	// HTTP 模式
+	if (server.connect.IsHttpMode())
+	{
+		return _SendMcpRequestHttp(server, hCancel, request, response, timeoutMs, outputResponse);
+	}
+
+	// stdio 模式
 	if (!server.hPipeWrite || !server.hPipeRead)
 		return false;
 
@@ -610,6 +640,151 @@ bool CLlmMcpServers::_SendMcpRequest(Server& server, HANDLE hCancel, const std::
 	return false;
 }
 
+// curl 写入回调，收集响应数据
+static size_t _McpHttpWriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	size_t totalSize = size * nmemb;
+	std::string* str = static_cast<std::string*>(userp);
+	str->append(static_cast<char*>(contents), totalSize);
+	return totalSize;
+}
+
+// curl 进度回调，检查取消事件
+static int _McpHttpProgressCallback(void* clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+	HANDLE hCancel = static_cast<HANDLE>(clientp);
+	if (hCancel && WaitForSingleObject(hCancel, 0) == WAIT_OBJECT_0)
+		return 1;  // 返回非零值中止传输
+	return 0;
+}
+
+bool CLlmMcpServers::_SendMcpRequestHttp(Server& server, HANDLE hCancel, const std::string& request, std::string& response, int timeoutMs, bool outputResponse)
+{
+	// 初始化 curl
+	CURL* curl = curl_easy_init();
+	if (!curl)
+	{
+		server.AppendOutput("Failed to initialize CURL for MCP HTTP");
+		return false;
+	}
+
+	// 设置请求头
+	struct curl_slist* headers = nullptr;
+	headers = curl_slist_append(headers, "Content-Type: application/json");
+	headers = curl_slist_append(headers, "Accept: application/json, text/event-stream");
+
+	// 解析请求中的 id，用于匹配响应
+	long long expectId = -1;
+	bool hasExpectId = false;
+	try
+	{
+		auto reqJson = nlohmann::json::parse(request);
+		if (reqJson.contains("id") && reqJson["id"].is_number_integer())
+		{
+			expectId = reqJson["id"].get<long long>();
+			hasExpectId = true;
+		}
+	}
+	catch (...)
+	{
+	}
+
+	// 收集响应数据
+	std::string responseData;
+
+	// 设置 curl 选项
+	curl_easy_setopt(curl, CURLOPT_URL, server.connect.url.c_str());
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _McpHttpWriteCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseData);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+	curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, _McpHttpProgressCallback);
+	curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, hCancel);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeoutMs / 1000);
+
+	// 发送请求
+	CURLcode res = curl_easy_perform(curl);
+
+	// 清理
+	curl_slist_free_all(headers);
+	curl_easy_cleanup(curl);
+
+	// 检查结果
+	if (res != CURLE_OK)
+	{
+		if (res == CURLE_ABORTED_BY_CALLBACK)
+			server.AppendOutput("MCP HTTP request cancelled");
+		else
+			server.AppendOutput("MCP HTTP request failed: " + std::string(curl_easy_strerror(res)));
+		return false;
+	}
+
+	if (outputResponse)
+		server.AppendOutput(responseData);
+
+	// 解析响应（可能是 NDJSON 或 SSE 格式）
+	// SSE 格式：每行以 "id:", "event:", "data:" 开头
+	// 按行（\n）切分逐条解析
+	size_t lineStart = 0;
+	size_t newlinePos;
+	while ((newlinePos = responseData.find('\n', lineStart)) != std::string::npos)
+	{
+		std::string line = responseData.substr(lineStart, newlinePos - lineStart);
+		lineStart = newlinePos + 1;
+
+		// 去除可能的 \r 及首尾空白
+		while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t'))
+			line.pop_back();
+		if (line.empty())
+			continue;
+
+		// SSE 格式：提取 "data:" 后的内容
+		if (line.compare(0, 5, "data:") == 0)
+		{
+			line = line.substr(5);
+			// 去除 data: 后可能的前导空格
+			while (!line.empty() && (line[0] == ' ' || line[0] == '\t'))
+				line.erase(0, 1);
+		}
+		else if (line.compare(0, 3, "id:") == 0 || line.compare(0, 6, "event:") == 0)
+		{
+			// 跳过 SSE 的 id 和 event 行
+			continue;
+		}
+
+		if (line.empty())
+			continue;
+
+		try
+		{
+			auto j = nlohmann::json::parse(line);
+
+			// 没有 id 的是 server 主动推送的通知，跳过
+			if (!hasExpectId)
+			{
+				response = line;
+				return true;
+			}
+
+			if (j.contains("id") && j["id"].is_number_integer() &&
+				j["id"].get<long long>() == expectId)
+			{
+				response = line;
+				return true;
+			}
+			// 其它消息忽略，继续解析
+		}
+		catch (...)
+		{
+			// 非完整或非法 JSON 行，忽略
+		}
+	}
+
+	server.AppendOutput("MCP HTTP response parse failed: no matching response");
+	return false;
+}
+
 
 bool CLlmMcpServers::_SendMcpInitialize(Server& server, HANDLE hCancel)
 {
@@ -643,15 +818,27 @@ bool CLlmMcpServers::_SendMcpInitialize(Server& server, HANDLE hCancel)
 		return false;
 	}
 
-	// 发送 initialized 通知（NDJSON：单行 JSON + \n，无头部）
+	// 发送 initialized 通知
+	// 对于 HTTP 模式，通知不需要等待响应；对于 stdio 模式，使用 WriteFile
 	std::string notification = R"({"jsonrpc":"2.0","method":"notifications/initialized"})";
-	std::string notifMessage = notification + "\n";
 
-	DWORD bytesWritten;
-	if (!WriteFile(server.hPipeWrite, notifMessage.c_str(), static_cast<DWORD>(notifMessage.length()), &bytesWritten, NULL))
+	if (server.connect.IsHttpMode())
 	{
-		server.AppendOutput("WriteFile (initialized) failed, error: " + std::to_string(GetLastError()));
-		return false;
+		// HTTP 模式：发送通知但不等待响应
+		std::string dummyResponse;
+		_SendMcpRequestHttp(server, hCancel, notification, dummyResponse, 5000, false);
+		// 通知不需要响应，忽略错误
+	}
+	else
+	{
+		// stdio 模式
+		std::string notifMessage = notification + "\n";
+		DWORD bytesWritten;
+		if (!WriteFile(server.hPipeWrite, notifMessage.c_str(), static_cast<DWORD>(notifMessage.length()), &bytesWritten, NULL))
+		{
+			server.AppendOutput("WriteFile (initialized) failed, error: " + std::to_string(GetLastError()));
+			return false;
+		}
 	}
 
 	return true;
@@ -751,42 +938,17 @@ void CLlmMcpServers::_CollectTargetServers(std::vector<Target>& outTargets)
 {
 	outTargets.clear();
 
-	// 同名 mcp 按优先级去重
-	std::unordered_map<std::string, size_t> nameToIndex;       // name -> outTargets下标
-	std::vector<CLlmMcps::Mcp::Type> targetTypes;              // 与outTargets平行，记录各target的优先级类型
-
+	// 收集所有启用的 mcp（不去重）
 	for (const auto& mcp : g_llmMcps._mcps)
 	{
 		if (!mcp.enable)
 			continue;
 
-		auto it = nameToIndex.find(mcp.name);
-		if (it == nameToIndex.end())
-		{
-			nameToIndex[mcp.name] = outTargets.size();
-			Target t;
-			t.mcpUid = mcp.uid;
-			t.command = mcp.command;
-			t.args = mcp.args;
-			t.env = mcp.env;
-			t.fileTime = mcp.fileTime;
-			outTargets.push_back(std::move(t));
-			targetTypes.push_back(mcp.tp);
-		}
-		else
-		{
-			// 检查优先级
-			size_t idx = it->second;
-			if (_Priority(mcp.tp) > _Priority(targetTypes[idx]))
-			{
-				outTargets[idx].mcpUid = mcp.uid;
-				outTargets[idx].command = mcp.command;
-				outTargets[idx].args = mcp.args;
-				outTargets[idx].env = mcp.env;
-			outTargets[idx].fileTime = mcp.fileTime;
-				targetTypes[idx] = mcp.tp;
-			}
-		}
+		Target t;
+		t.mcpUid = mcp.uid;
+		t.connect = mcp.connect;
+		t.fileTime = mcp.fileTime;
+		outTargets.push_back(std::move(t));
 	}
 }
 
@@ -810,19 +972,29 @@ CLlmMcpServers::Server* CLlmMcpServers::_FindServerByToolName(const std::string&
 
 bool CLlmMcpServers::CallTool(const std::string& mcpName, const std::string& arguments, std::string& result, HANDLE hCancel, int timeoutMs)
 {
-	Server* server = _FindServerByToolName(mcpName);
-	if (!server)
+	// 通过别名查找真实的MCP和tool名称
+	const auto* aliasInfo = g_llmMcps.FindToolByAlias(mcpName);
+	if (!aliasInfo)
 	{
-		result = "Error: MCP server not found for tool '" + mcpName + "'";
+		result = "Error: Tool alias not found '" + mcpName + "'";
 		return false;
 	}
+
+	// 通过mcpUid查找对应的server
+	auto it = _servers.find(aliasInfo->mcpUid);
+	if (it == _servers.end() || it->second->state.load() != State::Ready || it->second->pendingRemove)
+	{
+		result = "Error: MCP server not ready for tool '" + mcpName + "' (uid=" + std::to_string(aliasInfo->mcpUid) + ")";
+		return false;
+	}
+	Server* server = it->second.get();
 
 	// 生成唯一请求ID
 	long long requestId = _nextRequestId.fetch_add(1);
 
-	// 构建tools/call请求
+	// 构建tools/call请求（使用真实tool名称）
 	json params = json::object();
-	params["name"] = mcpName;
+	params["name"] = aliasInfo->realToolName;
 
 	// 解析arguments为JSON对象
 	if (!arguments.empty() && json::accept(arguments))

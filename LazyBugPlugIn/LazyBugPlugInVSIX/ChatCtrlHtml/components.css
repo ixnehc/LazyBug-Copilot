@@ -341,7 +341,7 @@
 .mcp-collapsible-header {
     background-color: #1a1a1a;
     color: #cccccc;
-    padding: 8px 12px;
+    padding: 8px 12px 8px 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -355,29 +355,43 @@
 
 .mcp-expand-icon {
     color: #888888;
-    margin-right: 8px;
+    margin-right: 4px;
     font-size: 0.8em;
     transition: transform 0.2s;
     width: 12px;
     display: inline-block;
 }
 
-.mcp-tool-label {
+.mcp-name-label {
     font-weight: bold;
-    font-size: 0.75em;
-    padding: 2px 6px;
-    margin-right: 8px;
-    border-radius: 3px;
+    font-size: 0.85em;
+    padding: 3px 8px;
+    border-radius: 4px 0 0 4px;
     background-color: #2d3a5a;
     color: #6699ff;
-    text-transform: uppercase;
     letter-spacing: 0.5px;
+    border: 1px solid #555555;
+}
+
+.mcp-tool-name-label {
+    font-weight: bold;
+    font-size: 0.85em;
+    padding: 3px 8px;
+    border-radius: 0 4px 4px 0;
+    background-color: #151515;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    border: 1px solid #555555;
+    margin-right: 6px;
 }
 
 .mcp-header-text {
     font-weight: bold;
     font-size: 0.9em;
     flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mcp-collapsible-content {
@@ -406,6 +420,23 @@
     line-height: 1.4;
     max-height: 200px;
     overflow-y: auto;
+}
+
+.mcp-arg-key {
+    color: #888888;
+}
+
+.mcp-arg-val {
+    color: #f0f0f0;
+}
+
+.mcp-arg-sep {
+    color: #888888;
+}
+
+.mcp-arg-line {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
 .mcp-args-content::-webkit-scrollbar {
