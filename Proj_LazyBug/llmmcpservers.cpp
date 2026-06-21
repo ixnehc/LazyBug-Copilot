@@ -724,61 +724,149 @@ bool CLlmMcpServers::_SendMcpRequestHttp(Server& server, HANDLE hCancel, const s
 		server.AppendOutput(responseData);
 
 	// 解析响应（可能是 NDJSON 或 SSE 格式）
-	// SSE 格式：每行以 "id:", "event:", "data:" 开头
-	// 按行（\n）切分逐条解析
-	size_t lineStart = 0;
-	size_t newlinePos;
-	while ((newlinePos = responseData.find('\n', lineStart)) != std::string::npos)
+	// SSE 格式：以空行分隔事件，事件内 "id:" / "event:" / "data:" 等字段行
+	//   同一事件可有多个 "data:" 行，其值用 '\n' 拼接成完整消息
+	// 这里用偏移量做零拷贝切分，避免对巨大响应反复 substr/erase 拷贝
+	// 每个事件的 data 行只记录 [起始, 长度]，需要处理时才拼接
+
+	const char* buf = responseData.data();
+	const size_t total = responseData.size();
+
+	// 处理一条完整消息，命中返回 true 并写入 response
+	// 单行时直接用 responseData 内部数据传给 parse（零拷贝）
+	// 多行时拼接 '\n' 后再 parse
+	auto tryHandleEvent = [&](const std::vector<std::pair<size_t, size_t>>& dataLines, bool& matched) -> void
 	{
-		std::string line = responseData.substr(lineStart, newlinePos - lineStart);
-		lineStart = newlinePos + 1;
+		matched = false;
+		if (dataLines.empty())
+			return;
 
-		// 去除可能的 \r 及首尾空白
-		while (!line.empty() && (line.back() == '\r' || line.back() == ' ' || line.back() == '\t'))
-			line.pop_back();
-		if (line.empty())
-			continue;
-
-		// SSE 格式：提取 "data:" 后的内容
-		if (line.compare(0, 5, "data:") == 0)
+		if (dataLines.size() == 1)
 		{
-			line = line.substr(5);
-			// 去除 data: 后可能的前导空格
-			while (!line.empty() && (line[0] == ' ' || line[0] == '\t'))
-				line.erase(0, 1);
-		}
-		else if (line.compare(0, 3, "id:") == 0 || line.compare(0, 6, "event:") == 0)
-		{
-			// 跳过 SSE 的 id 和 event 行
-			continue;
-		}
-
-		if (line.empty())
-			continue;
-
-		try
-		{
-			auto j = nlohmann::json::parse(line);
-
-			// 没有 id 的是 server 主动推送的通知，跳过
-			if (!hasExpectId)
+			// 单行：直接用指向 responseData 的裸数据
+			size_t beg = dataLines[0].first;
+			size_t len = dataLines[0].second;
+			try
 			{
-				response = line;
-				return true;
-			}
+				auto j = nlohmann::json::parse(buf + beg, buf + beg + len);
 
-			if (j.contains("id") && j["id"].is_number_integer() &&
-				j["id"].get<long long>() == expectId)
-			{
-				response = line;
-				return true;
+				if (!hasExpectId)
+				{
+					response.assign(buf + beg, len);
+					matched = true;
+					return;
+				}
+				if (j.contains("id") && j["id"].is_number_integer() &&
+					j["id"].get<long long>() == expectId)
+				{
+					response.assign(buf + beg, len);
+					matched = true;
+				}
 			}
-			// 其它消息忽略，继续解析
+			catch (...)
+			{
+			}
 		}
-		catch (...)
+		else
 		{
-			// 非完整或非法 JSON 行，忽略
+			// 多行：按 SSE 规范用 '\n' 拼接
+			std::string msg;
+			for (size_t i = 0; i < dataLines.size(); ++i)
+			{
+				if (i > 0)
+					msg.push_back('\n');
+				msg.append(buf + dataLines[i].first, dataLines[i].second);
+			}
+			try
+			{
+				auto j = nlohmann::json::parse(msg);
+
+				if (!hasExpectId)
+				{
+					response = msg;
+					matched = true;
+					return;
+				}
+				if (j.contains("id") && j["id"].is_number_integer() &&
+					j["id"].get<long long>() == expectId)
+				{
+					response = msg;
+					matched = true;
+				}
+			}
+			catch (...)
+			{
+			}
 		}
+	};
+
+	// 当前事件的 data 行偏移列表（[起始偏移, 长度]）
+	std::vector<std::pair<size_t, size_t>> dataLines;
+
+	size_t lineStart = 0;
+	while (lineStart <= total)
+	{
+		size_t newlinePos = responseData.find('\n', lineStart);
+		size_t lineEnd = (newlinePos == std::string::npos) ? total : newlinePos;
+
+		// 当前行范围 [lineBeg, lineLen)，指向 responseData 内部，零拷贝
+		size_t lineBeg = lineStart;
+		size_t lineLen = lineEnd - lineStart;
+		lineStart = lineEnd + 1;
+
+		// 去除行尾的 \r 及空白（仅调整长度，零拷贝）
+		while (lineLen > 0)
+		{
+			char c = buf[lineBeg + lineLen - 1];
+			if (c == '\r' || c == ' ' || c == '\t')
+				--lineLen;
+			else
+				break;
+		}
+
+		// 空行：事件结束，处理累积的 data
+		if (lineLen == 0)
+		{
+			if (!dataLines.empty())
+			{
+				bool matched = false;
+				tryHandleEvent(dataLines, matched);
+				if (matched)
+					return true;
+				dataLines.clear();
+			}
+			if (newlinePos == std::string::npos)
+				break;
+			continue;
+		}
+
+		// data: 行 —— 记录值在 responseData 中的偏移和长度
+		if (lineLen >= 5 && memcmp(buf + lineBeg, "data:", 5) == 0)
+		{
+			lineBeg += 5;
+			lineLen -= 5;
+			// 去除 data: 后可能的前导空格（宽松处理，跳过所有空白）
+			while (lineLen > 0 && (buf[lineBeg] == ' ' || buf[lineBeg] == '\t'))
+			{
+				++lineBeg;
+				--lineLen;
+			}
+			dataLines.push_back(std::make_pair(lineBeg, lineLen));
+		}
+		// 其它 SSE 字段行（id:/event: 等）跳过
+
+		// 末尾无换行的最后一行已处理完毕
+		if (newlinePos == std::string::npos)
+			break;
+	}
+
+	// 流末尾未以空行结束时，处理最后累积的事件
+	if (!dataLines.empty())
+	{
+		bool matched = false;
+		tryHandleEvent(dataLines, matched);
+		if (matched)
+			return true;
 	}
 
 	server.AppendOutput("MCP HTTP response parse failed: no matching response");
