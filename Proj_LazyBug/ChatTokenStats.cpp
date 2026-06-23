@@ -8,6 +8,7 @@
 #include "ChatInputTag.h"
 #include "LlmLib.h"
 #include "LlmTools.h"
+#include "LlmMcps.h"
 #include "LlmSkills.h"
 #include "ChatOpsCtrl.h"
 #include <functional>
@@ -16,6 +17,7 @@
 // 外部全局变量声明
 extern CLlmLib g_llmLib;
 extern CLlmTools g_llmTools;
+extern CLlmMcps g_llmMcps;
 extern CLlmSkills g_llmSkills;
 
 // ============================================================================
@@ -317,6 +319,26 @@ uint64_t ToolsTokenProvider::GetVersion() const
 	// 组合 LLM Lib 版本号（配置重载时版本号变化）
 	version ^= static_cast<uint64_t>(g_llmLib.GetVer());
 
+	// 组合 MCP 状态：版本号、mcp 启用状态、tool 加载状态、tool 内容、tool 启用状态
+	version = version * 1000003 + static_cast<uint64_t>(g_llmMcps._ver);
+	for (const auto& mcp : g_llmMcps._mcps)
+	{
+		version = version * 1000003 + std::hash<std::string>{}(mcp.legalName);
+		version = version * 1000003 + (mcp.enable ? 1ULL : 0ULL);
+		version = version * 1000003 + (mcp.toolsLoaded ? 1ULL : 0ULL);
+
+		if (!mcp.enable || !mcp.toolsLoaded)
+			continue;
+
+		for (const auto& tool : mcp.tools)
+		{
+			version = version * 1000003 + std::hash<std::string>{}(tool.name);
+			version = version * 1000003 + (mcp.IsToolEnabled(tool.name) ? 1ULL : 0ULL);
+			version = version * 1000003 + std::hash<std::string>{}(tool.description);
+			version = version * 1000003 + std::hash<std::string>{}(tool.inputSchema);
+		}
+	}
+
 	return version;
 }
 
@@ -327,37 +349,55 @@ int ToolsTokenProvider::CalculateTokens()
 
 	// 获取 API 信息
 	const LlmApi* api = g_llmLib.GetApi(currentApiName);
-	if (!api || api->tools.empty())
-		return 0;
 
 	// 估算所有启用工具的 token 数
 	int totalTokens = 0;
 
-	for (const auto& toolType : api->tools)
+	if (api && !api->tools.empty())
 	{
-		// 获取工具定义
-		const CLlmTools::ToolDefinition* toolDef = g_llmTools.GetToolDefinition(toolType);
-		if (!toolDef)
+		for (const auto& toolType : api->tools)
+		{
+			// 获取工具定义
+			const CLlmTools::ToolDefinition* toolDef = g_llmTools.GetToolDefinition(toolType);
+			if (!toolDef)
+				continue;
+
+			// 估算工具名称的 token
+			totalTokens += Utils::EstimateTokenCount(toolDef->name);
+
+			// 估算工具描述的 token
+			totalTokens += Utils::EstimateTokenCount(toolDef->description);
+
+			// 估算参数的 token
+			for (const auto& param : toolDef->params)
+			{
+				totalTokens += Utils::EstimateTokenCount(param.name);
+				totalTokens += Utils::EstimateTokenCount(param.type);
+				totalTokens += Utils::EstimateTokenCount(param.description);
+			}
+
+			// 估算必需参数列表的 token
+			for (const auto& requiredParam : toolDef->required_params)
+			{
+				totalTokens += Utils::EstimateTokenCount(requiredParam);
+			}
+		}
+	}
+
+	// 追加 MCP tools 的 token 估算
+	for (const auto& mcp : g_llmMcps._mcps)
+	{
+		if (!mcp.enable || !mcp.toolsLoaded || mcp.tools.empty())
 			continue;
 
-		// 估算工具名称的 token
-		totalTokens += Utils::EstimateTokenCount(toolDef->name);
-
-		// 估算工具描述的 token
-		totalTokens += Utils::EstimateTokenCount(toolDef->description);
-
-		// 估算参数的 token
-		for (const auto& param : toolDef->params)
+		for (const auto& tool : mcp.tools)
 		{
-			totalTokens += Utils::EstimateTokenCount(param.name);
-			totalTokens += Utils::EstimateTokenCount(param.type);
-			totalTokens += Utils::EstimateTokenCount(param.description);
-		}
+			if (!mcp.IsToolEnabled(tool.name))
+				continue;
 
-		// 估算必需参数列表的 token
-		for (const auto& requiredParam : toolDef->required_params)
-		{
-			totalTokens += Utils::EstimateTokenCount(requiredParam);
+			totalTokens += Utils::EstimateTokenCount(tool.name);
+			totalTokens += Utils::EstimateTokenCount(tool.description);
+			totalTokens += Utils::EstimateTokenCount(tool.inputSchema);
 		}
 	}
 
