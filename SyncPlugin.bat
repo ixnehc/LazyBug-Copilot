@@ -17,6 +17,7 @@ call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\ChatSettingPage.h
 call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\ChatSkillsTree.html C:\Users\xi.chen\AppData\Local\Microsoft\VisualStudio
 call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\ChatMcpsTree.html C:\Users\xi.chen\AppData\Local\Microsoft\VisualStudio
 call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\ChatSkillTip.html C:\Users\xi.chen\AppData\Local\Microsoft\VisualStudio
+call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\ChatMcpTip.html C:\Users\xi.chen\AppData\Local\Microsoft\VisualStudio
 call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\ChatSettingMenu.html C:\Users\xi.chen\AppData\Local\Microsoft\VisualStudio
 call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\llm_setting_intro.html C:\Users\xi.chen\AppData\Local\Microsoft\VisualStudio
 call "D:\LazyBug\CopyFileToFolder.bat" D:\LazyBug\Proj_LazyBug\chatrules_usingtools.txt C:\Users\xi.chen\AppData\Local\Microsoft\VisualStudio
