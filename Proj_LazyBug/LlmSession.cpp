@@ -29,6 +29,9 @@ std::deque<std::string> g_requests;
 // 保存最近的请求到文件
 void SaveRecentRequests(const std::string& filename = "recent_requests.txt")
 {
+	static std::mutex s_mutex;
+	std::lock_guard<std::mutex> lock(s_mutex);
+
 	std::string path = GetOpenedDBFolderPath_utf8();
 	path += "\\_log\\" + filename;
 	std::ofstream outFile;
@@ -48,6 +51,9 @@ std::deque<std::string> g_receives;
 // 保存最近的请求到文件
 void SaveRecentReceives(const std::string& filename = "recent_receives.txt")
 {
+	static std::mutex s_mutex;
+	std::lock_guard<std::mutex> lock(s_mutex);
+
 	std::string path = GetOpenedDBFolderPath_utf8();
 	path += "\\_log\\" + filename;
 	std::ofstream outFile;

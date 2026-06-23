@@ -65,6 +65,8 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 
 - Added MCP support (stdio and URL)
 - Added a UI to manage MCPs
+- Fix an issue that sometimes the reasoning_content is not correctly sent back to LLM for Kimi and DeepSeek, which results in significant performance degrade in complex tasks
+- Fix a potential crash when outputing log.
 - Disabled the bash tool when bash is not available on the current system
 - Enabled streaming tool calls for the GLM API
 - Fixed an issue where starting a new conversation after rolling back all previous conversations would reset the chat title
