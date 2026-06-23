@@ -159,6 +159,15 @@
     <Filter Include="GUI\ChatDialog\ChatInput\ChatSkillTip">
       <UniqueIdentifier>{50bae057-c8ef-4fd0-b149-8c164a79848d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\Llm\mcp">
+      <UniqueIdentifier>{f3f88284-ea4e-44a3-b615-f350f22fed23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput\ChatMcpsTree">
+      <UniqueIdentifier>{506ead10-5b59-4092-bf28-a86bc26a07d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput\ChatMcpTip">
+      <UniqueIdentifier>{0c677c96-2cac-4bd8-81f4-9e4f9416c06c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBugPlugInControls.cpp">
@@ -524,6 +533,27 @@
     <ClCompile Include="..\Proj_LazyBug\Utils_Bash.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmMcps.cpp">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\LlmMcpServers.cpp">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\McpUpdater.cpp">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatMcpsTree.cpp">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpsTree</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\Utils_Mcp.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_Mcp.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\ChatMcpTip.cpp">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -551,6 +581,12 @@
     </None>
     <None Include="..\Proj_LazyBug\ChatSkillTip.html">
       <Filter>GUI\ChatDialog\ChatInput\ChatSkillTip</Filter>
+    </None>
+    <None Include="..\Proj_LazyBug\ChatMcpsTree.html">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpsTree</Filter>
+    </None>
+    <None Include="..\Proj_LazyBug\ChatMcpTip.html">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -955,6 +991,27 @@
     </ClInclude>
     <ClInclude Include="..\Proj_LazyBug\Utils_Bash.h">
       <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmMcps.h">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\LlmMcpServers.h">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\McpUpdater.h">
+      <Filter>Core\Llm\mcp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatMcpsTree.h">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpsTree</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\Utils_Mcp.h">
+      <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_Mcp.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\ChatMcpTip.h">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

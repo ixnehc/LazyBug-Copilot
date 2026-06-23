@@ -82,6 +82,8 @@ public:
 	//检查并重新载入文件(MCP.json)修改过的mcp，如果有变化则增加版本号
 	void UpdateReLoadOutdated();
 
+	const Mcp::Tool* FindTool(WUID uid, const char* toolName);
+
 	void Clear();
 
 	// 工具别名信息：用于解决不同mcp中tool名称冲突

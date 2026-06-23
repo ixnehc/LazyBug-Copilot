@@ -72,6 +72,12 @@ BOOL CChatMcpsTree::CreateMcpsTreeWindow(CWnd* pParent)
 		WS_POPUP | WS_BORDER | WS_CLIPCHILDREN,
 		0, 0, _windowWidth, _windowHeight, pParent->GetSafeHwnd(), NULL);
 
+	// 创建MCP Tip子窗口
+	if (result)
+	{
+		_mcpTip.CreateMcpTipWindow(this);
+	}
+
 	return result;
 }
 
@@ -312,6 +318,7 @@ void CChatMcpsTree::ShowWindow(const RECT& btnRect)
 
 void CChatMcpsTree::HideWindow()
 {
+	_mcpTip.HideTip();
 	if (IsWindowVisible())
 	{
 		CWnd::ShowWindow(SW_HIDE);
@@ -385,6 +392,7 @@ void CChatMcpsTree::Update()
 		return;
 
 	CheckForegroundWindow();
+	_mcpTip.Update();
 }
 
 //====================== 修改权限控制 ======================
@@ -915,6 +923,52 @@ void CChatMcpsTree::_HandleWebMessage(const std::wstring& message)
 					}
 				}
 			}
+		}
+		else if (action == "showMcpTip")
+		{
+			// 显示MCP Tool Tip
+			if (jsonMsg.contains("data") && jsonMsg["data"].is_object())
+			{
+				auto& data = jsonMsg["data"];
+				if (data.contains("uid") && data["uid"].is_string() &&
+					data.contains("toolName") && data["toolName"].is_string() &&
+					data.contains("anchorRect") && data["anchorRect"].is_object())
+				{
+					WUID uid = std::stoull(data["uid"].get<std::string>());
+					std::string toolName = data["toolName"];
+					auto& anchorRect = data["anchorRect"];
+
+					const CLlmMcps::Mcp::Tool* tool = g_llmMcps.FindTool(uid, toolName.c_str());
+					if (tool)
+					{
+						std::string md;
+						Utils::MakeMcpToolDescription(*tool, md);
+
+						RECT rect;
+						rect.left = anchorRect.value("left", 0);
+						rect.top = anchorRect.value("top", 0);
+						rect.right = anchorRect.value("right", 0);
+						rect.bottom = anchorRect.value("bottom", 0);
+
+						POINT pt = { rect.left, rect.top };
+						ClientToScreen(&pt);
+						rect.left = pt.x;
+						rect.top = pt.y;
+
+						pt.x = rect.right;
+						pt.y = rect.bottom;
+						ClientToScreen(&pt);
+						rect.right = pt.x;
+						rect.bottom = pt.y;
+
+						_mcpTip.ShowTip(rect, md);
+					}
+				}
+			}
+		}
+		else if (action == "hideMcpTip")
+		{
+			_mcpTip.HideTip();
 		}
 	}
 	catch (const std::exception& e)

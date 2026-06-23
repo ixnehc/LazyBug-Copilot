@@ -372,7 +372,7 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 			messages.back().contains("content") && !messages.back()["content"].is_null() &&
 			!messages.back().contains("tool_calls"))
 		{
-			if ((setting.apiFormat == LlmApiFormat::DeepSeek)|| (setting.apiFormat == LlmApiFormat::Kimi))
+			if ((setting.apiFormat == LlmApiFormat::DeepSeek)|| (setting.apiFormat == LlmApiFormat::Kimi) || (setting.apiFormat == LlmApiFormat::GLM))
 			{
 				// 合并tool_calls和reasoning_content到最后一个assistant消息
 				json& lastMessage = messages.back();
@@ -383,16 +383,18 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 					lastMessage["tool_calls"] = assistant_msg["tool_calls"];
 				}
 				
-				// 合并reasoning_content（如果存在）
+			// 合并reasoning_content（如果存在）
 				if (assistant_msg.contains("reasoning_content"))
 				{
 					bool existInLastMessage = false;
 					if (lastMessage.contains("reasoning_content"))
 					{
-						if (!lastMessage["reasoning_content"].empty())
+						const std::string& sLast = lastMessage["reasoning_content"];
+						if (!sLast.empty())
 							existInLastMessage = true;
 					}
-					if ((!assistant_msg["reasoning_content"].empty())&& (!existInLastMessage))
+					const std::string& sNew = assistant_msg["reasoning_content"];
+					if (!sNew.empty() && !existInLastMessage)
 						lastMessage["reasoning_content"] = assistant_msg["reasoning_content"];
 				}
 				
@@ -404,7 +406,10 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 				return;
 			}
 			//我们要保证两个assistant不连续,所以额外添加一个user 消息
-			if (setting.apiFormat != LlmApiFormat::Anthropic_)
+			if ((setting.apiFormat != LlmApiFormat::Anthropic_)&& 
+				(setting.apiFormat != LlmApiFormat::GLM)&&
+				(setting.apiFormat != LlmApiFormat::Kimi)&&
+				(setting.apiFormat != LlmApiFormat::DeepSeek))
 				CommitUserMessage(messages, "ok", setting);
 			messages.insert(messages.end(), parsedJson.begin(), parsedJson.end());
 			return;
@@ -413,7 +418,7 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 		// 从后向前查找最后一个包含 tool_calls 的 assistant 消息
 		// 如果遇到既不是tool call也不是tool result的消息，就不能合并
 		int lastAssistantIndex = -1;
-		if ((setting.apiFormat == LlmApiFormat::DeepSeek) || (setting.apiFormat == LlmApiFormat::Kimi))
+		if ((setting.apiFormat == LlmApiFormat::DeepSeek) || (setting.apiFormat == LlmApiFormat::Kimi) || (setting.apiFormat == LlmApiFormat::GLM))
 		{
 			for (int i = (int)messages.size() - 1; i >= 0; i--)
 			{
@@ -437,7 +442,16 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 			}
 		}
 
-		if (lastAssistantIndex >= 0)
+		// 如果parsedJson[0]已经有reasoning_content，说明这是一个新的推理轮次，不能合并到之前的tool call里
+		bool hasReasoningContent = false;
+		if (assistant_msg.contains("reasoning_content"))
+		{
+			const std::string& sContent = assistant_msg["reasoning_content"];
+			if (!sContent.empty())
+				hasReasoningContent = true;
+		}
+
+		if (lastAssistantIndex >= 0 && !hasReasoningContent)
 		{
 			json& lastMessage = messages[lastAssistantIndex];
 
@@ -455,7 +469,7 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 			}
 			
 			// 根据OpenAI规范，如果存在tool_calls，content应为null
-			lastMessage["content"] = nullptr;
+//			lastMessage["content"] = nullptr;
 
 			// 追加其余消息（即 tool result）
 			if (parsedJson.size() > 1)
@@ -756,11 +770,11 @@ void ParseLine(std::string& line, CLlmSession* session)
 
 		}
 	}
-	session->m_usage.inputToken_ += response.usage.prompt_tokens_;
-	session->m_usage.inputToken_CacheRead += response.usage.prompt_tokens_cacheRead;
-	session->m_usage.inputToken_CacheWrite += response.usage.prompt_tokens_cacheWrite;
-	session->m_usage.outputToken += response.usage.completion_tokens;
-	session->m_usage.fee += response.usage.cost;
+	session->m_usage.inputToken_           = (std::max)(session->m_usage.inputToken_,           response.usage.prompt_tokens_);
+	session->m_usage.inputToken_CacheRead  = (std::max)(session->m_usage.inputToken_CacheRead,  response.usage.prompt_tokens_cacheRead);
+	session->m_usage.inputToken_CacheWrite = (std::max)(session->m_usage.inputToken_CacheWrite, response.usage.prompt_tokens_cacheWrite);
+	session->m_usage.outputToken           = (std::max)(session->m_usage.outputToken,           response.usage.completion_tokens);
+	session->m_usage.fee                   = (std::max)(session->m_usage.fee,                   response.usage.cost);
 }
 
 void ParseRawLine(std::string& line, CLlmSession* session)

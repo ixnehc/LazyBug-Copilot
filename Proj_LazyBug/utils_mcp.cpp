@@ -229,4 +229,139 @@ WUID EnsureMcpUid(const std::string& mcpFolderPath)
 	return uid;
 }
 
+static std::string _EscapeMdTableCell(const std::string& s)
+{
+	std::string out;
+	out.reserve(s.size());
+	for (char c : s)
+	{
+		if (c == '|')
+			out += "\\|";
+		else if (c == '\n')
+			out += "<br>";
+		else if (c == '\r')
+			; // skip
+		else
+			out += c;
+	}
+	return out;
+}
+
+static std::string _GetSchemaTypeString(const json& prop)
+{
+	if (!prop.contains("type"))
+		return "any";
+
+	const auto& typeField = prop["type"];
+	if (typeField.is_string())
+	{
+		std::string typeStr = typeField.get<std::string>();
+		if (typeStr == "array" && prop.contains("items") && prop["items"].is_object())
+		{
+			std::string itemType = _GetSchemaTypeString(prop["items"]);
+			if (itemType != "any")
+				return "array of " + itemType;
+		}
+		return typeStr;
+	}
+
+	if (typeField.is_array())
+	{
+		std::string typeStr;
+		for (const auto& t : typeField)
+		{
+			if (!t.is_string())
+				continue;
+			if (!typeStr.empty())
+				typeStr += " / ";
+			typeStr += t.get<std::string>();
+		}
+		return typeStr.empty() ? "any" : typeStr;
+	}
+
+	return "any";
+}
+
+void MakeMcpToolDescription(const CLlmMcps::Mcp::Tool& tool, std::string& desc)
+{
+	desc.clear();
+
+	desc += "## ";
+	desc += tool.name.empty() ? "Unnamed Tool" : tool.name;
+	desc += "\n\n";
+
+	if (!tool.description.empty())
+	{
+		desc += tool.description;
+		desc += "\n\n";
+	}
+
+	if (tool.inputSchema.empty())
+	{
+		desc += "*No parameters.*\n";
+		return;
+	}
+
+	json schema;
+	try
+	{
+		schema = json::parse(tool.inputSchema);
+	}
+	catch (const json::exception&)
+	{
+		desc += "*Failed to parse parameter schema.*\n";
+		return;
+	}
+
+	if (!schema.is_object() || !schema.contains("properties") || !schema["properties"].is_object())
+	{
+		desc += "*No parameters.*\n";
+		return;
+	}
+
+	const auto& properties = schema["properties"];
+	if (properties.empty())
+	{
+		desc += "*No parameters.*\n";
+		return;
+	}
+
+	std::unordered_set<std::string> requiredSet;
+	if (schema.contains("required") && schema["required"].is_array())
+	{
+		for (const auto& req : schema["required"])
+		{
+			if (req.is_string())
+				requiredSet.insert(req.get<std::string>());
+		}
+	}
+
+	desc += "### Parameters\n\n";
+	desc += "| Parameter | Type | Required | Description |\n";
+	desc += "|-----------|------|----------|-------------|\n";
+
+	for (auto it = properties.begin(); it != properties.end(); ++it)
+	{
+		const std::string& paramName = it.key();
+		const auto& paramDef = it.value();
+
+		std::string paramType = _GetSchemaTypeString(paramDef);
+		std::string required = requiredSet.count(paramName) > 0 ? "Yes" : "No";
+
+		std::string paramDesc;
+		if (paramDef.contains("description") && paramDef["description"].is_string())
+			paramDesc = paramDef["description"].get<std::string>();
+
+		desc += "| ";
+		desc += _EscapeMdTableCell(paramName);
+		desc += " | ";
+		desc += _EscapeMdTableCell(paramType);
+		desc += " | ";
+		desc += required;
+		desc += " | ";
+		desc += _EscapeMdTableCell(paramDesc);
+		desc += " |\n";
+	}
+}
+
 }

@@ -169,6 +169,12 @@
     <Content Include="ChatInputHtml\utils.js">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="chatmcpstree.html">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="ChatMcpTip.html">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="ChatSettingMenu.html">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -185,10 +191,6 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="CommonHtml\tag-utils.js">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="icon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="icon2.png">

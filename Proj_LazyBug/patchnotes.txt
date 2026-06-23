@@ -62,9 +62,13 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - 提高了CLI tool 的命令行兼容性(BASH,CMD)
 
 0.19
-- Disable bash tool if bash is not available on current system
-- Enabel stream tool call for GLM api 
-- Fix了当回退所有对话后又开始新的对话会造成chat 标题重置的问题
-- Add cache rate
-- Fix了当visual studio窗口从后台切回前台 chat input window无法重新获得focus的问题
-- Restore the cursor to previous position after chat input window re-gains focus
+
+- Added MCP support (stdio and URL)
+- Added a UI to manage MCPs
+- Disabled the bash tool when bash is not available on the current system
+- Enabled streaming tool calls for the GLM API
+- Fixed an issue where starting a new conversation after rolling back all previous conversations would reset the chat title
+- Added cache rate in the cost statistics label
+- Fixed an issue where the chat input window could not regain focus when the Visual Studio window was brought back to the foreground
+- Restored the cursor to its previous position after the chat input window regains focus
+- Fixed an issue where token statistics would become excessively large when using certain endpoints

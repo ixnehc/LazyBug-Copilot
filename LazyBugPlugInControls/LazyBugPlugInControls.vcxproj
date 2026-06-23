@@ -351,6 +351,8 @@
     <ClCompile Include="..\Proj_LazyBug\ChatInputTag.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatInputTagMenuWindow.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatLlmMenu.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatMcpsTree.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatMcpTip.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatNotify.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatOpsCompress.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatOpsCtrl.cpp" />
@@ -365,6 +367,7 @@
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FastApply.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FindInFiles.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_Mcp.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_QueryFinish.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_Question.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_ReadFile.cpp" />
@@ -419,11 +422,14 @@
     <ClCompile Include="..\Proj_LazyBug\LlmFormatter.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LlmLib.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LlmLibLoader.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmMcps.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\LlmMcpServers.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LlmProcessors.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LlmSession.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LlmTools.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LspClient.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\McpUpdater.cpp" />
     <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp" />
     <ClCompile Include="..\Proj_LazyBug\RepairWnd.cpp" />
@@ -453,6 +459,7 @@
     <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils_Image.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\Utils_Mcp.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp" />
     <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp" />
     <ClCompile Include="LazyBugPlugInControls.cpp" />
@@ -469,6 +476,8 @@
   <ItemGroup>
     <None Include="..\Proj_LazyBug\ChatCtrl.html" />
     <None Include="..\Proj_LazyBug\ChatInput.html" />
+    <None Include="..\Proj_LazyBug\ChatMcpsTree.html" />
+    <None Include="..\Proj_LazyBug\ChatMcpTip.html" />
     <None Include="..\Proj_LazyBug\ChatSettingMenu.html" />
     <None Include="..\Proj_LazyBug\ChatSettingPage.html" />
     <None Include="..\Proj_LazyBug\ChatSkillsTree.html" />
@@ -557,6 +566,8 @@
     <ClInclude Include="..\Proj_LazyBug\ChatInputTag.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatInputTagMenuWindow.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatLlmMenu.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatMcpsTree.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatMcpTip.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatNotify.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatOpsCompress.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatOpsCtrl.h" />
@@ -571,6 +582,7 @@
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FastApply.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FindInFiles.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_Mcp.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_QueryFinish.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_Question.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_ReadFile.h" />
@@ -626,10 +638,13 @@
     <ClInclude Include="..\Proj_LazyBug\LlmFormatter.h" />
     <ClInclude Include="..\Proj_LazyBug\LlmLib.h" />
     <ClInclude Include="..\Proj_LazyBug\LlmLibLoader.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmMcps.h" />
+    <ClInclude Include="..\Proj_LazyBug\LlmMcpServers.h" />
     <ClInclude Include="..\Proj_LazyBug\LlmProcessors.h" />
     <ClInclude Include="..\Proj_LazyBug\LlmSession.h" />
     <ClInclude Include="..\Proj_LazyBug\LlmSkills.h" />
     <ClInclude Include="..\Proj_LazyBug\LlmTools.h" />
+    <ClInclude Include="..\Proj_LazyBug\McpUpdater.h" />
     <ClInclude Include="..\Proj_LazyBug\NameIndexer.h" />
     <ClInclude Include="..\Proj_LazyBug\PipeMsg.h" />
     <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h" />
@@ -661,6 +676,7 @@
     <ClInclude Include="..\Proj_LazyBug\Utils_File.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils_Image.h" />
+    <ClInclude Include="..\Proj_LazyBug\Utils_Mcp.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h" />
     <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h" />
     <ClInclude Include="framework.h" />

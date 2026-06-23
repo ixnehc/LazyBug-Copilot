@@ -454,6 +454,8 @@
         let mcpTreeData = [];
         let expandedNodes = new Set();
         let clickTimer = null;
+        let tipTimer = null;       // tip显示延迟计时器
+        let currentTipNode = null;  // 当前显示tip的节点
 
         // ============ DOM引用 ============
         const treeArea = document.getElementById('tree-area');
@@ -524,6 +526,49 @@
                         handleLabelClick(node, label, row);
                     }
                     break;
+                }
+            }
+        }
+
+        // ============ Tip显示/隐藏 ============
+        function showMcpTip(e, node) {
+            if (tipTimer) {
+                clearTimeout(tipTimer);
+                tipTimer = null;
+            }
+            tipTimer = setTimeout(() => {
+                tipTimer = null;
+                currentTipNode = node;
+                const rowRect = e.target.closest('.tree-row').getBoundingClientRect();
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'showMcpTip',
+                        data: {
+                            uid: String(node.uid || '0'),
+                            toolName: node.name,
+                            anchorRect: {
+                                left: rowRect.left,
+                                top: rowRect.top,
+                                right: rowRect.right,
+                                bottom: rowRect.bottom
+                            }
+                        }
+                    });
+                }
+            }, 300);
+        }
+
+        function hideMcpTip() {
+            if (tipTimer) {
+                clearTimeout(tipTimer);
+                tipTimer = null;
+            }
+            if (currentTipNode) {
+                currentTipNode = null;
+                if (window.chrome && window.chrome.webview) {
+                    window.chrome.webview.postMessage({
+                        action: 'hideMcpTip'
+                    });
                 }
             }
         }
@@ -730,6 +775,20 @@
             }
 
             // ========= 事件 =========
+            // 鼠标悬停显示tip（仅tool节点）
+            row.addEventListener('mouseenter', (e) => {
+                if (_isTool) {
+                    showMcpTip(e, node);
+                }
+            });
+
+            // 鼠标离开隐藏tip
+            row.addEventListener('mouseleave', (e) => {
+                if (_isTool) {
+                    hideMcpTip();
+                }
+            });
+
             // 行双击 - 展开/折叠, 或打开MCP.json(未enable或未加载成功的MCP)
             row.addEventListener('dblclick', (e) => {
                 e.stopPropagation();

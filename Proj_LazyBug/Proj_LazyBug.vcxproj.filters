@@ -183,6 +183,9 @@
     <Filter Include="GUI\ChatDialog\ChatInput\ChatMcpsTree">
       <UniqueIdentifier>{1d2faa51-90cf-45f4-ab53-42d88838983b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput\ChatMcpTip">
+      <UniqueIdentifier>{d40ba8fc-249c-487a-a7d1-8fbfa770d5cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DockPaneWnd.h">
@@ -635,6 +638,9 @@
     <ClInclude Include="ChatTask_Mcp.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClInclude>
+    <ClInclude Include="ChatMcpTip.h">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBug.cpp">
@@ -1048,6 +1054,9 @@
     <ClCompile Include="ChatTask_Mcp.cpp">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClCompile>
+    <ClCompile Include="ChatMcpTip.cpp">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\bmp00003.bmp">
@@ -1230,6 +1239,9 @@
     </None>
     <None Include="ChatMcpsTree.html">
       <Filter>GUI\ChatDialog\ChatInput\ChatMcpsTree</Filter>
+    </None>
+    <None Include="ChatMcpTip.html">
+      <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

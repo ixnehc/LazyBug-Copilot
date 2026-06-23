@@ -669,6 +669,26 @@ void CLlmMcps::FillToolsJson(json& requestJson)
 		requestJson["tools"] = tools_array;
 }
 
+const CLlmMcps::Mcp::Tool* CLlmMcps::FindTool(WUID uid, const char* toolName)
+{
+	if (!toolName)
+		return nullptr;
+
+	for (const auto& mcp : _mcps)
+	{
+		if (mcp.uid != uid)
+			continue;
+
+		for (const auto& tool : mcp.tools)
+		{
+			if (tool.name == toolName)
+				return &tool;
+		}
+		break;
+	}
+	return nullptr;
+}
+
 const CLlmMcps::ToolAliasInfo* CLlmMcps::FindToolByAlias(const std::string& alias) const
 {
 	auto it = _toolsAlias.find(alias);

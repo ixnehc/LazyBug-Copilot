@@ -7,6 +7,7 @@
 #include <WebView2.h>
 
 #include "LlmMcps.h"
+#include "ChatMcpTip.h"
 
 // 回调函数类型定义
 using McpsTreeNavigationCompletedCallback = std::function<void(bool)>;
@@ -137,5 +138,8 @@ private:
 
     // 前台窗口监控
     void CheckForegroundWindow();
+
+    // MCP Tool Tip窗口
+    CChatMcpTip _mcpTip;
 };
 

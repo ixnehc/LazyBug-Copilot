@@ -31,4 +31,6 @@ void EnableMcpTools(bool enable, WUID mcpUid, const std::vector<std::string>& to
 // 确保mcp目录下存在.uid文件，返回uid
 WUID EnsureMcpUid(const std::string& mcpFolderPath);
 
+void MakeMcpToolDescription(const CLlmMcps::Mcp::Tool& tool, std::string& desc);
+
 }
