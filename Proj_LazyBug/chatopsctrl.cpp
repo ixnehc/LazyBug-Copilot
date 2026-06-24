@@ -1169,6 +1169,7 @@ void CChatOpsCtrl::_SetSessionCostDisplay(const LlmSessionUsage& usage, bool isL
 		return;
 
 	std::string displayText;
+	std::wstring cacheRateColor;  // cache rate 颜色（仅新格式）
 	if (isLegacy)
 	{
 		// 旧格式：$price(inputToken -> outputToken)
@@ -1184,6 +1185,14 @@ void CChatOpsCtrl::_SetSessionCostDisplay(const LlmSessionUsage& usage, bool isL
 		char buffer[256];
 		sprintf_s(buffer, 256, "$%.4f(%d -> %d),%d%%", usage.fee, totalInput, usage.outputToken, cacheRate);
 		displayText = buffer;
+
+		// cache rate 颜色：>70% 绿，30~70% 黄，<30% 红
+		if (cacheRate > 70)
+			cacheRateColor = L"#4CAF50";
+		else if (cacheRate >= 30)
+			cacheRateColor = L"#FFC107";
+		else
+			cacheRateColor = L"#F44336";
 	}
 
 	// 转义显示文本以防止JSON格式错误
@@ -1191,6 +1200,8 @@ void CChatOpsCtrl::_SetSessionCostDisplay(const LlmSessionUsage& usage, bool isL
 
 	// 构造JSON消息，发送费用信息给WebView
 	std::wstring jsonMessage = L"{\"action\":\"setCostDisplay\",\"costText\":\"" + safeDisplayText + L"\"";
+	if (!cacheRateColor.empty())
+		jsonMessage += L",\"cacheRateColor\":\"" + cacheRateColor + L"\"";
 	if (!messageId.empty())
 	{
 		std::wstring safeMessageId = EscapeJsonString(messageId);
@@ -1267,6 +1278,13 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 	{
 		auto parseResult = LlmSessionUsage::ParseFromCostText(op.contentUtf8);
 		_SetSessionCostDisplay(parseResult.first, parseResult.second, op.messageId);
+
+		// 记录操作，将费用信息存储在content字段中
+		ChatOp op2(ChatOp::Op_SetSessionCost);
+		op2.messageId = op.messageId;
+		op2.contentUtf8 = op.contentUtf8;
+		_AddOp(op2);
+
 		break;
 	}
 

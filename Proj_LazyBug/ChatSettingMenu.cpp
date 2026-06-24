@@ -32,7 +32,7 @@ CChatSettingMenu::CChatSettingMenu()
     , _webView(nullptr)
     , _controller(nullptr)
     , _windowWidth(200)
-    , _windowHeight(210)
+    , _windowHeight(255)
     , _currentProcessId(0)
 {
     _currentProcessId = GetCurrentProcessId();

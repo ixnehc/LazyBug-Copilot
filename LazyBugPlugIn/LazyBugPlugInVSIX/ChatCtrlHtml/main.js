@@ -203,7 +203,7 @@ function setupWebViewMessageListener() {
                 
                 // ====== 费用显示相关 ======
                 case 'setCostDisplay':
-                    setCostDisplay(message.costText, message.messageId);
+                    setCostDisplay(message.costText, message.messageId, message.cacheRateColor);
                     break;
                 
                 // ====== Symbol 链接相关 ======

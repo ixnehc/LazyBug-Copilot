@@ -432,7 +432,9 @@
             background: #0c2818;
         }
 
-        .provider-header:hover .delete-provider-btn {
+        .provider-header:hover .delete-provider-btn,
+        .provider-header:hover .copy-provider-btn,
+        .provider-header:hover .paste-provider-btn {
             opacity: 1;
             pointer-events: auto;
         }
@@ -520,10 +522,97 @@
             transition: stroke-dashoffset 3s linear;
         }
 
-        /* API 标题栏 hover 显示删除按钮 */
-        .api-header-bar:hover .delete-provider-btn {
+        /* API 标题栏 hover 显示删除/复制/粘贴按钮 */
+        .api-header-bar:hover .delete-provider-btn,
+        .api-header-bar:hover .copy-provider-btn,
+        .api-header-bar:hover .paste-provider-btn {
             opacity: 1;
             pointer-events: auto;
+        }
+
+        /* API 行内的复制/粘贴按钮（与行高等大） */
+        .api-header-bar .copy-provider-btn,
+        .api-header-bar .paste-provider-btn {
+            width: 24px;
+            height: 24px;
+        }
+        .api-header-bar .copy-provider-btn svg,
+        .api-header-bar .paste-provider-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* Provider/API Copy & Paste 按钮 */
+        .copy-provider-btn, .paste-provider-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, border-color 0.15s ease, background-color 0.15s ease;
+            position: relative;
+            flex-shrink: 0;
+            margin-left: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        .copy-provider-btn:hover, .paste-provider-btn:hover, .add-paste-provider-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .copy-provider-btn:active, .paste-provider-btn:active, .add-paste-provider-btn:active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .add-paste-provider-btn {
+            width: 26px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .add-paste-provider-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: #666;
+            stroke-width: 1.5;
+            pointer-events: none;
+        }
+
+        .add-paste-provider-btn.pasted svg {
+            stroke: #4caf50;
+        }
+
+        .copy-provider-btn svg, .paste-provider-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: #aaa;
+            stroke-width: 1.5;
+            pointer-events: none;
+        }
+
+        .copy-provider-btn.copied svg, .paste-provider-btn.pasted svg {
+            stroke: #4caf50;
+        }
+
+        .copy-provider-btn.copied, .paste-provider-btn.pasted {
+            border-color: #4caf50;
         }
 
         .provider-name-section {
@@ -750,7 +839,6 @@
         .add-provider-button {
             width: 36px;
             height: 24px;
-            margin: 12px auto;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1040,6 +1128,34 @@
 
         .add-api-btn:active {
             background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .add-api-paste-btn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        .add-api-paste-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: #666;
+            stroke-width: 1.5;
+            pointer-events: none;
+        }
+        .add-api-paste-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .add-api-paste-btn.pasted svg {
+            stroke: #4caf50;
         }
 
         .apis-none {
@@ -1427,6 +1543,196 @@
                 window.chrome.webview.postMessage(obj);
         }
 
+        // C++ 回调：从剪贴板读取文本后调用（绕过浏览器权限弹窗）
+        window.onClipboardData = function(text) {
+            // 处理"新建 Provider"粘贴
+            if (window._pendingPasteNew) {
+                const pendingNew = window._pendingPasteNew;
+                window._pendingPasteNew = null;
+                const { providers } = pendingNew;
+                let setting;
+                try {
+                    setting = JSON.parse(text);
+                } catch (_) {
+                    return;
+                }
+                if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                    return;
+                }
+                // 生成不重名的 Provider 名称
+                let newName = setting.name.trim();
+                const existingNames = providers.map(p => p.name);
+                if (existingNames.includes(newName)) {
+                    let suffix = 1;
+                    while (existingNames.includes(newName + suffix)) {
+                        suffix++;
+                    }
+                    newName = newName + suffix;
+                }
+                const endpoint = (typeof setting.endpoint === 'string') ? setting.endpoint.trim() : '';
+                const format = (typeof setting.format === 'string') ? setting.format.trim() : '';
+                // 自动展开并标记待聚焦
+                if (!expandedProviders.includes(newName)) {
+                    expandedProviders.push(newName);
+                }
+                pendingFocusProviderName = newName;
+                postMsg({ action: 'addProviderFromClipboard', name: newName, endpoint: endpoint, format: format });
+
+                // 粘贴成功反馈
+                const addPasteBtn = document.querySelector('.add-paste-provider-btn');
+                if (addPasteBtn) {
+                    addPasteBtn.classList.add('pasted');
+                    setTimeout(() => addPasteBtn.classList.remove('pasted'), 1500);
+                }
+                return;
+            }
+
+            // 处理"新建 API"粘贴
+            if (window._pendingPasteNewApi) {
+                const pendingNewApi = window._pendingPasteNewApi;
+                window._pendingPasteNewApi = null;
+                const { provider, providers } = pendingNewApi;
+                let setting;
+                try {
+                    setting = JSON.parse(text);
+                } catch (_) {
+                    return;
+                }
+                if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                    return;
+                }
+                // 生成不重名的 API 名称（在所有 API 中检查）
+                let newName = setting.name.trim();
+                const existingNames = [];
+                providers.forEach(p => {
+                    if (p.apis) p.apis.forEach(a => existingNames.push(a.name));
+                });
+                if (existingNames.includes(newName)) {
+                    let suffix = 1;
+                    while (existingNames.includes(newName + suffix)) {
+                        suffix++;
+                    }
+                    newName = newName + suffix;
+                }
+                // 自动展开并标记待聚焦
+                if (!expandedApis.includes(newName)) {
+                    expandedApis.push(newName);
+                }
+                pendingFocusApiName = newName;
+                // 构建消息（只传非空字段）
+                const msg = { action: 'addApiFromClipboard', providerName: provider.name, apiName: newName };
+                ['model','rule','maxToken','contextCapacity','priceInputToken','priceOutputToken','priceCacheRead','priceCacheWrite','thinkingMode','cacheControl','role','enable','tools','openRouterOptions'].forEach(f => {
+                    if (setting[f] !== undefined && setting[f] !== null) msg[f] = setting[f];
+                });
+                postMsg(msg);
+                // 反馈
+                const pasteBtn = document.querySelector('.add-api-paste-btn');
+                if (pasteBtn) {
+                    pasteBtn.classList.add('pasted');
+                    setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
+                }
+                return;
+            }
+
+            // 处理已有 API 的粘贴
+            const pendingApi = window._pendingPasteApi;
+            if (pendingApi) {
+                window._pendingPasteApi = null;
+                const { api, apiPasteBtn, provider, providers } = pendingApi;
+                let setting;
+                try {
+                    setting = JSON.parse(text);
+                } catch (_) {
+                    return;
+                }
+                if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                    return;
+                }
+                const newName = setting.name.trim();
+                // 更新 name（重复则跳过，不弹框）
+                let effectiveName = api.name;
+                if (newName !== api.name) {
+                    const duplicate = providers.some(p => p.apis && p.apis.find(a => a.name === newName));
+                    if (!duplicate) {
+                        postMsg({ action: 'updateApiName', oldName: api.name, newName: newName });
+                        effectiveName = newName;
+                    }
+                }
+                // 更新其他字段（逐一比较，只发变化的）
+                const stringFields = ['model', 'rule', 'thinkingMode', 'cacheControl', 'role'];
+                stringFields.forEach(f => {
+                    const v = (typeof setting[f] === 'string') ? setting[f] : '';
+                    const cur = (api[f] != null) ? String(api[f]) : '';
+                    if (v !== cur) postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: v });
+                });
+                const intFields = ['maxToken', 'contextCapacity'];
+                intFields.forEach(f => {
+                    if (typeof setting[f] === 'number' && setting[f] !== (api[f] || 0))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: setting[f] });
+                });
+                const floatFields = ['priceInputToken', 'priceOutputToken', 'priceCacheRead', 'priceCacheWrite'];
+                floatFields.forEach(f => {
+                    if (typeof setting[f] === 'number' && setting[f] !== (api[f] || 0))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: setting[f] });
+                });
+                if (typeof setting.enable === 'boolean' && setting.enable !== api.enable)
+                    postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'enable', value: setting.enable });
+                if (Array.isArray(setting.tools))
+                    postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'tools', value: setting.tools });
+                if (setting.openRouterOptions && typeof setting.openRouterOptions === 'object') {
+                    if (typeof setting.openRouterOptions.disableReasoning === 'boolean' &&
+                        setting.openRouterOptions.disableReasoning !== (api.openRouterOptions && api.openRouterOptions.disableReasoning))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'disableReasoning', value: setting.openRouterOptions.disableReasoning });
+                    if (Array.isArray(setting.openRouterOptions.only))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'openRouterOnly', value: setting.openRouterOptions.only });
+                }
+
+                apiPasteBtn.classList.add('pasted');
+                setTimeout(() => apiPasteBtn.classList.remove('pasted'), 1500);
+                return;
+            }
+
+            // 处理已有 Provider 的粘贴
+            const pending = window._pendingPaste;
+            if (!pending) return;
+            window._pendingPaste = null;
+
+            const { provider, pasteBtn, providers } = pending;
+            let setting;
+            try {
+                setting = JSON.parse(text);
+            } catch (_) {
+                return;
+            }
+            if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                return;
+            }
+            const newName = setting.name.trim();
+            const newEndpoint = (typeof setting.endpoint === 'string') ? setting.endpoint.trim() : '';
+            const newFormat = (typeof setting.format === 'string') ? setting.format.trim() : '';
+
+            // 更新 name（重复则跳过，不弹框）
+            let effectiveName = provider.name;
+            if (newName !== provider.name) {
+                const duplicate = providers.find(p => p.name === newName);
+                if (!duplicate) {
+                    postMsg({ action: 'updateProviderName', oldName: provider.name, newName: newName });
+                    effectiveName = newName;
+                }
+            }
+            // 更新 endpoint
+            if (newEndpoint !== (provider.endpoint || '')) {
+                postMsg({ action: 'updateProviderEndpoint', providerName: effectiveName, endpoint: newEndpoint });
+            }
+            // 更新 format
+            if (newFormat !== (provider.format || '')) {
+                postMsg({ action: 'updateProviderFormat', providerName: effectiveName, format: newFormat });
+            }
+
+            pasteBtn.classList.add('pasted');
+            setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
+        };
+
         // 辅助：绑定内联编辑输入框（失焦/Enter提交，Escape还原）
         function bindInlineInput(input, onCommit) {
             let lastValue = input.value;
@@ -1662,6 +1968,52 @@
                 nameSection.appendChild(nameSpan);
                 header.appendChild(nameSection);
 
+                // ── Copy 按钮 ──
+                const copyBtn = document.createElement('div');
+                copyBtn.className = 'copy-provider-btn';
+                copyBtn.title = 'Copy settings as JSON';
+                copyBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                `;
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const setting = {
+                        name: provider.name,
+                        endpoint: provider.endpoint,
+                        format: provider.format
+                    };
+                    const json = JSON.stringify(setting, null, 2);
+                    navigator.clipboard.writeText(json).then(() => {
+                        copyBtn.classList.add('copied');
+                        setTimeout(() => copyBtn.classList.remove('copied'), 1500);
+                    }).catch(err => {
+                        console.error('Copy failed:', err);
+                    });
+                });
+                header.appendChild(copyBtn);
+
+                // ── Paste 按钮 ──
+                const pasteBtn = document.createElement('div');
+                pasteBtn.className = 'paste-provider-btn';
+                pasteBtn.title = 'Paste settings from clipboard';
+                pasteBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                        <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                        <line x1="9" y1="12" x2="15" y2="12"/>
+                        <line x1="9" y1="16" x2="15" y2="16"/>
+                    </svg>
+                `;
+                pasteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window._pendingPaste = { provider, pasteBtn, providers };
+                    postMsg({ action: 'readClipboard' });
+                });
+                header.appendChild(pasteBtn);
+
                 // ── 删除按钮（长按3秒）──
                 const deleteBtn = document.createElement('div');
                 deleteBtn.className = 'delete-provider-btn';
@@ -1876,6 +2228,25 @@
                         postMsg({ action: 'addApi', providerName: provider.name, apiName: newName });
                     });
                     apisHeaderRow.appendChild(addApiBtn);
+
+                    // API Paste 按钮（剪贴板新建）
+                    const addApiPasteBtn = document.createElement('div');
+                    addApiPasteBtn.className = 'add-api-paste-btn';
+                    addApiPasteBtn.title = 'Paste new API from clipboard';
+                    addApiPasteBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                            <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                            <line x1="9" y1="12" x2="15" y2="12"/>
+                            <line x1="9" y1="16" x2="15" y2="16"/>
+                        </svg>
+                    `;
+                    addApiPasteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        window._pendingPasteNewApi = { provider, providers };
+                        postMsg({ action: 'readClipboard' });
+                    });
+                    apisHeaderRow.appendChild(addApiPasteBtn);
                     
                     apisSection.appendChild(apisHeaderRow);
 
@@ -1949,6 +2320,63 @@
 
                             apiHeader.appendChild(apiNameContainer);
 
+                            // ── 右侧按钮组（copy / paste / delete）──
+                            const apiActionsContainer = document.createElement('div');
+                            apiActionsContainer.style.cssText = 'display:flex;align-items:center;gap:2px;flex-shrink:0;';
+
+                            // API Copy 按钮
+                            const apiCopyBtn = document.createElement('div');
+                            apiCopyBtn.className = 'copy-provider-btn';
+                            apiCopyBtn.title = 'Copy API settings as JSON';
+                            apiCopyBtn.innerHTML = `
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                            `;
+                            apiCopyBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                const setting = {
+                                    name: api.name,
+                                    model: api.model,
+                                    maxToken: api.maxToken,
+                                    contextCapacity: api.contextCapacity,
+                                    priceInputToken: api.priceInputToken,
+                                    priceOutputToken: api.priceOutputToken,
+                                    priceCacheRead: api.priceCacheRead,
+                                    priceCacheWrite: api.priceCacheWrite,
+                                    thinkingMode: api.thinkingMode,
+                                    cacheControl: api.cacheControl,
+                                    role: api.role,
+                                    enable: api.enable,
+                                    openRouterOptions: api.openRouterOptions
+                                };
+                                navigator.clipboard.writeText(JSON.stringify(setting, null, 2)).then(() => {
+                                    apiCopyBtn.classList.add('copied');
+                                    setTimeout(() => apiCopyBtn.classList.remove('copied'), 1500);
+                                }).catch(err => { console.error('Copy failed:', err); });
+                            });
+                            apiActionsContainer.appendChild(apiCopyBtn);
+
+                            // API Paste 按钮
+                            const apiPasteBtn = document.createElement('div');
+                            apiPasteBtn.className = 'paste-provider-btn';
+                            apiPasteBtn.title = 'Paste API settings from clipboard';
+                            apiPasteBtn.innerHTML = `
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                                    <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                                    <line x1="9" y1="12" x2="15" y2="12"/>
+                                    <line x1="9" y1="16" x2="15" y2="16"/>
+                                </svg>
+                            `;
+                            apiPasteBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                window._pendingPasteApi = { api, apiPasteBtn, provider, providers };
+                                postMsg({ action: 'readClipboard' });
+                            });
+                            apiActionsContainer.appendChild(apiPasteBtn);
+
                             // API 删除按钮（长按3秒）
                             const deleteApiBtn = document.createElement('div');
                             deleteApiBtn.className = 'delete-provider-btn';
@@ -1999,7 +2427,8 @@
                                 e.stopPropagation();
                             });
                             
-                            apiHeader.appendChild(deleteApiBtn);
+                            apiActionsContainer.appendChild(deleteApiBtn);
+                            apiHeader.appendChild(apiActionsContainer);
 
                             apiItem.appendChild(apiHeader);
 
@@ -2090,7 +2519,31 @@
                 pendingFocusProviderName = newName;
                 postMsg({ action: 'addProvider', name: newName });
             });
-            providersContainer.appendChild(addButton);
+
+            // 新增按钮行（+ 和 paste 并排）
+            const addRow = document.createElement('div');
+            addRow.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:4px;margin:12px auto;';
+            addRow.appendChild(addButton);
+
+            // 从剪贴板粘贴新建 Provider 按钮
+            const addPasteBtn = document.createElement('div');
+            addPasteBtn.className = 'add-paste-provider-btn';
+            addPasteBtn.title = 'Paste new provider from clipboard';
+            addPasteBtn.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                    <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                    <line x1="9" y1="12" x2="15" y2="12"/>
+                    <line x1="9" y1="16" x2="15" y2="16"/>
+                </svg>
+            `;
+            addPasteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window._pendingPasteNew = { providers: providers };
+                postMsg({ action: 'readClipboard' });
+            });
+            addRow.appendChild(addPasteBtn);
+            providersContainer.appendChild(addRow);
 
             // 新建Provider后自动聚焦名称输入框
             if (pendingFocusProviderName) {

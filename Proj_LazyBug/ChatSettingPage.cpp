@@ -620,6 +620,38 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
                 AddProvider(utf8_to_widechar(name));
             }
         }
+        else if (action == "addProviderFromClipboard")
+        {
+            // 从剪贴板粘贴创建Provider（含name/endpoint/format）
+            if (jsonMsg.contains("name"))
+            {
+                std::string name = jsonMsg["name"];
+                std::wstring nameW = utf8_to_widechar(name);
+                if (g_llmLib.AddProvider(name))
+                {
+                    std::string endpoint = jsonMsg.contains("endpoint") ? jsonMsg["endpoint"].get<std::string>() : "";
+                    std::string formatStr = jsonMsg.contains("format") ? jsonMsg["format"].get<std::string>() : "";
+                    if (!endpoint.empty())
+                        g_llmLib.SetProviderEndpoint(name, endpoint);
+                    if (!formatStr.empty())
+                    {
+                        LlmApiFormat format = LlmApiFormat::Unknown;
+                        if (formatStr == "OpenAI") format = LlmApiFormat::OpenAI_;
+                        else if (formatStr == "Anthropic") format = LlmApiFormat::Anthropic_;
+                        else if (formatStr == "Gemini") format = LlmApiFormat::Gemini_;
+                        else if (formatStr == "OpenRouter") format = LlmApiFormat::OpenRouter;
+                        else if (formatStr == "Kimi") format = LlmApiFormat::Kimi;
+                        else if (formatStr == "GLM") format = LlmApiFormat::GLM;
+                        else if (formatStr == "Minimax") format = LlmApiFormat::Minimax;
+                        else if (formatStr == "DeepSeek") format = LlmApiFormat::DeepSeek;
+                        g_llmLib.SetProviderFormat(name, format);
+                    }
+                    _SaveLlmJson();
+                    LoadProviderData();
+                    SendProviderDataToWebView();
+                }
+            }
+        }
         else if (action == "deleteProvider")
         {
             // 删除 Provider
@@ -639,6 +671,41 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
                 AddApi(utf8_to_widechar(providerName), utf8_to_widechar(apiName));
             }
         }
+        else if (action == "addApiFromClipboard")
+        {
+            // 从剪贴板粘贴创建API（含所有字段）
+            if (jsonMsg.contains("providerName") && jsonMsg.contains("apiName"))
+            {
+                std::string providerName = jsonMsg["providerName"];
+                std::string apiName = jsonMsg["apiName"];
+                if (g_llmLib.AddApi(providerName, apiName))
+                {
+                    // 逐一应用各字段
+                    if (jsonMsg.contains("model")) UpdateApiField(utf8_to_widechar(apiName), L"model", jsonMsg["model"]);
+                    if (jsonMsg.contains("rule")) UpdateApiField(utf8_to_widechar(apiName), L"rule", jsonMsg["rule"]);
+                    if (jsonMsg.contains("maxToken")) UpdateApiField(utf8_to_widechar(apiName), L"maxToken", jsonMsg["maxToken"]);
+                    if (jsonMsg.contains("contextCapacity")) UpdateApiField(utf8_to_widechar(apiName), L"contextCapacity", jsonMsg["contextCapacity"]);
+                    if (jsonMsg.contains("priceInputToken")) UpdateApiField(utf8_to_widechar(apiName), L"priceInputToken", jsonMsg["priceInputToken"]);
+                    if (jsonMsg.contains("priceOutputToken")) UpdateApiField(utf8_to_widechar(apiName), L"priceOutputToken", jsonMsg["priceOutputToken"]);
+                    if (jsonMsg.contains("priceCacheRead")) UpdateApiField(utf8_to_widechar(apiName), L"priceCacheRead", jsonMsg["priceCacheRead"]);
+                    if (jsonMsg.contains("priceCacheWrite")) UpdateApiField(utf8_to_widechar(apiName), L"priceCacheWrite", jsonMsg["priceCacheWrite"]);
+                    if (jsonMsg.contains("thinkingMode")) UpdateApiField(utf8_to_widechar(apiName), L"thinkingMode", jsonMsg["thinkingMode"]);
+                    if (jsonMsg.contains("cacheControl")) UpdateApiField(utf8_to_widechar(apiName), L"cacheControl", jsonMsg["cacheControl"]);
+                    if (jsonMsg.contains("role")) UpdateApiField(utf8_to_widechar(apiName), L"role", jsonMsg["role"]);
+                    if (jsonMsg.contains("enable")) UpdateApiField(utf8_to_widechar(apiName), L"enable", jsonMsg["enable"]);
+                    if (jsonMsg.contains("tools")) UpdateApiField(utf8_to_widechar(apiName), L"tools", jsonMsg["tools"]);
+                    if (jsonMsg.contains("openRouterOptions"))
+                    {
+                        auto& opt = jsonMsg["openRouterOptions"];
+                        if (opt.contains("disableReasoning")) UpdateApiField(utf8_to_widechar(apiName), L"disableReasoning", opt["disableReasoning"]);
+                        if (opt.contains("only")) UpdateApiField(utf8_to_widechar(apiName), L"openRouterOnly", opt["only"]);
+                    }
+                    _SaveLlmJson();
+                    LoadProviderData();
+                    SendProviderDataToWebView();
+                }
+            }
+        }
         else if (action == "deleteApi")
         {
             // 删除 API
@@ -647,6 +714,66 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
                 std::string name = jsonMsg["name"];
                 DeleteApi(utf8_to_widechar(name));
             }
+        }
+        else if (action == "readClipboard")
+        {
+            // 通过Windows API读取剪贴板文本，避免WebView权限弹窗
+            std::wstring clipboardText;
+            if (::OpenClipboard(GetSafeHwnd()))
+            {
+                if (IsClipboardFormatAvailable(CF_UNICODETEXT))
+                {
+                    HANDLE hData = GetClipboardData(CF_UNICODETEXT);
+                    if (hData != NULL)
+                    {
+                        wchar_t* pData = (wchar_t*)GlobalLock(hData);
+                        if (pData != NULL)
+                        {
+                            clipboardText = pData;
+                            GlobalUnlock(hData);
+                        }
+                    }
+                }
+                else if (IsClipboardFormatAvailable(CF_TEXT))
+                {
+                    HANDLE hData = GetClipboardData(CF_TEXT);
+                    if (hData != NULL)
+                    {
+                        char* pData = (char*)GlobalLock(hData);
+                        if (pData != NULL)
+                        {
+                            int len = MultiByteToWideChar(CP_ACP, 0, pData, -1, NULL, 0);
+                            if (len > 0)
+                            {
+                                wchar_t* buf = new wchar_t[len];
+                                MultiByteToWideChar(CP_ACP, 0, pData, -1, buf, len);
+                                clipboardText = buf;
+                                delete[] buf;
+                            }
+                            GlobalUnlock(hData);
+                        }
+                    }
+                }
+                CloseClipboard();
+            }
+
+            // 转义文本以安全嵌入JS字符串字面量
+            std::wstring escaped;
+            for (wchar_t ch : clipboardText)
+            {
+                switch (ch)
+                {
+                case L'\\': escaped += L"\\\\"; break;
+                case L'"':  escaped += L"\\\""; break;
+                case L'\n': escaped += L"\\n";  break;
+                case L'\r': escaped += L"\\r";  break;
+                case L'\t': escaped += L"\\t";  break;
+                default:    escaped += ch;      break;
+                }
+            }
+
+            std::wstring script = L"window.onClipboardData(\"" + escaped + L"\");";
+            ExecuteScript(script);
         }
         else if (action == "showError")
         {

@@ -524,7 +524,7 @@ function renderCompletedMermaidBlocks(container, messageId) {
  * @param {string} costText - 费用文本
  * @param {string} [messageId] - 可选，指定消息ID；不指定则使用最后一个未 disabled 的 AI 消息
  */
-function setCostDisplay(costText, messageId) {
+function setCostDisplay(costText, messageId, cacheRateColor) {
     let targetMessage = null;
 
     if (messageId) {
@@ -553,8 +553,20 @@ function setCostDisplay(costText, messageId) {
         targetMessage.appendChild(costDisplay);
     }
 
-    // 更新费用文本
-    costDisplay.textContent = costText;
+    // 更新费用文本：有颜色时用 innerHTML 给 cache rate 上色，否则用 textContent
+    if (cacheRateColor) {
+        // costText 格式: "$0.0012(1234 -> 5678),75%"，按最后一个逗号拆分
+        const lastCommaIdx = costText.lastIndexOf(',');
+        if (lastCommaIdx > 0) {
+            const prefix = costText.substring(0, lastCommaIdx);
+            const cachePart = costText.substring(lastCommaIdx + 1);
+            costDisplay.innerHTML = escapeHtml(prefix) + ',<span style="color:' + cacheRateColor + '">' + escapeHtml(cachePart) + '</span>';
+        } else {
+            costDisplay.textContent = costText;
+        }
+    } else {
+        costDisplay.textContent = costText;
+    }
     console.log('Cost display updated:', costText, messageId ? 'for messageId: ' + messageId : '');
 }
 

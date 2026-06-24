@@ -8,16 +8,16 @@
 #include "ChatInputTag.h"
 #include "LlmLib.h"
 #include "LlmTools.h"
-#include "LlmMcps.h"
 #include "LlmSkills.h"
+#include "LlmMcps.h"
 #include "ChatOpsCtrl.h"
 #include <functional>
 #include <set>
+#include <algorithm>
 
 // 外部全局变量声明
 extern CLlmLib g_llmLib;
 extern CLlmTools g_llmTools;
-extern CLlmMcps g_llmMcps;
 extern CLlmSkills g_llmSkills;
 
 // ============================================================================
@@ -303,39 +303,48 @@ uint64_t ToolsTokenProvider::GetVersion() const
 
 	// 获取 API 信息
 	const LlmApi* api = g_llmLib.GetApi(currentApiName);
-	if (!api)
-		return 0;
 
-	// 计算版本号：组合 API 名字 + tools 列表 + LLM Lib 版本号
-	// 使用 API 名字哈希作为基础
+	// 计算版本号：组合 API 名字 + 内置 tools 列表 + LLM Lib 版本号 + MCP tools 状态
 	uint64_t version = std::hash<std::string>{}(currentApiName);
 
-	// 组合 tools 列表的哈希（tools 变化时版本号变化）
-	for (const auto& tool : api->tools)
+	if (api)
 	{
-		version = version * 31 + static_cast<uint64_t>(tool);
+		// 组合内置 tools 列表的哈希（tools 变化时版本号变化）
+		for (const auto& tool : api->tools)
+		{
+			version = version * 31 + static_cast<uint64_t>(tool);
+		}
 	}
 
 	// 组合 LLM Lib 版本号（配置重载时版本号变化）
 	version ^= static_cast<uint64_t>(g_llmLib.GetVer());
 
-	// 组合 MCP 状态：版本号、mcp 启用状态、tool 加载状态、tool 内容、tool 启用状态
-	version = version * 1000003 + static_cast<uint64_t>(g_llmMcps._ver);
+	// 组合 MCP 管理器版本号（mcp 增删、设置变化时版本号变化）
+	version = version * 31 + static_cast<uint64_t>(g_llmMcps._ver);
+
+	// 组合所有 MCP 的运行时状态（启用、加载、tool 内容、禁用列表）
 	for (const auto& mcp : g_llmMcps._mcps)
 	{
-		version = version * 1000003 + std::hash<std::string>{}(mcp.legalName);
-		version = version * 1000003 + (mcp.enable ? 1ULL : 0ULL);
-		version = version * 1000003 + (mcp.toolsLoaded ? 1ULL : 0ULL);
+		version = version * 31 + static_cast<uint64_t>(mcp.enable ? 1 : 0);
+		version = version * 31 + static_cast<uint64_t>(mcp.toolsLoaded ? 1 : 0);
 
-		if (!mcp.enable || !mcp.toolsLoaded)
+		if (!mcp.enable || !mcp.toolsLoaded || mcp.tools.empty())
 			continue;
 
+		// disabledTools 用排序后的顺序组合，避免 unordered_set 迭代顺序影响版本号稳定性
+		std::vector<std::string> disabledTools(mcp.disabledTools.begin(), mcp.disabledTools.end());
+		std::sort(disabledTools.begin(), disabledTools.end());
+		for (const auto& disabledTool : disabledTools)
+		{
+			version = version * 31 + std::hash<std::string>{}(disabledTool);
+		}
+
+		// 组合每个 tool 的内容哈希
 		for (const auto& tool : mcp.tools)
 		{
-			version = version * 1000003 + std::hash<std::string>{}(tool.name);
-			version = version * 1000003 + (mcp.IsToolEnabled(tool.name) ? 1ULL : 0ULL);
-			version = version * 1000003 + std::hash<std::string>{}(tool.description);
-			version = version * 1000003 + std::hash<std::string>{}(tool.inputSchema);
+			version = version * 31 + std::hash<std::string>{}(tool.name);
+			version = version * 31 + std::hash<std::string>{}(tool.description);
+			version = version * 31 + std::hash<std::string>{}(tool.inputSchema);
 		}
 	}
 
@@ -350,7 +359,7 @@ int ToolsTokenProvider::CalculateTokens()
 	// 获取 API 信息
 	const LlmApi* api = g_llmLib.GetApi(currentApiName);
 
-	// 估算所有启用工具的 token 数
+	// 估算所有启用工具的 token 数（内置 tools + MCP tools）
 	int totalTokens = 0;
 
 	if (api && !api->tools.empty())
@@ -384,7 +393,7 @@ int ToolsTokenProvider::CalculateTokens()
 		}
 	}
 
-	// 追加 MCP tools 的 token 估算
+	// 估算所有启用且已加载的 MCP tools 的 token
 	for (const auto& mcp : g_llmMcps._mcps)
 	{
 		if (!mcp.enable || !mcp.toolsLoaded || mcp.tools.empty())
@@ -392,9 +401,11 @@ int ToolsTokenProvider::CalculateTokens()
 
 		for (const auto& tool : mcp.tools)
 		{
+			// 跳过被禁用的 tool
 			if (!mcp.IsToolEnabled(tool.name))
 				continue;
 
+			// 估算 tool 名称、描述和参数 schema 的 token
 			totalTokens += Utils::EstimateTokenCount(tool.name);
 			totalTokens += Utils::EstimateTokenCount(tool.description);
 			totalTokens += Utils::EstimateTokenCount(tool.inputSchema);

@@ -1143,6 +1143,11 @@ void CChatDialogA::_HandleSettingMenuItemClicked(const std::wstring& itemName)
 		FileLocation loc;
 		GetFileLocator().Request(Utils::GetProjectRulesFilePath().c_str(), loc);
 	}
+	else if (itemName == L"report_issue")
+	{
+		// 打开 GitHub Issues 页面
+		ShellExecuteW(NULL, L"open", L"https://github.com/ixnehc/LazyBug-Copilot-Publish/issues", NULL, NULL, SW_SHOWNORMAL);
+	}
 }
 
 void CChatDialogA::_HandleQuerySymbolLocations(const std::wstring& messageId, const std::vector<std::wstring>& symbols)

@@ -114,7 +114,8 @@ bool CSolutionIndexerImpl_Lucene::Open(const char* indexPath)
 		// create参数：false表示打开已有索引追加，true表示创建新索引（会清空已有数据）
 		bool create = !indexExists;  // 只有当索引不存在时才创建
 		_indexWriter = Lucene::newLucene<Lucene::IndexWriter>(_directory, _analyzer, create, 
-			Lucene::IndexWriter::MaxFieldLengthLIMITED);
+			Lucene::IndexWriter::MaxFieldLengthUNLIMITED);
+		_indexWriter->setMaxFieldLength(50000);
 
 		int c = _indexWriter->numDocs();
 
@@ -221,6 +222,12 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 	{
 		time_t currentMTime = Utils::GetFileTimeT(lowerCasedFilePath.c_str());
 		time_t storedMTime = GetStoredMTime(reader, lowerCasedFilePath);
+
+		if (lowerCasedFilePath == "s:\\tal\\code\\games\\farcry\\game\\rclient\\rclient_agent.cpp")
+		{
+			int v = 0;
+			v++;
+		}
 
 		if (currentMTime != storedMTime)
 		{
