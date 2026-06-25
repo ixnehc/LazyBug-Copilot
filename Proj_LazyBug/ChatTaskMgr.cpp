@@ -14,6 +14,8 @@
 #include "ChatTask_CreateSkill.h"
 #include "ChatTask_Mcp.h"
 #include "ChatTask_CompressSummarize.h"
+#include "ChatTask_InputAutoComplete.h"
+#include "chatinputautocompletewindow.h"
 #include <algorithm>
 #include <cstring>
 
@@ -676,6 +678,35 @@ void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::stri
 {
 	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, originalTokenCount, evaluationMode);
 	_AddTask(task);
+}
+
+void CChatTaskMgr::AddTask_InputAutoComplete(const std::string& partialInput, const std::string& apiName, CChatInputAutoCompleteWindow* pResultWindow)
+{
+	CChatTask_InputAutoComplete* task = new CChatTask_InputAutoComplete(partialInput, apiName);
+	task->SetResultWindow(pResultWindow);
+	_AddTask(task);
+}
+
+void CChatTaskMgr::InterruptTaskType(const char* taskType)
+{
+	// 中断 pending 中指定类型的任务
+	for (auto* task : _pending)
+	{
+		if (task && task->CheckType(taskType))
+		{
+			task->Interrupt();
+			task->_status = TaskStatus::Failure;
+		}
+	}
+
+	// 中断 running 中指定类型的任务
+	for (auto* task : _running)
+	{
+		if (task && task->_status == TaskStatus::Running && task->CheckType(taskType))
+		{
+			task->Interrupt();
+		}
+	}
 }
 
 

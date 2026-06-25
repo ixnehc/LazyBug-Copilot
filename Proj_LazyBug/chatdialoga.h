@@ -36,6 +36,8 @@
 
 #include "ChatNotify.h"
 
+#include "chatinputautocompletewindow.h"
+
 
 struct RequestSwitchChatA
 {
@@ -218,6 +220,10 @@ protected:
 	// 压缩结果提示相关
 	void _UpdateCompressSummarizeTip();
 	int _compressSummarizeTipVersion;  // 当前已显示的提示版本号
+
+	// ── 输入自动补全测试 ──
+	CChatInputAutoCompleteWindow _inputAutoCompleteWindow;
+	bool _autoCompleteEnabled = false;
 
 };
 

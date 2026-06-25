@@ -324,6 +324,7 @@ BOOL CChatDialogA::OnInitDialog()
 		ChatTaskContext ctx;
 		ctx.fileWriter = &_chatFileWriter;
 		ctx.chatUi = &_ui;
+		ctx.chatOpsCtrl = &_agent.GetOpsCtrl();
  		_chatTaskMgrBg.Init(ctx);
 	}
 
@@ -334,6 +335,9 @@ BOOL CChatDialogA::OnInitDialog()
 	_mcpUpdater.Reset();
 
 	_InitAgent("");
+
+	// 创建输入自动补全临时测试窗口
+	_inputAutoCompleteWindow.Create(this);
 
 	// 更新 favorite 状态
 	_UpdateFavoriteStatus();
@@ -1262,6 +1266,14 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 	// 从完整内容中提取纯文本
 	std::wstring plainText = ExtractPlainText(content);
 
+	// ── _toggle_auto: 开关自动补全 ──
+	if (plainText == L"_toggle_auto")
+	{
+		_autoCompleteEnabled = !_autoCompleteEnabled;
+		_inputAutoCompleteWindow.Hide();
+		return;
+	}
+
 	if (false)
 	{
 		std::string keyword = widechar_to_utf8(plainText.c_str());
@@ -1562,6 +1574,39 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 // 	if (_agent.IsWorking())
 // 		_agent.Pause();
 
+	// ── 临时测试: 输入自动补全 ──
+	if (_agent.IsWorking())
+		return;
+	if (!_autoCompleteEnabled)
+		return;
+
+	// 中断上一个补全task
+	_chatTaskMgrBg.InterruptTaskType("InputAutoComplete");
+
+	// 提取当前输入纯文本
+	std::wstring plainText;
+	{
+		std::vector<ChatInputTag> tags;
+		ParseInlineTags(content, tags);
+		plainText = ExtractPlainText(content);
+	}
+
+	std::string partialInput = widechar_to_utf8(plainText.c_str());
+	if (partialInput.empty())
+	{
+		_inputAutoCompleteWindow.Hide();
+		return;
+	}
+
+	std::string autoCompleteApi = g_llmLib.GetAutoCompleteApi();
+	if (autoCompleteApi.empty())
+		return;
+
+	CRect inputRect;
+	_chatInput.GetWindowRect(&inputRect);
+	_inputAutoCompleteWindow.SetAnchorRect(inputRect);
+
+	_chatTaskMgrBg.AddTask_InputAutoComplete(partialInput, autoCompleteApi, &_inputAutoCompleteWindow);
 }
 
 void CChatDialogA::_HandleEscape()

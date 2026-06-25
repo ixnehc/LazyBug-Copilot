@@ -128,6 +128,7 @@ public:
 	void AddTask_CreateSkill(const LlmToolCall& toolCall);
 	void AddTask_Mcp(const LlmToolCall& toolCall);
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
+	void AddTask_InputAutoComplete(const std::string& partialInput, const std::string& apiName, class CChatInputAutoCompleteWindow* pResultWindow);
 	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls);
 
 	// 获取任务统计信息
@@ -137,6 +138,9 @@ public:
 	// 检查特定类型的任务是否正在运行
 	bool IsTaskTypeRunning(const char* taskType) const;
 	
+	// 中断指定类型的所有任务
+	void InterruptTaskType(const char* taskType);
+
 	// 设置单任务执行模式
 	void SetSingleTaskMode(bool enable) { _singleTaskMode = enable; }
 	bool IsSingleTaskMode() const { return _singleTaskMode; }

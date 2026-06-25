@@ -1516,7 +1516,7 @@ c:\sound.exe
     <ClInclude Include="BackupDepot.h" />
     <ClInclude Include="ChatAgent.h" />
     <ClInclude Include="ChatAgentDefines.h" />
-    <ClInclude Include="chatinputautocompletewindow.h" />
+    <ClInclude Include="ChatInputAutoCompleteWindow.h" />
     <ClInclude Include="ChatNotify.h" />
     <ClInclude Include="ChatOpsCompress.h" />
     <ClInclude Include="ChatMcpsTree.h" />
@@ -1550,7 +1550,7 @@ c:\sound.exe
     <ClInclude Include="ChatTask_FindSymbolDefine.h" />
     <ClInclude Include="CodingHistory.h" />
     <ClCompile Include="BackupDepot.cpp" />
-    <ClCompile Include="chatinputautocompletewindow.cpp" />
+    <ClCompile Include="ChatInputAutoCompleteWindow.cpp" />
     <ClCompile Include="ChatNotify.cpp" />
     <ClCompile Include="ChatOpsCompress.cpp" />
     <ClCompile Include="ChatMcpsTree.cpp" />

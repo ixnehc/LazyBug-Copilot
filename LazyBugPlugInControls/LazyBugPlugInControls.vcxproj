@@ -346,6 +346,7 @@
     <ClCompile Include="..\Proj_LazyBug\ChatInputACList.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatInputACListBuilder.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatInputACWindow.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatInputAutoCompleteWindow.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatInputHistory.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatInputImageTip.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatInputTag.cpp" />
@@ -367,6 +368,7 @@
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FastApply.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FindInFiles.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\ChatTask_InputAutoComplete.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_Mcp.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_QueryFinish.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ChatTask_Question.cpp" />
@@ -561,6 +563,7 @@
     <ClInclude Include="..\Proj_LazyBug\ChatInputACList.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatInputACListBuilder.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatInputACWindow.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatInputAutoCompleteWindow.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatInputHistory.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatInputImageTip.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatInputTag.h" />
@@ -582,6 +585,7 @@
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FastApply.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FindInFiles.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.h" />
+    <ClInclude Include="..\Proj_LazyBug\ChatTask_InputAutoComplete.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_Mcp.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_QueryFinish.h" />
     <ClInclude Include="..\Proj_LazyBug\ChatTask_Question.h" />
