@@ -1198,7 +1198,7 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		requestJson["prompt"] = request.prompt;
 	}
 
- 	std::string requestBodyOpenAI = requestJson.dump();
+// 	std::string requestBodyOpenAI = requestJson.dump();
 
 	if (settings.apiFormat==LlmApiFormat::Anthropic_)
 		CLlmFormatter::ConvertLlmRequestToAnthoropicFormat(requestJson);
