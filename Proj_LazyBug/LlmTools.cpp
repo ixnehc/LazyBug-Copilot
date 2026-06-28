@@ -208,12 +208,16 @@ void CLlmToolCallParser::Update(json& deltaResponseJson)
 					if (function_delta.contains("name") && !function_delta["name"].is_null())
 					{
 						parsing_call.name = function_delta["name"];
-						final_tool_call.tp = g_llmTools.GetToolTypeByName(parsing_call.name);
-						if (final_tool_call.tp == LlmToolType::None)
+
+						if (!parsing_call.name.empty())
 						{
-							// 非内置工具,视为MCP工具
-							final_tool_call.tp = LlmToolType::Mcp;
-							final_tool_call.mcpName = parsing_call.name;
+							final_tool_call.tp = g_llmTools.GetToolTypeByName(parsing_call.name);
+							if (final_tool_call.tp == LlmToolType::None)
+							{
+								// 非内置工具,视为MCP工具
+								final_tool_call.tp = LlmToolType::Mcp;
+								final_tool_call.mcpName = parsing_call.name;
+							}
 						}
 					}
 					if (function_delta.contains("arguments") && !function_delta["arguments"].is_null())

@@ -213,6 +213,14 @@ namespace CppSymbol
 		CFileSymbolDefines* ObtainSymbolDefines(const char* filePath);
 
 		void GetStr(StringIndex stringIndex, std::string& ret)		{			_strPool.GetStr(stringIndex, ret);		}
+		StringIndex FindStr(const char* str)		{			return _strPool.FindStr(str);		}
+		time_t GetParsedTime(StringIndex filePathIndex) const;
+
+		// 获取指定文件的所有 symbol 类型及行范围（已排序）
+		// 返回 _parsedTime（通过 outParsedTime），若文件未解析则返回 false
+		bool GetSymbolLineRanges(StringIndex filePathIndex,
+		                         std::vector<SymbolRangeInfo>& outRanges,
+		                         time_t& outParsedTime) const;
 
 		// 获取和设置脏标记
 

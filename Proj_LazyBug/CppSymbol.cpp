@@ -1345,6 +1345,38 @@ bool CSymbolDB::IsFileInDB(const char* filePath)
 	return _FindSymbolDefines(filePath) != nullptr;
 }
 
+time_t CSymbolDB::GetParsedTime(StringIndex filePathIndex) const
+{
+	std::shared_lock<std::shared_mutex> lock(_symbolMutex);
+	auto it = _fileSymbolDefines.find(filePathIndex);
+	if (it == _fileSymbolDefines.end())
+		return 0;
+	return it->second._parsedTime;
+}
+
+bool CSymbolDB::GetSymbolLineRanges(StringIndex filePathIndex,
+                                    std::vector<SymbolRangeInfo>& outRanges,
+                                    time_t& outParsedTime) const
+{
+	std::shared_lock<std::shared_mutex> lock(_symbolMutex);
+	auto it = _fileSymbolDefines.find(filePathIndex);
+	if (it == _fileSymbolDefines.end())
+		return false;
+
+	const CFileSymbolDefines& defines = it->second;
+	outParsedTime = defines._parsedTime;
+	for (const CSymbolDefine& sym : defines._parsedDefines)
+	{
+		if (sym._lineRange.IsValid())
+			outRanges.push_back({ sym._kind, sym._lineRange });
+	}
+
+	// 按起始行排序
+	std::sort(outRanges.begin(), outRanges.end(),
+	          [](const SymbolRangeInfo& a, const SymbolRangeInfo& b)
+	          { return a._lineRange.start < b._lineRange.start; });
+	return true;
+}
 
 CFileSymbolDefines* CSymbolDB::_FindSymbolDefines(const char* filePath) 
 {

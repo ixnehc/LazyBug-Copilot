@@ -137,6 +137,12 @@ struct LineRange
 	WORD end;
 };
 
+struct SymbolRangeInfo
+{
+	SymbolKind _kind;      // symbol 类型
+	LineRange  _lineRange; // symbol 实现代码行范围
+};
+
 struct FileLocation
 {
 	FileLocation()
