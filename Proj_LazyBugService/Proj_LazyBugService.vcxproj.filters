@@ -98,6 +98,9 @@
     <Filter Include="Core\Llm">
       <UniqueIdentifier>{78140d7c-64a3-4879-bffb-612610b43044}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\EmbeddingDB">
+      <UniqueIdentifier>{0974ba65-e612-4f86-b673-c74b4819bbc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Proj_LazyBugService.cpp">
@@ -291,6 +294,12 @@
     </ClCompile>
     <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp">
       <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\EmbeddingDB.cpp">
+      <Filter>Core\EmbeddingDB</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\embeddinggenerator.cpp">
+      <Filter>Core\EmbeddingDB</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1661,6 +1670,15 @@
     </ClInclude>
     <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h">
       <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\EmbeddingDB.h">
+      <Filter>Core\EmbeddingDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\embeddinggenerator.h">
+      <Filter>Core\EmbeddingDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\embeddingtypes.h">
+      <Filter>Core\EmbeddingDB</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

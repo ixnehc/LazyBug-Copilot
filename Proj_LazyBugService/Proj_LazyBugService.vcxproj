@@ -166,11 +166,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;..\extlib\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -181,9 +181,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib;..\extlib\curl\lib</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)LazyBugService_RL.exe</OutputFile>
-      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterCSharp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libClang.lib;libcurl_mt.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterParsers.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Outputs>LazyBugService_RL.exe</Outputs>
@@ -196,11 +196,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;LAZYBUG_RETAIL;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;..\extlib\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -212,9 +212,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib;..\extlib\curl\lib</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)LazyBugService.exe</OutputFile>
-      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterCSharp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterParsers.lib;libcurl_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Outputs>LazyBugService.exe</Outputs>
@@ -255,6 +255,8 @@
     <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp" />
     <ClCompile Include="..\Proj_LazyBug\CppSymbolParser.cpp" />
     <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\EmbeddingDB.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\embeddinggenerator.cpp" />
     <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp" />
     <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp" />
     <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp" />
@@ -739,6 +741,9 @@
     <ClInclude Include="..\Proj_LazyBug\CppSymbol.h" />
     <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h" />
     <ClInclude Include="..\Proj_LazyBug\CppSymbolParser.h" />
+    <ClInclude Include="..\Proj_LazyBug\EmbeddingDB.h" />
+    <ClInclude Include="..\Proj_LazyBug\embeddinggenerator.h" />
+    <ClInclude Include="..\Proj_LazyBug\embeddingtypes.h" />
     <ClInclude Include="..\Proj_LazyBug\LlmSkills.h" />
     <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h" />
     <ClInclude Include="..\Proj_LazyBug\SolutionDump.h" />

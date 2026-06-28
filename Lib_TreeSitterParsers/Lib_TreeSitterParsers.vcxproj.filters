@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\csharp">
+      <UniqueIdentifier>{e1cdce2a-a990-4af2-b77a-2a501fd108a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\js">
+      <UniqueIdentifier>{7b6e0326-8dee-4dbf-8379-d48e0b391ee8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\html">
+      <UniqueIdentifier>{db174804-e392-4199-929d-15aeb7aefa35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\css">
+      <UniqueIdentifier>{87731405-0a9d-4295-baa2-5d4cb79d184c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="array.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parser.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="alloc.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tag_html.h">
+      <Filter>Source Files\html</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="parser_csharp.c">
+      <Filter>Source Files\csharp</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner_csharp.c">
+      <Filter>Source Files\csharp</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_js.c">
+      <Filter>Source Files\js</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner_js.c">
+      <Filter>Source Files\js</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_html.c">
+      <Filter>Source Files\html</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner_html.c">
+      <Filter>Source Files\html</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_css.c">
+      <Filter>Source Files\css</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner_css.c">
+      <Filter>Source Files\css</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
