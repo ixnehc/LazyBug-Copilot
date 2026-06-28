@@ -29,6 +29,10 @@ PipeMsgPtr CreateSolutionDBMsg(PipeMsgType type)
 		return std::make_unique<SolutionDBMsg_SearchFile>();
 	case SolutionDBMsgType::SearchFileResults:
 		return std::make_unique<SolutionDBMsg_SearchFileResult>();
+	case SolutionDBMsgType::SetEmbeddingModel:
+		return std::make_unique<SolutionDBMsg_SetEmbeddingModel>();
+	case SolutionDBMsgType::EmbeddingModelSet:
+		return std::make_unique<SolutionDBMsg_EmbeddingModelSet>();
 	//XXXXX: more SolutionDB message
 	default:
 		always_assert(false);

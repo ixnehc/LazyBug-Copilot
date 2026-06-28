@@ -79,6 +79,8 @@ bool CSolutionDB::New(const char* pathDBFolder, const SolutionDBSetting& setting
 		Utils::EnsureFolder(path.c_str());
 		path = std::string(pathDBFolder) + "\\_checkpoints";
 		Utils::EnsureFolder(path.c_str());
+		path = std::string(pathDBFolder) + "\\_embedding";
+		Utils::EnsureFolder(path.c_str());
 	}
 
     // 创建.db文件
@@ -187,6 +189,7 @@ void CSolutionDB::Open(const char* pathDBFolder)
 
 	_symbolDB.Init(_pathDBFolder.c_str(), _projSettingLib);
 	_symbolDB2.Init(_pathDBFolder.c_str(), _projSettingLib);
+	_embeddingDB.Init(_pathDBFolder.c_str(), _symbolDB, _symbolDB2);
 
 	if (true)
 	{
@@ -195,7 +198,7 @@ void CSolutionDB::Open(const char* pathDBFolder)
 		_solutionIndexer.Open(path.c_str());
 	}
 
-	_scanner.Init(*this, _symbolDB,_symbolDB2,_solutionIndexer);
+	_scanner.Init(*this, _symbolDB,_symbolDB2,_solutionIndexer,_embeddingDB);
 
 	// 确保 _checkpoints 目录下存在 .org 文件
 	{
@@ -222,6 +225,7 @@ void CSolutionDB::Close()
 {
 	_symbolDB.Clear();
 	_symbolDB2.Clear();
+	_embeddingDB.Clear();
 	_scanner.Clear();
 	_solutionIndexer.Close();
 

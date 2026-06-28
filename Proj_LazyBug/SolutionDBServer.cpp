@@ -244,6 +244,17 @@ void CSolutionDBServer::Run()
 					}
 				}
 
+				if (msgType == SolutionDBMsgType::SetEmbeddingModel)
+				{
+					auto* request = static_cast<SolutionDBMsg_SetEmbeddingModel*>(msg.get());
+					if (request)
+					{
+						SolutionDBMsg_EmbeddingModelSet response;
+						_SetEmbeddingModel(*request, response);
+						SendMessage(response, requestId);
+					}
+				}
+
 			});
 
 			// 分离线程，让它独立运行
@@ -815,6 +826,28 @@ void CSolutionDBServer::_SearchFile(const SolutionDBMsg_SearchFile& request, Sol
 				return Utils::EnumFilesInSkillFolderFilter::Accept;
 			});
 	}
+}
+
+
+void CSolutionDBServer::_SetEmbeddingModel(const SolutionDBMsg_SetEmbeddingModel& request, SolutionDBMsg_EmbeddingModelSet& response)
+{
+	response.dbFolderPath = request.dbFolderPath;
+
+	CSolutionDB* db = g_solutionDBs.Obtain(request.dbFolderPath.c_str());
+	if (!db)
+	{
+		response.success = false;
+		return;
+	}
+
+	EmbedModelParam modelParam;
+	modelParam._modelName = request.modelName;
+	modelParam._endpoint = request.endpoint;
+	modelParam._apiKey = request.apiKey;
+	modelParam._timeoutSeconds = request.timeoutSeconds;
+
+	db->_embeddingDB.SetModelParam(modelParam);
+	response.success = true;
 }
 
 

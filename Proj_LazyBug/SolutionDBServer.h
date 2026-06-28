@@ -37,6 +37,7 @@ private:
 	void _FindSymbolDefine(const SolutionDBMsg_FindSymbolDefine& request, SolutionDBMsg_SymbolDefines& result);
 	void _FindInFiles(const SolutionDBMsg_FindInFiles& request, SolutionDBMsg_FindInFilesResults& result);
 	void _SearchFile(const SolutionDBMsg_SearchFile& request, SolutionDBMsg_SearchFileResult& result);
+	void _SetEmbeddingModel(const SolutionDBMsg_SetEmbeddingModel& request, SolutionDBMsg_EmbeddingModelSet& response);
 
 	HANDLE _hRequestPipe;
 	HANDLE _hResponsePipe;

@@ -1880,7 +1880,7 @@
             // role combo box
             const roleSel = document.createElement('select');
             roleSel.className = 'param-select';
-            ['Agent','Auxiliary'].forEach(v => {
+            ['Agent','Auxiliary','Embedding'].forEach(v => {
                 const opt = document.createElement('option');
                 opt.value = v; opt.textContent = v;
                 if (api.role === v) opt.selected = true;

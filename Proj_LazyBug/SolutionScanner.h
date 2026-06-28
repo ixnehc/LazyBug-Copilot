@@ -48,6 +48,7 @@ namespace TreeSitterSymbol
 }
 
 class CSolutionIndexer;
+class CEmbeddingDB;
 class CSolutionScanner
 {
 public:
@@ -56,10 +57,11 @@ public:
 		_db = nullptr;
 		_symbolDB = nullptr;
 		_symbolDB2 = nullptr;
+		_embeddingDB = nullptr;
 		_solutionIndexer = nullptr;
 		_slnDumpTime = Utils::GetZeroFileTime();
 	}
-	void Init(CSolutionDB &db,CppSymbol::CSymbolDB &symbolDB, TreeSitterSymbol::CSymbolDB& symbolDB2,CSolutionIndexer &indexer);
+	void Init(CSolutionDB &db,CppSymbol::CSymbolDB &symbolDB, TreeSitterSymbol::CSymbolDB& symbolDB2,CSolutionIndexer &indexer, CEmbeddingDB& embeddingDB);
 	void Clear();
 
 	void Update();
@@ -81,6 +83,7 @@ protected:
 	CSolutionDB* _db;
 	CppSymbol::CSymbolDB* _symbolDB;
 	TreeSitterSymbol::CSymbolDB* _symbolDB2;
+	CEmbeddingDB* _embeddingDB;
 	CSolutionIndexer* _solutionIndexer;
 
 	std::string _dbFolder;

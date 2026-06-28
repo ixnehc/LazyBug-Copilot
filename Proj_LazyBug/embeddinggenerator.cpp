@@ -66,6 +66,13 @@ void CEmbeddingGenerator::Init(const EmbedModelParam& modelParam,
 	}
 }
 
+void CEmbeddingGenerator::SetModelParam(const EmbedModelParam& modelParam)
+{
+	std::lock_guard<std::mutex> lock(_modelParamMutex);
+	_modelParam = modelParam;
+}
+
+
 void CEmbeddingGenerator::Close()
 {
 	if (!_running)
@@ -310,18 +317,25 @@ bool CEmbeddingGenerator::_CallEmbeddingApi(const std::vector<std::string>& text
 	if (texts.empty())
 		return true;
 
-	if (!_modelParam.IsValid())
+	// 拷贝一份 modelParam，避免长时间持锁
+	EmbedModelParam modelParam;
+	{
+		std::lock_guard<std::mutex> lock(_modelParamMutex);
+		modelParam = _modelParam;
+	}
+
+	if (!modelParam.IsValid())
 		return false;
 
 	// 构造 embedding endpoint URL
-	std::string embedEndpoint = _modelParam._endpoint;
+	std::string embedEndpoint = modelParam._endpoint;
 	if (!embedEndpoint.empty() && embedEndpoint.back() == '/')
 		embedEndpoint.pop_back();
 	embedEndpoint += "/embeddings";
 
 	// 构造请求 JSON
 	json requestJson;
-	requestJson["model"] = _modelParam._modelName;
+	requestJson["model"] = modelParam._modelName;
 	requestJson["input"] = texts;
 
 	std::string requestBody = requestJson.dump();
@@ -334,7 +348,7 @@ bool CEmbeddingGenerator::_CallEmbeddingApi(const std::vector<std::string>& text
 	struct curl_slist* headers = nullptr;
 	headers = curl_slist_append(headers, "Content-Type: application/json; charset=utf-8");
 
-	std::string authHeader = "Authorization: Bearer " + _modelParam._apiKey;
+	std::string authHeader = "Authorization: Bearer " + modelParam._apiKey;
 	headers = curl_slist_append(headers, authHeader.c_str());
 
 	EmbedApiResponse response;
@@ -344,8 +358,8 @@ bool CEmbeddingGenerator::_CallEmbeddingApi(const std::vector<std::string>& text
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestBody.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _EmbedWriteCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-	if (_modelParam._timeoutSeconds > 0)
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, _modelParam._timeoutSeconds);
+	if (modelParam._timeoutSeconds > 0)
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, modelParam._timeoutSeconds);
 
 	CURLcode res = curl_easy_perform(curl);
 

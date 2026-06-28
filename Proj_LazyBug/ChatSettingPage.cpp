@@ -822,10 +822,12 @@ void CChatSettingPage::SendCastSheetDataToWebView()
 
     using json = nlohmann::json;
 
-    // 获取当前选中的三个API
+    // 获取当前选中的API
     std::string majorChatApi = g_llmLib.GetMajorChatApi();
     std::string briefApi = g_llmLib.GetBriefApi();
     std::string summarizeApi = g_llmLib.GetSummarizeApi();
+    std::string autoCompleteApi = g_llmLib.GetAutoCompleteApi();
+    std::string embeddingApi = g_llmLib.GetEmbeddingApi();
 
     // 收集可用的API指针
     std::vector<const LlmApi*> availableApis;
@@ -850,10 +852,12 @@ void CChatSettingPage::SendCastSheetDataToWebView()
             return _stricmp(a->name.c_str(), b->name.c_str()) < 0;
         });
 
-    // 分别构建三个API列表
+    // 分别构建API列表
     json jMajorChatApis = json::array();
     json jBriefApis = json::array();
     json jSummarizeApis = json::array();
+    json jAutoCompleteApis = json::array();
+    json jEmbeddingApis = json::array();
     
     // 为 Summarize 列表添加特殊选项
     {
@@ -886,15 +890,28 @@ void CChatSettingPage::SendCastSheetDataToWebView()
         // Brief 和 Summarize 可以是 Agent 或 Auxiliary
         jBriefApis.push_back(jApi);
         jSummarizeApis.push_back(jApi);
+        
+        // AutoComplete 可以是 Agent 或 Auxiliary
+        jAutoCompleteApis.push_back(jApi);
+        
+        // Embedding 只包含 Embedding 角色
+        if (api->role == LlmApiRole::Embedding)
+        {
+            jEmbeddingApis.push_back(jApi);
+        }
     }
 
     json jCastSheet;
     jCastSheet["majorChatApi"] = majorChatApi;
     jCastSheet["briefApi"] = briefApi;
     jCastSheet["summarizeApi"] = summarizeApi;
+    jCastSheet["autoCompleteApi"] = autoCompleteApi;
+    jCastSheet["embeddingApi"] = embeddingApi;
     jCastSheet["majorChatApis"] = jMajorChatApis;
     jCastSheet["briefApis"] = jBriefApis;
     jCastSheet["summarizeApis"] = jSummarizeApis;
+    jCastSheet["autoCompleteApis"] = jAutoCompleteApis;
+    jCastSheet["embeddingApis"] = jEmbeddingApis;
 
     std::string utf8Json = jCastSheet.dump();
     _PostWebMessage(L"setCastSheetData", utf8_to_widechar(utf8Json));
@@ -918,6 +935,14 @@ void CChatSettingPage::UpdateCastSheetApi(const std::wstring& apiTypeW, const st
     {
         g_llmLib.SetSummarizeApi(apiName);
     }
+    else if (apiType == "autoComplete")
+    {
+        g_llmLib.SetAutoCompleteApi(apiName);
+    }
+    else if (apiType == "embedding")
+    {
+        g_llmLib.SetEmbeddingApi(apiName);
+    }
 }
 
 // 发送Provider数据到WebView
@@ -934,6 +959,7 @@ void CChatSettingPage::SendProviderDataToWebView()
         switch (r) {
         case LlmApiRole::Agent:     return "Agent";
         case LlmApiRole::Auxiliary: return "Auxiliary";
+        case LlmApiRole::Embedding: return "Embedding";
         default:                    return "None";
         }
     };
@@ -1229,6 +1255,7 @@ void CChatSettingPage::UpdateApiField(const std::wstring& apiNameW, const std::w
     auto roleFromStr = [](const std::string& s) -> LlmApiRole {
         if (s == "Agent")     return LlmApiRole::Agent;
         if (s == "Auxiliary") return LlmApiRole::Auxiliary;
+        if (s == "Embedding") return LlmApiRole::Embedding;
         return LlmApiRole::None;
     };
     auto toolFromStr = [](const std::string& s) -> LlmToolType {

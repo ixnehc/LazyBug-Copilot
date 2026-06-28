@@ -80,6 +80,9 @@ public:
 	const char* GetModelName() const;
 	void SetModelName(const char* modelName);
 
+	// 运行时更新模型参数（modelName + generator 的 endpoint/key/timeout）
+	void SetModelParam(const EmbedModelParam& modelParam);
+
 	// ---- 内容管理（由 SolutionDB 调用）- 通知 solution 文件变化 ----
 	// 全量设置 solution 文件列表
 	void SetContent(const CSolutionFiles& files);

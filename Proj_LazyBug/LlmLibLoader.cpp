@@ -187,6 +187,7 @@ namespace
 		{
 		case LlmApiRole::Agent: return "Agent";
 		case LlmApiRole::Auxiliary: return "Auxiliary";
+		case LlmApiRole::Embedding: return "Embedding";
 		default: return "None";
 		}
 	}
@@ -236,6 +237,7 @@ namespace
 	{
 		if (str == "Agent") return LlmApiRole::Agent;
 		if (str == "Auxiliary") return LlmApiRole::Auxiliary;
+		if (str == "Embedding") return LlmApiRole::Embedding;
 		return LlmApiRole::None;
 	}
 
@@ -524,6 +526,8 @@ void CLlmLibLoader::LoadInto(std::vector<LlmApiProvider>& providers, std::vector
 				api.role = LlmApiRole::Agent;
 			else if (it->second == "Auxiliary")
 				api.role = LlmApiRole::Auxiliary;
+			else if (it->second == "Embedding")
+				api.role = LlmApiRole::Embedding;
 		}
 
 		// 读取cacheControl

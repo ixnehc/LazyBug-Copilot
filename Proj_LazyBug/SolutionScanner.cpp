@@ -21,11 +21,12 @@
 
 // ========== CSolutionScanner 实现 ==========
 
-void CSolutionScanner::Init(CSolutionDB& db, CppSymbol::CSymbolDB& symbolDB, TreeSitterSymbol::CSymbolDB& symbolDB2, CSolutionIndexer& indexer)
+void CSolutionScanner::Init(CSolutionDB& db, CppSymbol::CSymbolDB& symbolDB, TreeSitterSymbol::CSymbolDB& symbolDB2, CSolutionIndexer& indexer, CEmbeddingDB& embeddingDB)
 {
 	_db = &db;
 	_symbolDB = &symbolDB;
 	_symbolDB2 = &symbolDB2;
+	_embeddingDB = &embeddingDB;
 	_solutionIndexer = &indexer;
 
 	_dbFolder = db.GetDBFolderPath();
@@ -46,6 +47,7 @@ void CSolutionScanner::Clear()
 	_db = nullptr;
 	_symbolDB = nullptr;
 	_symbolDB2 = nullptr;
+	_embeddingDB = nullptr;
 	_slnDumpTime = Utils::GetZeroFileTime();
 
 }
@@ -122,6 +124,8 @@ void CSolutionScanner::_CommitScanned(const SolutionDump& slnDump)
 		_symbolDB->SetContent(_db->GetFiles());
 		_symbolDB2->SetContent(_db->GetFiles());
 		_solutionIndexer->SetContent(_db->GetFiles());
+		if (_embeddingDB)
+			_embeddingDB->SetContent(_db->GetFiles());
 		
 		// 将所有文件路径添加到文件夹监控器
 		const CSolutionFiles& files = _db->GetFiles();
@@ -140,6 +144,8 @@ void CSolutionScanner::_CommitScanned(const SolutionDump& slnDump)
 		_symbolDB->SetDeltaContent(newFiles,updatedFiles,removedFiles);
 		_symbolDB2->SetDeltaContent(newFiles, updatedFiles, removedFiles);
 		_solutionIndexer->SetDeltaContent(newFiles, updatedFiles, removedFiles);
+		if (_embeddingDB)
+			_embeddingDB->SetDeltaContent(newFiles, updatedFiles, removedFiles);
 		
 		// 将新增和更新的文件路径添加到文件夹监控器
 		for (SolutionFile* pFile : newFiles)

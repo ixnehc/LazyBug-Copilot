@@ -358,6 +358,12 @@ void CEmbeddingDB::SetModelName(const char* modelName)
 	_updateCV.notify_all();
 }
 
+void CEmbeddingDB::SetModelParam(const EmbedModelParam& modelParam)
+{
+	SetModelName(modelParam._modelName.c_str());
+	_generator.SetModelParam(modelParam);
+}
+
 // ---- 激活管理 ----
 
 void CEmbeddingDB::ActivateFile(const char* filePath)
@@ -656,33 +662,33 @@ void CEmbeddingDB::_UpdateThreadProc()
 				if (GetAbsTick() > startT + budgetDur)
 					break;
 
-			const FilePathKey& key = cursorIt->first;
+				const FilePathKey& key = cursorIt->first;
 
-			time_t parsedTime = _CheckOutOfDate(key);
-			if (parsedTime != 0)
-			{
-				// 准备请求：从 SymbolDB 获取 symbol 行范围
-				EmbedRequest request;
-				request.key = key;
-				request.filePath = _GetRealFilePath(key);
-				request.oldChunks = cursorIt->second._chunks;
+				time_t parsedTime = _CheckOutOfDate(key);
+				if (parsedTime != 0)
+				{
+					// 准备请求：从 SymbolDB 获取 symbol 行范围
+					EmbedRequest request;
+					request.key = key;
+					request.filePath = _GetRealFilePath(key);
+					request.oldChunks = cursorIt->second._chunks;
 
-				if (!_GetSymbolRanges(key, request.symbolRanges, request.symbolParseTime))
-				{
-					// 获取 symbol range 失败（文件可能已被删除或解析有问题），
-					// 直接设空 chunks 并标记为已生成，避免反复重试
-					cursorIt->second._chunks.clear();
-					cursorIt->second._genTime = parsedTime;
-					cursorIt->second._modelName = _modelName;
-					_files.SetDirty(key);
-					isAnyAction = true;
+					if (!_GetSymbolRanges(key, request.symbolRanges, request.symbolParseTime))
+					{
+						// 获取 symbol range 失败（文件可能已被删除或解析有问题），
+						// 直接设空 chunks 并标记为已生成，避免反复重试
+						cursorIt->second._chunks.clear();
+						cursorIt->second._genTime = parsedTime;
+						cursorIt->second._modelName = _modelName;
+						_files.SetDirty(key);
+						isAnyAction = true;
+					}
+					else
+					{
+						_generator.Request(request);
+						isAnyAction = true;
+					}
 				}
-				else
-				{
-					_generator.Request(request);
-					isAnyAction = true;
-				}
-			}
 
 				if (_StepCursor(cursorIt, nSteps))
 					break;
@@ -725,6 +731,8 @@ bool CEmbeddingDB::_NeedResetThreadLoop()
 
 time_t CEmbeddingDB::_CheckOutOfDate(const FilePathKey& key) const
 {
+	if (_modelName.empty())
+		return 0;
 	time_t parsedTime = 0;
 	if (key.dbType == SymbolDBType::CppSymbol)
 		parsedTime = _cppSymbolDB->GetParsedTime(key.filePath);

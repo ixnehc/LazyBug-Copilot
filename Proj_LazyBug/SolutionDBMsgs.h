@@ -27,6 +27,9 @@ enum class SolutionDBMsgType
 
 	SearchFile,
 	SearchFileResults,
+
+	SetEmbeddingModel,
+	EmbeddingModelSet,
 	//XXXXX: more SolutionDB message
 };
 
@@ -372,6 +375,62 @@ public:
 		dp.Data_ReadString(dbFolderPath);
 		dp.Data_ReadString(keyword);
 		results.Load(dp);
+	}
+};
+
+struct SolutionDBMsg_SetEmbeddingModel : public PipeMsg
+{
+public:
+	std::string dbFolderPath;
+	std::string modelName;
+	std::string endpoint;
+	std::string apiKey;
+	int timeoutSeconds = 600;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::SetEmbeddingModel; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteString(dbFolderPath);
+		dp.Data_WriteString(modelName);
+		dp.Data_WriteString(endpoint);
+		dp.Data_WriteString(apiKey);
+		dp.Data_WriteSimple(timeoutSeconds);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadString(dbFolderPath);
+		dp.Data_ReadString(modelName);
+		dp.Data_ReadString(endpoint);
+		dp.Data_ReadString(apiKey);
+		dp.Data_ReadSimple(timeoutSeconds);
+	}
+};
+
+struct SolutionDBMsg_EmbeddingModelSet : public PipeMsg
+{
+public:
+	bool success;
+	std::string dbFolderPath;
+
+	SolutionDBMsg_EmbeddingModelSet()
+	{
+		success = true;
+	}
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::EmbeddingModelSet; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteSimple(success);
+		dp.Data_WriteString(dbFolderPath);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadSimple(success);
+		dp.Data_ReadString(dbFolderPath);
 	}
 };
 

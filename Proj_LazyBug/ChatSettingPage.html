@@ -1376,6 +1376,18 @@
                                 <div class="cast-sheet-btn-spinner"></div>
                             </button>
                         </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Input Auto Complete</span>
+                            <select class="cast-sheet-select" id="cast-sheet-autoComplete" data-api-type="autoComplete">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Embedding</span>
+                            <select class="cast-sheet-select" id="cast-sheet-embedding" data-api-type="embedding">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
                     `;
                     providersContainer.appendChild(castSheetPanel);
                     
@@ -1483,14 +1495,18 @@
             const majorChatSelect = document.getElementById('cast-sheet-majorChat');
             const briefSelect = document.getElementById('cast-sheet-brief');
             const summarizeSelect = document.getElementById('cast-sheet-summarize');
+            const autoCompleteSelect = document.getElementById('cast-sheet-autoComplete');
+            const embeddingSelect = document.getElementById('cast-sheet-embedding');
             const castSheetPanel = document.getElementById('cast-sheet-panel');
             
-            if (!majorChatSelect || !briefSelect || !summarizeSelect || !castSheetPanel) return;
+            if (!majorChatSelect || !briefSelect || !summarizeSelect || !autoCompleteSelect || !embeddingSelect || !castSheetPanel) return;
             
-            // 分别获取三个不同的API列表
+            // 分别获取不同的API列表
             const majorChatApis = data.majorChatApis || [];
             const briefApis = data.briefApis || [];
             const summarizeApis = data.summarizeApis || [];
+            const autoCompleteApis = data.autoCompleteApis || [];
+            const embeddingApis = data.embeddingApis || [];
             
             function rebuildSelect(select, newValue, apiList) {
                 select.innerHTML = '';
@@ -1518,6 +1534,8 @@
             rebuildSelect(majorChatSelect, data.majorChatApi, majorChatApis);
             rebuildSelect(briefSelect, data.briefApi, briefApis);
             rebuildSelect(summarizeSelect, data.summarizeApi, summarizeApis);
+            rebuildSelect(autoCompleteSelect, data.autoCompleteApi, autoCompleteApis);
+            rebuildSelect(embeddingSelect, data.embeddingApi, embeddingApis);
             
             // 更新Evaluate按钮状态
             updateEvaluateBtnState();
@@ -1880,7 +1898,7 @@
             // role combo box
             const roleSel = document.createElement('select');
             roleSel.className = 'param-select';
-            ['Agent','Auxiliary'].forEach(v => {
+            ['Agent','Auxiliary','Embedding'].forEach(v => {
                 const opt = document.createElement('option');
                 opt.value = v; opt.textContent = v;
                 if (api.role === v) opt.selected = true;

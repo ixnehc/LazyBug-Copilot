@@ -49,6 +49,8 @@ public:
 	// modelParam: 生成 embedding 使用的模型 API 参数
 	void Init(const EmbedModelParam& modelParam,
 	          int numThreads = 4, ThreadPriority priority = ThreadPriority::LOWEST);
+	// 运行时更新模型参数（线程安全）
+	void SetModelParam(const EmbedModelParam& modelParam);
 	// 关闭线程池
 	void Close();
 
@@ -92,5 +94,6 @@ private:
 	std::atomic<uint64_t>                       _nextRequestId;
 
 	EmbedModelParam                             _modelParam;   // 使用中的模型参数
+	mutable std::mutex                          _modelParamMutex; // 保护 _modelParam
 };
 

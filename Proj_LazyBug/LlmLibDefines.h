@@ -6,6 +6,7 @@ enum class LlmApiRole
 	None,
 	Agent,      // 主要代理
 	Auxiliary,  // 辅助
+	Embedding,  // 嵌入
 };
 
 enum class LlmApiFormat

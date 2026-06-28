@@ -86,6 +86,7 @@ void CLlmLib::_Save(CCurrentUserRegistry &reg)
 	reg.WriteString(mainSection, "briefApi", _briefApi.c_str());
 	reg.WriteString(mainSection, "summarizeApi", _summarizeApi.c_str());
 	reg.WriteString(mainSection, "autoCompleteApi", _autoCompleteApi.c_str());
+	reg.WriteString(mainSection, "embeddingApi", _embeddingApi.c_str());
 
 	// 保存API提供商的动态数据到注册表
 	for (int i = 0; i < (int)_providers.size(); i++)
@@ -119,6 +120,7 @@ void CLlmLib::_Load(CCurrentUserRegistry& reg)
 	_briefApi = reg.ReadString(mainSection, "briefApi", "");
 	_summarizeApi = reg.ReadString(mainSection, "summarizeApi", "");
 	_autoCompleteApi = reg.ReadString(mainSection, "autoCompleteApi", "");
+	_embeddingApi = reg.ReadString(mainSection, "embeddingApi", "");
 
 	// 从注册表读取API提供商的动态数据
 	for (int i = 0; i < (int)_providers.size(); i++)
@@ -275,6 +277,12 @@ void CLlmLib::_EnsureDefApis()
 		{
 			_autoCompleteApi = FindFirstValidApi(LlmApiRole::Agent);
 		}
+	}
+
+	// 确保 _embeddingApi：从Embedding角色取
+	if (!IsApiValid(_embeddingApi, LlmApiRole::Embedding))
+	{
+		_embeddingApi = FindFirstValidApi(LlmApiRole::Embedding);
 	}
 }
 
@@ -723,6 +731,32 @@ void CLlmLib::SetAutoCompleteApi(const std::string& apiName)
 	if (found)
 	{
 		_autoCompleteApi = apiName;
+		_version++;
+		SaveSettings();
+	}
+}
+
+void CLlmLib::SetEmbeddingApi(const std::string& apiName)
+{
+	// 验证apiName是否在可用的API列表中
+	bool found = false;
+	for (const auto& api : _apis)
+	{
+		if (api.name == apiName)
+		{
+			// 检查提供商是否可用
+			const LlmApiProvider* provider = GetProvider(api.providerTypeName);
+			if (provider && provider->IsAvailable())
+			{
+				found = true;
+				break;
+			}
+		}
+	}
+
+	if (found)
+	{
+		_embeddingApi = apiName;
 		_version++;
 		SaveSettings();
 	}
