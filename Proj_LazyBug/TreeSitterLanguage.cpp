@@ -55,21 +55,29 @@ Language GetLanguageFromExtension(const std::string& extension)
 	if (ext == "cs")
 		return Language::CSharp;
 	
+	// CSS
+	if (ext == "css")
+		return Language::Css;
+
+	// HTML
+	if (ext == "html" || ext == "htm")
+		return Language::Html;
+	
 	// Java
-// 	if (ext == "java")
-// 		return Language::Java;
-// 	
-// 	// JavaScript
-// 	if (ext == "js" || ext == "mjs")
-// 		return Language::JavaScript;
-// 	
-// 	// TypeScript
-// 	if (ext == "ts" || ext == "tsx")
-// 		return Language::TypeScript;
-// 	
-// 	// Python
-// 	if (ext == "py" || ext == "pyw")
-// 		return Language::Python;
+	if (ext == "java")
+		return Language::Java;
+	
+	// JavaScript
+	if (ext == "js" || ext == "mjs")
+		return Language::JavaScript;
+	
+	// TypeScript
+	if (ext == "ts" || ext == "tsx")
+		return Language::TypeScript;
+	
+	// Python
+	if (ext == "py" || ext == "pyw")
+		return Language::Python;
 // 	
 // 	// Go
 // 	if (ext == "go")
@@ -99,6 +107,61 @@ Language GetLanguageFromFilePath(const std::string& filePath)
 	
 	std::string ext = filePath.substr(dotPos + 1);
 	return GetLanguageFromExtension(ext);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// ILanguageSupport 默认实现
+
+void ILanguageSupport::CollectSymbols(
+	TSNode node,
+	const std::string& sourceCode,
+	std::vector<RawSymbolDefine>& outSymbols,
+	std::string& currentPrefix) const
+{
+	if (!IsSymbolDefinition(node))
+		return;
+
+	RawSymbolDefine symbol;
+	std::string nodeName = GetNodeName(node, sourceCode);
+
+	if (!currentPrefix.empty() && !nodeName.empty()) {
+		symbol.name = currentPrefix + "." + nodeName;
+	} else {
+		symbol.name = nodeName;
+	}
+
+	if (!nodeName.empty()) {
+		currentPrefix = symbol.name;
+	}
+
+	symbol.showName = GetNodeDisplayName(node, sourceCode);
+	symbol.kind = GetSymbolKind(node);
+	symbol.language = GetLanguage();
+	symbol.lineRange = GetNodeLineRange(node, sourceCode);
+
+	// 设置位置
+	TSPoint nameStart, nameEnd;
+	if (GetNameNodeRange(node, nameStart, nameEnd))
+	{
+		symbol.lineLoc.line = nameStart.row;
+		symbol.lineLoc.startColumn = nameStart.column;
+		symbol.lineLoc.endColumn = nameEnd.column;
+	}
+	else
+	{
+		TSPoint startPoint = ts_node_start_point(node);
+		symbol.lineLoc.line = startPoint.row;
+		symbol.lineLoc.startColumn = startPoint.column;
+		symbol.lineLoc.endColumn = startPoint.column + nodeName.length();
+	}
+
+	if (symbol.lineRange.start > symbol.lineLoc.line)
+		symbol.lineRange.start = symbol.lineLoc.line;
+
+	if (!symbol.name.empty())
+	{
+		outSymbols.push_back(symbol);
+	}
 }
 
 TreeSitterSymbol_End

@@ -22,17 +22,23 @@
     <ClInclude Include="alloc.h" />
     <ClInclude Include="array.h" />
     <ClInclude Include="parser.h" />
+    <ClInclude Include="scanner_typescript.h" />
     <ClInclude Include="tag_html.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="parser_css.c" />
     <ClCompile Include="parser_csharp.c" />
     <ClCompile Include="parser_html.c" />
+    <ClCompile Include="parser_java.c" />
     <ClCompile Include="parser_js.c" />
+    <ClCompile Include="parser_python.c" />
+    <ClCompile Include="parser_typescript.c" />
     <ClCompile Include="scanner_css.c" />
     <ClCompile Include="scanner_csharp.c" />
     <ClCompile Include="scanner_html.c" />
     <ClCompile Include="scanner_js.c" />
+    <ClCompile Include="scanner_python.c" />
+    <ClCompile Include="scanner_typescript.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

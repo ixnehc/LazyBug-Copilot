@@ -214,7 +214,7 @@
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib;..\extlib\curl\lib</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)LazyBugService.exe</OutputFile>
-      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterParsers.lib;libcurl_mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterParsers.lib;libcurl_mt.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Outputs>LazyBugService.exe</Outputs>
@@ -299,6 +299,12 @@
     <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguage.cpp" />
     <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.cpp" />
     <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCpp.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSS.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageHTML.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJava.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguagePython.cpp" />
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.cpp" />
     <ClCompile Include="..\Proj_LazyBug\TreeSitterParser.cpp" />
     <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbol.cpp" />
     <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbolDefines.cpp" />
@@ -769,6 +775,12 @@
     <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguage.h" />
     <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.h" />
     <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCpp.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSS.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageHTML.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJava.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguagePython.h" />
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.h" />
     <ClInclude Include="..\Proj_LazyBug\TreeSitterParser.h" />
     <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbol.h" />
     <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbolDefines.h" />

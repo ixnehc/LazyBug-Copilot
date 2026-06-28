@@ -301,6 +301,24 @@
     <ClCompile Include="..\Proj_LazyBug\embeddinggenerator.cpp">
       <Filter>Core\EmbeddingDB</Filter>
     </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSS.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageHTML.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguagePython.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJava.cpp">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdh.h">
@@ -1679,6 +1697,24 @@
     </ClInclude>
     <ClInclude Include="..\Proj_LazyBug\embeddingtypes.h">
       <Filter>Core\EmbeddingDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSS.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageHTML.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJava.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguagePython.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.h">
+      <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

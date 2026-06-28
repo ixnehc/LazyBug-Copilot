@@ -189,6 +189,9 @@
     <Filter Include="GUI\ChatDialog\ChatTaskMgr\ChatTask_InputAutoComplete">
       <UniqueIdentifier>{dc0f788c-1642-4b73-afb8-776a15251200}</UniqueIdentifier>
     </Filter>
+    <Filter Include="languagetest">
+      <UniqueIdentifier>{e315f722-668b-4b20-9ba9-2df14fff27a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DockPaneWnd.h">
@@ -1257,6 +1260,12 @@
     </None>
     <None Include="ChatMcpTip.html">
       <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
+    </None>
+    <None Include="..\ADFGVXCipher.java">
+      <Filter>languagetest</Filter>
+    </None>
+    <None Include="..\heap.ts">
+      <Filter>languagetest</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

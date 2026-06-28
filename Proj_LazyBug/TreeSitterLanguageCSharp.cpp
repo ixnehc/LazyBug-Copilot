@@ -295,8 +295,8 @@ void CLanguageSupportCSharp::GetNodeRange(TSNode node, int& startLine, int& endL
 	TSPoint start = ts_node_start_point(node);
 	TSPoint end = ts_node_end_point(node);
 	
-	startLine = start.row + 1;
-	endLine = end.row + 1;
+	startLine = start.row;  // TreeSitter 行号从 0 开始；与 lineLoc.line(0基) 保持一致
+	endLine = end.row;
 }
 
 TreeSitterSymbol_End

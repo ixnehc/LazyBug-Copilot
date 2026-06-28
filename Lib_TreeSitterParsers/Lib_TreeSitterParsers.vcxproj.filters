@@ -17,6 +17,18 @@
     <Filter Include="Source Files\css">
       <UniqueIdentifier>{87731405-0a9d-4295-baa2-5d4cb79d184c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\java">
+      <UniqueIdentifier>{b8e1f810-3491-45bc-befb-7ce61ed114be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\python">
+      <UniqueIdentifier>{734f6d02-a59d-4911-9301-1084e393b49b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NewFilter1">
+      <UniqueIdentifier>{9eb551c2-eaf0-477e-8214-d998c216f494}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\typescript">
+      <UniqueIdentifier>{29a6aeec-4f0e-487e-9139-5758fb795c1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="array.h">
@@ -30,6 +42,9 @@
     </ClInclude>
     <ClInclude Include="tag_html.h">
       <Filter>Source Files\html</Filter>
+    </ClInclude>
+    <ClInclude Include="scanner_typescript.h">
+      <Filter>Source Files\typescript</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +71,21 @@
     </ClCompile>
     <ClCompile Include="scanner_css.c">
       <Filter>Source Files\css</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_java.c">
+      <Filter>Source Files\java</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_python.c">
+      <Filter>Source Files\python</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner_python.c">
+      <Filter>Source Files\python</Filter>
+    </ClCompile>
+    <ClCompile Include="parser_typescript.c">
+      <Filter>Source Files\typescript</Filter>
+    </ClCompile>
+    <ClCompile Include="scanner_typescript.c">
+      <Filter>Source Files\typescript</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -361,52 +361,8 @@ void CTreeSitterParser::TraverseNode(
 	}
 
 
-	// 检查是否是符号定义
-	if (languageSupport->IsSymbolDefinition(node))
-	{
-		RawSymbolDefine symbol;
-		std::string nodeName = languageSupport->GetNodeName(node, sourceCode);
-		
-		if (!parentName.empty() && !nodeName.empty()) {
-			symbol.name = parentName + "." + nodeName;
-		} else {
-			symbol.name = nodeName;
-		}
-		
-		if (!nodeName.empty()) {
-			currentPrefix = symbol.name;
-		}
-
-		symbol.showName = languageSupport->GetNodeDisplayName(node, sourceCode);
-		symbol.kind = languageSupport->GetSymbolKind(node);
-		symbol.language = languageSupport->GetLanguage();
-		symbol.lineRange = languageSupport->GetNodeLineRange(node, sourceCode);
-		
-		// 设置位置
-		TSPoint nameStart, nameEnd;
-		if (languageSupport->GetNameNodeRange(node, nameStart, nameEnd))
-		{
-			symbol.lineLoc.line = nameStart.row;
-			symbol.lineLoc.startColumn = nameStart.column;
-			symbol.lineLoc.endColumn = nameEnd.column;
-		}
-		else
-		{
-			TSPoint startPoint = ts_node_start_point(node);
-			symbol.lineLoc.line = startPoint.row;
-			symbol.lineLoc.startColumn = startPoint.column;
-			symbol.lineLoc.endColumn = startPoint.column + nodeName.length();
-		}
-
-		if (symbol.lineRange.start > symbol.lineLoc.line)
-			symbol.lineRange.start = symbol.lineLoc.line;
-		
-		// 添加到符号列表
-		if (!symbol.name.empty())
-		{
-			symbols.push_back(symbol);
-		}
-	}
+	// 收集符号（默认单 symbol，HTML 等可覆写为多 symbol）
+	languageSupport->CollectSymbols(node, sourceCode, symbols, currentPrefix);
 	
 	// 递归遍历子节点
 	uint32_t childCount = ts_node_child_count(node);

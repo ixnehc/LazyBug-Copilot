@@ -1879,7 +1879,9 @@ c:\sound.exe
     <ResourceCompile Include="LazyBug.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\ADFGVXCipher.java" />
     <None Include="..\CopyFileToFolder.bat" />
+    <None Include="..\heap.ts" />
     <None Include="..\SyncPlugin.bat" />
     <None Include="ChatCtrlHtml\components.css" />
     <None Include="ChatCtrlHtml\favorite.js" />

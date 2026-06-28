@@ -113,7 +113,7 @@ namespace TreeSitterSymbol
 		bool _isParsing;
 	};
 
-	const int SYMBOL_FILES_VERSION = 1;
+	const int SYMBOL_FILES_VERSION = 2;
 
 	class CSymbolFiles
 	{

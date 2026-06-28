@@ -352,7 +352,7 @@ void CLlmTools::Init()
 
 	// 定义 SearchSymbolImplement 工具
 	BeginTool(LlmToolType::FindSymbolDefine, "FindSymbol");
-	AppendToolDesc("Search for the implementation of a symbol (e.g., function, class, variable) in the codebase. Symbols can be nested using '::' or '.' as a separator. Examples: 'MyClass::myMethod', 'Namespace::Class::function','Namespace.Class.m_Member'. Currently supports c/c++/c# symbols");
+	AppendToolDesc("Search for the implementation of a symbol (e.g., function, class, variable) in the codebase. Symbols can be nested using '::' or '.' as a separator. Examples: 'MyClass::myMethod', 'Namespace::Class::function','Namespace.Class.m_Member'. Currently supports c/c++/c#/javascript/java/typescript/python/css/html symbols");
 	AddToolPara_String("symbols", "The symbol(s) to search for. Multiple symbols can be separated by '|' to search for each symbol independently. Example: 'MyClass::methodA|MyClass::methodB|classC'", true);
 	EndTool();
 

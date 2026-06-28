@@ -97,10 +97,20 @@ enum class SymbolKind
 	// === Java 专用 ===
 	Java_Package,
 	Java_Annotation,
+	Java_Record,
 
 	// Java 引用
 	Java_PackageRef,
 	Java_AnnotationRef,
+
+	// === HTML 专用 ===
+	Html_Id,
+	Html_Class,
+
+	// === CSS 专用 ===
+	Css_Selector,
+	Css_AtRule,
+	Css_Variable,
 };
 
 struct SingleLineLoc
@@ -275,5 +285,7 @@ enum class Language
 	CSharp,
 	Swift,
 	Kotlin,
+	Css,
+	Html,
 	// 可扩展更多语言...
 };

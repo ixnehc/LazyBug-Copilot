@@ -76,6 +76,7 @@ Fix a symbol parsing issue resulting in function body not fully retrieved.
 - Fixed an issue where token statistics would become excessively large when using certain endpoints
 - Fixed an issue that finding keywords in files will fail when the files are too big
 
-0.19.2
+0.20
 - Add copy/paste buttons in Provider&Api setting page
+- Add symbol search support for more languages (*.html,*.css,*.js,*.java,*.py,*.ts)
 - Fix an issue sometimes 在使用GLM模型时对话会无故终止

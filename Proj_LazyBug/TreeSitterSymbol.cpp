@@ -10,6 +10,13 @@
 #include "TreeSitterSymbol.h"
 #include "TreeSitterLanguageCpp.h"
 #include "TreeSitterLanguageCSharp.h"
+#include "TreeSitterLanguageJavaScript.h"
+#include "TreeSitterLanguageCSS.h"
+#include "TreeSitterLanguageHTML.h"
+#include "TreeSitterLanguageJava.h"
+#include "TreeSitterLanguageTypeScript.h"
+#include "TreeSitterLanguagePython.h"
+#include "TreeSitterLanguagePython.h"
 #include "SolutionDB.h"
 #include "datapacket/DataPacket.h"
 #include "stringparser/stringparser.h"
@@ -354,6 +361,12 @@ void CSymbolDB::Init(const char* folderPath, CProjSettingLib& projSettingLib)
 	{
 		factory.RegisterLanguage(std::make_shared<CLanguageSupportCpp>());
 		factory.RegisterLanguage(std::make_shared<CLanguageSupportCSharp>());
+		factory.RegisterLanguage(std::make_shared<CLanguageSupportJavaScript>());
+		factory.RegisterLanguage(std::make_shared<CLanguageSupportHtml>());
+		factory.RegisterLanguage(std::make_shared<CLanguageSupportCss>());
+		factory.RegisterLanguage(std::make_shared<CLanguageSupportJava>());
+		factory.RegisterLanguage(std::make_shared<CLanguageSupportTypeScript>());
+		factory.RegisterLanguage(std::make_shared<CLanguageSupportPython>());
 	}
 	
 	if (true)

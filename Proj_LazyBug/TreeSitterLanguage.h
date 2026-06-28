@@ -51,6 +51,13 @@ namespace TreeSitterSymbol
 
 		// 获取节点的代码范围
 		virtual LineRange GetNodeLineRange(TSNode node, const std::string& sourceCode) const = 0;
+
+		// 收集一个节点产生的所有符号（默认实现：单 symbol，子类可覆写以支持多 symbol）
+		virtual void CollectSymbols(
+			TSNode node,
+			const std::string& sourceCode,
+			std::vector<RawSymbolDefine>& outSymbols,
+			std::string& currentPrefix) const;
 	};
 
 	// 语言支持工厂
