@@ -694,37 +694,37 @@ void CSolutionDBServer::_FindInFiles(const SolutionDBMsg_FindInFiles& request, S
 		return;
 	}
 
-	std::vector<std::string> folderPathes;
-	db->GetScanner().GetWatcherFolderPathes(folderPathes);
+// 	std::vector<std::string> folderPathes;
+// 	db->GetScanner().GetWatcherFolderPathes(folderPathes);
+// 
+// 	FindInFileResults findResults;
+// 
+// 	// 使用缓存来加速文件过滤判断（只保留最近一次的cache）
+// 	std::string lastFilePath;
+// 	bool lastFilterResult = false;
+// 
+// 	std::string lowerCasedPath;
+// 
+// 	Utils::FindInFile(request.keyword.c_str(), folderPathes, findResults, request.maxResults,
+// 		[&lastFilePath, &lastFilterResult, &lowerCasedPath, db](const char* filePath) {
+// 		// 检查是否与上一次的文件路径相同
+// 		if (filePath == lastFilePath)
+// 		{
+// 			return lastFilterResult; // 返回缓存的过滤结果（true表示要过滤掉）
+// 		}
+// 
+// 		lastFilePath = filePath;
+// 
+// 		// 如果文件不在数据库中，则过滤掉（返回true表示忽略该文件）
+// 		lowerCasedPath = filePath;
+// 		StringLower(lowerCasedPath);
+// 		lastFilterResult = !db->_symbolDB.IsFileInDB(lowerCasedPath.c_str());
+// 		return lastFilterResult;
+// 	});
+// 
+// 	_CollectFindInFileResultSymbols(db, findResults);
 
-	FindInFileResults findResults;
-
-	// 使用缓存来加速文件过滤判断（只保留最近一次的cache）
-	std::string lastFilePath;
-	bool lastFilterResult = false;
-
-	std::string lowerCasedPath;
-
-	Utils::FindInFile(request.keyword.c_str(), folderPathes, findResults, request.maxResults,
-		[&lastFilePath, &lastFilterResult, &lowerCasedPath, db](const char* filePath) {
-		// 检查是否与上一次的文件路径相同
-		if (filePath == lastFilePath)
-		{
-			return lastFilterResult; // 返回缓存的过滤结果（true表示要过滤掉）
-		}
-
-		lastFilePath = filePath;
-
-		// 如果文件不在数据库中，则过滤掉（返回true表示忽略该文件）
-		lowerCasedPath = filePath;
-		StringLower(lowerCasedPath);
-		lastFilterResult = !db->_symbolDB.IsFileInDB(lowerCasedPath.c_str());
-		return lastFilterResult;
-	});
-
-	_CollectFindInFileResultSymbols(db, findResults);
-
-	result.results = std::move(findResults);
+// 	result.results = std::move(findResults);
 }
 
 void CSolutionDBServer::_SearchFile(const SolutionDBMsg_SearchFile& request, SolutionDBMsg_SearchFileResult& result)
