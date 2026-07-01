@@ -8,6 +8,7 @@
 #include "stringparser/stringparser.h"
 
 static const int EMBEDDING_FILES_VERSION = 1;
+static const int FILE_CHUNKS_VERSION = 1;
 
 // ============================================================================
 // CEmbeddingChunk
@@ -46,13 +47,16 @@ void CEmbeddingChunk::Load(CDataPacket& dp)
 CFileChunks::CFileChunks()
 {
 	_genTime = 0;
+	_activateTime = 0;
 }
 
 void CFileChunks::Save(CDataPacket& dp) const
 {
+	dp.Data_WriteSimple((int)FILE_CHUNKS_VERSION);
 	dp.Data_WriteSimple(_key.filePath);
 	dp.Data_WriteSimple((uint8_t)_key.dbType);
 	dp.Data_WriteSimple(_genTime);
+	dp.Data_WriteSimple(_activateTime);
 	dp.Data_WriteString(_modelName);
 
 	int chunkCount = (int)_chunks.size();
@@ -63,11 +67,15 @@ void CFileChunks::Save(CDataPacket& dp) const
 
 void CFileChunks::Load(CDataPacket& dp)
 {
+	int version;
+	dp.Data_ReadSimple(version);
+
 	dp.Data_ReadSimple(_key.filePath);
 	uint8_t dbType;
 	dp.Data_ReadSimple(dbType);
 	_key.dbType = (SymbolDBType)dbType;
 	dp.Data_ReadSimple(_genTime);
+	dp.Data_ReadSimple(_activateTime);
 	dp.Data_ReadString(_modelName);
 
 	int chunkCount;
@@ -376,15 +384,21 @@ void CEmbeddingDB::ActivateFile(const char* filePath)
 		return;
 
 	// 创建或更新 _fileChunks 条目
-	if (true)
 	{
 		std::unique_lock<std::shared_mutex> lock(_mutex);
-		if (_fileChunks.find(key) == _fileChunks.end())
+		auto it = _fileChunks.find(key);
+		if (it == _fileChunks.end())
 		{
 			CFileChunks fileChunks;
 			fileChunks._key = key;
 			fileChunks._genTime = 0;  // 触发首次分片
+			fileChunks._activateTime = Utils::GetCurFileTimeT();
 			_fileChunks[key] = fileChunks;
+			_files.SetDirty(key);
+		}
+		else
+		{
+			it->second._activateTime = Utils::GetCurFileTimeT();
 			_files.SetDirty(key);
 		}
 	}

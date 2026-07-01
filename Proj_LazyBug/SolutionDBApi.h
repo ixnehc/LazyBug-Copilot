@@ -6,6 +6,8 @@
 
 #include "SolutionDBMsgs.h"
 
+struct EmbedModelParam;
+
 extern void SolutionDB_EnsureConnected();
 
 extern void SolutionDB_Connect();
@@ -19,4 +21,7 @@ extern void SolutionDB_FindSymbolDefines(const char* dbFolderPath, const char* s
 
 extern void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_FindInFilesResults& result);
 extern void SolutionDB_SearchFile(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_SearchFileResult& result);
+
+extern SolutionDBMsg_EmbeddingModelSet SolutionDB_SetEmbeddingModel(const char* dbFolderPath, const EmbedModelParam& modelParam);
+extern SolutionDBMsg_ActivateFilesResult SolutionDB_ActivateFiles(const char* dbFolderPath, const std::vector<std::string>& filePaths);
 

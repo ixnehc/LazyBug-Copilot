@@ -88,10 +88,11 @@ public:
 	void Load(CDataPacket& dp);
 
 public:
-	FilePathKey                  _key;        // 文件标识（含所属 strPool）
-	time_t                       _genTime;    // 生成此分片时,对应 SymbolDB 中该文件的 _parsedTime
-	std::string                  _modelName;  // 生成时使用的模型名
-	std::vector<CEmbeddingChunk> _chunks;     // 按行号顺序排列的所有片段
+	FilePathKey                  _key;           // 文件标识（含所属 strPool）
+	time_t                       _genTime;       // 生成此分片时,对应 SymbolDB 中该文件的 _parsedTime
+	time_t                       _activateTime;  // 文件被激活的时间(最后调用 ActivateFile 的时间)
+	std::string                  _modelName;     // 生成时使用的模型名
+	std::vector<CEmbeddingChunk> _chunks;        // 按行号顺序排列的所有片段
 };
 
 // ============================================================================

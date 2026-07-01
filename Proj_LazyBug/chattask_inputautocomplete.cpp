@@ -115,8 +115,18 @@ void CChatTask_InputAutoComplete::Start()
     std::string prompt;
     prompt = "You are an input auto-completion assistant. Based on the recent chat context and the user's partial input,\n"
              "suggest a plausible completion of what the user might be typing next.\n"
-             "Output ONLY the completion text, nothing else. Do NOT include the user's partial input in your output.\n"
-             "The completion should be concise and in the same language as the partial input.\n\n";
+             "You may also correct typos or improve the existing partial input when appropriate.\n"
+             "The completion should be concise and in the same language as the partial input.\n"
+             "You MUST strictly follow this output format and output NOTHING else:\n"
+             "<<Old Content>>~~||~~<<New Content>>\n"
+             "Where <Old Content> is the user's partial input, and <New Content> is the corrected and/or completed text.\n"
+             "Old and new content are separated by ~~||~~.\n\n"
+             "Examples:\n"
+             "Partial input \"Hello\" -> output: Hello~~||~~Hello world\n"
+             "Partial input \"How are\" -> output: How are~~||~~How are you\n"
+             "Partial input \"请帮我\" -> output: 请帮我~~||~~请帮我写一个函数\n"
+             "Partial input \"hwo to\" (typo) -> output: hwo to~~||~~how to write\n"
+             "Partial input \"请帮我谢一个\" (typo) -> output: 请帮我谢一个~~||~~请帮我写一个函数\n\n";
 
     if (!_chatContext.empty())
     {

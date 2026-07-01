@@ -874,6 +874,15 @@ void CChatSettingPage::SendCastSheetDataToWebView()
         jSummarizeApis.push_back(jAuto);
     }
     
+    // 为 Embedding 列表添加特殊选项
+    {
+        json jDisable;
+        jDisable["name"] = EMBEDDING_API_DISABLE;
+        jDisable["provider"] = "";
+        jDisable["model"] = "";
+        jEmbeddingApis.push_back(jDisable);
+    }
+    
     for (const auto* api : availableApis)
     {
         json jApi;

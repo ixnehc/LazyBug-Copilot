@@ -255,6 +255,17 @@ void CSolutionDBServer::Run()
 					}
 				}
 
+				if (msgType == SolutionDBMsgType::ActivateFiles)
+				{
+					auto* request = static_cast<SolutionDBMsg_ActivateFiles*>(msg.get());
+					if (request)
+					{
+						SolutionDBMsg_ActivateFilesResult response;
+						_ActivateFiles(*request, response);
+						SendMessage(response, requestId);
+					}
+				}
+
 			});
 
 			// 分离线程，让它独立运行
@@ -840,6 +851,7 @@ void CSolutionDBServer::_SetEmbeddingModel(const SolutionDBMsg_SetEmbeddingModel
 		return;
 	}
 
+#ifdef USE_EMBEDDING_DB
 	EmbedModelParam modelParam;
 	modelParam._modelName = request.modelName;
 	modelParam._endpoint = request.endpoint;
@@ -847,6 +859,28 @@ void CSolutionDBServer::_SetEmbeddingModel(const SolutionDBMsg_SetEmbeddingModel
 	modelParam._timeoutSeconds = request.timeoutSeconds;
 
 	db->_embeddingDB.SetModelParam(modelParam);
+	response.success = true;
+#else
+	response.success = false;
+#endif
+}
+
+void CSolutionDBServer::_ActivateFiles(const SolutionDBMsg_ActivateFiles& request, SolutionDBMsg_ActivateFilesResult& response)
+{
+	response.dbFolderPath = request.dbFolderPath;
+
+	CSolutionDB* db = g_solutionDBs.Obtain(request.dbFolderPath.c_str());
+	if (!db)
+	{
+		response.success = false;
+		return;
+	}
+
+#ifdef USE_EMBEDDING_DB
+	for (const std::string& filePath : request.filePaths)
+		db->_embeddingDB.ActivateFile(filePath.c_str());
+#endif
+
 	response.success = true;
 }
 

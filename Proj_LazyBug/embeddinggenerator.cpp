@@ -299,6 +299,8 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 			for (size_t i = 0; i < newChunks.size() && i < modelEmbeddings.size(); i++)
 				newChunks[i]._embeddings = std::move(modelEmbeddings[i]);
 		}
+		else
+			return result;
 	}
 
 	result.chunks  = std::move(newChunks);
@@ -331,7 +333,9 @@ bool CEmbeddingGenerator::_CallEmbeddingApi(const std::vector<std::string>& text
 	std::string embedEndpoint = modelParam._endpoint;
 	if (!embedEndpoint.empty() && embedEndpoint.back() == '/')
 		embedEndpoint.pop_back();
-	embedEndpoint += "/embeddings";
+	// 只有当结尾不是 "/embeddings" 时才添加
+	if (embedEndpoint.size() < 12 || embedEndpoint.substr(embedEndpoint.size() - 12) != "/embeddings")
+		embedEndpoint += "/embeddings";
 
 	// 构造请求 JSON
 	json requestJson;

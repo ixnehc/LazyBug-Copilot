@@ -17,3 +17,4 @@
 *. 添加 js symbol 支持
 *. diff 字串 调整删除和添加的顺序
 *. 提供 @的AutoComplete的智能程度
+*. symbol link要支持 xxxx.cpp:456 这样的格式 

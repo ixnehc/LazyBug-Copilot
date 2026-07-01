@@ -68,6 +68,33 @@ void CChatTask_VerifyLlmApiProvider::Start()
 	{
 		setting.api.tools.clear();
 		setting.rulesFiles.clear();
+
+		// 检测endpoint后缀，如果为embedding endpoint，使用embedding专用验证流程
+		bool isEmbeddingEndpoint = false;
+		const LlmApiProvider* provider = g_llmLib.GetProvider(_providerTypeName);
+		if (provider)
+		{
+			std::string endpoint = provider->endpoint;
+			while (!endpoint.empty() && endpoint.back() == '/')
+				endpoint.pop_back();
+			std::transform(endpoint.begin(), endpoint.end(), endpoint.begin(), ::tolower);
+			if (endpoint.size() >= 11 && endpoint.compare(endpoint.size() - 11, 11, "/embeddings") == 0)
+				isEmbeddingEndpoint = true;
+		}
+
+		if (isEmbeddingEndpoint)
+		{
+			// Embedding endpoint: 使用异步embedding请求验证
+			if (!_llmChat->RequestEmbedding(u8"test", setting))
+			{
+				_Fail();
+				return;
+			}
+			_hasStartedRequest = true;
+			return;
+		}
+
+		// 普通Chat endpoint: 使用聊天请求验证
 		LlmSessionRequest request;
 		request.AddUserMessage(u8"Please give me an animal's name of 4 letters");
 		request.isStreaming = false;
@@ -99,7 +126,7 @@ void CChatTask_VerifyLlmApiProvider::Update()
 			// 检查会话是否完成
 			if (output.isCompleted)
 			{
-				if (output.content.empty())
+				if (output.content.empty() && output.fullContent.empty())
 				{
 					_Fail();
 				}

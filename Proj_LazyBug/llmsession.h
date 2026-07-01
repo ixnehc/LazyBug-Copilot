@@ -232,6 +232,9 @@ public:
 	// 发送请求
 	bool Request(const LlmSessionRequest &request);
 	
+	// 发送embedding请求（异步，启动线程执行）
+	bool RequestEmbedding(const std::string& input);
+	
 	// 停止当前请求
 	void Interrupt();
 
@@ -243,6 +246,9 @@ public:
 	bool FetchDeltaAnswer(std::string& delta,std::string &deltaReasoning);
 	bool GetUpdatedToolCalls(std::vector<LlmToolCall>& toolCalls);
 	bool GetTokenUsage(LlmSessionUsage &usage);
+
+	// 获取embedding结果（异步请求完成后可用）
+	bool FetchEmbedding(std::vector<float>& outEmbedding);
 
 	// 获取错误信息
 	bool HasError();
@@ -269,7 +275,9 @@ public:
 	std::atomic<bool> m_interruptRequested; // 添加停止请求标志
 
 	LlmSessionUsage m_usage;
-	
+
+	std::vector<float> m_embedding;  // embedding请求的结果向量
+
 	// 添加一个缓冲区来处理不完整的流数据块
 	std::string m_buffer; 
 	std::deque<std::string> m_bufferLines;
@@ -277,8 +285,10 @@ public:
 	// 发送请求到LLM
 	static void RequestThreadFunction(CLlmSession* session);
 
+	// 发送embedding请求到LLM（在线程中执行）
+	static void EmbeddingRequestThreadFunction(CLlmSession* session);
+
 	// 给requestJson中"tools"数组的最后一个tool添加cache_control: ephemeral
 	// 需要IsPrompCachingEnabled()返回true时才生效
 	static void AddToolsCacheControl(json& requestJson);
-	
 };

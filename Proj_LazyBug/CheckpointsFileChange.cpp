@@ -5,6 +5,9 @@
 #include "stringparser/stringparser.h"
 
 #include "Utils.h"
+#include "SolutionDBApi.h"
+
+extern const char* GetOpenedDBFolderPath_utf8();
 
 void CCheckpointsFileChange::SetCheckpoints(CCheckpoints* checkpoints)
 {
@@ -35,6 +38,15 @@ void CCheckpointsFileChange::Activate(FilesCheckpointUID oldCp, FilesCheckpointU
 	_newCheckpointFileTime = 0;
 	_newFileContent.clear();
 	_newFileExists = false;
+	
+	// 激活文件到 EmbeddingDB
+	const char* dbFolderPath = GetOpenedDBFolderPath_utf8();
+	if (dbFolderPath && dbFolderPath[0] != '\0' && !_filePath.empty())
+	{
+		std::vector<std::string> filePaths;
+		filePaths.push_back(_filePath);
+		SolutionDB_ActivateFiles(dbFolderPath, filePaths);
+	}
 	
 	// 立即检查一次变化并生成FileChange
 	Update();

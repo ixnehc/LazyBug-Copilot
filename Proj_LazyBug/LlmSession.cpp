@@ -918,6 +918,14 @@ bool CLlmSession::GetTokenUsage(LlmSessionUsage& usage)
 	return true;
 }
 
+bool CLlmSession::FetchEmbedding(std::vector<float>& outEmbedding)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	outEmbedding = std::move(m_embedding);
+	m_embedding.clear();
+	return !outEmbedding.empty();
+}
+
 
 bool CLlmSession::FetchDeltaAnswer(std::string& delta, std::string& deltaReasoning)
 {
@@ -976,6 +984,168 @@ static int LlmProgressCallback(void *clientp,   double dltotal,   double dlnow, 
 }
 
 int g_instances = 0;
+
+// Embedding请求的响应收集器
+struct EmbedResponseCollector
+{
+	std::string data;
+};
+
+static size_t EmbedWriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	size_t totalSize = size * nmemb;
+	EmbedResponseCollector* collector = static_cast<EmbedResponseCollector*>(userp);
+	collector->data.append(static_cast<char*>(contents), totalSize);
+	return totalSize;
+}
+
+bool CLlmSession::RequestEmbedding(const std::string& input)
+{
+	if (input.empty())
+		return false;
+
+	m_request.prompt = input;
+	m_isCompleted = false;
+	m_hasError = false;
+	m_errorMessage = "";
+	m_answer = "";
+	m_reasoning = "";
+	m_deltaAnswer = "";
+	m_deltaReasoning = "";
+	m_buffer = "";
+	m_embedding.clear();
+	m_interruptRequested = false;
+
+	// 启动请求线程
+	std::thread requestThread(EmbeddingRequestThreadFunction, this);
+	requestThread.detach();
+
+	return true;
+}
+
+void CLlmSession::EmbeddingRequestThreadFunction(CLlmSession* session)
+{
+	if (!session)
+		return;
+
+	const LlmSessionSetting& settings = session->m_settings;
+	const std::string& input = session->m_request.prompt;
+
+	// 构造embedding endpoint URL
+	std::string embedEndpoint = settings.apiEndpoint_;
+	if (!embedEndpoint.empty() && embedEndpoint.back() == '/')
+		embedEndpoint.pop_back();
+
+	// 如果endpoint不以/embeddings结尾，尝试转换
+	if (embedEndpoint.size() < 11 || embedEndpoint.compare(embedEndpoint.size() - 11, 11, "/embeddings") != 0)
+	{
+		size_t pos = embedEndpoint.find("/chat/completions");
+		if (pos != std::string::npos)
+		{
+			embedEndpoint.replace(pos, 17, "/embeddings");
+		}
+		else
+		{
+			embedEndpoint += "/embeddings";
+		}
+	}
+
+	// 构造请求JSON
+	json requestJson;
+	requestJson["model"] = !settings.api.model.empty() ? settings.api.model : "text-embedding-3-small";
+	requestJson["input"] = input;
+
+	std::string requestBody = requestJson.dump();
+
+	// 初始化CURL
+	CURL* curl = curl_easy_init();
+	if (!curl)
+	{
+		std::lock_guard<std::mutex> lock(session->m_mutex);
+		session->m_hasError = true;
+		session->m_errorMessage = "Failed to initialize CURL for embedding request";
+		session->m_isCompleted = true;
+		return;
+	}
+
+	struct curl_slist* headers = nullptr;
+	headers = curl_slist_append(headers, "Content-Type: application/json; charset=utf-8");
+
+	std::string authHeader = "Authorization: Bearer " + settings.apiKey;
+	if (settings.apiFormat == LlmApiFormat::Anthropic_)
+		authHeader = "x-api-key: " + settings.apiKey;
+	else if (settings.apiFormat == LlmApiFormat::Gemini_)
+		authHeader = "x-goog-api-key: " + settings.apiKey;
+	headers = curl_slist_append(headers, authHeader.c_str());
+
+	EmbedResponseCollector response;
+
+	curl_easy_setopt(curl, CURLOPT_URL, embedEndpoint.c_str());
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestBody.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, EmbedWriteCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+	curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, LlmProgressCallback);
+	curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, session);
+
+	if (settings.timeoutSeconds > 0)
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, settings.timeoutSeconds);
+
+	CURLcode res = curl_easy_perform(curl);
+
+	curl_slist_free_all(headers);
+	curl_easy_cleanup(curl);
+
+	if (res != CURLE_OK)
+	{
+		std::lock_guard<std::mutex> lock(session->m_mutex);
+		session->m_hasError = true;
+		session->m_errorMessage = curl_easy_strerror(res);
+		session->m_isCompleted = true;
+		return;
+	}
+
+	// 解析响应JSON (OpenAI格式: {"data": [{"embedding": [...], "index": 0}, ...]})
+	try
+	{
+		auto respJson = json::parse(response.data);
+
+		if (respJson.contains("data") && respJson["data"].is_array() && !respJson["data"].empty())
+		{
+			const auto& item = respJson["data"][0];
+			if (item.contains("embedding") && item["embedding"].is_array())
+			{
+				std::vector<float> embedding;
+				const auto& emb = item["embedding"];
+				embedding.reserve(emb.size());
+				for (const auto& val : emb)
+					embedding.push_back(val.get<float>());
+
+				std::lock_guard<std::mutex> lock(session->m_mutex);
+				session->m_embedding = std::move(embedding);
+				session->m_answer = "ok"; // 非空表示成功
+				session->m_isCompleted = true;
+				return;
+			}
+		}
+
+		// 检查是否有错误信息
+		std::lock_guard<std::mutex> lock(session->m_mutex);
+		session->m_hasError = true;
+		if (respJson.contains("error") && respJson["error"].is_object())
+			session->m_errorMessage = respJson["error"].value("message", "Unknown embedding API error");
+		else
+			session->m_errorMessage = "Failed to parse embedding response";
+	}
+	catch (...)
+	{
+		std::lock_guard<std::mutex> lock(session->m_mutex);
+		session->m_hasError = true;
+		session->m_errorMessage = "Failed to parse embedding response JSON";
+	}
+
+	session->m_isCompleted = true;
+}
 
 void CLlmSession::AddToolsCacheControl(json& requestJson)
 {

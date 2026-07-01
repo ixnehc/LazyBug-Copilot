@@ -280,7 +280,7 @@ void CLlmLib::_EnsureDefApis()
 	}
 
 	// 确保 _embeddingApi：从Embedding角色取
-	if (!IsApiValid(_embeddingApi, LlmApiRole::Embedding))
+	if (!IsApiValid(_embeddingApi, LlmApiRole::Embedding) && (_embeddingApi != EMBEDDING_API_DISABLE))
 	{
 		_embeddingApi = FindFirstValidApi(LlmApiRole::Embedding);
 	}
@@ -738,6 +738,15 @@ void CLlmLib::SetAutoCompleteApi(const std::string& apiName)
 
 void CLlmLib::SetEmbeddingApi(const std::string& apiName)
 {
+	// 特殊值 <disable> 直接接受，无需验证
+	if (apiName == EMBEDDING_API_DISABLE)
+	{
+		_embeddingApi = apiName;
+		_version++;
+		SaveSettings();
+		return;
+	}
+
 	// 验证apiName是否在可用的API列表中
 	bool found = false;
 	for (const auto& api : _apis)

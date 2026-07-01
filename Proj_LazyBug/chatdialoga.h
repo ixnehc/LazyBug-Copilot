@@ -218,6 +218,10 @@ protected:
 	void _OnStopButtonClicked();
 
 	// 压缩结果提示相关
+	void _UpdateEmbeddingModel();
+	// 记录上次 embedding model 的 dbFolderPath 和 api name，用于检测变化
+	std::string _lastDbFolderPathForEmbedding;
+	std::string _lastEmbeddingApiName;
 	void _UpdateCompressSummarizeTip();
 	int _compressSummarizeTipVersion;  // 当前已显示的提示版本号
 

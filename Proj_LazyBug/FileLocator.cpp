@@ -4,6 +4,9 @@
 
 
 #include "Utils.h"
+#include "SolutionDBApi.h"
+
+extern const char* GetOpenedDBFolderPath_utf8();
 
 void CFileLacator::Request(const char* filePath, FileLocation loc)
 {
@@ -11,6 +14,15 @@ void CFileLacator::Request(const char* filePath, FileLocation loc)
 	_fileLocate.fileLoc = loc;
 	_hasRequest = true;
 	_lastRequestTime = GetAbsTick();
+
+	// 激活文件到 EmbeddingDB
+	const char* dbFolderPath = GetOpenedDBFolderPath_utf8();
+	if (dbFolderPath && dbFolderPath[0] != '\0' && !_fileLocate.filePath.empty())
+	{
+		std::vector<std::string> filePaths;
+		filePaths.push_back(_fileLocate.filePath);
+		SolutionDB_ActivateFiles(dbFolderPath, filePaths);
+	}
 }
 
 

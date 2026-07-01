@@ -12,7 +12,9 @@
 #include "TreeSitterSymbol.h"
 #include "SolutionIndexer.h"
 #include "SolutionDump.h"
+#ifdef USE_EMBEDDING_DB
 #include "EmbeddingDB.h"
+#endif
 #include <shared_mutex>
 
 
@@ -137,7 +139,9 @@ public:
 	CSolutionScanner _scanner;
 	CppSymbol::CSymbolDB _symbolDB;
 	TreeSitterSymbol::CSymbolDB _symbolDB2;
+#ifdef USE_EMBEDDING_DB
 	CEmbeddingDB _embeddingDB;
+#endif
 	CSolutionIndexer _solutionIndexer;
 	CSolutionFiles _files;
 

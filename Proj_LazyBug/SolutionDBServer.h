@@ -38,6 +38,7 @@ private:
 	void _FindInFiles(const SolutionDBMsg_FindInFiles& request, SolutionDBMsg_FindInFilesResults& result);
 	void _SearchFile(const SolutionDBMsg_SearchFile& request, SolutionDBMsg_SearchFileResult& result);
 	void _SetEmbeddingModel(const SolutionDBMsg_SetEmbeddingModel& request, SolutionDBMsg_EmbeddingModelSet& response);
+	void _ActivateFiles(const SolutionDBMsg_ActivateFiles& request, SolutionDBMsg_ActivateFilesResult& response);
 
 	HANDLE _hRequestPipe;
 	HANDLE _hResponsePipe;

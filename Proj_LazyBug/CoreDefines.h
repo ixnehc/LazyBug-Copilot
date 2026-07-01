@@ -2,6 +2,9 @@
 
 #include <functional>
 
+// 启用 Embedding DB 功能
+//#define USE_EMBEDDING_DB
+
 
 typedef int StringIndex;
 const StringIndex StringIndex_Null = 0;  // 无效的字符串索引

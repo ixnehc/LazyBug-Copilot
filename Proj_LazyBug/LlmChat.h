@@ -20,6 +20,7 @@ struct LlmSessionOutput
 	std::string content;     // 内容
 	std::string reasoning;     
 	std::vector<LlmToolCall> updatedToolCalls;//发送过更新的tool calls
+	std::vector<float> embedding;  // embedding结果（仅embedding请求有效）
 	bool isCompleted;        // 是否完成
 	LlmSessionUsage usage;
 	bool hasError;           // 是否有错误
@@ -45,6 +46,9 @@ public:
 
 	// 请求问题，启动一个会话并立即返回
 	bool Request(const LlmSessionRequest &request, const LlmSessionSetting&setting);
+
+	// 发送embedding请求（异步），启动一个会话并立即返回
+	bool RequestEmbedding(const std::string& input, const LlmSessionSetting& setting);
 
 	// 处理当前会话，获取输出
 	bool Process(LlmSessionOutput& output, bool interrupt = false);

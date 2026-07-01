@@ -6,6 +6,7 @@
 #include "stringparser/stringparser.h"
 
 #include "SolutionDBApi.h"
+#include "embeddingtypes.h"
 
 #include "Utils.h"
 
@@ -250,6 +251,37 @@ void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int m
 	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
 
 	msg.WaitAndFetch(result);
+}
+
+SolutionDBMsg_EmbeddingModelSet SolutionDB_SetEmbeddingModel(const char* dbFolderPath, const EmbedModelParam& modelParam)
+{
+	SolutionDBMsg_SetEmbeddingModel request;
+	request.dbFolderPath = dbFolderPath;
+	request.modelName = modelParam._modelName;
+	request.endpoint = modelParam._endpoint;
+	request.apiKey = modelParam._apiKey;
+	request.timeoutSeconds = modelParam._timeoutSeconds;
+
+	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
+
+	SolutionDBMsg_EmbeddingModelSet result;
+	msg.WaitAndFetch(result);
+
+	return std::move(result);
+}
+
+SolutionDBMsg_ActivateFilesResult SolutionDB_ActivateFiles(const char* dbFolderPath, const std::vector<std::string>& filePaths)
+{
+	SolutionDBMsg_ActivateFiles request;
+	request.dbFolderPath = dbFolderPath;
+	request.filePaths = filePaths;
+
+	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
+
+	SolutionDBMsg_ActivateFilesResult result;
+	msg.WaitAndFetch(result);
+
+	return std::move(result);
 }
 
 void SolutionDB_SearchFile(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_SearchFileResult& result)

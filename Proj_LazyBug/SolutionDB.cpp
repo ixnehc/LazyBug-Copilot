@@ -189,7 +189,9 @@ void CSolutionDB::Open(const char* pathDBFolder)
 
 	_symbolDB.Init(_pathDBFolder.c_str(), _projSettingLib);
 	_symbolDB2.Init(_pathDBFolder.c_str(), _projSettingLib);
+#ifdef USE_EMBEDDING_DB
 	_embeddingDB.Init(_pathDBFolder.c_str(), _symbolDB, _symbolDB2);
+#endif
 
 	if (true)
 	{
@@ -198,7 +200,11 @@ void CSolutionDB::Open(const char* pathDBFolder)
 		_solutionIndexer.Open(path.c_str());
 	}
 
+#ifdef USE_EMBEDDING_DB
 	_scanner.Init(*this, _symbolDB,_symbolDB2,_solutionIndexer,_embeddingDB);
+#else
+	_scanner.Init(*this, _symbolDB,_symbolDB2,_solutionIndexer);
+#endif
 
 	// 确保 _checkpoints 目录下存在 .org 文件
 	{
@@ -225,7 +231,9 @@ void CSolutionDB::Close()
 {
 	_symbolDB.Clear();
 	_symbolDB2.Clear();
+#ifdef USE_EMBEDDING_DB
 	_embeddingDB.Clear();
+#endif
 	_scanner.Clear();
 	_solutionIndexer.Close();
 

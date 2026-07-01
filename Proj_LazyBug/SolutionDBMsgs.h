@@ -30,6 +30,9 @@ enum class SolutionDBMsgType
 
 	SetEmbeddingModel,
 	EmbeddingModelSet,
+
+	ActivateFiles,
+	ActivateFilesResult,
 	//XXXXX: more SolutionDB message
 };
 
@@ -420,6 +423,60 @@ public:
 	}
 
 	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::EmbeddingModelSet; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteSimple(success);
+		dp.Data_WriteString(dbFolderPath);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadSimple(success);
+		dp.Data_ReadString(dbFolderPath);
+	}
+};
+
+struct SolutionDBMsg_ActivateFiles : public PipeMsg
+{
+public:
+	std::string dbFolderPath;
+	std::vector<std::string> filePaths;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::ActivateFiles; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteString(dbFolderPath);
+		int count = (int)filePaths.size();
+		dp.Data_WriteSimple(count);
+		for (const std::string& path : filePaths)
+			dp.Data_WriteString(path);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadString(dbFolderPath);
+		int count;
+		dp.Data_ReadSimple(count);
+		filePaths.resize(count);
+		for (int i = 0; i < count; i++)
+			dp.Data_ReadString(filePaths[i]);
+	}
+};
+
+struct SolutionDBMsg_ActivateFilesResult : public PipeMsg
+{
+public:
+	bool success;
+	std::string dbFolderPath;
+
+	SolutionDBMsg_ActivateFilesResult()
+	{
+		success = true;
+	}
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::ActivateFilesResult; }
 
 	void Save(CDataPacket& dp) const override
 	{

@@ -71,6 +71,32 @@ bool CLlmChat::Request(const LlmSessionRequest& request, const LlmSessionSetting
     return true;
 }
 
+bool CLlmChat::RequestEmbedding(const std::string& input, const LlmSessionSetting& setting)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    
+    // 如果已经有活动会话，返回错误
+    if (m_activeSession)
+    {
+        return false;
+    }
+
+    m_setting = setting;
+    
+    // 创建新会话
+    m_activeSession = std::make_unique<CLlmSession>(setting);
+    
+    // 发送embedding请求
+    bool success = m_activeSession->RequestEmbedding(input);
+    if (!success)
+    {
+        m_activeSession.reset();
+        return false;
+    }
+    
+    return true;
+}
+
 bool CLlmChat::Process(LlmSessionOutput& output,bool interrupt)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -113,6 +139,7 @@ bool CLlmChat::Process(LlmSessionOutput& output,bool interrupt)
         }
 
         m_activeSession->GetTokenUsage(output.usage);
+        m_activeSession->FetchEmbedding(output.embedding);
 
 		float calculatedFee = (m_setting.api.priceInputToken * (float)output.usage.inputToken_ 
 			+ m_setting.api.priceCacheRead * (float)output.usage.inputToken_CacheRead 

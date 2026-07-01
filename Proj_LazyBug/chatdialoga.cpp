@@ -35,6 +35,7 @@ extern CCurrentUserRegistry g_reg;
 #include <richedit.h>
 
 #include "SolutionDBApi.h"
+#include "embeddingtypes.h"
 
 extern CLlmLib g_llmLib;
 
@@ -522,6 +523,8 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 	_UpdateSwitchChat();
 
+	_UpdateEmbeddingModel();
+
 	_UpdateContextUsage();
 
 	_UpdateCompressSummarizeTip();
@@ -530,6 +533,50 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 
 	CDialog::OnTimer(nIDEvent);
+}
+
+
+void CChatDialogA::_UpdateEmbeddingModel()
+{
+	const char* dbFolderPath = GetOpenedDBFolderPath_utf8();
+	if (!dbFolderPath || dbFolderPath[0] == '\0')
+		return;
+
+	const std::string embeddingApiName = g_llmLib.GetEmbeddingApi();
+	if (embeddingApiName.empty())
+		return;
+
+	// 检测变化
+	if (dbFolderPath == _lastDbFolderPathForEmbedding && embeddingApiName == _lastEmbeddingApiName)
+		return;
+
+	// 处理 <disable>
+	if (embeddingApiName == EMBEDDING_API_DISABLE)
+	{
+		EmbedModelParam modelParam; // 无效参数，禁用 embedding
+		SolutionDB_SetEmbeddingModel(dbFolderPath, modelParam);
+		_lastDbFolderPathForEmbedding = dbFolderPath;
+		_lastEmbeddingApiName = embeddingApiName;
+		return;
+	}
+
+	const LlmApi* api = g_llmLib.GetApi(embeddingApiName);
+	if (!api)
+		return;
+
+	const LlmApiProvider* provider = g_llmLib.GetProvider(api->providerTypeName);
+	if (!provider)
+		return;
+
+	EmbedModelParam modelParam;
+	modelParam._modelName = api->model;
+	modelParam._endpoint = provider->endpoint;
+	modelParam._apiKey = provider->key;
+
+	SolutionDB_SetEmbeddingModel(dbFolderPath, modelParam);
+
+	_lastDbFolderPathForEmbedding = dbFolderPath;
+	_lastEmbeddingApiName = embeddingApiName;
 }
 
 
@@ -1396,7 +1443,6 @@ void CChatDialogA::ActivateCheckpointFileChange(const std::wstring& fileEditId)
 		return;
 
 	_checkpointsFileChange.Activate(oldCheckpointId, newCheckpointId, filePath.c_str());
-
 }
 
 // 自定义消息处理函数实现
