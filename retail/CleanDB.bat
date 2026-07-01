@@ -1,1 +1,0 @@
-del D:\IxEngine_x64\data\db\*.fld
