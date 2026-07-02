@@ -1,7 +1,7 @@
 ﻿#include "stdh.h"
 
 #include "SolutionIndexer.h"
-#include "SolutionIndexerImpl_Xapian.h"
+// #include "SolutionIndexerImpl_Xapian.h"
 #include "SolutionIndexerImpl_Lucene.h"
 #include "Utils.h"
 #include "SolutionDB.h"

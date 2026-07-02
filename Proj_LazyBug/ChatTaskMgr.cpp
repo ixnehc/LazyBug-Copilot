@@ -680,9 +680,9 @@ void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::stri
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_InputAutoComplete(const std::string& partialInput, const std::string& apiName, CChatInputAutoCompleteWindow* pResultWindow)
+void CChatTaskMgr::AddTask_InputAutoComplete(const std::wstring& content, const std::string& apiName, CChatInputAutoCompleteWindow* pResultWindow)
 {
-	CChatTask_InputAutoComplete* task = new CChatTask_InputAutoComplete(partialInput, apiName);
+	CChatTask_InputAutoComplete* task = new CChatTask_InputAutoComplete(content, apiName);
 	task->SetResultWindow(pResultWindow);
 	_AddTask(task);
 }

@@ -236,10 +236,6 @@
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
       <VSIXSubPath>1033</VSIXSubPath>
     </ProjectReference>
-    <ProjectReference Include="..\..\Proj_FileSystem\Proj_FileSystem.vcxproj">
-      <Project>{271041da-cbe6-4a77-8622-c1f7d3aeff66}</Project>
-      <Name>Proj_FileSystem</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Proj_LazyBugCppParser\Proj_LazyBugCppParser.vcxproj">
       <Project>{49700260-cee3-46b5-bbf5-fc15f877945a}</Project>
       <Name>Proj_LazyBugCppParser</Name>

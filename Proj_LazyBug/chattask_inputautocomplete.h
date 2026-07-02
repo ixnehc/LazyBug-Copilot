@@ -1,13 +1,13 @@
 #pragma once
 #include "ChatTaskMgr.h"
-#include <string>
+#include "Utils_InputComplete.h"
 
 class CChatInputAutoCompleteWindow;
 
 class CChatTask_InputAutoComplete : public CChatTask
 {
 public:
-    CChatTask_InputAutoComplete(const std::string& partialInput, const std::string& apiName);
+    CChatTask_InputAutoComplete(const std::wstring& content, const std::string& apiName);
 
     const char* GetType() override { return "InputAutoComplete"; }
     void Start() override;
@@ -21,12 +21,12 @@ private:
     void _Fail(const std::string& reason = "");
     std::string _CollectChatContextFromOps();
 
-    std::string _chatContext;
-    std::string _partialInput;
-    std::string _apiName;
-    std::string _resultText;
-    bool _hasStartedRequest;
-    bool _requestInterrupt;
+    std::string           _chatContext;
+    Utils::InputContent   _inputContent;
+    std::string           _apiName;
+    std::string           _resultText;
+    bool                  _hasStartedRequest;
+    bool                  _requestInterrupt;
 
     CChatInputAutoCompleteWindow* _pResultWindow;
 };

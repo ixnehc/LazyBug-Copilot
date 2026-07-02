@@ -1629,16 +1629,7 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 	// 中断上一个补全task
 	_chatTaskMgrBg.InterruptTaskType("InputAutoComplete");
 
-	// 提取当前输入纯文本
-	std::wstring plainText;
-	{
-		std::vector<ChatInputTag> tags;
-		ParseInlineTags(content, tags);
-		plainText = ExtractPlainText(content);
-	}
-
-	std::string partialInput = widechar_to_utf8(plainText.c_str());
-	if (partialInput.empty())
+	if (content.empty())
 	{
 		_inputAutoCompleteWindow.Hide();
 		return;
@@ -1652,7 +1643,7 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 	_chatInput.GetWindowRect(&inputRect);
 	_inputAutoCompleteWindow.SetAnchorRect(inputRect);
 
-	_chatTaskMgrBg.AddTask_InputAutoComplete(partialInput, autoCompleteApi, &_inputAutoCompleteWindow);
+	_chatTaskMgrBg.AddTask_InputAutoComplete(content, autoCompleteApi, &_inputAutoCompleteWindow);
 }
 
 void CChatDialogA::_HandleEscape()

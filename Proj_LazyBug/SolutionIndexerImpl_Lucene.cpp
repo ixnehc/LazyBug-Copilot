@@ -223,11 +223,11 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 		time_t currentMTime = Utils::GetFileTimeT(lowerCasedFilePath.c_str());
 		time_t storedMTime = GetStoredMTime(reader, lowerCasedFilePath);
 
-		if (lowerCasedFilePath == "s:\\tal\\code\\games\\farcry\\game\\rclient\\rclient_agent.cpp")
-		{
-			int v = 0;
-			v++;
-		}
+// 		if (lowerCasedFilePath == "s:\\tal\\code\\games\\farcry\\game\\rclient\\rclient_agent.cpp")
+// 		{
+// 			int v = 0;
+// 			v++;
+// 		}
 
 		if (currentMTime != storedMTime)
 		{
@@ -248,11 +248,11 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 
 void CSolutionIndexerImpl_Lucene::AddDocument(const std::string& lowerCasedFilePath, time_t mtime, const std::string& content)
 {
-	if (lowerCasedFilePath == "d:\\lazybug\\proj_lazybug\\chatdialog.cpp")
-	{
-		int v = 0;
-		v++;
-	}
+// 	if (lowerCasedFilePath == "d:\\lazybug\\proj_lazybug\\chatdialog.cpp")
+// 	{
+// 		int v = 0;
+// 		v++;
+// 	}
 	// 首先删除旧文档（如果存在）
 	RemoveDocument(lowerCasedFilePath);
 

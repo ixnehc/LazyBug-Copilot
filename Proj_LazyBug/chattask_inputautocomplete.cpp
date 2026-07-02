@@ -6,9 +6,9 @@
 #include "chatinputautocompletewindow.h"
 #include <unordered_set>
 
-CChatTask_InputAutoComplete::CChatTask_InputAutoComplete(const std::string& partialInput, const std::string& apiName)
+CChatTask_InputAutoComplete::CChatTask_InputAutoComplete(const std::wstring& content, const std::string& apiName)
 {
-    _partialInput = partialInput;
+    _inputContent = Utils::BuildInputContent(content);
     _apiName = apiName;
     _hasStartedRequest = false;
     _requestInterrupt = false;
@@ -91,7 +91,7 @@ void CChatTask_InputAutoComplete::Start()
         return;
     }
 
-    if (_partialInput.empty())
+    if (_inputContent.plainContent.empty())
     {
         _Fail("Empty input");
         return;
@@ -136,7 +136,7 @@ void CChatTask_InputAutoComplete::Start()
     }
 
     prompt += "User's partial input:\n";
-    prompt += _partialInput;
+    prompt += widechar_to_utf8(_inputContent.plainContent.c_str());
     prompt += "\n\n";
     prompt += "Completion:";
 
