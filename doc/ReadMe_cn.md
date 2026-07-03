@@ -4,13 +4,13 @@
 [![Version](https://img.shields.io/badge/version-0.20.1-blue)](https://github.com/ixnehc/LazyBug-Copilot-Publish/blob/main/patchnotes.md)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
-> 📖 [English](ReadMe.md)
+> 📖 [English](../ReadMe.md)
 
 ## 产品概述
 
 LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程助手扩展。它集成了大语言模型（LLM）能力，为开发者提供智能代码创建、重构和问答体验。该扩展支持多种主流 AI 服务提供商，让开发者能够在熟悉的 IDE 环境中享受 AI 辅助编程。
 
-![screenshot](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/screenshot3.gif)
+![screenshot](../media/screenshot3.gif)
 
 ---
 
@@ -40,36 +40,36 @@ _完整版本历史请参见 [patchnotes.md](https://github.com/ixnehc/LazyBug-C
 - **符号搜索** — 快速符号搜索，支持 C/C++/C#/JavaScript/Java/Python/TypeScript。开箱即用，无需 LSP 配置。
 - **智能输入框** — 基于标签的文件附件系统，支持 `@` 自动补全、输入历史遍历（`PageUp`/`PageDown`）、快速切换模型。
 
-![chatinput](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/chatinput.jpg)
+![chatinput](../media/chatinput.jpg)
 
 - **图片附件** — 直接将图片粘贴到聊天输入框中，发送给支持视觉的 LLM。
 
-![image support](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/image_support2.jpg)
+![image support](../media/image_support2.jpg)
 
 - **多模型支持** — 可自定义 API 端点。支持主流 LLM：OpenAI、Anthropic、Google Gemini、OpenRouter、Moonshot（Kimi）、z.ai（GLM）、DeepSeek 等。同时支持本地 LLM（Ollama、LM Studio）。
 - **多 API 格式** — 支持三种 API 格式：OpenAI 兼容格式、Anthropic 和 Gemini。
 
-![provider](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/provider.jpg)
+![provider](../media/provider.jpg)
 
 - **技能系统** — 通过管理面板浏览、创建、重命名和开关技能。支持内置、全局和项目级技能。允许使用 AI 编辑或创建新技能。
 
-![skill](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/skill.jpg)
+![skill](../media/skill.jpg)
 
 - **自定义提示词** — `global_rules.txt` 和 `project_rules.txt` 用于编写自定义提示词。
 
-![settings](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/settings2.jpg)
+![settings](../media/settings2.jpg)
 
 - **CLI 工具集成** — 直接在聊天中执行 cmd.exe、bash.exe、python脚本，扩展编程之外的能力。
 
-<img src="https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/output_10fps.gif" width="500" />
+<img src="../media/output_10fps.gif" width="500" />
 
 - **上下文使用控制** — 实时显示上下文使用量，提供 5 个上下文级别。即使在极长对话中也能将上下文保持在较低水平（< 30k tokens），同时保持较高的回答质量。上下文级别变化时自动压缩/解压。
 
-![contextlevel](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/contextlevel.jpg)
+![contextlevel](../media/contextlevel.jpg)
 
 - **MCP 支持** — 通过 stdio 和 URL 支持 Model Context Protocol 服务器，内置管理界面。
 
-![mcp](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/createmcp.gif)
+![mcp](../media/createmcp.gif)
 
 
 
@@ -110,7 +110,7 @@ _完整版本历史请参见 [patchnotes.md](https://github.com/ixnehc/LazyBug-C
   - 安装必要的运行环境（Node.js、Python、GIT 等）以支持各种 CLI 命令。
 - **压缩模型选择**：使用 **Evaluate** 按钮来评估当前选择的压缩模型的速度、可靠性和压缩质量，帮助你选择合适的压缩模型。
 
-  ![evaluate](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/evaluate.jpg)
+![evaluate](../media/evaluate.jpg)
 
 - **上下文等级工作机制**：
   - 当上下文使用量达到某个等级的上限（阈值）时，LazyBug 会将上下文压缩到目标下限。这使对话可持续进行，避免 token 无限增长。
