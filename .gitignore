@@ -11,14 +11,13 @@
 !.gitignore
 !.gitattributes
 
-# ---- Step 3: Whitelisted solution file ----
+# ---- Step 3: Whitelisted root files ----
 !LazyBugPlugIn.sln
+!ReadMe.md
 
 # ---- Step 4: Whitelisted directories (recursive) ----
 !Common/
 !Common/**
-!LazyBugCSharp/
-!LazyBugCSharp/**
 !LazyBugPlugIn/
 !LazyBugPlugIn/**
 !LazyBugPlugInControls/
