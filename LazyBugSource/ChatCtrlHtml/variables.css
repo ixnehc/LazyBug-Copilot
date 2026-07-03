@@ -1,0 +1,28 @@
+:root {
+    --body-bg: #121212; /* Black background */
+    --text-color: #e0e0e0; /* Light grey text */
+    --user-message-bg: #004d40; /* Darker teal for user */
+    --user-message-border: #00796b; /* Teal border */
+    --user-interject-bg: #00352c; /* 更暗的青色背景，用于用户插话（稍微亮一点） */
+    --user-interject-border: #00352c; /* 虚线边框颜色 */
+    --ai-message-bg: #151b1f; /* Dark grey for AI */
+    --ai-message-border: #455a64; /* Lighter grey border for AI */
+    --system-message-bg: #303030; /* Dark grey for system */
+    --system-message-border: #555555; /* Medium grey border for system */
+    --tool-call-message-bg: #2b222e; /* Light purple background for tool call messages */
+    --tool-call-message-border: #6a4c8a; /* Light purple border for tool call messages */
+    --code-bg: #1e1e1e; /* Very dark grey for code blocks */
+    --code-text-color: #d4d4d4; /* Off-white for code text */
+    --code-border: #333; /* Dark border for code */
+    --blockquote-border: #444; /* Dark border for blockquote */
+    --scrollbar-track: #202020;
+    --scrollbar-thumb: #555;
+    --scrollbar-thumb-hover: #777;
+    /* 标题栏专用颜色变量 */
+    --titlebar-bg: #1a1a1a; /* 深灰色背景 */
+    --titlebar-bg-hover: #252525; /* 悬停时稍亮的灰色 */
+    --titlebar-border: #404040; /* 边框颜色 */
+    --settings-button-bg: #2d2d2d; /* 设置按钮背景 */
+    --settings-button-bg-hover: #3a3a3a; /* 设置按钮悬停背景 */
+    --settings-button-border: #505050; /* 设置按钮边框 */
+}

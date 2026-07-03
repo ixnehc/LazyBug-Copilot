@@ -1,0 +1,36 @@
+﻿#pragma once
+
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+#include <string>
+#include <deque>
+#include <time.h>
+#include <functional>
+#include "timer/timer.h"
+
+#include "Utils_File.h"
+
+#include "LlmMcps.h"
+
+namespace Utils
+{
+
+std::string GetGlobalMcpsFolder();
+std::string GetProjectMcpsFolder();
+std::string GetMcpSettingFilePath();
+
+// 修改setting文件，启用/禁用指定mcp（uid全局唯一，无需传type）
+void EnableMcps(bool enable, const std::vector<WUID>& uids);
+
+// 修改setting文件，启用/禁用指定mcp的工具
+// enable = true: 从disabledTools中移除该tool（启用该工具）
+// enable = false: 将该tool添加到disabledTools（禁用该工具）
+void EnableMcpTools(bool enable, WUID mcpUid, const std::vector<std::string>& toolNames);
+
+// 确保mcp目录下存在.uid文件，返回uid
+WUID EnsureMcpUid(const std::string& mcpFolderPath);
+
+void MakeMcpToolDescription(const CLlmMcps::Mcp::Tool& tool, std::string& desc);
+
+}

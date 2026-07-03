@@ -1,0 +1,62 @@
+// Windows common read-only / info-query commands
+^(dir|chdir|cd|tree|type|more|find|findstr|where|ver|whoami|hostname|systeminfo|tasklist|driverquery|ipconfig|ping|tracert|nslookup|netstat|getmac)(\s+.*)?\s*$
+
+// Git common read-only commands (allow arbitrary parameters)
+^git\s+(status|log|diff|show|ls-files|ls-tree|ls-remote|rev-parse|grep|blame|help)(?:\s+.*)?\s*$
+
+// Git branch query (only allow viewing, block deletion/renaming)
+^git\s+branch(?:\s+-[arv]+)?\s*$
+
+// Git tag query (only allow listing, block creating/deleting tags)
+^git\s+tag(?:\s+-l(?:ist)?(?:\s+.*)?)?\s*$
+
+// Git remote query (only allow viewing remote info)
+^git\s+remote(?:\s+-v|\s+show\s+.*)?\s*$
+
+// Git config query (only allow reading, block modifying config)
+	^git\s+config\s+--(list|get)(?:\s+.*)?\s*$
+
+// GitHub CLI (gh) read-only operations
+^gh\s+(issue|pr|repo|release)\s+(list|view|status|diff|checks)(?:\s+.*)?\s*$
+
+// GitHub CLI (gh) search operations
+^gh\s+search\s+(code|commits|issues|prs|repos)(?:\s+.*)?\s*$
+
+// GitHub CLI (gh) API read-only requests (enforce GET method or default implicit GET)
+^gh\s+api\s+(?:-X\s+GET\s+)?(?:/?[a-zA-Z0-9_.-]+)+(?:\s+.*)?\s*$
+
+// Perforce (p4) common read-only / info-query commands
+^p4\s+(info|help|changes|describe|fstat|filelog|opened|have|diff|diff2|dirs|files|branches|clients|workspaces|users|groups|jobs|protects|depots|print|annotate|fixes|grep|integrated|interchanges|labels|sizes)(?:\s+.*)?\s*$
+
+// Perforce (p4) set query (only allow viewing variables, block modification with '=')
+^p4\s+set(?:\s+[^=]+)?\s*$
+
+// Perforce (p4) spec query (must use -o to output spec to stdout, prevents opening editor or modifying)
+^p4\s+(change|client|workspace|label|branch|job|user|group)\s+-o(?:\s+[^-=]\S*)?\s*$
+
+// Node.js base (only allow version and help, block arbitrary script execution)
+^node\s+(?:-[vh]|--version|--help)\s*$
+
+// Node Package Managers (npm/yarn/pnpm) read-only and info-query commands
+^(?:npm|yarn|pnpm)\s+(?:-v|-h|--version|--help|info|view|show|v|list|ls|ll|la|outdated|ping|search|explain|why)(?:\s+.*)?\s*$
+
+// Node Package Managers (npm/yarn/pnpm) config query (block config set)
+^(?:npm|yarn|pnpm)\s+config\s+(?:list|ls|get)(?:\s+.*)?\s*$
+
+// Python base (only allow version and help, block arbitrary script execution)
+^(?:python|python3|py)\s+(?:-[Vh]|--version|--help)\s*$
+
+// Python safe built-in info modules (read-only environment info and docs)
+^(?:python|python3|py)\s+-m\s+(?:site|sysconfig|pydoc)(?:\s+.*)?\s*$
+
+// Pip package manager read-only and info-query commands
+^pip(?:3)?\s+(?:-V|-h|--version|--help|list|show|check|search)(?:\s+.*)?\s*$
+
+// Pip config query (block config set/modify)
+^pip(?:3)?\s+config\s+(?:list|get|debug)(?:\s+.*)?\s*$
+
+// Conda environment/package manager read-only commands
+^conda\s+(?:-V|-h|--version|--help|info|list|search|compare)(?:\s+.*)?\s*$
+
+// Conda config query (block config set/add/remove)
+^conda\s+config\s+(?:--show|--show-sources|--get)(?:\s+.*)?\s*$

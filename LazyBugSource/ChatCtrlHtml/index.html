@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    
+    <!-- 本地 CSS 文件 -->
+    <link rel="stylesheet" href="../CommonHtml/tag-common.css">
+    <link rel="stylesheet" href="variables.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="messages.css">
+    <link rel="stylesheet" href="fileedit.css">
+    <link rel="stylesheet" href="filesummarize.css">
+    <link rel="stylesheet" href="components.css">
+    
+    <!-- CDN 库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/cpp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.0/dist/mermaid.min.js"></script>
+    <script>
+        // 初始化 Mermaid 配置，使用深色主题
+        document.addEventListener('DOMContentLoaded', () => {
+            mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+        });
+    </script>
+</head>
+<body>
+    <!-- WebView标题栏 -->
+    <div class="webview-titlebar" id="webview-titlebar">
+        <div class="webview-title" id="webview-title"></div>
+    </div>
+    <!-- 设置按钮 - 独立于标题栏 -->
+    <button class="webview-settings-button" id="webview-settings-button">⋯</button>
+    <!-- Favorite列表按钮 - 左侧 -->
+    <button class="webview-favorite-list-button" id="webview-favorite-list-button" title="Favorite chats">
+        <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="#FFC107" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="7,10 12,15 17,10"/>
+        </svg>
+    </button>
+    
+    <!-- 内容区域 -->
+    <div class="webview-content" id="webview-content">
+        <div id="chat-container" class="chat-container"></div>
+        
+        <!-- Loading Overlay 遮罩层 -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span class="loading-text">Loading...</span>
+        </div>
+
+        <!-- Pause Overlay 暂停状态边框 -->
+        <div class="pause-overlay" id="pause-overlay"></div>
+    </div>
+
+    <!-- Favorite 点击热区 -->
+    <div class="favorite-hot-area" id="favorite-hot-area"></div>
+
+    <!-- Favorite 标记 - 直角三角形贴在左下角 -->
+    <div class="favorite-corner-mark" id="favorite-corner-mark"></div>
+
+    <!-- Favorite 按钮 - 固定定位在左下角 -->
+    <button class="favorite-btn" id="favorite-btn" title="Favorite this chat">
+        <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- 五角星路径 -->
+            <polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9"/>
+        </svg>
+    </button>
+
+    <!-- 本地 JS 文件 -->
+    <script src="../CommonHtml/tag-utils.js"></script>
+    <script src="utils.js"></script>
+    <script src="titlebar.js"></script>
+    <script src="fileedit.js"></script>
+    <script src="filesummarize.js"></script>
+    <script src="symbol.js"></script>
+    <script src="message.js"></script>
+    <script src="favorite.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

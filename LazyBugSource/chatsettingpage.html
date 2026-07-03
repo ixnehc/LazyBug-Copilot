@@ -1,0 +1,2781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        :root {
+            --body-bg: #121212; /* 黑色背景 */
+            --text-color: #e0e0e0; /* 浅灰色文字 */
+            --primary-color: #004d40; /* 深青色主色调 */
+            --primary-color-hover: #00796b; /* 青色悬停 */
+            --secondary-bg: #1e1e1e; /* 深灰色次要背景 */
+            --border-color: #404040; /* 边框颜色 */
+            --tab-active-bg: #004d40; /* 激活Tab背景 */
+            --tab-inactive-bg: #303030; /* 非激活Tab背景 */
+            --hover-bg: #3a3a3a; /* 悬停背景 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 设置容器 */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 标题栏 */
+        .settings-header {
+            background-color: var(--secondary-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* 标题栏右侧按钮区域 */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 退出按钮样式 */
+        .exit-button {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .exit-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .exit-button:active {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+
+        /* 退出按钮图标 */
+        .exit-button::before {
+            content: "✕";
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Tab导航区 */
+        .tab-navigation {
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .tab-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            min-width: 100%;
+        }
+
+        .tab-item {
+            flex-shrink: 0;
+        }
+
+        .tab-button {
+            display: block;
+            padding: 12px 20px;
+            background-color: var(--tab-inactive-bg);
+            color: var(--text-color);
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            font-size: 0.9em;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .tab-button.active {
+            background-color: var(--tab-active-bg);
+            border-bottom-color: var(--primary-color-hover);
+            color: #e0f2f1;
+        }
+
+        /* 内容区域 */
+        .content-area {
+            flex: 1;
+            overflow: hidden; /* 改为hidden，不让content-area本身滚动 */
+            padding: 0; /* 移除padding，让子容器自己处理 */
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none;
+            height: 100%; /* 占满父容器高度 */
+            overflow: hidden; /* 不让tab-content本身滚动 */
+        }
+
+        .tab-content.active {
+            display: flex; /* 改为flex布局 */
+            flex-direction: column; /* 垂直布局 */
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            flex: 1; /* 占满剩余空间 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .empty-state-subtext {
+            font-size: 0.95em;
+            opacity: 0.6;
+            line-height: 1.5;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 5px;
+            }
+
+            .settings-header {
+                padding: 12px 15px;
+            }
+
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+
+            .empty-state {
+                padding: 40px 15px;
+            }
+
+            .empty-state-icon {
+                font-size: 3em;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #202020;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        /* Provider列表样式 */
+        .providers-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 0; /* 为整个容器添加padding */
+        }
+
+        /* Cast Sheet面板样式 - 标题嵌在边框中断处 */
+        .cast-sheet-panel {
+            width: 100%;
+            padding: 14px 16px 12px 16px;
+            margin: 10px 0 8px 0;
+            border-radius: 8px;
+            background-color: rgba(30, 30, 30, 0.8);
+            border: 1px solid #505050;
+            flex-shrink: 0; /* 不允许压缩 */
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* Major Chat有值时的绿色样式 */
+        .cast-sheet-panel.has-value {
+            border-color: rgba(76, 175, 80, 0.5);
+            background-color: rgba(76, 175, 80, 0.08);
+            box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.1), inset 0 1px 0 rgba(76, 175, 80, 0.05);
+        }
+
+        .cast-sheet-panel.has-value .cast-sheet-title {
+            color: #4caf50;
+        }
+
+        /* Major Chat无值时的红色样式 */
+        .cast-sheet-panel.no-value {
+            border-color: rgba(244, 67, 54, 0.5);
+            background-color: rgba(244, 67, 54, 0.08);
+            box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.1), inset 0 1px 0 rgba(244, 67, 54, 0.05);
+        }
+
+        .cast-sheet-panel.no-value .cast-sheet-title {
+            color: #f44336;
+        }
+
+        .cast-sheet-title {
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #888;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+            /* 标题嵌在边框中断处，居中 */
+            position: absolute;
+            top: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0 12px;
+            background-color: #1a1a1a;
+            white-space: nowrap;
+        }
+
+        .cast-sheet-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            height: 28px;
+        }
+
+        .cast-sheet-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .cast-sheet-label {
+            font-size: 0.8em;
+            color: #aaa;
+            flex-shrink: 0;
+            width: 150px;
+            text-align: right;
+            padding-right: 12px;
+        }
+
+        .cast-sheet-select {
+            flex: 1;
+            min-width: 0;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 0.8em;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-size: 12px;
+            padding-right: 22px;
+        }
+
+        .cast-sheet-select:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background-color: #252525;
+        }
+
+        .cast-sheet-select option {
+            background: #1a1a1a;
+            color: var(--text-color);
+        }
+
+        .cast-sheet-btn {
+            flex-shrink: 0;
+            margin-left: 8px;
+            padding: 4px 12px;
+            background: var(--button-bg);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 0.8em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 70px;
+            height: 26px;
+        }
+
+        .cast-sheet-btn:hover {
+            background: var(--button-hover);
+            border-color: var(--primary-color);
+        }
+
+        .cast-sheet-btn-spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid transparent;
+            border-top-color: var(--primary-color);
+            border-right-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .cast-sheet-btn.loading .cast-sheet-btn-spinner {
+            display: block;
+        }
+
+        .cast-sheet-btn.loading .cast-sheet-btn-text {
+            display: none;
+        }
+
+        .cast-sheet-btn.loading {
+            pointer-events: none;
+        }
+
+        .cast-sheet-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Provider列表区域 */
+        .providers-list-area {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0; /* 重要：允许flex子项缩小到内容以下 */
+            padding: 5px;
+        }
+
+        .provider-item {
+            background: #020a06;
+            border: 1px solid #0a301d;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            padding: 8px 12px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .provider-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .provider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 8px;
+            margin: -8px -12px 8px -12px;
+            background: #0a1f12;
+            border-radius: 8px 8px 0 0;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .provider-header:hover {
+            background: #0c2818;
+        }
+
+        .provider-header:hover .delete-provider-btn,
+        .provider-header:hover .copy-provider-btn,
+        .provider-header:hover .paste-provider-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Provider/API 删除按钮 */
+        .delete-provider-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 1px solid #999;
+            color: #aaa;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, border-color 0.15s ease, color 0.15s ease;
+            position: relative;
+            flex-shrink: 0;
+            margin-left: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        .delete-provider-btn::before {
+            content: '×';
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            margin-top: -1px;
+        }
+
+        .delete-provider-btn:hover {
+            border-color: #ccc;
+            color: #ccc;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .delete-provider-btn:active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 长按进度环 */
+        .delete-provider-btn .progress-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: calc(100% + 6px);
+            height: calc(100% + 6px);
+            transform: translate(-50%, -50%) rotate(-90deg);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s ease;
+        }
+
+        .delete-provider-btn.deleting .progress-ring {
+            opacity: 1;
+        }
+
+        .delete-provider-btn .progress-ring circle {
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .delete-provider-btn .progress-ring .progress-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .delete-provider-btn .progress-ring .progress-fill {
+            stroke: #aaa;
+            stroke-dasharray: 72.26;
+            stroke-dashoffset: 72.26;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .delete-provider-btn.deleting .progress-fill {
+            stroke-dashoffset: 0;
+            transition: stroke-dashoffset 3s linear;
+        }
+
+        /* API 标题栏 hover 显示删除/复制/粘贴按钮 */
+        .api-header-bar:hover .delete-provider-btn,
+        .api-header-bar:hover .copy-provider-btn,
+        .api-header-bar:hover .paste-provider-btn {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* API 行内的复制/粘贴按钮（与行高等大） */
+        .api-header-bar .copy-provider-btn,
+        .api-header-bar .paste-provider-btn {
+            width: 24px;
+            height: 24px;
+        }
+        .api-header-bar .copy-provider-btn svg,
+        .api-header-bar .paste-provider-btn svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        /* Provider/API Copy & Paste 按钮 */
+        .copy-provider-btn, .paste-provider-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, border-color 0.15s ease, background-color 0.15s ease;
+            position: relative;
+            flex-shrink: 0;
+            margin-left: 8px;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        .copy-provider-btn:hover, .paste-provider-btn:hover, .add-paste-provider-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .copy-provider-btn:active, .paste-provider-btn:active, .add-paste-provider-btn:active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .add-paste-provider-btn {
+            width: 26px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .add-paste-provider-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: #666;
+            stroke-width: 1.5;
+            pointer-events: none;
+        }
+
+        .add-paste-provider-btn.pasted svg {
+            stroke: #4caf50;
+        }
+
+        .copy-provider-btn svg, .paste-provider-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: #aaa;
+            stroke-width: 1.5;
+            pointer-events: none;
+        }
+
+        .copy-provider-btn.copied svg, .paste-provider-btn.pasted svg {
+            stroke: #4caf50;
+        }
+
+        .copy-provider-btn.copied, .paste-provider-btn.pasted {
+            border-color: #4caf50;
+        }
+
+        .provider-name-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .provider-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .provider-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .provider-status-dot.available {
+            background: radial-gradient(circle at 25% 25%, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.5) 10%,
+                rgba(200, 230, 201, 0.8) 15%,
+                rgba(76, 175, 80, 0.7) 30%,
+                rgba(56, 142, 60, 0.8) 60%,
+                rgba(46, 125, 50, 0.9) 85%,
+                rgba(27, 94, 32, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(0.5px);
+            box-shadow: 
+                /* 外阴影 - 增强水晶投影 */
+                0 3px 6px rgba(46, 125, 50, 0.4),
+                0 1px 12px rgba(76, 175, 80, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(76, 175, 80, 0.1),
+                /* 内高光 - 更亮的水晶反射 */
+                inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                inset 1px 0 1px rgba(255, 255, 255, 0.7),
+                inset 0.5px 0.5px 1px rgba(255, 255, 255, 0.5),
+                /* 内阴影 - 增强水晶深度 */
+                inset 0 -1px 1px rgba(27, 94, 32, 0.5),
+                inset -1px 0 1px rgba(27, 94, 32, 0.4),
+                inset -0.5px -0.5px 0.5px rgba(27, 94, 32, 0.3);
+            position: relative;
+            opacity: 0.95;
+        }
+
+        /* 绿色水晶反光效果 */
+        .provider-status-dot.available::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 2px;
+            width: 2.5px;
+            height: 2.5px;
+            background: radial-gradient(ellipse at 40% 40%, 
+                rgba(255, 255, 255, 1) 0%,
+                rgba(255, 255, 255, 0.8) 30%,
+                rgba(255, 255, 255, 0.4) 60%,
+                transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        /* 绿色次级反光点 */
+        .provider-status-dot.available::after {
+            content: '';
+            position: absolute;
+            top: 6.5px;
+            left: 6.5px;
+            width: 1.5px;
+            height: 1.5px;
+            background: radial-gradient(circle, 
+                rgba(255, 255, 255, 0.8) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .provider-status-dot.unavailable {
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at 25% 25%, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(255, 255, 255, 0.5) 10%,
+                rgba(255, 182, 193, 0.8) 15%,
+                rgba(244, 67, 54, 0.7) 30%,
+                rgba(211, 47, 47, 0.8) 60%,
+                rgba(183, 28, 28, 0.9) 85%,
+                rgba(136, 14, 79, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(0.5px);
+            box-shadow: 
+                /* 外阴影 - 增强水晶投影 */
+                0 3px 6px rgba(183, 28, 28, 0.4),
+                0 1px 12px rgba(244, 67, 54, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(244, 67, 54, 0.1),
+                /* 内高光 - 更亮的水晶反射 */
+                inset 0 1px 1px rgba(255, 255, 255, 0.9),
+                inset 1px 0 1px rgba(255, 255, 255, 0.7),
+                inset 0.5px 0.5px 1px rgba(255, 255, 255, 0.5),
+                /* 内阴影 - 增强水晶深度 */
+                inset 0 -1px 1px rgba(136, 14, 79, 0.5),
+                inset -1px 0 1px rgba(136, 14, 79, 0.4),
+                inset -0.5px -0.5px 0.5px rgba(136, 14, 79, 0.3);
+            position: relative;
+            opacity: 0.95;
+        }
+
+        /* 验证中的旋转进度指示器 */
+        .provider-status-dot.validating {
+            width: 12px;
+            height: 12px;
+            background: transparent;
+            border: none;
+            backdrop-filter: none;
+            box-shadow: none;
+            position: relative;
+            opacity: 1;
+        }
+
+        /* 验证中的旋转圆环 */
+        .provider-status-dot.validating::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border: 3px solid rgba(244, 67, 54, 0.8);
+            border-radius: 50%;
+            border-top: 3px solid transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        /* 旋转动画 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 避免provider-item的hover效果影响输入体验 */
+        .provider-item:hover .provider-key-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .provider-key-section {
+            margin-top: 8px;
+            cursor: text;
+        }
+
+        .provider-key-input {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 0.9em;
+            font-family: monospace;
+            transition: border-color 0.2s ease;
+        }
+
+        .provider-key-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 77, 64, 0.2);
+            background-color: #252525;
+        }
+
+        .provider-key-input::placeholder {
+            color: #666;
+        }
+
+        .provider-separator {
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border-color), transparent);
+            margin: 24px 0;
+        }
+
+        /* 空Provider状态 */
+        .providers-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        /* Tab内容容器 */
+        #tab-contents {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* ===== Provider / API 树形编辑样式 ===== */
+
+        /* 展开区域暗色背景 */
+        .provider-expanded-area {
+            background-color: #141414;
+            margin: 8px -10px -10px -10px;
+            padding: 10px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        /* API展开区域 */
+        .api-expanded-area {
+            background-color: #141414;
+            margin: 6px -8px -8px -8px;
+            padding: 8px;
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* 添加 Provider 按钮 */
+        .add-provider-button {
+            width: 36px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: #666;
+            font-size: 16px;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
+            padding-bottom: 2px;
+        }
+
+        .add-provider-button:hover {
+            border-color: #888;
+            color: #888;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .add-provider-button:active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* API标题栏 - 文字区域绿色渐变，其余深灰色 */
+        .api-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            background-color: #1a1a1a;
+            border-radius: 4px;
+            margin: -4px -8px 8px -8px;
+            height: 28px;
+        }
+        .api-header-bar:hover {
+            background-color: #252525;
+        }
+        .api-header-bar span {
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+            padding: 0 16px 0 10px;
+            height: 100%;
+            line-height: 28px;
+            border-radius: 3px 0 0 3px;
+            display: inline-block;
+        }
+        .api-header-bar:hover span {
+            background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+        }
+        .api-header-bar .api-name-container {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+            border-radius: 3px 0 0 3px;
+            padding-right: 16px;
+        }
+        .api-header-bar:hover .api-name-container {
+            background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+        }
+        .api-header-bar .delete-provider-btn {
+            width: 16px;
+            height: 16px;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+        /* API Enable Checkbox - 黑白样式 */
+        .api-enable-checkbox {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            margin-left: 11px;
+            margin-right: 6px;
+            margin-top: 2px;
+            background-color: #1a1a1a;
+            border: 1px solid #666;
+            border-radius: 2px;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .api-enable-checkbox:hover {
+            border-color: #888;
+        }
+        .api-enable-checkbox:checked {
+            background-color: #333;
+            border-color: #888;
+        }
+        .api-enable-checkbox:checked::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            top: 0px;
+            width: 4px;
+            height: 8px;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* 统一行高 */
+        .provider-edit-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            height: 32px;
+            margin-bottom: 4px;
+        }
+        .provider-edit-row:last-child {
+            margin-bottom: 0;
+        }
+        .provider-edit-label {
+            font-size: 0.78em;
+            color: #888;
+            flex-shrink: 0;
+            min-width: 65px;
+            text-align: right;
+        }
+        .provider-edit-input {
+            flex: 1;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.85em;
+            font-family: inherit;
+            height: 24px;
+            box-sizing: border-box;
+        }
+        .provider-edit-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* select下拉框样式 */
+        select.provider-edit-input {
+            height: 26px;
+            padding: 2px 6px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            background-size: 14px;
+            padding-right: 24px;
+        }
+
+        /* 通用内联编辑输入框 */
+        .inline-input {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
+            padding: 1px 4px;
+            min-width: 60px;
+            max-width: 100%;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .inline-input:hover {
+            border-color: var(--border-color);
+            background: #252525;
+        }
+        .inline-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* Provider 折叠按钮 */
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            padding: 0 4px;
+            font-size: 0.85em;
+            line-height: 1;
+            transition: color 0.15s;
+            flex-shrink: 0;
+        }
+        .expand-btn:hover { color: var(--text-color); }
+
+        .provider-name-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+        }
+        .provider-name {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* endpoint 行 */
+        .provider-endpoint-section {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .provider-endpoint-label {
+            font-size: 0.78em;
+            color: #888;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .provider-endpoint-input {
+            flex: 1;
+            min-width: 0;
+            padding: 4px 8px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.82em;
+            font-family: monospace;
+        }
+        .provider-endpoint-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* API 列表区域 */
+        .provider-apis-section {
+            margin-top: 10px;
+            border-top: 1px solid #2e2e2e;
+            padding-top: 8px;
+        }
+        .provider-apis-label {
+            font-size: 0.75em;
+            color: #666;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+
+        .apis-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .add-api-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.15s ease, color 0.15s ease;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            margin-top: -2px;
+        }
+
+        .add-api-btn::before {
+            content: '+';
+            line-height: 1;
+        }
+
+        .add-api-btn:hover {
+            border-color: #888;
+            color: #888;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .add-api-btn:active {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .add-api-paste-btn {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            box-sizing: border-box;
+            flex-shrink: 0;
+        }
+        .add-api-paste-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: #666;
+            stroke-width: 1.5;
+            pointer-events: none;
+        }
+        .add-api-paste-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .add-api-paste-btn.pasted svg {
+            stroke: #4caf50;
+        }
+
+        .apis-none {
+            font-size: 0.85em;
+            color: #555;
+            font-style: italic;
+            padding: 8px 0;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 4px;
+        }
+
+        /* API 条目 */
+        .api-item {
+            margin: 2px 0;
+            border-radius: 4px;
+            background: #181818;
+            border: 1px solid #2a2a2a;
+            overflow: hidden;
+        }
+        .api-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+        }
+        .api-name-input {
+            flex: 1;
+            min-width: 0;
+            font-size: 0.88em;
+            font-weight: 500;
+        }
+
+        /* API 参数面板 */
+        .api-params {
+            padding: 8px 10px 10px 10px;
+            border-top: 1px solid #242424;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 12px;
+        }
+        .param-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .param-row.full-width {
+            grid-column: 1 / -1;
+        }
+        .param-label {
+            font-size: 0.72em;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .param-input {
+            padding: 3px 7px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.88em;
+            font-weight: 500;
+            width: 100%;
+        }
+        .param-input:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+            background: #252525;
+        }
+
+        /* 隐藏 number input 的上下箭头 */
+        .param-input[type="number"]::-webkit-outer-spin-button,
+        .param-input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .param-input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Select */
+        .param-select {
+            padding: 3px 7px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 3px;
+            color: var(--text-color);
+            font-size: 0.88em;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+        }
+        .param-select:focus {
+            outline: none;
+            border-color: var(--primary-color-hover);
+        }
+
+        /* Checkbox 组 */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8em;
+            color: #aaa;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .checkbox-label input[type=checkbox] {
+            accent-color: var(--primary-color-hover);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- 标题栏 -->
+        <div class="settings-header">
+            <h1 class="settings-title">Settings</h1>
+            <div class="header-actions">
+                <button class="exit-button" onclick="handleExitButtonClick()"></button>
+            </div>
+        </div>
+
+        <!-- Tab导航 -->
+        <nav class="tab-navigation">
+            <ul class="tab-list" id="tab-list">
+                <!-- Tab项将通过JavaScript动态添加 -->
+            </ul>
+        </nav>
+
+        <!-- 内容区域 -->
+        <div class="content-area">
+            <div id="tab-contents">
+                <!-- Tab内容将通过JavaScript动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let currentTabs = [];
+        let activeTabId = 'providers';
+
+        // DOM元素
+        const tabList = document.getElementById('tab-list');
+        const tabContents = document.getElementById('tab-contents');
+
+        // 设置Tab数据
+        function setTabs(tabs) {
+            currentTabs = tabs;
+            renderTabs();
+            renderTabContents();
+        }
+
+        // 渲染Tab导航
+        function renderTabs() {
+            tabList.innerHTML = '';
+            
+            currentTabs.forEach(tab => {
+                const li = document.createElement('li');
+                li.className = 'tab-item';
+                
+                const button = document.createElement('button');
+                button.className = 'tab-button' + (tab.id === activeTabId ? ' active' : '');
+                button.textContent = tab.title;
+                button.onclick = () => switchTab(tab.id);
+                
+                li.appendChild(button);
+                tabList.appendChild(li);
+            });
+        }
+
+        // 渲染Tab内容
+        function renderTabContents() {
+            tabContents.innerHTML = '';
+            
+            currentTabs.forEach(tab => {
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'tab-content' + (tab.id === activeTabId ? ' active' : '');
+                contentDiv.id = `tab-content-${tab.id}`;
+                
+                if (tab.id === 'providers') {
+                    // Providers tab的特殊内容 - 创建容器结构
+                    const providersContainer = document.createElement('div');
+                    providersContainer.className = 'providers-container';
+                    
+                    // 创建Cast Sheet面板
+                    const castSheetPanel = document.createElement('div');
+                    castSheetPanel.className = 'cast-sheet-panel';
+                    castSheetPanel.id = 'cast-sheet-panel';
+                    castSheetPanel.innerHTML = `
+                        <div class="cast-sheet-title">Cast Sheet</div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Major Chat</span>
+                            <select class="cast-sheet-select" id="cast-sheet-majorChat" data-api-type="majorChat">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Title Brief</span>
+                            <select class="cast-sheet-select" id="cast-sheet-brief" data-api-type="brief">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Compress Summarize</span>
+                            <select class="cast-sheet-select" id="cast-sheet-summarize" data-api-type="summarize">
+                                <option>Loading...</option>
+                            </select>
+                            <button class="cast-sheet-btn" id="evaluate-summarize-btn" title="Evaluate the compression quality of the selected API using the latest conversations in current chat">
+                                <span class="cast-sheet-btn-text">Evaluate</span>
+                                <div class="cast-sheet-btn-spinner"></div>
+                            </button>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Input Auto Complete</span>
+                            <select class="cast-sheet-select" id="cast-sheet-autoComplete" data-api-type="autoComplete">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                        <div class="cast-sheet-row">
+                            <span class="cast-sheet-label">Embedding</span>
+                            <select class="cast-sheet-select" id="cast-sheet-embedding" data-api-type="embedding">
+                                <option>Loading...</option>
+                            </select>
+                        </div>
+                    `;
+                    providersContainer.appendChild(castSheetPanel);
+                    
+                    // 绑定Cast Sheet select的change事件
+                    castSheetPanel.querySelectorAll('.cast-sheet-select').forEach(select => {
+                        select.addEventListener('change', function() {
+                            const apiType = this.getAttribute('data-api-type');
+                            const apiName = this.value;
+                            postMsg({ action: 'updateCastSheetApi', apiType: apiType, apiName: apiName });
+                            
+                            // 如果是summarize select变化，更新Evaluate按钮状态
+                            if (apiType === 'summarize') {
+                                updateEvaluateBtnState();
+                            }
+                        });
+                    });
+                    
+                    // 绑定Evaluate按钮的click事件
+                    const evaluateBtn = castSheetPanel.querySelector('#evaluate-summarize-btn');
+                    if (evaluateBtn) {
+                        evaluateBtn.addEventListener('click', function() {
+                            const select = document.getElementById('cast-sheet-summarize');
+                            const apiName = select ? select.value : '';
+                            postMsg({ action: 'evaluateCompressSummarize', apiName: apiName });
+                        });
+                    }
+                    
+                    // 创建provider列表区域
+                    const providersListArea = document.createElement('div');
+                    providersListArea.className = 'providers-list-area';
+                    providersListArea.id = 'providers-list';
+                    providersContainer.appendChild(providersListArea);
+                    
+                    contentDiv.appendChild(providersContainer);
+                    
+                    // 请求Provider数据和Cast Sheet数据
+                    requestProviderData();
+                    requestCastSheetData();
+                } else {
+                    // 其他tab显示空状态
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    
+                    let icon = '⚙️';
+                    let title = 'Settings Coming Soon';
+                    let subtitle = 'This section will contain configuration options in the future.';
+                    
+                    if (tab.id === 'general') {
+                        icon = '🔧';
+                        title = 'General Settings';
+                        subtitle = 'Basic application preferences and interface options will be available here.';
+                    }
+                    
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">${icon}</div>
+                        <div class="empty-state-text">${title}</div>
+                        <div class="empty-state-subtext">${subtitle}</div>
+                    `;
+                    
+                    contentDiv.appendChild(emptyState);
+                }
+                
+                tabContents.appendChild(contentDiv);
+            });
+        }
+
+        // 处理退出按钮点击
+        function handleExitButtonClick() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'exitSettings'
+                });
+            }
+        }
+
+        // 请求Provider数据
+        function requestProviderData() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'requestProviderData'
+                });
+            }
+        }
+
+        // 请求Capability状态
+        function requestCapabilityStatus() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'requestCapabilityStatus'
+                });
+            }
+        }
+
+        // 请求Cast Sheet数据
+        function requestCastSheetData() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'requestCastSheetData'
+                });
+            }
+        }
+
+        // 设置Cast Sheet数据
+        function setCastSheetData(data) {
+            const majorChatSelect = document.getElementById('cast-sheet-majorChat');
+            const briefSelect = document.getElementById('cast-sheet-brief');
+            const summarizeSelect = document.getElementById('cast-sheet-summarize');
+            const autoCompleteSelect = document.getElementById('cast-sheet-autoComplete');
+            const embeddingSelect = document.getElementById('cast-sheet-embedding');
+            const castSheetPanel = document.getElementById('cast-sheet-panel');
+            
+            if (!majorChatSelect || !briefSelect || !summarizeSelect || !autoCompleteSelect || !embeddingSelect || !castSheetPanel) return;
+            
+            // 分别获取不同的API列表
+            const majorChatApis = data.majorChatApis || [];
+            const briefApis = data.briefApis || [];
+            const summarizeApis = data.summarizeApis || [];
+            const autoCompleteApis = data.autoCompleteApis || [];
+            const embeddingApis = data.embeddingApis || [];
+            
+            function rebuildSelect(select, newValue, apiList) {
+                select.innerHTML = '';
+                if (apiList.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.textContent = 'No available APIs';
+                    opt.disabled = true;
+                    select.appendChild(opt);
+                } else {
+                    apiList.forEach(api => {
+                        const opt = document.createElement('option');
+                        opt.value = api.name;
+                        opt.textContent = api.name;
+                        select.appendChild(opt);
+                    });
+                }
+                // 使用传入的新值设置选中项
+                if (newValue && [...select.options].some(o => o.value === newValue)) {
+                    select.value = newValue;
+                } else if (select.options.length > 0 && !select.options[0].disabled) {
+                    select.selectedIndex = 0;
+                }
+            }
+            
+            rebuildSelect(majorChatSelect, data.majorChatApi, majorChatApis);
+            rebuildSelect(briefSelect, data.briefApi, briefApis);
+            rebuildSelect(summarizeSelect, data.summarizeApi, summarizeApis);
+            rebuildSelect(autoCompleteSelect, data.autoCompleteApi, autoCompleteApis);
+            rebuildSelect(embeddingSelect, data.embeddingApi, embeddingApis);
+            
+            // 更新Evaluate按钮状态
+            updateEvaluateBtnState();
+            
+            // 根据major chat是否有值设置颜色样式
+            castSheetPanel.classList.remove('has-value', 'no-value');
+            if (data.majorChatApi && data.majorChatApi.trim() !== '') {
+                castSheetPanel.classList.add('has-value');
+            } else {
+                castSheetPanel.classList.add('no-value');
+            }
+        }
+
+        // ===== Provider / API 树形展开状态 =====
+        let expandedProviders = [];  // 当前展开的 provider names 数组
+        let expandedApis = [];       // 当前展开的 api names 数组
+        let pendingFocusApiName = null; // 新建API后待聚焦的名称
+        let pendingFocusProviderName = null; // 新建Provider后待聚焦的名称
+
+        // 辅助：发送消息到C++
+        function postMsg(obj) {
+            if (window.chrome && window.chrome.webview)
+                window.chrome.webview.postMessage(obj);
+        }
+
+        // C++ 回调：从剪贴板读取文本后调用（绕过浏览器权限弹窗）
+        window.onClipboardData = function(text) {
+            // 处理"新建 Provider"粘贴
+            if (window._pendingPasteNew) {
+                const pendingNew = window._pendingPasteNew;
+                window._pendingPasteNew = null;
+                const { providers } = pendingNew;
+                let setting;
+                try {
+                    setting = JSON.parse(text);
+                } catch (_) {
+                    return;
+                }
+                if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                    return;
+                }
+                // 生成不重名的 Provider 名称
+                let newName = setting.name.trim();
+                const existingNames = providers.map(p => p.name);
+                if (existingNames.includes(newName)) {
+                    let suffix = 1;
+                    while (existingNames.includes(newName + suffix)) {
+                        suffix++;
+                    }
+                    newName = newName + suffix;
+                }
+                const endpoint = (typeof setting.endpoint === 'string') ? setting.endpoint.trim() : '';
+                const format = (typeof setting.format === 'string') ? setting.format.trim() : '';
+                // 自动展开并标记待聚焦
+                if (!expandedProviders.includes(newName)) {
+                    expandedProviders.push(newName);
+                }
+                pendingFocusProviderName = newName;
+                postMsg({ action: 'addProviderFromClipboard', name: newName, endpoint: endpoint, format: format });
+
+                // 粘贴成功反馈
+                const addPasteBtn = document.querySelector('.add-paste-provider-btn');
+                if (addPasteBtn) {
+                    addPasteBtn.classList.add('pasted');
+                    setTimeout(() => addPasteBtn.classList.remove('pasted'), 1500);
+                }
+                return;
+            }
+
+            // 处理"新建 API"粘贴
+            if (window._pendingPasteNewApi) {
+                const pendingNewApi = window._pendingPasteNewApi;
+                window._pendingPasteNewApi = null;
+                const { provider, providers } = pendingNewApi;
+                let setting;
+                try {
+                    setting = JSON.parse(text);
+                } catch (_) {
+                    return;
+                }
+                if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                    return;
+                }
+                // 生成不重名的 API 名称（在所有 API 中检查）
+                let newName = setting.name.trim();
+                const existingNames = [];
+                providers.forEach(p => {
+                    if (p.apis) p.apis.forEach(a => existingNames.push(a.name));
+                });
+                if (existingNames.includes(newName)) {
+                    let suffix = 1;
+                    while (existingNames.includes(newName + suffix)) {
+                        suffix++;
+                    }
+                    newName = newName + suffix;
+                }
+                // 自动展开并标记待聚焦
+                if (!expandedApis.includes(newName)) {
+                    expandedApis.push(newName);
+                }
+                pendingFocusApiName = newName;
+                // 构建消息（只传非空字段）
+                const msg = { action: 'addApiFromClipboard', providerName: provider.name, apiName: newName };
+                ['model','rule','maxToken','contextCapacity','priceInputToken','priceOutputToken','priceCacheRead','priceCacheWrite','thinkingMode','cacheControl','role','enable','tools','openRouterOptions'].forEach(f => {
+                    if (setting[f] !== undefined && setting[f] !== null) msg[f] = setting[f];
+                });
+                postMsg(msg);
+                // 反馈
+                const pasteBtn = document.querySelector('.add-api-paste-btn');
+                if (pasteBtn) {
+                    pasteBtn.classList.add('pasted');
+                    setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
+                }
+                return;
+            }
+
+            // 处理已有 API 的粘贴
+            const pendingApi = window._pendingPasteApi;
+            if (pendingApi) {
+                window._pendingPasteApi = null;
+                const { api, apiPasteBtn, provider, providers } = pendingApi;
+                let setting;
+                try {
+                    setting = JSON.parse(text);
+                } catch (_) {
+                    return;
+                }
+                if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                    return;
+                }
+                const newName = setting.name.trim();
+                // 更新 name（重复则跳过，不弹框）
+                let effectiveName = api.name;
+                if (newName !== api.name) {
+                    const duplicate = providers.some(p => p.apis && p.apis.find(a => a.name === newName));
+                    if (!duplicate) {
+                        postMsg({ action: 'updateApiName', oldName: api.name, newName: newName });
+                        effectiveName = newName;
+                    }
+                }
+                // 更新其他字段（逐一比较，只发变化的）
+                const stringFields = ['model', 'rule', 'thinkingMode', 'cacheControl', 'role'];
+                stringFields.forEach(f => {
+                    const v = (typeof setting[f] === 'string') ? setting[f] : '';
+                    const cur = (api[f] != null) ? String(api[f]) : '';
+                    if (v !== cur) postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: v });
+                });
+                const intFields = ['maxToken', 'contextCapacity'];
+                intFields.forEach(f => {
+                    if (typeof setting[f] === 'number' && setting[f] !== (api[f] || 0))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: setting[f] });
+                });
+                const floatFields = ['priceInputToken', 'priceOutputToken', 'priceCacheRead', 'priceCacheWrite'];
+                floatFields.forEach(f => {
+                    if (typeof setting[f] === 'number' && setting[f] !== (api[f] || 0))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: setting[f] });
+                });
+                if (typeof setting.enable === 'boolean' && setting.enable !== api.enable)
+                    postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'enable', value: setting.enable });
+                if (Array.isArray(setting.tools))
+                    postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'tools', value: setting.tools });
+                if (setting.openRouterOptions && typeof setting.openRouterOptions === 'object') {
+                    if (typeof setting.openRouterOptions.disableReasoning === 'boolean' &&
+                        setting.openRouterOptions.disableReasoning !== (api.openRouterOptions && api.openRouterOptions.disableReasoning))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'disableReasoning', value: setting.openRouterOptions.disableReasoning });
+                    if (Array.isArray(setting.openRouterOptions.only))
+                        postMsg({ action: 'updateApiField', apiName: effectiveName, field: 'openRouterOnly', value: setting.openRouterOptions.only });
+                }
+
+                apiPasteBtn.classList.add('pasted');
+                setTimeout(() => apiPasteBtn.classList.remove('pasted'), 1500);
+                return;
+            }
+
+            // 处理已有 Provider 的粘贴
+            const pending = window._pendingPaste;
+            if (!pending) return;
+            window._pendingPaste = null;
+
+            const { provider, pasteBtn, providers } = pending;
+            let setting;
+            try {
+                setting = JSON.parse(text);
+            } catch (_) {
+                return;
+            }
+            if (!setting || typeof setting.name !== 'string' || !setting.name.trim()) {
+                return;
+            }
+            const newName = setting.name.trim();
+            const newEndpoint = (typeof setting.endpoint === 'string') ? setting.endpoint.trim() : '';
+            const newFormat = (typeof setting.format === 'string') ? setting.format.trim() : '';
+
+            // 更新 name（重复则跳过，不弹框）
+            let effectiveName = provider.name;
+            if (newName !== provider.name) {
+                const duplicate = providers.find(p => p.name === newName);
+                if (!duplicate) {
+                    postMsg({ action: 'updateProviderName', oldName: provider.name, newName: newName });
+                    effectiveName = newName;
+                }
+            }
+            // 更新 endpoint
+            if (newEndpoint !== (provider.endpoint || '')) {
+                postMsg({ action: 'updateProviderEndpoint', providerName: effectiveName, endpoint: newEndpoint });
+            }
+            // 更新 format
+            if (newFormat !== (provider.format || '')) {
+                postMsg({ action: 'updateProviderFormat', providerName: effectiveName, format: newFormat });
+            }
+
+            pasteBtn.classList.add('pasted');
+            setTimeout(() => pasteBtn.classList.remove('pasted'), 1500);
+        };
+
+        // 辅助：绑定内联编辑输入框（失焦/Enter提交，Escape还原）
+        function bindInlineInput(input, onCommit) {
+            let lastValue = input.value;
+            input.addEventListener('focus', function() { lastValue = this.value; this.select(); });
+            input.addEventListener('blur', function() { onCommit(this.value, lastValue); });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = lastValue; this.blur(); }
+            });
+            input.addEventListener('click', e => e.stopPropagation());
+            input.addEventListener('mousedown', e => e.stopPropagation());
+        }
+
+        // 辅助：绑定普通参数输入框（失焦提交数值/字符串）
+        function bindParamInput(input, apiName, field, isNumber) {
+            let last = input.value;
+            input.addEventListener('focus', function() { last = this.value; });
+            input.addEventListener('blur', function() {
+                let val = this.value.trim();
+                if (val === last) return;
+                postMsg({ action: 'updateApiField', apiName, field, value: isNumber ? (parseFloat(val) || 0) : val });
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = last; this.blur(); }
+            });
+        }
+
+        // 辅助：绑定浮点数输入框（显示两位小数，无上下箭头）
+        function bindFloatInput(input, apiName, field) {
+            let lastValue = input.value;
+            input.addEventListener('focus', function() { 
+                lastValue = this.value; 
+                this.select(); 
+            });
+            input.addEventListener('blur', function() {
+                let val = this.value.trim();
+                // 格式化为两位小数显示
+                let numVal = parseFloat(val);
+                if (isNaN(numVal)) numVal = 0;
+                this.value = numVal.toFixed(2);
+                if (val !== lastValue) {
+                    postMsg({ action: 'updateApiField', apiName, field, value: numVal });
+                }
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                else if (e.key === 'Escape') { this.value = lastValue; this.blur(); }
+            });
+        }
+
+        // 构建 API 参数面板
+        function buildApiParams(api) {
+            const panel = document.createElement('div');
+            panel.className = 'api-params';
+
+            // 辅助：创建一行参数
+            function makeRow(label, el, fullWidth) {
+                const row = document.createElement('div');
+                row.className = 'param-row' + (fullWidth ? ' full-width' : '');
+                const lbl = document.createElement('div');
+                lbl.className = 'param-label';
+                lbl.textContent = label;
+                row.appendChild(lbl);
+                row.appendChild(el);
+                return row;
+            }
+
+            // model
+            const modelInput = document.createElement('input');
+            modelInput.className = 'param-input';
+            modelInput.value = api.model || '';
+            modelInput.placeholder = 'model id';
+            bindParamInput(modelInput, api.name, 'model', false);
+            panel.appendChild(makeRow('Model', modelInput));
+
+            // maxToken
+            const maxTokenInput = document.createElement('input');
+            maxTokenInput.className = 'param-input';
+            maxTokenInput.type = 'number';
+            maxTokenInput.value = api.maxToken || 0;
+            bindParamInput(maxTokenInput, api.name, 'maxToken', true);
+            panel.appendChild(makeRow('Max Output Token', maxTokenInput));
+
+            // priceInputToken（浮点数，显示两位小数）
+            const priceInInput = document.createElement('input');
+            priceInInput.className = 'param-input';
+            priceInInput.type = 'text';
+            priceInInput.value = (api.priceInputToken || 0).toFixed(2);
+            bindFloatInput(priceInInput, api.name, 'priceInputToken');
+            panel.appendChild(makeRow('Price/Input Token', priceInInput));
+
+            // priceOutputToken（浮点数，显示两位小数）
+            const priceOutInput = document.createElement('input');
+            priceOutInput.className = 'param-input';
+            priceOutInput.type = 'text';
+            priceOutInput.value = (api.priceOutputToken || 0).toFixed(2);
+            bindFloatInput(priceOutInput, api.name, 'priceOutputToken');
+            panel.appendChild(makeRow('Price/Output Token', priceOutInput));
+
+            // priceCacheRead（浮点数，显示两位小数）
+            const priceCRInput = document.createElement('input');
+            priceCRInput.className = 'param-input';
+            priceCRInput.type = 'text';
+            priceCRInput.value = (api.priceCacheRead || 0).toFixed(2);
+            bindFloatInput(priceCRInput, api.name, 'priceCacheRead');
+            panel.appendChild(makeRow('Price/Cache Read', priceCRInput));
+
+            // priceCacheWrite（浮点数，显示两位小数）
+            const priceCWInput = document.createElement('input');
+            priceCWInput.className = 'param-input';
+            priceCWInput.type = 'text';
+            priceCWInput.value = (api.priceCacheWrite || 0).toFixed(2);
+            bindFloatInput(priceCWInput, api.name, 'priceCacheWrite');
+            panel.appendChild(makeRow('Price/Cache Write', priceCWInput));
+
+            // thinkingMode
+            const thinkSel = document.createElement('select');
+            thinkSel.className = 'param-select';
+            ['Auto','Enable','Disable'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.thinkingMode === v) opt.selected = true;
+                thinkSel.appendChild(opt);
+            });
+            thinkSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'thinkingMode', value: this.value });
+            });
+            panel.appendChild(makeRow('Thinking Mode', thinkSel));
+
+            // cacheControl
+            const cacheSel = document.createElement('select');
+            cacheSel.className = 'param-select';
+            ['Auto','None','Anthropic'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.cacheControl === v) opt.selected = true;
+                cacheSel.appendChild(opt);
+            });
+            cacheSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'cacheControl', value: this.value });
+            });
+            panel.appendChild(makeRow('Cache Control', cacheSel));
+
+            // role combo box
+            const roleSel = document.createElement('select');
+            roleSel.className = 'param-select';
+            ['Agent','Auxiliary','Embedding'].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v; opt.textContent = v;
+                if (api.role === v) opt.selected = true;
+                roleSel.appendChild(opt);
+            });
+            roleSel.addEventListener('change', function() {
+                postMsg({ action: 'updateApiField', apiName: api.name, field: 'role', value: this.value });
+            });
+            panel.appendChild(makeRow('Role', roleSel));
+
+            return panel;
+        }
+
+        // 设置Provider数据（全量重建，保持展开状态）
+        function setProviderData(providers) {
+            const providersContainer = document.getElementById('providers-list');
+            if (!providersContainer) return;
+
+            providersContainer.innerHTML = '';
+
+            if (!providers || providers.length === 0) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'providers-empty';
+                emptyDiv.innerHTML = `
+                    <div class="empty-state-icon">🔌</div>
+                    <div class="empty-state-text">No Providers Available</div>
+                    <div class="empty-state-subtext">No AI service providers found.</div>
+                `;
+                providersContainer.appendChild(emptyDiv);
+                return;
+            }
+
+            providers.forEach((provider, index) => {
+                const providerDiv = document.createElement('div');
+                providerDiv.className = 'provider-item';
+
+                const isAvailable = provider.isAvailable;
+                const statusClass = isAvailable ? 'available' : 'unavailable';
+                const isProviderExpanded = expandedProviders.includes(provider.name);
+
+                // ── Provider 标题栏（折叠/展开均可点击）──
+                const header = document.createElement('div');
+                header.className = 'provider-header';
+                const headerId = 'provider-header-' + index;
+                header.id = headerId;
+                header.style.cursor = 'pointer';
+                header.title = isProviderExpanded ? 'Click to collapse' : 'Click to expand';
+                header.addEventListener('click', () => {
+                    const rectBefore = header.getBoundingClientRect();
+                    const topBefore = rectBefore.top;
+
+                    if (isProviderExpanded) {
+                        expandedProviders = expandedProviders.filter(p => p !== provider.name);
+                    } else {
+                        expandedProviders.push(provider.name);
+                    }
+                    setProviderData(providers);
+
+                    const newHeader = document.getElementById(headerId);
+                    if (newHeader) {
+                        const rectAfter = newHeader.getBoundingClientRect();
+                        const diff = rectAfter.top - topBefore;
+                        if (diff !== 0) {
+                            const scrollContainer = document.getElementById('providers-list');
+                            if (scrollContainer) {
+                                scrollContainer.scrollTop += diff;
+                            }
+                        }
+                    }
+                });
+
+                const nameSection = document.createElement('div');
+                nameSection.className = 'provider-name-section';
+
+                // 状态点
+                const dot = document.createElement('div');
+                dot.className = `provider-status-dot ${statusClass}`;
+                dot.setAttribute('data-provider-type', provider.type);
+                nameSection.appendChild(dot);
+
+                // 名称（始终静态，点击标题栏折叠/展开）
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'provider-name';
+                nameSpan.textContent = provider.name;
+                nameSection.appendChild(nameSpan);
+                header.appendChild(nameSection);
+
+                // ── Copy 按钮 ──
+                const copyBtn = document.createElement('div');
+                copyBtn.className = 'copy-provider-btn';
+                copyBtn.title = 'Copy settings as JSON';
+                copyBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                `;
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const setting = {
+                        name: provider.name,
+                        endpoint: provider.endpoint,
+                        format: provider.format
+                    };
+                    const json = JSON.stringify(setting, null, 2);
+                    navigator.clipboard.writeText(json).then(() => {
+                        copyBtn.classList.add('copied');
+                        setTimeout(() => copyBtn.classList.remove('copied'), 1500);
+                    }).catch(err => {
+                        console.error('Copy failed:', err);
+                    });
+                });
+                header.appendChild(copyBtn);
+
+                // ── Paste 按钮 ──
+                const pasteBtn = document.createElement('div');
+                pasteBtn.className = 'paste-provider-btn';
+                pasteBtn.title = 'Paste settings from clipboard';
+                pasteBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24">
+                        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                        <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                        <line x1="9" y1="12" x2="15" y2="12"/>
+                        <line x1="9" y1="16" x2="15" y2="16"/>
+                    </svg>
+                `;
+                pasteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    window._pendingPaste = { provider, pasteBtn, providers };
+                    postMsg({ action: 'readClipboard' });
+                });
+                header.appendChild(pasteBtn);
+
+                // ── 删除按钮（长按3秒）──
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete-provider-btn';
+                deleteBtn.title = 'Hold for 3 seconds to delete';
+                
+                // 进度环SVG
+                deleteBtn.innerHTML = `
+                    <svg class="progress-ring" viewBox="0 0 26 26">
+                        <circle class="progress-bg" cx="13" cy="13" r="11.5"/>
+                        <circle class="progress-fill" cx="13" cy="13" r="11.5"/>
+                    </svg>
+                `;
+                
+                let longPressTimer = null;
+                let isDeleting = false;
+                
+                const startLongPress = (e) => {
+                    if (e.button !== 0) return; // 只响应左键
+                    e.stopPropagation();
+                    isDeleting = false;
+                    deleteBtn.classList.add('deleting');
+                    
+                    longPressTimer = setTimeout(() => {
+                        isDeleting = true;
+                        deleteBtn.classList.remove('deleting');
+                        // 发送删除消息
+                        postMsg({ action: 'deleteProvider', name: provider.name });
+                    }, 3000);
+                };
+                
+                const cancelLongPress = (e) => {
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                    if (!isDeleting) {
+                        deleteBtn.classList.remove('deleting');
+                    }
+                };
+                
+                deleteBtn.addEventListener('mousedown', startLongPress);
+                deleteBtn.addEventListener('mouseup', cancelLongPress);
+                deleteBtn.addEventListener('mouseleave', cancelLongPress);
+                deleteBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    startLongPress(e.touches[0]);
+                });
+                deleteBtn.addEventListener('touchend', cancelLongPress);
+                deleteBtn.addEventListener('touchcancel', cancelLongPress);
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                });
+                
+                header.appendChild(deleteBtn);
+                providerDiv.appendChild(header);
+
+                // ── 展开状态：显示详细内容（暗色背景区域）──
+                if (isProviderExpanded) {
+                    const expandedArea = document.createElement('div');
+                    expandedArea.className = 'provider-expanded-area';
+
+                    // Name行
+                    const nameRow = document.createElement('div');
+                    nameRow.className = 'provider-edit-row';
+                    const nameLabel = document.createElement('span');
+                    nameLabel.className = 'provider-edit-label';
+                    nameLabel.textContent = 'Name:';
+                    nameRow.appendChild(nameLabel);
+                    const nameInput = document.createElement('input');
+                    nameInput.className = 'provider-edit-input';
+                    nameInput.value = provider.name;
+                    bindInlineInput(nameInput, (newVal, oldVal) => {
+                        newVal = newVal.trim();
+                        if (newVal && newVal !== oldVal) {
+                            // 检查是否与其他 provider 重名
+                            const duplicateProvider = providers.find(p => p.name === newVal);
+                            if (duplicateProvider) {
+                                nameInput.value = oldVal;
+                                postMsg({ action: 'showError', message: 'Provider name "' + newVal + '" already exists' });
+                                return;
+                            }
+                            expandedProviders = expandedProviders.map(p => p === oldVal ? newVal : p);
+                            postMsg({ action: 'updateProviderName', oldName: oldVal, newName: newVal });
+                        } else {
+                            nameInput.value = oldVal;
+                        }
+                    });
+                    nameInput.addEventListener('click', e => e.stopPropagation());
+                    nameInput.addEventListener('mousedown', e => e.stopPropagation());
+                    nameRow.appendChild(nameInput);
+                    expandedArea.appendChild(nameRow);
+
+                    // Endpoint行
+                    const endpointRow = document.createElement('div');
+                    endpointRow.className = 'provider-edit-row';
+                    const endpointLabel = document.createElement('span');
+                    endpointLabel.className = 'provider-edit-label';
+                    endpointLabel.textContent = 'Endpoint:';
+                    endpointRow.appendChild(endpointLabel);
+                    const endpointInput = document.createElement('input');
+                    endpointInput.className = 'provider-edit-input';
+                    endpointInput.value = provider.endpoint || '';
+                    endpointInput.placeholder = 'https://api.example.com/v1';
+                    let lastEndpoint = endpointInput.value;
+                    endpointInput.addEventListener('focus', function() { lastEndpoint = this.value; this.select(); });
+                    endpointInput.addEventListener('blur', function() {
+                        const v = this.value.trim();
+                        postMsg({ action: 'updateProviderEndpoint', providerName: provider.name, endpoint: v });
+                    });
+                    endpointInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                        else if (e.key === 'Escape') { this.value = lastEndpoint; this.blur(); }
+                    });
+                    endpointInput.addEventListener('click', e => e.stopPropagation());
+                    endpointInput.addEventListener('mousedown', e => e.stopPropagation());
+                    endpointRow.appendChild(endpointInput);
+                    expandedArea.appendChild(endpointRow);
+
+                    // Format行（下拉选择）
+                    const formatRow = document.createElement('div');
+                    formatRow.className = 'provider-edit-row';
+                    const formatLabel = document.createElement('span');
+                    formatLabel.className = 'provider-edit-label';
+                    formatLabel.textContent = 'Format:';
+                    formatRow.appendChild(formatLabel);
+                    const formatSelect = document.createElement('select');
+                    formatSelect.className = 'provider-edit-input';
+                    formatSelect.style.cursor = 'pointer';
+                    const formatOptions = ['OpenAI', 'Anthropic', 'Gemini', 'OpenRouter', 'Kimi', 'GLM', 'Minimax', 'DeepSeek'];
+                    formatOptions.forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v;
+                        opt.textContent = v;
+                        if (provider.format === v) opt.selected = true;
+                        formatSelect.appendChild(opt);
+                    });
+                    formatSelect.addEventListener('change', function() {
+                        postMsg({ action: 'updateProviderFormat', providerName: provider.name, format: this.value });
+                    });
+                    formatSelect.addEventListener('click', e => e.stopPropagation());
+                    formatSelect.addEventListener('mousedown', e => e.stopPropagation());
+                    formatRow.appendChild(formatSelect);
+                    expandedArea.appendChild(formatRow);
+
+                    // Api Key行
+                    const keyRow = document.createElement('div');
+                    keyRow.className = 'provider-edit-row';
+                    const keyLabel = document.createElement('span');
+                    keyLabel.className = 'provider-edit-label';
+                    keyLabel.textContent = 'Api Key:';
+                    keyRow.appendChild(keyLabel);
+                    const keyInput = document.createElement('input');
+                    keyInput.type = 'password';
+                    keyInput.className = 'provider-edit-input';
+                    keyInput.placeholder = 'Enter API key...';
+                    keyInput.value = provider.key || '';
+                    keyInput.setAttribute('data-provider-type', provider.type);
+                    let lastKey = keyInput.value;
+                    keyInput.addEventListener('focus', function() { lastKey = this.value; this.select(); });
+                    keyInput.addEventListener('blur', function() {
+                        postMsg({ action: 'updateProviderKey', providerType: provider.type, key: this.value });
+                        lastKey = this.value;
+                    });
+                    keyInput.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') { e.preventDefault(); this.blur(); }
+                        else if (e.key === 'Escape') { this.value = lastKey; this.blur(); }
+                    });
+                    keyInput.addEventListener('dblclick', function(e) {
+                        e.stopPropagation();
+                        this.type = this.type === 'password' ? 'text' : 'password';
+                    });
+                    keyInput.addEventListener('click', e => e.stopPropagation());
+                    keyInput.addEventListener('mousedown', e => e.stopPropagation());
+                    keyRow.appendChild(keyInput);
+                    expandedArea.appendChild(keyRow);
+
+                    // API 列表（始终显示）
+                    const apisSection = document.createElement('div');
+                    apisSection.className = 'provider-apis-section';
+                    
+                    // 标题行（APIs + 添加按钮）
+                    const apisHeaderRow = document.createElement('div');
+                    apisHeaderRow.className = 'apis-header-row';
+                    
+                    const apisLabel = document.createElement('div');
+                    apisLabel.className = 'provider-apis-label';
+                    apisLabel.textContent = 'APIs';
+                    apisHeaderRow.appendChild(apisLabel);
+                    
+                    // 添加 API 按钮
+                    const addApiBtn = document.createElement('div');
+                    addApiBtn.className = 'add-api-btn';
+                    addApiBtn.title = 'Add new API';
+                    addApiBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // 生成不重名的 API 名称
+                        let newName = 'NewApi';
+                        let suffix = 1;
+                        const existingNames = [];
+                        providers.forEach(p => {
+                            if (p.apis) p.apis.forEach(a => existingNames.push(a.name));
+                        });
+                        while (existingNames.includes(newName)) {
+                            newName = 'NewApi' + suffix;
+                            suffix++;
+                        }
+                        // 自动展开新API并标记待聚焦
+                        if (!expandedApis.includes(newName)) {
+                            expandedApis.push(newName);
+                        }
+                        pendingFocusApiName = newName;
+                        postMsg({ action: 'addApi', providerName: provider.name, apiName: newName });
+                    });
+                    apisHeaderRow.appendChild(addApiBtn);
+
+                    // API Paste 按钮（剪贴板新建）
+                    const addApiPasteBtn = document.createElement('div');
+                    addApiPasteBtn.className = 'add-api-paste-btn';
+                    addApiPasteBtn.title = 'Paste new API from clipboard';
+                    addApiPasteBtn.innerHTML = `
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                            <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                            <line x1="9" y1="12" x2="15" y2="12"/>
+                            <line x1="9" y1="16" x2="15" y2="16"/>
+                        </svg>
+                    `;
+                    addApiPasteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        window._pendingPasteNewApi = { provider, providers };
+                        postMsg({ action: 'readClipboard' });
+                    });
+                    apisHeaderRow.appendChild(addApiPasteBtn);
+                    
+                    apisSection.appendChild(apisHeaderRow);
+
+                    if (!provider.apis || provider.apis.length === 0) {
+                        // 没有 API 时显示 <none>
+                        const noneDiv = document.createElement('div');
+                        noneDiv.className = 'apis-none';
+                        noneDiv.textContent = '<none>';
+                        apisSection.appendChild(noneDiv);
+                    } else {
+                        // 有 API 时显示列表
+                        provider.apis.forEach((api, apiIndex) => {
+                            const isApiExpanded = expandedApis.includes(api.name);
+
+                            const apiItem = document.createElement('div');
+                            apiItem.className = 'api-item';
+
+                            // API 标题栏（单击展开/折叠）
+                            const apiHeader = document.createElement('div');
+                            apiHeader.className = 'api-header-bar';
+                            const apiHeaderId = 'api-header-' + index + '-' + apiIndex;
+                            apiHeader.id = apiHeaderId;
+                            apiHeader.title = isApiExpanded ? 'Click to collapse' : 'Click to expand';
+                            apiHeader.addEventListener('click', () => {
+                                const rectBefore = apiHeader.getBoundingClientRect();
+                                const topBefore = rectBefore.top;
+
+                                if (isApiExpanded) {
+                                    expandedApis = expandedApis.filter(a => a !== api.name);
+                                } else {
+                                    expandedApis.push(api.name);
+                                }
+                                setProviderData(providers);
+
+                                const newApiHeader = document.getElementById(apiHeaderId);
+                                if (newApiHeader) {
+                                    const rectAfter = newApiHeader.getBoundingClientRect();
+                                    const diff = rectAfter.top - topBefore;
+                                    if (diff !== 0) {
+                                        const scrollContainer = document.getElementById('providers-list');
+                                        if (scrollContainer) {
+                                            scrollContainer.scrollTop += diff;
+                                        }
+                                    }
+                                }
+                            });
+
+                            // API 名称容器（包含 checkbox 和名称文本）
+                            const apiNameContainer = document.createElement('div');
+                            apiNameContainer.className = 'api-name-container';
+
+                            // API Enable Checkbox - 自定义黑白样式
+                            const apiEnableCheckbox = document.createElement('input');
+                            apiEnableCheckbox.type = 'checkbox';
+                            apiEnableCheckbox.checked = api.enable !== false; // 默认为true
+                            apiEnableCheckbox.className = 'api-enable-checkbox';
+                            apiEnableCheckbox.title = 'Enable/Disable this API';
+                            apiEnableCheckbox.addEventListener('click', (e) => {
+                                e.stopPropagation(); // 阻止触发折叠/展开
+                            });
+                            apiEnableCheckbox.addEventListener('change', (e) => {
+                                postMsg({ action: 'updateApiField', apiName: api.name, field: 'enable', value: e.target.checked });
+                            });
+                            apiNameContainer.appendChild(apiEnableCheckbox);
+
+                            // API 名称文本
+                            const apiNameSpan = document.createElement('span');
+                            apiNameSpan.style.cssText = 'font-size:0.9em;font-weight:500;color:#ffffff;text-shadow:0 1px 2px rgba(0,0,0,0.5);background:transparent;padding:0;line-height:28px;';
+                            apiNameSpan.textContent = api.name;
+                            apiNameContainer.appendChild(apiNameSpan);
+
+                            apiHeader.appendChild(apiNameContainer);
+
+                            // ── 右侧按钮组（copy / paste / delete）──
+                            const apiActionsContainer = document.createElement('div');
+                            apiActionsContainer.style.cssText = 'display:flex;align-items:center;gap:2px;flex-shrink:0;';
+
+                            // API Copy 按钮
+                            const apiCopyBtn = document.createElement('div');
+                            apiCopyBtn.className = 'copy-provider-btn';
+                            apiCopyBtn.title = 'Copy API settings as JSON';
+                            apiCopyBtn.innerHTML = `
+                                <svg viewBox="0 0 24 24">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                            `;
+                            apiCopyBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                const setting = {
+                                    name: api.name,
+                                    model: api.model,
+                                    maxToken: api.maxToken,
+                                    contextCapacity: api.contextCapacity,
+                                    priceInputToken: api.priceInputToken,
+                                    priceOutputToken: api.priceOutputToken,
+                                    priceCacheRead: api.priceCacheRead,
+                                    priceCacheWrite: api.priceCacheWrite,
+                                    thinkingMode: api.thinkingMode,
+                                    cacheControl: api.cacheControl,
+                                    role: api.role,
+                                    enable: api.enable,
+                                    openRouterOptions: api.openRouterOptions
+                                };
+                                navigator.clipboard.writeText(JSON.stringify(setting, null, 2)).then(() => {
+                                    apiCopyBtn.classList.add('copied');
+                                    setTimeout(() => apiCopyBtn.classList.remove('copied'), 1500);
+                                }).catch(err => { console.error('Copy failed:', err); });
+                            });
+                            apiActionsContainer.appendChild(apiCopyBtn);
+
+                            // API Paste 按钮
+                            const apiPasteBtn = document.createElement('div');
+                            apiPasteBtn.className = 'paste-provider-btn';
+                            apiPasteBtn.title = 'Paste API settings from clipboard';
+                            apiPasteBtn.innerHTML = `
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                                    <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                                    <line x1="9" y1="12" x2="15" y2="12"/>
+                                    <line x1="9" y1="16" x2="15" y2="16"/>
+                                </svg>
+                            `;
+                            apiPasteBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                window._pendingPasteApi = { api, apiPasteBtn, provider, providers };
+                                postMsg({ action: 'readClipboard' });
+                            });
+                            apiActionsContainer.appendChild(apiPasteBtn);
+
+                            // API 删除按钮（长按3秒）
+                            const deleteApiBtn = document.createElement('div');
+                            deleteApiBtn.className = 'delete-provider-btn';
+                            deleteApiBtn.title = 'Hold for 3 seconds to delete';
+                            deleteApiBtn.innerHTML = `
+                                <svg class="progress-ring" viewBox="0 0 26 26">
+                                    <circle class="progress-bg" cx="13" cy="13" r="11.5"/>
+                                    <circle class="progress-fill" cx="13" cy="13" r="11.5"/>
+                                </svg>
+                            `;
+                            
+                            let apiLongPressTimer = null;
+                            let isApiDeleting = false;
+                            
+                            const startApiLongPress = (e) => {
+                                if (e.button !== 0) return;
+                                e.stopPropagation();
+                                isApiDeleting = false;
+                                deleteApiBtn.classList.add('deleting');
+                                
+                                apiLongPressTimer = setTimeout(() => {
+                                    isApiDeleting = true;
+                                    deleteApiBtn.classList.remove('deleting');
+                                    postMsg({ action: 'deleteApi', name: api.name });
+                                }, 3000);
+                            };
+                            
+                            const cancelApiLongPress = (e) => {
+                                if (apiLongPressTimer) {
+                                    clearTimeout(apiLongPressTimer);
+                                    apiLongPressTimer = null;
+                                }
+                                if (!isApiDeleting) {
+                                    deleteApiBtn.classList.remove('deleting');
+                                }
+                            };
+                            
+                            deleteApiBtn.addEventListener('mousedown', startApiLongPress);
+                            deleteApiBtn.addEventListener('mouseup', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('mouseleave', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('touchstart', (e) => {
+                                e.preventDefault();
+                                startApiLongPress(e.touches[0]);
+                            });
+                            deleteApiBtn.addEventListener('touchend', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('touchcancel', cancelApiLongPress);
+                            deleteApiBtn.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                            });
+                            
+                            apiActionsContainer.appendChild(deleteApiBtn);
+                            apiHeader.appendChild(apiActionsContainer);
+
+                            apiItem.appendChild(apiHeader);
+
+                            // API 展开区域（暗色背景）
+                            if (isApiExpanded) {
+                                const apiExpandedArea = document.createElement('div');
+                                apiExpandedArea.className = 'api-expanded-area';
+
+                                // Name编辑行
+                                const apiNameRow = document.createElement('div');
+                                apiNameRow.className = 'provider-edit-row';
+                                apiNameRow.style.height = '28px';
+                                const apiNameLabel = document.createElement('span');
+                                apiNameLabel.className = 'provider-edit-label';
+                                apiNameLabel.style.minWidth = '50px';
+                                apiNameLabel.textContent = 'Name:';
+                                apiNameRow.appendChild(apiNameLabel);
+                                const apiNameInput = document.createElement('input');
+                                apiNameInput.className = 'provider-edit-input';
+                                apiNameInput.style.fontSize = '0.82em';
+                                apiNameInput.value = api.name;
+                                bindInlineInput(apiNameInput, (newVal, oldVal) => {
+                                    newVal = newVal.trim();
+                                    if (newVal && newVal !== oldVal) {
+                                        // 检查是否与所有 provider 下的所有 api 重名
+                                        let duplicateApi = null;
+                                        for (const p of providers) {
+                                            if (p.apis) {
+                                                const found = p.apis.find(a => a.name === newVal);
+                                                if (found) {
+                                                    duplicateApi = found;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        if (duplicateApi) {
+                                            apiNameInput.value = oldVal;
+                                            postMsg({ action: 'showError', message: 'API name "' + newVal + '" already exists' });
+                                            return;
+                                        }
+                                        expandedApis = expandedApis.map(a => a === oldVal ? newVal : a);
+                                        postMsg({ action: 'updateApiName', oldName: oldVal, newName: newVal });
+                                    } else {
+                                        apiNameInput.value = oldVal;
+                                    }
+                                });
+                                apiNameInput.addEventListener('click', e => e.stopPropagation());
+                                apiNameInput.addEventListener('mousedown', e => e.stopPropagation());
+                                apiNameRow.appendChild(apiNameInput);
+                                apiExpandedArea.appendChild(apiNameRow);
+
+                                // 其他参数面板
+                                apiExpandedArea.appendChild(buildApiParams(api));
+
+                                apiItem.appendChild(apiExpandedArea);
+                            }
+
+                            apisSection.appendChild(apiItem);
+                        });
+                    }
+
+                    expandedArea.appendChild(apisSection);
+
+                    providerDiv.appendChild(expandedArea);
+                }
+
+                providersContainer.appendChild(providerDiv);
+            });
+
+            // 添加新 Provider 按钮
+            const addButton = document.createElement('div');
+            addButton.className = 'add-provider-button';
+            addButton.innerHTML = '+';
+            addButton.title = 'Add new provider';
+            addButton.addEventListener('click', () => {
+                // 生成不重名的 Provider 名称
+                let newName = 'NewProvider';
+                let suffix = 1;
+                const existingNames = providers.map(p => p.name);
+                while (existingNames.includes(newName)) {
+                    newName = 'NewProvider' + suffix;
+                    suffix++;
+                }
+                // 自动展开新Provider并标记待聚焦
+                if (!expandedProviders.includes(newName)) {
+                    expandedProviders.push(newName);
+                }
+                pendingFocusProviderName = newName;
+                postMsg({ action: 'addProvider', name: newName });
+            });
+
+            // 新增按钮行（+ 和 paste 并排）
+            const addRow = document.createElement('div');
+            addRow.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:4px;margin:12px auto;';
+            addRow.appendChild(addButton);
+
+            // 从剪贴板粘贴新建 Provider 按钮
+            const addPasteBtn = document.createElement('div');
+            addPasteBtn.className = 'add-paste-provider-btn';
+            addPasteBtn.title = 'Paste new provider from clipboard';
+            addPasteBtn.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                    <rect x="9" y="3" width="6" height="4" rx="1" ry="1"/>
+                    <line x1="9" y1="12" x2="15" y2="12"/>
+                    <line x1="9" y1="16" x2="15" y2="16"/>
+                </svg>
+            `;
+            addPasteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                window._pendingPasteNew = { providers: providers };
+                postMsg({ action: 'readClipboard' });
+            });
+            addRow.appendChild(addPasteBtn);
+            providersContainer.appendChild(addRow);
+
+            // 新建Provider后自动聚焦名称输入框
+            if (pendingFocusProviderName) {
+                const focusName = pendingFocusProviderName;
+                pendingFocusProviderName = null;
+                setTimeout(() => {
+                    const areas = document.querySelectorAll('.provider-expanded-area');
+                    for (const area of areas) {
+                        const nameInput = area.querySelector('.provider-edit-input');
+                        if (nameInput && nameInput.value === focusName) {
+                            nameInput.focus();
+                            nameInput.select();
+                            nameInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            break;
+                        }
+                    }
+                }, 200);
+            }
+
+            // 新建API后自动聚焦名称输入框
+            if (pendingFocusApiName) {
+                const focusName = pendingFocusApiName;
+                pendingFocusApiName = null;
+                setTimeout(() => {
+                    const inputs = document.querySelectorAll('.api-expanded-area .provider-edit-row .provider-edit-input');
+                    for (const input of inputs) {
+                        if (input.value === focusName) {
+                            input.focus();
+                            input.select();
+                            input.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            break;
+                        }
+                    }
+                }, 200);
+            }
+        }
+
+        // 切换Tab
+        function switchTab(tabId) {
+            if (tabId === activeTabId) return;
+            
+            activeTabId = tabId;
+            
+            // 更新Tab按钮状态
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 找到对应的按钮并添加active类
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => {
+                if (btn.textContent === currentTabs.find(t => t.id === tabId)?.title) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新Tab内容显示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-content-${tabId}`).classList.add('active');
+            
+            // 如果切换到providers tab，重新请求数据
+            if (tabId === 'providers') {
+                requestProviderData();
+                requestCastSheetData();
+            }
+            
+            // 发送Tab变更消息到C++
+            window.chrome.webview.postMessage({
+                action: 'tabChanged',
+                tabId: tabId
+            });
+        }
+
+        // 设置激活Tab
+        function setActiveTab(tabId) {
+            switchTab(tabId);
+        }
+
+        // 清空Tab
+        function clearTabs() {
+            currentTabs = [];
+            tabList.innerHTML = '';
+            tabContents.innerHTML = '';
+        }
+
+        // 监听键盘事件，ESC键关闭页面
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                postMsg({ action: 'exitSettings' });
+            }
+        });
+
+        // 监听来自C++的消息
+        window.chrome.webview.addEventListener('message', event => {
+            try {
+                const message = event.data;
+                
+                if (typeof message !== 'object' || message === null) {
+                    console.error('Received non-object message:', event.data);
+                    return;
+                }
+
+                switch (message.action) {
+                    case 'initializeComplete':
+                        console.log('Setting UI initialized');
+                        break;
+                        
+                    case 'setTabs':
+                        setTabs(message.data);
+                        break;
+                        
+                    case 'setActiveTab':
+                        setActiveTab(message.data);
+                        break;
+                        
+                    case 'clearTabs':
+                        clearTabs();
+                        break;
+                        
+                    case 'setProviderData':
+                        setProviderData(message.data);
+                        break;
+                        
+                    case 'setCapabilityStatus':
+                        // Capability状态已废弃，保留兼容性
+                        break;
+                        
+                    case 'setCastSheetData':
+                        setCastSheetData(message.data);
+                        break;
+                        
+                    case 'startValidatingProvider':
+                        startValidatingProvider(message.providerType);
+                        break;
+                        
+                    case 'endValidatingProvider':
+                        endValidatingProvider(message.providerType, message.available);
+                        break;
+                        
+                    case 'startEvaluateSummarize':
+                        startEvaluateSummarize();
+                        break;
+                        
+                    case 'endEvaluateSummarize':
+                        endEvaluateSummarize();
+                        break;
+                        
+                    default:
+                        console.warn('Unknown message action:', message.action);
+                        break;
+                }
+            } catch (e) {
+                console.error('Error processing message from C++:', e, 'Raw data:', event.data);
+            }
+        });
+
+        // 开始验证Provider
+        function startValidatingProvider(providerType) {
+            const statusDot = document.querySelector(`.provider-status-dot[data-provider-type="${providerType}"]`);
+            if (statusDot) {
+                statusDot.className = 'provider-status-dot validating';
+            }
+        }
+        
+        // 结束验证Provider
+        function endValidatingProvider(providerType, available) {
+            const statusDot = document.querySelector(`.provider-status-dot[data-provider-type="${providerType}"]`);
+            if (statusDot) {
+                statusDot.className = `provider-status-dot ${available ? 'available' : 'unavailable'}`;
+            }
+        }
+
+        // 开始评估压缩
+        function startEvaluateSummarize() {
+            const btn = document.getElementById('evaluate-summarize-btn');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.title = 'Compressing and summarizing...';
+            }
+        }
+        
+        // 结束评估压缩
+        function endEvaluateSummarize() {
+            const btn = document.getElementById('evaluate-summarize-btn');
+            if (btn) {
+                btn.classList.remove('loading');
+                updateEvaluateBtnState();
+            }
+        }
+        
+        // 更新Evaluate按钮状态（根据选中的API）
+        function updateEvaluateBtnState() {
+            const btn = document.getElementById('evaluate-summarize-btn');
+            const select = document.getElementById('cast-sheet-summarize');
+            if (!btn || !select) return;
+            
+            const apiName = select.value;
+            if (apiName === '<auto>' || apiName === '<disable>') {
+                btn.classList.add('disabled');
+                btn.title = 'Select an API to evaluate';
+            } else {
+                btn.classList.remove('disabled');
+                btn.title = 'Evaluate the compression quality of the selected API using the latest conversations in current chat';
+            }
+        }
+
+        // 初始化完成通知
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage({ action: 'jsInitialized' });
+        } else {
+            console.error('window.chrome.webview not available for initialization message.');
+        }
+    </script>
+</body>
+</html>
