@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/badge/version-0.20.1-blue)](https://github.com/ixnehc/LazyBug-Copilot-Publish/blob/main/patchnotes.md)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
-> 📖 [中文版](ReadMe_cn.md)
+> 📖 [中文版](doc/ReadMe_cn.md)
 
 ## Product Overview
 
