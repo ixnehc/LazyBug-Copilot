@@ -10,7 +10,7 @@
 
 LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension designed specifically for Visual Studio. It integrates Large Language Model (LLM) capabilities to provide developers with intelligent code creation, refactoring, and Q&A experiences. The extension supports multiple mainstream AI service providers, enabling developers to enjoy AI-assisted programming within their familiar IDE environment.
 
-![screenshot](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/screenshot3.gif)
+![screenshot](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/screenshot3.gif)
 
 ---
 
@@ -40,36 +40,36 @@ _See [patchnotes.md](https://github.com/ixnehc/LazyBug-Copilot-Publish/blob/main
 - **Symbol Search** — Fast symbol search for C/C++/C#/JavaScript/Java/Python/TypeScript codes. Works out of the box — no LSP configuration required.
 - **Smart Input Box** — Tag-based file attachment system with `@` auto-completion, input history (`PageUp`/`PageDown`), quick model switching.
 
-![chatinput](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/chatinput.jpg)
+![chatinput](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/chatinput.jpg)
 
 - **Image Attachment** — Paste images directly into the chat input to send to vision-capable LLMs.
 
-![image support](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/image_support2.jpg)
+![image support](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/image_support2.jpg)
 
 - **Multi-Model Support** — Customizable API endpoints. Supports mainstream LLMs: OpenAI, Anthropic, Google Gemini, OpenRouter, Moonshot (Kimi), z.ai (GLM), DeepSeek and more. Also supports local LLMs (Ollama, LM Studio).
 - **Multi-API Format** — Supports three API formats: OpenAI-compatible, Anthropic, and Gemini.
 
-![provider](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/provider.jpg)
+![provider](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/provider.jpg)
 
 - **Skill System** — Browse, create, rename, and toggle skills via a management panel. Supports BuiltIn, Global, and Project-level skills. Allow using AI to edit or create new skills.
 
-![skill](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/skill.jpg)
+![skill](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/skill.jpg)
 
 - **Custom Prompts** — `global_rules.txt` and `project_rules.txt` for customized prompts; 
 
-![settings](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/settings2.jpg)
+![settings](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/settings2.jpg)
 
 - **CLI Tool Integration** — Execute cmd.exe, bash.exe, python.exe scripts directly from the chat, extending capabilities beyond coding.
 
-<img src="https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/output_10fps.gif" width="500" />
+<img src="https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/output_10fps.gif" width="500" />
 
 - **Context Usage Control** — Real-time context usage display with 5 context levels. Allow keeping context under relatively low level (< 30k tokens) even in extremely long conversations while maintaining high response quality. Automatic compression/decompression when context level changes.
 
-![contextlevel](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/contextlevel.jpg)
+![contextlevel](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/contextlevel.jpg)
 
 - **MCP Support** — Model Context Protocol server support via stdio and URL, with a built-in UI to manage them.
 
-![mcp](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/createmcp.gif)
+![mcp](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/createmcp.gif)
 
 
 
@@ -109,7 +109,7 @@ _See [patchnotes.md](https://github.com/ixnehc/LazyBug-Copilot-Publish/blob/main
   - Install the necessary environments (Node.js, Python, GIT, etc.) to support various CLI commands.
 - **Compression Model Selection**: Use the **Evaluate** button to assess the speed, reliability, and compression quality of the currently selected compression model, helping you choose the most suitable one.
 
-  ![evaluate](https://github.com/ixnehc/LazyBug-Copilot-Publish/raw/main/screenshots/evaluate.jpg)
+![evaluate](https://raw.githubusercontent.com/ixnehc/LazyBug-Copilot/master/media/evaluate.jpg)
 
 - **How Context Level Works**:
   - When context usage reaches a level's upper limit (threshold), LazyBug compresses the context down to the target lower limit. This keeps conversations sustainable without unbounded token growth.
