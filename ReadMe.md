@@ -1,7 +1,7 @@
 ﻿# LazyBug Copilot - Visual Studio AI Coding Assistant Extension
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Install-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.20.1-blue)](https://github.com/ixnehc/LazyBug-Copilot-Publish/blob/main/patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.20.1-blue)](doc/patchnotes.md)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
 > 📖 [中文版](doc/ReadMe_cn.md)
@@ -25,7 +25,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 - Added copy/paste buttons in the Provider & API settings page
 - Added symbol search support for more languages (`*.html`, `*.css`, `*.js`, `*.java`, `*.py`, `*.ts`)
 
-_See [patchnotes.md](https://github.com/ixnehc/LazyBug-Copilot-Publish/blob/main/patchnotes.md) for full version history._
+_See [patchnotes.md](doc/patchnotes.md) for full version history._
 
 ---
 
