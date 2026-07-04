@@ -185,7 +185,7 @@
       <StructMemberAlignment>8</StructMemberAlignment>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>/Oxs</AdditionalOptions>
+      <AdditionalOptions>/Oxs /execution-charset:utf-8</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>.;$(Office10Include);..;..\common;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
