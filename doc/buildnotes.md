@@ -22,6 +22,20 @@ This document explains how to set up the development environment and build **Laz
 
 ---
 
+## Pre-built Dependencies
+
+A pre-built package containing all third-party headers and libraries is available:
+
+📦 **[Download extlib.zip (deps-1.0)](https://github.com/ixnehc/LazyBug-Copilot/releases/tag/deps-1.0)** (~383 MB)
+
+1. Download `extlib.zip` from the release page.
+2. Extract it to the project root directory — this will create/overwrite the `extlib/` folder with all required files.
+3. Skip directly to the **[Build](#build)** section below.
+
+If you prefer to compile the dependencies yourself, follow the instructions in **[Building Each Dependency](#building-each-dependency)**.
+
+---
+
 ## Third-Party Dependencies
 
 The project uses the following libraries. Each must be downloaded (and where applicable, compiled), then its **headers** and **library files** placed under the `extlib/` directory.
