@@ -38,8 +38,8 @@
 
 #include "stringparser/stringparser.h"
 
-#include "../Proj_LazyBug/LazyBugConfig.h"
-#include "../Proj_LazyBug/CoreDefines.h"
+#include "../LazyBugSource/LazyBugConfig.h"
+#include "../LazyBugSource/CoreDefines.h"
 
 // #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
 // 

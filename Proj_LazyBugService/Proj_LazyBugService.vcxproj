@@ -170,7 +170,7 @@
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;..\extlib\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;..\extlib\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -181,13 +181,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib;..\extlib\curl\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib;..\extlib\curl\lib</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)LazyBugService_RL.exe</OutputFile>
-      <AdditionalDependencies>libClang.lib;libcurl_mt.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterParsers.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libClang.lib;libcurl_mt.lib;ws2_32.lib;rpcrt4.lib;lucene++.lib;tree-sitter.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Outputs>LazyBugService_RL.exe</Outputs>
-      <Command>copy $(OutDir)LazyBugService_RL.exe $(SolutionDir)bin\LazyBugService_RL.exe</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
@@ -200,7 +201,7 @@
       <ConformanceMode>Default</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\xapian_x64-windows-static\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;..\extlib\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;..\extlib\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -212,13 +213,14 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
-      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\xapian_x64-windows-static\lib;..\extlib\zlib_x64-windows-static\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib;..\extlib\curl\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\extlib\LLVM\lib;..\extlib\lucene\lib;..\extlib\boost_1_90\lib;..\extlib\treesitter\lib;..\extlib\curl\lib</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)LazyBugService.exe</OutputFile>
-      <AdditionalDependencies>libClang.lib;xapian.lib;ws2_32.lib;rpcrt4.lib;zlib.lib;lucene++.lib;tree-sitter.lib;tree-sitter-cpp.lib;Lib_TreeSitterParsers.lib;libcurl_mt.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libClang.lib;ws2_32.lib;rpcrt4.lib;lucene++.lib;tree-sitter.lib;libcurl_mt.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Outputs>LazyBugService.exe</Outputs>
-      <Command>copy $(OutDir)LazyBugService.exe $(SolutionDir)retail\LazyBugService.exe</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -250,22 +252,25 @@
     <ClCompile Include="..\Common\xml\tinyxml.cpp" />
     <ClCompile Include="..\Common\xml\tinyxmlerror.cpp" />
     <ClCompile Include="..\Common\xml\tinyxmlparser.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CoreDefines.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CppSymbol.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CppSymbolParser.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\EmbeddingDB.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\embeddinggenerator.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionIndexer.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ProjSetting.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDB.cpp">
+    <ClCompile Include="..\LazyBugSource\CoreDefines.cpp" />
+    <ClCompile Include="..\LazyBugSource\CppSymbol.cpp" />
+    <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp" />
+    <ClCompile Include="..\LazyBugSource\CppSymbolParser.cpp" />
+    <ClCompile Include="..\LazyBugSource\CppySymbolParserCore.cpp" />
+    <ClCompile Include="..\LazyBugSource\EmbeddingDB.cpp" />
+    <ClCompile Include="..\LazyBugSource\embeddinggenerator.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmSkills.cpp" />
+    <ClCompile Include="..\LazyBugSource\ProjFileScanner.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDump.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionIndexerImpl_Lucene.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionIndexerImpl_Xapian.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\LazyBugSource\SolutionIndexer.cpp" />
+    <ClCompile Include="..\LazyBugSource\NameIndexer.cpp" />
+    <ClCompile Include="..\LazyBugSource\ProjSetting.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDB.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Default</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Default</LanguageStandard>
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</LanguageStandard>
@@ -285,35 +290,38 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBApi.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDBApi.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBs.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBServer.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBService.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionScanner.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\StringPool.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguage.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCpp.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSS.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageHTML.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJava.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguagePython.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterParser.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbol.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbolDefines.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_SearchFile.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBClient.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBMsgs.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBs.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBServer.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBService.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionScanner.cpp" />
+    <ClCompile Include="..\LazyBugSource\StringPool.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguage.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageCSharp.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageCpp.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageCSS.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageHTML.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageJava.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageJavaScript.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguagePython.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageTypeScript.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterParser.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterSymbol.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterSymbolDefines.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_File.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_SearchFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Skill.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_SolutionDump.cpp" />
     <ClCompile Include="Proj_LazyBugService.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">MaxSpeed</Optimization>
     </ClCompile>
@@ -743,57 +751,68 @@
     <ClInclude Include="..\extlib\lucene\include\lucene++\WildcardQuery.h" />
     <ClInclude Include="..\extlib\lucene\include\lucene++\WildcardTermEnum.h" />
     <ClInclude Include="..\extlib\lucene\include\lucene++\WordlistLoader.h" />
-    <ClInclude Include="..\Proj_LazyBug\CoreDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\CppSymbol.h" />
-    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\CppSymbolParser.h" />
-    <ClInclude Include="..\Proj_LazyBug\EmbeddingDB.h" />
-    <ClInclude Include="..\Proj_LazyBug\embeddinggenerator.h" />
-    <ClInclude Include="..\Proj_LazyBug\embeddingtypes.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmSkills.h" />
-    <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionIndexer.h" />
-    <ClInclude Include="..\Proj_LazyBug\NameIndexer.h" />
-    <ClInclude Include="..\Proj_LazyBug\PipeMsg.h" />
-    <ClInclude Include="..\Proj_LazyBug\ProjSetting.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDB.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBApi.h">
+    <ClInclude Include="..\LazyBugSource\CoreDefines.h" />
+    <ClInclude Include="..\LazyBugSource\CppSymbol.h" />
+    <ClInclude Include="..\LazyBugSource\CppSymbolDefines.h" />
+    <ClInclude Include="..\LazyBugSource\CppSymbolParser.h" />
+    <ClInclude Include="..\LazyBugSource\EmbeddingDB.h" />
+    <ClInclude Include="..\LazyBugSource\embeddinggenerator.h" />
+    <ClInclude Include="..\LazyBugSource\embeddingtypes.h" />
+    <ClInclude Include="..\LazyBugSource\LlmSkills.h" />
+    <ClInclude Include="..\LazyBugSource\ProjFileScanner.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDump.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionIndexerImpl_Lucene.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionIndexerImpl_Xapian.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBs.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBServer.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBService.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionScanner.h" />
-    <ClInclude Include="..\Proj_LazyBug\StringPool.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguage.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCpp.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSS.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageHTML.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJava.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguagePython.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterParser.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbol.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbolDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_File.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_SearchFile.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionIndexer.h" />
+    <ClInclude Include="..\LazyBugSource\NameIndexer.h" />
+    <ClInclude Include="..\LazyBugSource\PipeMsg.h" />
+    <ClInclude Include="..\LazyBugSource\ProjSetting.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBDefines.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDB.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBApi.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\SolutionDBClient.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBMsgs.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBs.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBServer.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBService.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionScanner.h" />
+    <ClInclude Include="..\LazyBugSource\StringPool.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguage.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageCSharp.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageCpp.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageCSS.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageHTML.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageJava.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageJavaScript.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguagePython.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageTypeScript.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterParser.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterSymbol.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterSymbolDefines.h" />
+    <ClInclude Include="..\LazyBugSource\Utils.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_File.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_SearchFile.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_FindInFile.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Skill.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_SolutionDump.h" />
     <ClInclude Include="stdh.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\extlib\lucene\include\lucene++\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lib_TreeSitterParsers\Lib_TreeSitterParsers.vcxproj">
+      <Project>{41b93e30-350b-423f-a24e-31225f4e87fb}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

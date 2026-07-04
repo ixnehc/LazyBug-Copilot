@@ -12,7 +12,7 @@
 
 #include "RDTEventsListener.h"
 
-#include "../Proj_LazyBug/SolutionDump.h"
+#include "../LazyBugSource/SolutionDump.h"
 
 #include <vssolutn.h> // For IVsSolution
 #include <dte.h>      // For DTE

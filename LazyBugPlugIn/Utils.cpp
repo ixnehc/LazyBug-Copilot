@@ -14,7 +14,7 @@ extern std::wstring utf8_to_widechar(const char* utf8_str);
 
 #include "RDTEventsListener.h"
 
-#include "../Proj_LazyBug/SolutionDump.h"
+#include "../LazyBugSource/SolutionDump.h"
 
 #include <vssolutn.h> // For IVsSolution
 #include <dte.h>      // For DTE

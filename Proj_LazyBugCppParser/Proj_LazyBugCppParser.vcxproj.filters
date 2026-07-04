@@ -37,10 +37,10 @@
     <ClCompile Include="..\Common\stringparser\stringparser.cpp">
       <Filter>commons\_stringparser</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp">
+    <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp">
+    <ClCompile Include="..\LazyBugSource\CppySymbolParserCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\timer\profiler.cpp">
@@ -49,13 +49,13 @@
     <ClCompile Include="..\Common\timer\timer.cpp">
       <Filter>commons\_timer</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils_File.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,7 +75,7 @@
     <ClInclude Include="..\Common\stringparser\stringparser.h">
       <Filter>commons\_stringparser</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h">
+    <ClInclude Include="..\LazyBugSource\CppSymbolDefines.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\timer\profiler.h">
@@ -84,13 +84,13 @@
     <ClInclude Include="..\Common\timer\timer.h">
       <Filter>commons\_timer</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils.h">
+    <ClInclude Include="..\LazyBugSource\Utils.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils_File.h">
+    <ClInclude Include="..\LazyBugSource\Utils_File.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h">
+    <ClInclude Include="..\LazyBugSource\Utils_FindInFile.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
   </ItemGroup>

@@ -226,11 +226,11 @@
     <ClCompile Include="..\Common\stringparser\stringparser.cpp" />
     <ClCompile Include="..\Common\timer\profiler.cpp" />
     <ClCompile Include="..\Common\timer\timer.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp" />
+    <ClCompile Include="..\LazyBugSource\CppySymbolParserCore.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_File.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp" />
     <ClCompile Include="Proj_LazyBugCppParser.cpp">
       <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ProgramDatabase</DebugInformationFormat>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Disabled</Optimization>
@@ -250,10 +250,10 @@
     <ClInclude Include="..\Common\stringparser\stringparser.h" />
     <ClInclude Include="..\Common\timer\profiler.h" />
     <ClInclude Include="..\Common\timer\timer.h" />
-    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_File.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h" />
+    <ClInclude Include="..\LazyBugSource\CppSymbolDefines.h" />
+    <ClInclude Include="..\LazyBugSource\Utils.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_File.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_FindInFile.h" />
     <ClInclude Include="stdh.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

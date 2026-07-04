@@ -2,7 +2,7 @@
 
 #include "codediff/CodeDiff.h"
 
-#include "../Proj_LazyBug/FileChange.h"
+#include "../LazyBugSource/FileChange.h"
 
 
 class CCommandFilter;

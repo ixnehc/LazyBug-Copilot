@@ -15,7 +15,7 @@ using namespace VSL;
 
 #include "../LazyBugPlugInControls/LazyBugPlugInControlsExport.h"
 
-#include "../Proj_LazyBug/SolutionDump.h"
+#include "../LazyBugSource/SolutionDump.h"
 
 #include "Utils.h"
 

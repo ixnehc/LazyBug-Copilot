@@ -42,9 +42,9 @@ using json = nlohmann::ordered_json;
 
 //#define LOCAL_SOLUTIONDB_SERVICE
 
-#include "../Proj_LazyBug/CoreDefines.h"
+#include "../LazyBugSource/CoreDefines.h"
 
-#include "../Proj_LazyBug/LazyBugConfig.h"
+#include "../LazyBugSource/LazyBugConfig.h"
 
 #define DISABLE_WEBVIEW_CONTEXTMENU
 

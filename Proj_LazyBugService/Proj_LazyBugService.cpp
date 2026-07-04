@@ -5,7 +5,7 @@
 #include <tlhelp32.h>
 #include <tchar.h>
 
-#include "../Proj_LazyBug/SolutionDBService.h"
+#include "../LazyBugSource/SolutionDBService.h"
 
 #include "stringparser/stringparser.h"
 

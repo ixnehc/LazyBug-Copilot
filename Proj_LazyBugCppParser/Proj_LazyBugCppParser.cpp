@@ -15,9 +15,9 @@
 #include <fstream>
 // 包含所需的头文件
 #include "../Common/datapacket/DataPacket.h"
-#include "../Proj_LazyBug/CppSymbolDefines.h"
-#include "../Proj_LazyBug/SolutionDBDefines.h"
-#include "../Proj_LazyBug/Utils_File.h"
+#include "../LazyBugSource/CppSymbolDefines.h"
+#include "../LazyBugSource/SolutionDBDefines.h"
+#include "../LazyBugSource/Utils_File.h"
 
 #include <clang-c/Index.h>
 #include <clang-c/CXString.h>

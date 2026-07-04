@@ -2,7 +2,7 @@
 
 #include "Package.h"
 
-#include "../Proj_LazyBug/SolutionDump.h"
+#include "../LazyBugSource/SolutionDump.h"
 
 #include "Utils.h"
 

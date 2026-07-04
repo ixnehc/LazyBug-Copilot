@@ -190,133 +190,133 @@
     <ClCompile Include="..\Common\xml\tinyxmlparser.cpp">
       <Filter>common\_xml</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp">
+    <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp">
       <Filter>Core\CppSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\CppSymbolParser.cpp">
+    <ClCompile Include="..\LazyBugSource\CppSymbolParser.cpp">
       <Filter>Core\CppSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\CppSymbol.cpp">
+    <ClCompile Include="..\LazyBugSource\CppSymbol.cpp">
       <Filter>Core\CppSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\CppySymbolParserCore.cpp">
+    <ClCompile Include="..\LazyBugSource\CppySymbolParserCore.cpp">
       <Filter>Core\CppSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\StringPool.cpp">
+    <ClCompile Include="..\LazyBugSource\StringPool.cpp">
       <Filter>Core\CppSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp">
+    <ClCompile Include="..\LazyBugSource\NameIndexer.cpp">
       <Filter>Core\NameIndexer</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\ProjSetting.cpp">
+    <ClCompile Include="..\LazyBugSource\ProjSetting.cpp">
       <Filter>Core\SolutionDB</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBs.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDBs.cpp">
       <Filter>Core\SolutionDB</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDB.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDB.cpp">
       <Filter>Core\SolutionDB</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBApi.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDBApi.cpp">
       <Filter>Core\SolutionDBService</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDBClient.cpp">
       <Filter>Core\SolutionDBService</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDBMsgs.cpp">
       <Filter>Core\SolutionDBService</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBServer.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDBServer.cpp">
       <Filter>Core\SolutionDBService</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBService.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDBService.cpp">
       <Filter>Core\SolutionDBService</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\filewatcher\FoldersWatcher.cpp">
       <Filter>common\_filewatcher</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\CoreDefines.cpp">
+    <ClCompile Include="..\LazyBugSource\CoreDefines.cpp">
       <Filter>Core</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionIndexerImpl_Xapian.cpp">
       <Filter>Core\SolutionDB\SolutionIndexer</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionIndexerImpl_Lucene.cpp">
       <Filter>Core\SolutionDB\SolutionIndexer</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionIndexer.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionIndexer.cpp">
       <Filter>Core\SolutionDB\SolutionIndexer</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionScanner.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionScanner.cpp">
       <Filter>Core\SolutionDB\SolutionScanner</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp">
+    <ClCompile Include="..\LazyBugSource\SolutionDump.cpp">
       <Filter>Core\SolutionDB</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils_SolutionDump.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp">
+    <ClCompile Include="..\LazyBugSource\ProjFileScanner.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils_File.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguage.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguage.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCpp.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageCpp.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterParser.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterParser.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbol.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterSymbol.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterSymbolDefines.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterSymbolDefines.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageCSharp.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils_SearchFile.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils_SearchFile.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp">
+    <ClCompile Include="..\LazyBugSource\LlmSkills.cpp">
       <Filter>Core\Llm</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp">
+    <ClCompile Include="..\LazyBugSource\Utils_Skill.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\EmbeddingDB.cpp">
+    <ClCompile Include="..\LazyBugSource\EmbeddingDB.cpp">
       <Filter>Core\EmbeddingDB</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\embeddinggenerator.cpp">
+    <ClCompile Include="..\LazyBugSource\embeddinggenerator.cpp">
       <Filter>Core\EmbeddingDB</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageJavaScript.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageCSS.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageCSS.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageHTML.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageHTML.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguagePython.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguagePython.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageTypeScript.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterLanguageJava.cpp">
+    <ClCompile Include="..\LazyBugSource\TreeSitterLanguageJava.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
   </ItemGroup>
@@ -414,61 +414,61 @@
     <ClInclude Include="..\Common\xml\tinyxml.h">
       <Filter>common\_xml</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h">
+    <ClInclude Include="..\LazyBugSource\CppSymbolDefines.h">
       <Filter>Core\CppSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\CppSymbolParser.h">
+    <ClInclude Include="..\LazyBugSource\CppSymbolParser.h">
       <Filter>Core\CppSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\CppSymbol.h">
+    <ClInclude Include="..\LazyBugSource\CppSymbol.h">
       <Filter>Core\CppSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\StringPool.h">
+    <ClInclude Include="..\LazyBugSource\StringPool.h">
       <Filter>Core\CppSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\NameIndexer.h">
+    <ClInclude Include="..\LazyBugSource\NameIndexer.h">
       <Filter>Core\NameIndexer</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBDefines.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDBDefines.h">
       <Filter>Core\SolutionDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\ProjSetting.h">
+    <ClInclude Include="..\LazyBugSource\ProjSetting.h">
       <Filter>Core\SolutionDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBs.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDBs.h">
       <Filter>Core\SolutionDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDB.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDB.h">
       <Filter>Core\SolutionDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBApi.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDBApi.h">
       <Filter>Core\SolutionDBService</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDBMsgs.h">
       <Filter>Core\SolutionDBService</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDBClient.h">
       <Filter>Core\SolutionDBService</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\PipeMsg.h">
+    <ClInclude Include="..\LazyBugSource\PipeMsg.h">
       <Filter>Core\SolutionDBService</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBServer.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDBServer.h">
       <Filter>Core\SolutionDBService</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBService.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDBService.h">
       <Filter>Core\SolutionDBService</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\filewatcher\FoldersWatcher.h">
       <Filter>common\_filewatcher</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\CoreDefines.h">
+    <ClInclude Include="..\LazyBugSource\CoreDefines.h">
       <Filter>Core</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Xapian.h">
+    <ClInclude Include="..\LazyBugSource\SolutionIndexerImpl_Xapian.h">
       <Filter>Core\SolutionDB\SolutionIndexer</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionIndexerImpl_Lucene.h">
+    <ClInclude Include="..\LazyBugSource\SolutionIndexerImpl_Lucene.h">
       <Filter>Core\SolutionDB\SolutionIndexer</Filter>
     </ClInclude>
     <ClInclude Include="..\extlib\lucene\include\lucene++\AbstractAllTermDocs.h">
@@ -1638,82 +1638,82 @@
     <ClInclude Include="..\extlib\lucene\include\lucene++\WordlistLoader.h">
       <Filter>Core\SolutionDB\_Lucene</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionIndexer.h">
+    <ClInclude Include="..\LazyBugSource\SolutionIndexer.h">
       <Filter>Core\SolutionDB\SolutionIndexer</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionScanner.h">
+    <ClInclude Include="..\LazyBugSource\SolutionScanner.h">
       <Filter>Core\SolutionDB\SolutionScanner</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h">
+    <ClInclude Include="..\LazyBugSource\SolutionDump.h">
       <Filter>Core\SolutionDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils.h">
+    <ClInclude Include="..\LazyBugSource\Utils.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h">
+    <ClInclude Include="..\LazyBugSource\ProjFileScanner.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils_File.h">
+    <ClInclude Include="..\LazyBugSource\Utils_File.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h">
+    <ClInclude Include="..\LazyBugSource\Utils_FindInFile.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h">
+    <ClInclude Include="..\LazyBugSource\Utils_SolutionDump.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguage.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguage.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCpp.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageCpp.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterParser.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterParser.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbol.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterSymbol.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterSymbolDefines.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterSymbolDefines.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSharp.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageCSharp.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils_SearchFile.h">
+    <ClInclude Include="..\LazyBugSource\Utils_SearchFile.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\LlmSkills.h">
+    <ClInclude Include="..\LazyBugSource\LlmSkills.h">
       <Filter>Core\Llm</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h">
+    <ClInclude Include="..\LazyBugSource\Utils_Skill.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\EmbeddingDB.h">
+    <ClInclude Include="..\LazyBugSource\EmbeddingDB.h">
       <Filter>Core\EmbeddingDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\embeddinggenerator.h">
+    <ClInclude Include="..\LazyBugSource\embeddinggenerator.h">
       <Filter>Core\EmbeddingDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\embeddingtypes.h">
+    <ClInclude Include="..\LazyBugSource\embeddingtypes.h">
       <Filter>Core\EmbeddingDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJavaScript.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageJavaScript.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageCSS.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageCSS.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageHTML.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageHTML.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageJava.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageJava.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguagePython.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguagePython.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterLanguageTypeScript.h">
+    <ClInclude Include="..\LazyBugSource\TreeSitterLanguageTypeScript.h">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClInclude>
   </ItemGroup>

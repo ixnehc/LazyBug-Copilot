@@ -8,7 +8,7 @@
 #include "Registry/Registry.h"
 #include "stringparser/stringparser.h"
 
-#include "../Proj_LazyBug/SolutionDBApi.h"
+#include "../LazyBugSource/SolutionDBApi.h"
 
 #include <shlwapi.h>
 #include <DbgHelp.h>

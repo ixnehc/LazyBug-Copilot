@@ -42,8 +42,8 @@
 #include "math/imath_all.h"
 #include "timer/timer.h"
 
-#include "../Proj_LazyBug/LazyBugConfig.h"
-#include "../Proj_LazyBug/CoreDefines.h"
+#include "../LazyBugSource/LazyBugConfig.h"
+#include "../LazyBugSource/CoreDefines.h"
 
 #include "nlohmann/json.hpp"
 using json = nlohmann::ordered_json;

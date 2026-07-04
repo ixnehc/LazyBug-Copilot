@@ -310,8 +310,8 @@
     <ClCompile Include="..\Common\xml\tinyxml.cpp" />
     <ClCompile Include="..\Common\xml\tinyxmlerror.cpp" />
     <ClCompile Include="..\Common\xml\tinyxmlparser.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\BackupDepot.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Changelists.cpp">
+    <ClCompile Include="..\LazyBugSource\BackupDepot.cpp" />
+    <ClCompile Include="..\LazyBugSource\Changelists.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -319,7 +319,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\ChangelistsDialog.cpp">
+    <ClCompile Include="..\LazyBugSource\ChangelistsDialog.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -327,7 +327,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\ChangelistsEdit.cpp">
+    <ClCompile Include="..\LazyBugSource\ChangelistsEdit.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -335,60 +335,60 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\ChatAgent.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatBriefA.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatDialogA.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatDialogSplitter.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatFileWriter.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatHistory.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInput.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputACItemTip.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputACList.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputACListBuilder.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputACWindow.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputAutoCompleteWindow.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputHistory.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputImageTip.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputTag.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatInputTagMenuWindow.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatLlmMenu.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatMcpsTree.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatMcpTip.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatNotify.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatOpsCompress.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatOpsCtrl.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatSettingMenu.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatSettingPage.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatSkillsTree.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatSkillTip.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTaskMgr.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_CLI.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_CompressSummarize.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_CreateSkill.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_FastApply.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_FindInFiles.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_InputAutoComplete.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_Mcp.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_QueryFinish.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_Question.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_ReadFile.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_ReplaceInFile.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_ResolveSymbolLinks.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_SearchFile.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTask_VerifyLlmApiProvider.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTitleMenu.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatTokenStats.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ChatUi.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Checkpoints.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CheckpointsFileChange.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CliWhitelist.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CodingHistory.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CoreDefines.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\CppSymbolDefines.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\FileChange.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\FileLocator.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\GuiActor_Changelists.cpp">
+    <ClCompile Include="..\LazyBugSource\ChatAgent.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatBriefA.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatDialogA.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatDialogSplitter.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatFileWriter.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatHistory.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInput.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputACItemTip.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputACList.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputACListBuilder.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputACWindow.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputAutoCompleteWindow.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputHistory.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputImageTip.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputTag.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatInputTagMenuWindow.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatLlmMenu.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatMcpsTree.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatMcpTip.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatNotify.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatOpsCompress.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatOpsCtrl.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatSettingMenu.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatSettingPage.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatSkillsTree.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatSkillTip.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTaskMgr.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_CLI.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_CompressSummarize.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_CreateSkill.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_FastApply.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_FindInFiles.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_FindSymbolDefine.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_InputAutoComplete.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_Mcp.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_QueryFinish.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_Question.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_ReadFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_ReplaceInFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_ResolveSymbolLinks.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_SearchFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_VerifyLlmApiProvider.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTitleMenu.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTokenStats.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatUi.cpp" />
+    <ClCompile Include="..\LazyBugSource\Checkpoints.cpp" />
+    <ClCompile Include="..\LazyBugSource\CheckpointsFileChange.cpp" />
+    <ClCompile Include="..\LazyBugSource\CliWhitelist.cpp" />
+    <ClCompile Include="..\LazyBugSource\CodingHistory.cpp" />
+    <ClCompile Include="..\LazyBugSource\CoreDefines.cpp" />
+    <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp" />
+    <ClCompile Include="..\LazyBugSource\FileChange.cpp" />
+    <ClCompile Include="..\LazyBugSource\FileLocator.cpp" />
+    <ClCompile Include="..\LazyBugSource\GuiActor_Changelists.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -396,7 +396,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\GuiAgent_Changelists.cpp">
+    <ClCompile Include="..\LazyBugSource\GuiAgent_Changelists.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -404,7 +404,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\GuiData_Changelists.cpp">
+    <ClCompile Include="..\LazyBugSource\GuiData_Changelists.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -412,7 +412,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\GuiView_Changelists.cpp">
+    <ClCompile Include="..\LazyBugSource\GuiView_Changelists.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -420,22 +420,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\LlmChat.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmFormatter.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmLib.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmLibLoader.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmMcps.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmMcpServers.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmProcessors.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmSession.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmSkills.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LlmTools.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\LspClient.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\McpUpdater.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\NameIndexer.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\ProjFileScanner.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\RepairWnd.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\RepairWndG.cpp">
+    <ClCompile Include="..\LazyBugSource\LlmChat.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmFormatter.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmLib.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmLibLoader.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmMcps.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmMcpServers.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmProcessors.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmSession.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmSkills.cpp" />
+    <ClCompile Include="..\LazyBugSource\LlmTools.cpp" />
+    <ClCompile Include="..\LazyBugSource\LspClient.cpp" />
+    <ClCompile Include="..\LazyBugSource\McpUpdater.cpp" />
+    <ClCompile Include="..\LazyBugSource\NameIndexer.cpp" />
+    <ClCompile Include="..\LazyBugSource\ProjFileScanner.cpp" />
+    <ClCompile Include="..\LazyBugSource\RepairWnd.cpp" />
+    <ClCompile Include="..\LazyBugSource\RepairWndG.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -443,27 +443,28 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\ReplaceChunks.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SmartRepair.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SmartRepairRefCollector.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SmartRepairTrigger.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBApi.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBClient.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDBMsgs.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SymbolRefsCache.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TokenCalibrate.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\TreeSitterFiles.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\UnifiedDiff.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_Bash.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_CliWhitelist.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_Context.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_File.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_FindInFile.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_Image.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_Mcp.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_Skill.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\Utils_SolutionDump.cpp" />
+    <ClCompile Include="..\LazyBugSource\ReplaceChunks.cpp" />
+    <ClCompile Include="..\LazyBugSource\SmartRepair.cpp" />
+    <ClCompile Include="..\LazyBugSource\SmartRepairRefCollector.cpp" />
+    <ClCompile Include="..\LazyBugSource\SmartRepairTrigger.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBApi.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBClient.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDBMsgs.cpp" />
+    <ClCompile Include="..\LazyBugSource\SymbolRefsCache.cpp" />
+    <ClCompile Include="..\LazyBugSource\TokenCalibrate.cpp" />
+    <ClCompile Include="..\LazyBugSource\TreeSitterFiles.cpp" />
+    <ClCompile Include="..\LazyBugSource\UnifiedDiff.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Bash.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_CliWhitelist.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Context.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_File.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Image.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_InputComplete.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Mcp.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Skill.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_SolutionDump.cpp" />
     <ClCompile Include="LazyBugPlugInControls.cpp" />
     <ClCompile Include="LazyBugPlugInControlsExport.cpp" />
     <ClCompile Include="stdh.cpp">
@@ -476,15 +477,15 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Proj_LazyBug\ChatCtrl.html" />
-    <None Include="..\Proj_LazyBug\ChatInput.html" />
-    <None Include="..\Proj_LazyBug\ChatMcpsTree.html" />
-    <None Include="..\Proj_LazyBug\ChatMcpTip.html" />
-    <None Include="..\Proj_LazyBug\ChatSettingMenu.html" />
-    <None Include="..\Proj_LazyBug\ChatSettingPage.html" />
-    <None Include="..\Proj_LazyBug\ChatSkillsTree.html" />
-    <None Include="..\Proj_LazyBug\ChatSkillTip.html" />
-    <None Include="..\Proj_LazyBug\RepairWnd.html" />
+    <None Include="..\LazyBugSource\ChatCtrl.html" />
+    <None Include="..\LazyBugSource\ChatInput.html" />
+    <None Include="..\LazyBugSource\ChatMcpsTree.html" />
+    <None Include="..\LazyBugSource\ChatMcpTip.html" />
+    <None Include="..\LazyBugSource\ChatSettingMenu.html" />
+    <None Include="..\LazyBugSource\ChatSettingPage.html" />
+    <None Include="..\LazyBugSource\ChatSkillsTree.html" />
+    <None Include="..\LazyBugSource\ChatSkillTip.html" />
+    <None Include="..\LazyBugSource\RepairWnd.html" />
     <None Include="LazyBugPlugInControls.def" />
     <None Include="packages.config" />
     <None Include="res\LazyBugPlugInControls.rc2" />
@@ -523,10 +524,11 @@
     <ClInclude Include="..\Common\timer\timer.h" />
     <ClInclude Include="..\Common\xml\tinyxml.h" />
     <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_InputComplete.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2EnvironmentOptions.h" />
-    <ClInclude Include="..\Proj_LazyBug\BackupDepot.h" />
-    <ClInclude Include="..\Proj_LazyBug\Changelists.h">
+    <ClInclude Include="..\LazyBugSource\BackupDepot.h" />
+    <ClInclude Include="..\LazyBugSource\Changelists.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -534,7 +536,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\ChangelistsDialog.h">
+    <ClInclude Include="..\LazyBugSource\ChangelistsDialog.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -542,7 +544,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\ChangelistsEdit.h">
+    <ClInclude Include="..\LazyBugSource\ChangelistsEdit.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -550,62 +552,62 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\ChatAgent.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatAgentDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatBriefA.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatDialogA.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatDialogSplitter.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatFileWriter.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatHistory.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInput.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputACItem.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputACItemTip.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputACList.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputACListBuilder.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputACWindow.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputAutoCompleteWindow.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputHistory.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputImageTip.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputTag.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatInputTagMenuWindow.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatLlmMenu.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatMcpsTree.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatMcpTip.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatNotify.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatOpsCompress.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatOpsCtrl.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatSettingMenu.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatSettingPage.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatSkillsTree.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatSkillTip.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTaskMgr.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_CLI.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_CompressSummarize.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_CreateSkill.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_FastApply.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_FindInFiles.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_FindSymbolDefine.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_InputAutoComplete.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_Mcp.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_QueryFinish.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_Question.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_ReadFile.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_ReplaceInFile.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_ResolveSymbolLinks.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_SearchFile.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTask_VerifyLlmApiProvider.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTitleMenu.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatTokenStats.h" />
-    <ClInclude Include="..\Proj_LazyBug\ChatUi.h" />
-    <ClInclude Include="..\Proj_LazyBug\Checkpoints.h" />
-    <ClInclude Include="..\Proj_LazyBug\CheckpointsFileChange.h" />
-    <ClInclude Include="..\Proj_LazyBug\CliWhitelist.h" />
-    <ClInclude Include="..\Proj_LazyBug\CodingHistory.h" />
-    <ClInclude Include="..\Proj_LazyBug\CoreDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\CppSymbolDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\FileChange.h" />
-    <ClInclude Include="..\Proj_LazyBug\FileLocator.h" />
-    <ClInclude Include="..\Proj_LazyBug\GuiActor_Changelists.h">
+    <ClInclude Include="..\LazyBugSource\ChatAgent.h" />
+    <ClInclude Include="..\LazyBugSource\ChatAgentDefines.h" />
+    <ClInclude Include="..\LazyBugSource\ChatBriefA.h" />
+    <ClInclude Include="..\LazyBugSource\ChatDialogA.h" />
+    <ClInclude Include="..\LazyBugSource\ChatDialogSplitter.h" />
+    <ClInclude Include="..\LazyBugSource\ChatFileWriter.h" />
+    <ClInclude Include="..\LazyBugSource\ChatHistory.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInput.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputACItem.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputACItemTip.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputACList.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputACListBuilder.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputACWindow.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputAutoCompleteWindow.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputHistory.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputImageTip.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputTag.h" />
+    <ClInclude Include="..\LazyBugSource\ChatInputTagMenuWindow.h" />
+    <ClInclude Include="..\LazyBugSource\ChatLlmMenu.h" />
+    <ClInclude Include="..\LazyBugSource\ChatMcpsTree.h" />
+    <ClInclude Include="..\LazyBugSource\ChatMcpTip.h" />
+    <ClInclude Include="..\LazyBugSource\ChatNotify.h" />
+    <ClInclude Include="..\LazyBugSource\ChatOpsCompress.h" />
+    <ClInclude Include="..\LazyBugSource\ChatOpsCtrl.h" />
+    <ClInclude Include="..\LazyBugSource\ChatSettingMenu.h" />
+    <ClInclude Include="..\LazyBugSource\ChatSettingPage.h" />
+    <ClInclude Include="..\LazyBugSource\ChatSkillsTree.h" />
+    <ClInclude Include="..\LazyBugSource\ChatSkillTip.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTaskMgr.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_CLI.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_CompressSummarize.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_CreateSkill.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_FastApply.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_FindInFiles.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_FindSymbolDefine.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_InputAutoComplete.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_Mcp.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_QueryFinish.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_Question.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_ReadFile.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_ReplaceInFile.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_ResolveSymbolLinks.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_SearchFile.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_VerifyLlmApiProvider.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTitleMenu.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTokenStats.h" />
+    <ClInclude Include="..\LazyBugSource\ChatUi.h" />
+    <ClInclude Include="..\LazyBugSource\Checkpoints.h" />
+    <ClInclude Include="..\LazyBugSource\CheckpointsFileChange.h" />
+    <ClInclude Include="..\LazyBugSource\CliWhitelist.h" />
+    <ClInclude Include="..\LazyBugSource\CodingHistory.h" />
+    <ClInclude Include="..\LazyBugSource\CoreDefines.h" />
+    <ClInclude Include="..\LazyBugSource\CppSymbolDefines.h" />
+    <ClInclude Include="..\LazyBugSource\FileChange.h" />
+    <ClInclude Include="..\LazyBugSource\FileLocator.h" />
+    <ClInclude Include="..\LazyBugSource\GuiActor_Changelists.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -613,7 +615,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\GuiAgent_Changelists.h">
+    <ClInclude Include="..\LazyBugSource\GuiAgent_Changelists.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -621,7 +623,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\GuiData_Changelists.h">
+    <ClInclude Include="..\LazyBugSource\GuiData_Changelists.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -629,7 +631,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\GuiView_Changelists.h">
+    <ClInclude Include="..\LazyBugSource\GuiView_Changelists.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -637,23 +639,23 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\LazyBugConfig.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmChat.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmFormatter.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmLib.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmLibLoader.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmMcps.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmMcpServers.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmProcessors.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmSession.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmSkills.h" />
-    <ClInclude Include="..\Proj_LazyBug\LlmTools.h" />
-    <ClInclude Include="..\Proj_LazyBug\McpUpdater.h" />
-    <ClInclude Include="..\Proj_LazyBug\NameIndexer.h" />
-    <ClInclude Include="..\Proj_LazyBug\PipeMsg.h" />
-    <ClInclude Include="..\Proj_LazyBug\ProjFileScanner.h" />
-    <ClInclude Include="..\Proj_LazyBug\RepairWnd.h" />
-    <ClInclude Include="..\Proj_LazyBug\RepairWndG.h">
+    <ClInclude Include="..\LazyBugSource\LazyBugConfig.h" />
+    <ClInclude Include="..\LazyBugSource\LlmChat.h" />
+    <ClInclude Include="..\LazyBugSource\LlmFormatter.h" />
+    <ClInclude Include="..\LazyBugSource\LlmLib.h" />
+    <ClInclude Include="..\LazyBugSource\LlmLibLoader.h" />
+    <ClInclude Include="..\LazyBugSource\LlmMcps.h" />
+    <ClInclude Include="..\LazyBugSource\LlmMcpServers.h" />
+    <ClInclude Include="..\LazyBugSource\LlmProcessors.h" />
+    <ClInclude Include="..\LazyBugSource\LlmSession.h" />
+    <ClInclude Include="..\LazyBugSource\LlmSkills.h" />
+    <ClInclude Include="..\LazyBugSource\LlmTools.h" />
+    <ClInclude Include="..\LazyBugSource\McpUpdater.h" />
+    <ClInclude Include="..\LazyBugSource\NameIndexer.h" />
+    <ClInclude Include="..\LazyBugSource\PipeMsg.h" />
+    <ClInclude Include="..\LazyBugSource\ProjFileScanner.h" />
+    <ClInclude Include="..\LazyBugSource\RepairWnd.h" />
+    <ClInclude Include="..\LazyBugSource\RepairWndG.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -661,28 +663,28 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\ReplaceChunks.h" />
-    <ClInclude Include="..\Proj_LazyBug\SmartRepair.h" />
-    <ClInclude Include="..\Proj_LazyBug\SmartRepairDefines.h" />
-    <ClInclude Include="..\Proj_LazyBug\SmartRepairRefCollector.h" />
-    <ClInclude Include="..\Proj_LazyBug\SmartRepairTrigger.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBApi.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBClient.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDBMsgs.h" />
-    <ClInclude Include="..\Proj_LazyBug\SymbolRefsCache.h" />
-    <ClInclude Include="..\Proj_LazyBug\TokenCalibrate.h" />
-    <ClInclude Include="..\Proj_LazyBug\TreeSitterFiles.h" />
-    <ClInclude Include="..\Proj_LazyBug\UnifiedDiff.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_Bash.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_CliWhitelist.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_Context.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_File.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_FindInFile.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_Image.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_Mcp.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_Skill.h" />
-    <ClInclude Include="..\Proj_LazyBug\Utils_SolutionDump.h" />
+    <ClInclude Include="..\LazyBugSource\ReplaceChunks.h" />
+    <ClInclude Include="..\LazyBugSource\SmartRepair.h" />
+    <ClInclude Include="..\LazyBugSource\SmartRepairDefines.h" />
+    <ClInclude Include="..\LazyBugSource\SmartRepairRefCollector.h" />
+    <ClInclude Include="..\LazyBugSource\SmartRepairTrigger.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBApi.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBClient.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDBMsgs.h" />
+    <ClInclude Include="..\LazyBugSource\SymbolRefsCache.h" />
+    <ClInclude Include="..\LazyBugSource\TokenCalibrate.h" />
+    <ClInclude Include="..\LazyBugSource\TreeSitterFiles.h" />
+    <ClInclude Include="..\LazyBugSource\UnifiedDiff.h" />
+    <ClInclude Include="..\LazyBugSource\Utils.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Bash.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_CliWhitelist.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Context.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_File.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_FindInFile.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Image.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Mcp.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Skill.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_SolutionDump.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="LazyBugPlugInControls.h" />
     <ClInclude Include="LazyBugPlugInControlsExport.h" />
@@ -694,39 +696,34 @@
     <ResourceCompile Include="LazyBugPlugInControls.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Proj_FileSystem\Proj_FileSystem.vcxproj">
-      <Project>{271041da-cbe6-4a77-8622-c1f7d3aeff66}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="..\lazybugplugin\lazybugpluginvsix\rules\chatrules_kimi_k2.txt" />
-    <Text Include="..\Proj_LazyBug\chatquestion_default.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules - 副本 (3).txt" />
-    <Text Include="..\Proj_LazyBug\chatrules - 副本.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_deepseek.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_deepseek_v2.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_deepseek_v3.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_difffile.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_existingcode _ov01.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_existingcode.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_existingcode_ov02.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_patchfile.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_repair.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_repair_fim.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_repair_rewrite.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_repair_v2.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_replace_in_file.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_replace_in_file_use_json.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_rewritefile.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_usingtools.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_ver2.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_ver3.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_ver4.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_ver5.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_ver6.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_ver8.txt" />
-    <Text Include="..\Proj_LazyBug\chatrules_warmup.txt" />
+    <Text Include="..\LazyBugSource\chatquestion_default.txt" />
+    <Text Include="..\LazyBugSource\chatrules - 副本 (3).txt" />
+    <Text Include="..\LazyBugSource\chatrules - 副本.txt" />
+    <Text Include="..\LazyBugSource\chatrules.txt" />
+    <Text Include="..\LazyBugSource\chatrules_deepseek.txt" />
+    <Text Include="..\LazyBugSource\chatrules_deepseek_v2.txt" />
+    <Text Include="..\LazyBugSource\chatrules_deepseek_v3.txt" />
+    <Text Include="..\LazyBugSource\chatrules_difffile.txt" />
+    <Text Include="..\LazyBugSource\chatrules_existingcode _ov01.txt" />
+    <Text Include="..\LazyBugSource\chatrules_existingcode.txt" />
+    <Text Include="..\LazyBugSource\chatrules_existingcode_ov02.txt" />
+    <Text Include="..\LazyBugSource\chatrules_patchfile.txt" />
+    <Text Include="..\LazyBugSource\chatrules_repair.txt" />
+    <Text Include="..\LazyBugSource\chatrules_repair_fim.txt" />
+    <Text Include="..\LazyBugSource\chatrules_repair_rewrite.txt" />
+    <Text Include="..\LazyBugSource\chatrules_repair_v2.txt" />
+    <Text Include="..\LazyBugSource\chatrules_replace_in_file.txt" />
+    <Text Include="..\LazyBugSource\chatrules_replace_in_file_use_json.txt" />
+    <Text Include="..\LazyBugSource\chatrules_rewritefile.txt" />
+    <Text Include="..\LazyBugSource\chatrules_usingtools.txt" />
+    <Text Include="..\LazyBugSource\chatrules_ver2.txt" />
+    <Text Include="..\LazyBugSource\chatrules_ver3.txt" />
+    <Text Include="..\LazyBugSource\chatrules_ver4.txt" />
+    <Text Include="..\LazyBugSource\chatrules_ver5.txt" />
+    <Text Include="..\LazyBugSource\chatrules_ver6.txt" />
+    <Text Include="..\LazyBugSource\chatrules_ver8.txt" />
+    <Text Include="..\LazyBugSource\chatrules_warmup.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
