@@ -132,7 +132,7 @@
       <StructMemberAlignment>8</StructMemberAlignment>
     </Midl>
     <ClCompile>
-      <AdditionalOptions>/Oxs</AdditionalOptions>
+      <AdditionalOptions>/Oxs /execution-charset:utf-8</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <AdditionalIncludeDirectories>.;$(Office10Include);..;..\common;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -228,7 +228,7 @@
     <ClCompile Include="..\Common\stringparser\stringparser.cpp" />
     <ClCompile Include="..\Common\timer\profiler.cpp" />
     <ClCompile Include="..\Common\timer\timer.cpp" />
-    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp" />
+    <ClCompile Include="..\LazyBugSource\SolutionDump.cpp" />
     <ClCompile Include="Guids.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeader>
@@ -261,7 +261,7 @@
     <ClInclude Include="..\Common\stringparser\stringparser.h" />
     <ClInclude Include="..\Common\timer\profiler.h" />
     <ClInclude Include="..\Common\timer\timer.h" />
-    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h" />
+    <ClInclude Include="..\LazyBugSource\SolutionDump.h" />
     <ClInclude Include="DocReloadFilter.h" />
     <ClInclude Include="CommonIncludes.h" />
     <ClInclude Include="Guids.h" />

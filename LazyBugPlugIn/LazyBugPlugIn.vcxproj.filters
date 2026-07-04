@@ -77,14 +77,14 @@
     <ClCompile Include="Utils_SolutionDump.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Proj_LazyBug\SolutionDump.cpp">
-      <Filter>Source Files\SolutionDump</Filter>
-    </ClCompile>
     <ClCompile Include="..\Common\timer\profiler.cpp">
       <Filter>common\_timer</Filter>
     </ClCompile>
     <ClCompile Include="..\Common\timer\timer.cpp">
       <Filter>common\_timer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LazyBugSource\SolutionDump.cpp">
+      <Filter>Source Files\SolutionDump</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -136,14 +136,14 @@
     <ClInclude Include="Utils.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Proj_LazyBug\SolutionDump.h">
-      <Filter>Source Files\SolutionDump</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\timer\profiler.h">
       <Filter>common\_timer</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\timer\timer.h">
       <Filter>common\_timer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\SolutionDump.h">
+      <Filter>Source Files\SolutionDump</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
