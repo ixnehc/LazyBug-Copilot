@@ -158,7 +158,10 @@ Copy:
 ## Build
 
 1. Open **`LazyBugPlugIn.sln`** in Visual Studio 2022.
-2. Select the desired configuration (**Debug** or **Release**) and platform (**x64**).
+2. Select the desired configuration:
+   - **Release** — with debug information enabled (for debugging)
+   - **Retail** — no debug information, fully optimized (for distribution)
+   - Platform: **x64**
 3. Right-click the **`LazyBugPlugInVSIX`** project in Solution Explorer and select **Build** (or **Rebuild**).
 
 The compiled VSIX extension package will be generated under `LazyBugPlugIn/LazyBugPlugInVSIX/bin/`.
