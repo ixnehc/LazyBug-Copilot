@@ -138,6 +138,12 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
 ---
 
+## Build
+
+For instructions on setting up the development environment and building from source, see **[Build Notes](doc/buildnotes.md)**.
+
+---
+
 ## Report an Issue
 
-If you encounter any bugs or have suggestions for improvement, please report [here](https://github.com/ixnehc/LazyBug-Copilot-Publish/issues). Your feedback is the driving force behind our continuous improvement!
+If you encounter any bugs or have suggestions for improvement, please report [here](https://github.com/ixnehc/LazyBug-Copilot/issues). Your feedback is the driving force behind our continuous improvement!

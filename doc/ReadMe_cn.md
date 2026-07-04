@@ -139,6 +139,12 @@ _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 
 ---
 
+## 构建
+
+有关设置开发环境和从源码构建的说明，请参阅 **[构建说明](buildnotes.md)**。
+
+---
+
 ## 报告问题
 
-如果你遇到任何 Bug 或有改进建议，请在[此处](https://github.com/ixnehc/LazyBug-Copilot-Publish/issues)报告。你的反馈是我们持续改进的动力！
+如果你遇到任何 Bug 或有改进建议，请在[此处](https://github.com/ixnehc/LazyBug-Copilot/issues)报告。你的反馈是我们持续改进的动力！
