@@ -187,7 +187,8 @@
     </Link>
     <CustomBuildStep>
       <Outputs>LazyBugCppParser_RL.exe;%(Outputs)</Outputs>
-      <Command>copy $(OutDir)LazyBugCppParser_RL.exe $(SolutionDir)bin\LazyBugCppParser_RL.exe</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">
@@ -217,7 +218,8 @@
     </Link>
     <CustomBuildStep>
       <Outputs>LazyBugCppParser.exe;%(Outputs)</Outputs>
-      <Command>copy $(OutDir)LazyBugCppParser.exe $(SolutionDir)retail\LazyBugCppParser.exe</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
