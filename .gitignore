@@ -15,6 +15,7 @@
 !LazyBugPlugIn.sln
 !ReadMe.md
 !VsSDK.props
+!LICENSE
 
 # ---- Step 4: Whitelisted directories (recursive) ----
 !Common/
