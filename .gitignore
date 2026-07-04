@@ -14,6 +14,7 @@
 # ---- Step 3: Whitelisted root files ----
 !LazyBugPlugIn.sln
 !ReadMe.md
+!VsSDK.props
 
 # ---- Step 4: Whitelisted directories (recursive) ----
 !Common/
