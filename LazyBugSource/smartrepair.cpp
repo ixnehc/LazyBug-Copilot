@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "SmartRepair.h"
 
 #include "stringparser/stringparser.h"

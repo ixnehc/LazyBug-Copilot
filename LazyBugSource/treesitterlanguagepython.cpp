@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "TreeSitterLanguagePython.h"
 
 // TreeSitter C接口

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "ChatTaskMgr.h"
 #include "LlmChat.h"
 #include <string>

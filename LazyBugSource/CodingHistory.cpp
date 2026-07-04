@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 
 #include "CodingHistory.h"
 #include "../Common/codediff/dmp_diff.h"

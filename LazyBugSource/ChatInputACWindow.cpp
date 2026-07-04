@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "ChatInputACWindow.h"
 #include "ChatInput.h"
 #include <algorithm>

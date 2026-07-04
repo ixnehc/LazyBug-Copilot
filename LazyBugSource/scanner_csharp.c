@@ -1,4 +1,4 @@
-#include "tree_sitter/alloc.h"
+﻿#include "tree_sitter/alloc.h"
 #include "tree_sitter/array.h"
 #include "tree_sitter/parser.h"
 

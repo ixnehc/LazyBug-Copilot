@@ -1,4 +1,4 @@
-// ChatInputACExample.cpp - 自动补全功能使用示例
+﻿// ChatInputACExample.cpp - 自动补全功能使用示例
 // 本文件展示如何在ChatInput中使用自动补全功能
 
 #include "stdh.h"

@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "embeddinggenerator.h"
 #include "Utils_File.h"
 #include "Utils.h"

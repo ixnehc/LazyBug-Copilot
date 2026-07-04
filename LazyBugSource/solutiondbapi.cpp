@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include <memory>
 #include <tlhelp32.h>
 #include "SolutionDBClient.h"

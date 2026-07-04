@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "StringPool.h"
 #include "CppSymbol.h"
 #include "stringparser/stringparser.h"

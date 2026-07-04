@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 //#include "GuiLib.h"
 #include "afxwin.h"

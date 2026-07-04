@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "TreeSitterLanguageHTML.h"
 
 // TreeSitter C接口

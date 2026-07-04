@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "TreeSitterLanguageTypeScript.h"
 #include "Utils.h"
 #include "stringparser/stringparser.h"

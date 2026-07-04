@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define AUTO_HIDE_TIMER_ID  1
 #define AUTO_HIDE_DELAY_MS  10000

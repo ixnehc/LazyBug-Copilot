@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "SolutionDBMsgs.h"
 
 PipeMsgPtr CreateSolutionDBMsg(PipeMsgType type)

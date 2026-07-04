@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "chatinputautocompletewindow.h"
 
 extern std::wstring utf8_to_widechar(const char* utf8_str);

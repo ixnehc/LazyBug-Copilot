@@ -1,4 +1,4 @@
-// ChatInputExample.cpp - CChatInput使用示例
+﻿// ChatInputExample.cpp - CChatInput使用示例
 
 #include "stdh.h"
 #include "ChatInput.h"

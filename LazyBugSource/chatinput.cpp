@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "ChatInput.h"
 #include "stringparser/stringparser.h"
 #include "timer/wuid.h"

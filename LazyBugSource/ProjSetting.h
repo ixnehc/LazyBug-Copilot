@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "timer/wuid.h"
 #include <mutex>

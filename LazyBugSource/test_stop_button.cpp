@@ -1,4 +1,4 @@
-// test_stop_button.cpp - 停止按钮功能测试示例
+﻿// test_stop_button.cpp - 停止按钮功能测试示例
 
 #include "stdh.h"
 #include "ChatCtrl.h"

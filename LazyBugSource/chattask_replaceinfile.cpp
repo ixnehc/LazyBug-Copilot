@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "ChatTask_ReplaceInFile.h"
 #include <algorithm>
 #include <cstring>

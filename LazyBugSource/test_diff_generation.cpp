@@ -1,4 +1,4 @@
-#include "ChatTask_FastApply.h"
+﻿#include "ChatTask_FastApply.h"
 #include <iostream>
 
 // 声明静态函数

@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "ChatSettingPage.h"
 #include <fstream>
 #include <algorithm>

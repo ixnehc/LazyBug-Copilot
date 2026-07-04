@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "filewatcher/filewatcher.h"
 #include <string>
 

@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "ChatInputACItemTip.h"
 #include <algorithm>
 #include <cctype>

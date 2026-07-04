@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 
 #include "SymbolRefsCache.h"
 #include "SolutionDBApi.h"

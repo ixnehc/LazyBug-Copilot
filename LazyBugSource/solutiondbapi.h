@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "PipeMsg.h"
 #include <string>
