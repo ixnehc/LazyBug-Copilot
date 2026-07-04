@@ -51,7 +51,7 @@ with the conditions of Sections 4(a), 4(b) and 4(d) of the License.
 - **Usage:** Used as the incremental parsing framework for syntax analysis.
 
 ```
-Copyright (c) 2013-2025 Max Brunsfeld and contributors
+Copyright (c) 2018 Max Brunsfeld
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -110,9 +110,10 @@ copies or substantial portions of the Software.
 ## Lucene++
 
 - **Component:** Lucene++ (C++ port of Apache Lucene)
-- **License:** Apache License 2.0 / LGPL 2.1 (dual-licensed)
+- **License:** Apache License 2.0 / LGPL v3 (dual-licensed)
 - **Website:** https://github.com/luceneplusplus/LucenePlusPlus
 - **Usage:** Used for full-text search and indexing functionality.
+- **License files:** [APACHE.license](https://raw.githubusercontent.com/luceneplusplus/LucenePlusPlus/master/APACHE.license), [COPYING](https://raw.githubusercontent.com/luceneplusplus/LucenePlusPlus/master/COPYING), [LGPL.license](https://raw.githubusercontent.com/luceneplusplus/LucenePlusPlus/master/LGPL.license)
 
 ```
                                  Apache License
@@ -134,7 +135,7 @@ copies or substantial portions of the Software.
 ```
 COPYRIGHT AND PERMISSION NOTICE
 
-Copyright (c) 1996 - 2025, Daniel Stenberg, <daniel@haxx.se>, and many
+Copyright (c) 1996 - 2026, Daniel Stenberg, <daniel@haxx.se>, and many
 contributors, see the THANKS file.
 
 All rights reserved.
@@ -158,7 +159,7 @@ notice and this permission notice appear in all copies.
 ```
 MIT License
 
-Copyright (c) 2013-2025 Niels Lohmann
+Copyright (c) 2013-2026 Niels Lohmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -234,6 +235,7 @@ See Apache 2.0 full text above or at http://www.apache.org/licenses/LICENSE-2.0
 - **Component:** RVO2 Library
 - **License:** Apache License 2.0
 - **Source:** https://github.com/snape/RVO2
+- **License URL:** https://raw.githubusercontent.com/snape/RVO2/main/LICENSE
 - **Usage:** Used for collision avoidance calculations. Included in `Common/rvo2/`.
 
 ```
