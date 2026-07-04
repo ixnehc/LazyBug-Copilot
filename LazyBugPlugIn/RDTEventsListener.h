@@ -1,4 +1,4 @@
-// Package.h
+﻿// Package.h
 
 #pragma once
 #include <atlbase.h>    // For CComObjectRootEx, CComCoClass, etc. (if making it a COM object)

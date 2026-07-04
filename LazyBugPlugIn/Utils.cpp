@@ -1,4 +1,4 @@
-#include "stdh.h" // Common header, adjust if your project uses a different one
+﻿#include "stdh.h" // Common header, adjust if your project uses a different one
 #include <vsshell.h> // For IVsShell, IVsUIShell5 etc.
 
 // UTF-8 转宽字符函数声明

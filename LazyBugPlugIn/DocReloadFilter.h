@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <oleidl.h>   // For IOleCommandTarget
 #include <unknwn.h>   // For IUnknown

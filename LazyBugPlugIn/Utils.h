@@ -1,4 +1,4 @@
-//
+﻿//
 // LazyBugChangelistsWindow.h
 //
 // This file contains the implementation of a new tool window

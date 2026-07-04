@@ -1,4 +1,4 @@
-#include "stdh.h" // Common header, adjust if your project uses a different one
+﻿#include "stdh.h" // Common header, adjust if your project uses a different one
 
 #include "guids.h"
 #include "LazyBugChangelistsWindow.h"

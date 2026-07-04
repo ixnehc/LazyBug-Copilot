@@ -1,4 +1,4 @@
-//
+﻿//
 // MyToolWindow.h
 //
 // This file contains the implementation of a tool window that hosts a .NET user control
