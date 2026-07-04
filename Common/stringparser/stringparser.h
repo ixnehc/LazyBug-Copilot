@@ -1,4 +1,4 @@
-// STRINGPARSER.h: interface for the CSTRINGPARSER class.
+﻿// STRINGPARSER.h: interface for the CSTRINGPARSER class.
 //
 //////////////////////////////////////////////////////////////////////
 
