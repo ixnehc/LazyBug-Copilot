@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "resource.h"
 #include "LazyBugPlugInControlsExport.h"
 

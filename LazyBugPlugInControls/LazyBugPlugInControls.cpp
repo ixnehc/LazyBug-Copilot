@@ -1,4 +1,4 @@
-// LazyBugPlugInControls.cpp : Defines the initialization routines for the DLL.
+﻿// LazyBugPlugInControls.cpp : Defines the initialization routines for the DLL.
 //
 
 #include "stdh.h"

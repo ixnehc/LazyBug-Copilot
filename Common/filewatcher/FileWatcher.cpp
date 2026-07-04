@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "FileWatcher.h"
 
 #include "../stringparser/stringparser.h"
