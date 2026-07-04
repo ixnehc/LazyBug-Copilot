@@ -185,5 +185,5 @@ The compiled VSIX extension package will be generated under `LazyBugPlugIn/LazyB
 ## Notes
 
 - All third-party libraries must be built for **x64** and use the **v143 (MSVC 2022)** toolset to remain ABI-compatible.
-- The project links against the **static** (non-DLL) variants of libraries by default, except `libclang.dll` and `libcurl.dll` which are loaded dynamically at runtime.
+- The project links against the **static** (non-DLL) variants of libraries by default, except `libclang.dll` which is loaded dynamically at runtime.
 - If you encounter MFC-related errors during compilation, verify the MFC component is installed in the Visual Studio Installer.
