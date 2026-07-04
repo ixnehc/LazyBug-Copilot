@@ -230,23 +230,6 @@ See Apache 2.0 full text above or at http://www.apache.org/licenses/LICENSE-2.0
 
 ---
 
-## RVO2 (Optimal Reciprocal Collision Avoidance)
-
-- **Component:** RVO2 Library
-- **License:** Apache License 2.0
-- **Source:** https://github.com/snape/RVO2
-- **License URL:** https://raw.githubusercontent.com/snape/RVO2/main/LICENSE
-- **Usage:** Used for collision avoidance calculations. Included in `Common/rvo2/`.
-
-```
-Copyright (c) 2008 University of North Carolina at Chapel Hill
-
-Licensed under the Apache License, Version 2.0
-See Apache 2.0 full text above or at http://www.apache.org/licenses/LICENSE-2.0
-```
-
----
-
 ## Summary Table
 
 | Component        | License                | Link Type            |
@@ -259,4 +242,3 @@ See Apache 2.0 full text above or at http://www.apache.org/licenses/LICENSE-2.0
 | nlohmann/json    | MIT                    | Header-only          |
 | Boost            | Boost Software 1.0     | Header-only          |
 | myers-diff       | Apache 2.0             | Source inclusion     |
-| RVO2             | Apache 2.0             | Source inclusion     |
