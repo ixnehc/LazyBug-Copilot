@@ -171,6 +171,15 @@
     <Filter Include="GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint">
       <UniqueIdentifier>{1f3fe718-4476-4de2-ad23-221314605cf1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInputHtml">
+      <UniqueIdentifier>{0f2b5d5d-8d7a-4874-b528-e82262134cb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\ChatCtrlHtml">
+      <UniqueIdentifier>{dcb1fabe-0e76-4def-a2f8-2767aaa01865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\ChatDialog\CommonHtml">
+      <UniqueIdentifier>{d8dbe267-a0aa-499d-8184-c2ae00b43781}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBugPlugInControls.cpp">
@@ -560,11 +569,11 @@
     <ClCompile Include="..\LazyBugSource\ChatInputAutoCompleteWindow.cpp">
       <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClCompile>
-    <ClCompile Include="..\LazyBugSource\ChatTask_InputHint.cpp">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
-    </ClCompile>
     <ClCompile Include="..\LazyBugSource\Utils_InputComplete.cpp">
       <Filter>Core\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatTask_InputAutoComplete.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -599,6 +608,105 @@
     </None>
     <None Include="..\LazyBugSource\ChatMcpTip.html">
       <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\api-menu.css">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\autocomplete.css">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\autocomplete.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\base.css">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\constants.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\content.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\index.html">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\input.css">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\main.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\native-bridge.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\responsive.css">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\tags.css">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\tags.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\toolbar.css">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\ui-controls.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatInputHtml\utils.js">
+      <Filter>GUI\ChatDialog\ChatInputHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\components.css">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\favorite.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\fileedit.css">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\fileedit.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\filesummarize.css">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\filesummarize.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\index.html">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\layout.css">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\main.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\message.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\messages.css">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\symbol.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\titlebar.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\utils.js">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatCtrlHtml\variables.css">
+      <Filter>GUI\ChatDialog\ChatCtrlHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\CommonHtml\tag-common.css">
+      <Filter>GUI\ChatDialog\CommonHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\CommonHtml\tag-utils.js">
+      <Filter>GUI\ChatDialog\CommonHtml</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1025,15 +1133,13 @@
     <ClInclude Include="..\LazyBugSource\ChatMcpTip.h">
       <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
     </ClInclude>
-    <ClInclude Include="..\LazyBugSource\ChatTask_InputHint.h">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
-    </ClInclude>
     <ClInclude Include="..\LazyBugSource\ChatInputAutoCompleteWindow.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\Utils_InputComplete.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatTask_InputAutoComplete.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LazyBugPlugInControls.rc">

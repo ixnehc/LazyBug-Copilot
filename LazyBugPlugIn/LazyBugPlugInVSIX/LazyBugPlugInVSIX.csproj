@@ -197,6 +197,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="InputHintWindow.html">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="lazybugicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
