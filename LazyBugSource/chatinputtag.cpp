@@ -268,7 +268,7 @@ void ParseInlineTags(const std::wstring& inputContent, std::vector<ChatInputTag>
 	}
 }
 
-// NOTE: 此函数与 BuildInputContent()（见 ChatTask_InputAutoComplete.cpp）的解析逻辑必须保持
+// NOTE: 此函数与 BuildInputContent()（见 ChatTask_InputHint.cpp）的解析逻辑必须保持
 // 一致——尤其是 text/tag 的 plainContent 拼接方式（tag 文本选取 data vs text、包裹 [ ] 等）。
 // 修改此处时请同步检查另一端。
 std::string ExtractPlainTextUtf8(const std::string& inputContent)

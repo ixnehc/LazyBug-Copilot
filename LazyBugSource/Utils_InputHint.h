@@ -35,8 +35,9 @@ struct DiffedInputContent:public InputContent
 InputContent BuildInputContent(const std::wstring& fullContent);
 
 // 将 inputContent.plainContent 中的 oldContent 替换为 newContent。
-// 若替换区间与任何 tagSegment 有交集(即替换发生在 tag 文本内部),返回 false 不执行替换。
-// 成功替换后自动调整 tagSegments 的位置偏移。
+// 替换后与原字串做 diff, 尝试将原有 tagSegment 的区间映射到新字串:
+//   - 若某个 tag 区间无法在新字串中完整、连续地映射(被删除或被打断), 返回 false 且不修改。
+//   - 否则更新 plainContent 及各 tagSegment 的新位置, 返回 true。
 bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldContent, const std::wstring& newContent);
 
 void DiffInputContent(const InputContent& oldContent, const InputContent& newContent, DiffedInputContent& oldResult, DiffedInputContent& newResult);

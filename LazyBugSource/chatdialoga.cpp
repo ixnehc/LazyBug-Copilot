@@ -337,8 +337,8 @@ BOOL CChatDialogA::OnInitDialog()
 
 	_InitAgent("");
 
-	// 创建输入自动补全临时测试窗口
-	_inputAutoCompleteWindow.Create(this);
+	// 创建输入补全提示窗口
+	_inputHintWindow.CreateHintWindow(this);
 
 	// 更新 favorite 状态
 	_UpdateFavoriteStatus();
@@ -1317,7 +1317,7 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 	if (plainText == L"_toggle_auto")
 	{
 		_autoCompleteEnabled = !_autoCompleteEnabled;
-		_inputAutoCompleteWindow.Hide();
+		_inputHintWindow.HideHint();
 		return;
 	}
 
@@ -1349,6 +1349,8 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 		}
 	}
 	
+	_inputHintWindow.HideHint();
+
 	_inputHistory.OnSendCurrent();
 
 	// 如果已经有活动会话，不处理用户输入
@@ -1627,11 +1629,11 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 		return;
 
 	// 中断上一个补全task
-	_chatTaskMgrBg.InterruptTaskType("InputAutoComplete");
+	_chatTaskMgrBg.InterruptTaskType("InputHint");
 
 	if (content.empty())
 	{
-		_inputAutoCompleteWindow.Hide();
+		_inputHintWindow.HideHint();
 		return;
 	}
 
@@ -1641,9 +1643,7 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 
 	CRect inputRect;
 	_chatInput.GetWindowRect(&inputRect);
-	_inputAutoCompleteWindow.SetAnchorRect(inputRect);
-
-	_chatTaskMgrBg.AddTask_InputAutoComplete(content, autoCompleteApi, &_inputAutoCompleteWindow);
+	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, &_inputHintWindow, inputRect);
 }
 
 void CChatDialogA::_HandleEscape()

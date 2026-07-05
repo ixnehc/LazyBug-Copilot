@@ -1,33 +1,31 @@
 ﻿#include "stdh.h"
-#include "ChatTask_InputAutoComplete.h"
+#include "ChatTask_InputHint.h"
 #include "LlmChat.h"
 #include "LlmLib.h"
 #include "ChatOpsCtrl.h"
-#include "chatinputautocompletewindow.h"
+#include "InputHintWindow.h"
 #include <unordered_set>
 
-CChatTask_InputAutoComplete::CChatTask_InputAutoComplete(const std::wstring& content, const std::string& apiName)
+CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName)
 {
-    _inputContent = Utils::BuildInputContent(content);
+    _originalInputContent = Utils::BuildInputContent(content);
     _apiName = apiName;
     _hasStartedRequest = false;
     _requestInterrupt = false;
-    _pResultWindow = nullptr;
+    _pHintWindow = nullptr;
+    _anchorRect.SetRectEmpty();
 }
 
-void CChatTask_InputAutoComplete::_Fail(const std::string& reason)
+void CChatTask_InputHint::_Fail(const std::string& reason)
 {
-    if (_pResultWindow)
+    if (_pHintWindow)
     {
-        std::string errMsg = "[AutoComplete Error]";
-        if (!reason.empty())
-            errMsg += " " + reason;
-        _pResultWindow->ShowCompletion(errMsg);
+        _pHintWindow->HideHint();
     }
     _status = TaskStatus::Failure;
 }
 
-std::string CChatTask_InputAutoComplete::_CollectChatContextFromOps()
+std::string CChatTask_InputHint::_CollectChatContextFromOps()
 {
     if (!_context || !_context->chatOpsCtrl)
         return "";
@@ -83,7 +81,7 @@ std::string CChatTask_InputAutoComplete::_CollectChatContextFromOps()
     return result;
 }
 
-void CChatTask_InputAutoComplete::Start()
+void CChatTask_InputHint::Start()
 {
     if (_apiName.empty())
     {
@@ -91,7 +89,7 @@ void CChatTask_InputAutoComplete::Start()
         return;
     }
 
-    if (_inputContent.plainContent.empty())
+    if (_originalInputContent.plainContent.empty())
     {
         _Fail("Empty input");
         return;
@@ -136,7 +134,7 @@ void CChatTask_InputAutoComplete::Start()
     }
 
     prompt += "User's partial input:\n";
-    prompt += widechar_to_utf8(_inputContent.plainContent.c_str());
+    prompt += widechar_to_utf8(_originalInputContent.plainContent.c_str());
     prompt += "\n\n";
     prompt += "Completion:";
 
@@ -153,7 +151,7 @@ void CChatTask_InputAutoComplete::Start()
     _status = TaskStatus::Running;
 }
 
-void CChatTask_InputAutoComplete::Update()
+void CChatTask_InputHint::Update()
 {
     if (_status != TaskStatus::Running)
         return;
@@ -187,8 +185,34 @@ void CChatTask_InputAutoComplete::Update()
                     else
                         _resultText.clear();
 
-                    if (_pResultWindow && !_resultText.empty())
-                        _pResultWindow->ShowCompletion(_resultText);
+                    if (_pHintWindow && !_resultText.empty())
+                    {
+                        // 解析 LLM 返回: old~~||~~new
+                        const std::string separator = "~~||~~";
+                        size_t sepPos = _resultText.find(separator);
+                        if (sepPos != std::string::npos)
+                        {
+                            std::string oldUtf8 = _resultText.substr(0, sepPos);
+                            std::string newUtf8 = _resultText.substr(sepPos + separator.size());
+
+                            std::wstring oldW = utf8_to_widechar(oldUtf8);
+                            std::wstring newW = utf8_to_widechar(newUtf8);
+
+                            // 基于原始 InputContent 拷贝后用 ReplaceInputContent 应用替换
+                            _newInputContent = _originalInputContent;
+                            if (!Utils::ReplaceInputContent(_newInputContent, oldW, newW))
+                            {
+                                // 替换失败(可能在 tag 内部), 退化为纯文本构建
+                                _newInputContent.plainContent = newW;
+                                _newInputContent.tagSegments.clear();
+                            }
+
+                            Utils::DiffedInputContent oldDiff, newDiff;
+                            Utils::DiffInputContent(_originalInputContent, _newInputContent, oldDiff, newDiff);
+
+                            _pHintWindow->ShowHint(_anchorRect, newDiff);
+                        }
+                    }
 
                     _status = TaskStatus::Success;
                 }
@@ -201,7 +225,7 @@ void CChatTask_InputAutoComplete::Update()
     }
 }
 
-void CChatTask_InputAutoComplete::Interrupt()
+void CChatTask_InputHint::Interrupt()
 {
     _requestInterrupt = true;
     Update();

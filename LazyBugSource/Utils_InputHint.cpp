@@ -1,5 +1,5 @@
 ﻿#include "stdh.h"
-#include "Utils_InputComplete.h"
+#include "Utils_InputHint.h"
 #include "../Common/codediff/dmp_diff.h"
 
 // 外部函数声明
@@ -179,36 +179,78 @@ bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldCont
     if (oldContent.empty())
         return false;
 
-    size_t pos = inputContent.plainContent.find(oldContent);
+    const std::wstring oldPlain = inputContent.plainContent;
+
+    size_t pos = oldPlain.find(oldContent);
     if (pos == std::wstring::npos)
         return false;
 
-    size_t posEnd = pos + oldContent.size();
+    // 生成替换后的新字串
+    std::wstring newPlain = oldPlain;
+    newPlain.replace(pos, oldContent.size(), newContent);
 
-    // 检查替换区间是否与任何 tag segment 重叠
-    for (const auto& seg : inputContent.tagSegments)
+    // 无 tag 时直接替换
+    if (inputContent.tagSegments.empty())
     {
-        if (pos < seg.endPos && posEnd > seg.startPos)
-            return false;  // 替换侵入 tag 区域
+        inputContent.plainContent = newPlain;
+        return true;
     }
 
-    // 执行替换
-    inputContent.plainContent.replace(pos, oldContent.size(), newContent);
+    // 旧字串与新字串做字符级 diff, 构建 old->new 的位置映射
+    // (Equal 区间内的字符 1:1 映射, Delete 的字符无对应 => -1)
+    MyersDiff<std::wstring> differ(oldPlain, newPlain);
 
-    // 调整 tagSegments 偏移
-    int delta = (int)newContent.size() - (int)oldContent.size();
-    if (delta != 0)
+    std::vector<int> oldToNew(oldPlain.size(), -1);
+    size_t oldIdx = 0;
+    size_t newIdx = 0;
+    for (const auto& d : differ.diffs())
     {
-        for (auto& seg : inputContent.tagSegments)
+        size_t len = d.text.size();
+        if (d.operation == DiffOp_Equal)
         {
-            if (seg.startPos >= posEnd)
-            {
-                seg.startPos += delta;
-                seg.endPos   += delta;
-            }
+            for (size_t k = 0; k < len && oldIdx + k < oldToNew.size(); ++k)
+                oldToNew[oldIdx + k] = (int)(newIdx + k);
+            oldIdx += len;
+            newIdx += len;
+        }
+        else if (d.operation == DiffOp_Delete)
+        {
+            oldIdx += len;   // 旧字符被删除, 无对应
+        }
+        else // DiffOp_Insert
+        {
+            newIdx += len;
         }
     }
 
+    // 将每个 tag segment 的区间尝试映射到新字串; 无法完整连续映射则失败
+    std::vector<InputContentTagSegment> newSegments;
+    newSegments.reserve(inputContent.tagSegments.size());
+    for (const auto& seg : inputContent.tagSegments)
+    {
+        if (seg.startPos >= seg.endPos || seg.endPos > oldPlain.size())
+            return false;
+
+        int mappedStart = oldToNew[seg.startPos];
+        if (mappedStart < 0)
+            return false;  // 起点被删除
+
+        // 要求整个区间的字符都保留且映射连续(中间无删除/插入)
+        for (size_t p = seg.startPos; p < seg.endPos; ++p)
+        {
+            int mapped = oldToNew[p];
+            if (mapped != mappedStart + (int)(p - seg.startPos))
+                return false;  // 某字符被删除或映射不连续 => 无法完整映射
+        }
+
+        InputContentTagSegment ns = seg;
+        ns.startPos = (size_t)mappedStart;
+        ns.endPos   = (size_t)mappedStart + (seg.endPos - seg.startPos);
+        newSegments.push_back(ns);
+    }
+
+    inputContent.plainContent = newPlain;
+    inputContent.tagSegments  = std::move(newSegments);
     return true;
 }
 

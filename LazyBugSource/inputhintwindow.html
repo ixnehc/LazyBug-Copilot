@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Hint</title>
+
+    <!-- 本地 CSS 文件 -->
+    <link rel="stylesheet" href="./CommonHtml/tag-common.css">
+    <link rel="stylesheet" href="./ChatCtrlHtml/variables.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-color);
+            background: var(--body-bg);
+            padding: 6px 10px;
+            overflow: auto;
+            height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hint-content {
+            background: var(--body-bg);
+            font-size: 14px;
+            color: var(--text-color);
+            overflow: visible;
+            padding: 4px 6px;
+            border-radius: 8px;
+            flex: 0 0 auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* state==1: 绿色背景 (新增) */
+        .diff-added {
+            background-color: rgba(40, 167, 69, 0.35);
+            border-radius: 2px;
+        }
+
+        .inline-tag.diff-added {
+            background-color: rgba(40, 167, 69, 0.5) !important;
+            border-color: #28a745 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="hint-content" id="hintContent"></div>
+
+    <script>
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 创建内联标签元素 (参考 ChatInput 的 createInlineTagElement)
+        function createInlineTagElement(tag) {
+            const tagType = tag.tagType || tag.type || 'info';
+            const tagSpan = document.createElement('span');
+            tagSpan.className = `inline-tag ${tagType}`;
+            if (tag.state === 1) {
+                tagSpan.classList.add('diff-added');
+            }
+
+            if (tagType === 'image') {
+                const imgSrc = tag.imgSrc || tag.data || '';
+                if (imgSrc) {
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.className = 'inline-tag-image';
+                    img.alt = tag.text || '';
+                    img.draggable = false;
+                    tagSpan.appendChild(img);
+                } else {
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'inline-tag-text';
+                    textSpan.textContent = tag.text || '';
+                    tagSpan.appendChild(textSpan);
+                }
+            } else {
+                const textSpan = document.createElement('span');
+                textSpan.className = 'inline-tag-text';
+                textSpan.textContent = tag.text || '';
+                tagSpan.appendChild(textSpan);
+            }
+
+            return tagSpan;
+        }
+
+        function renderTokens(tokens) {
+            const container = document.getElementById('hintContent');
+            container.innerHTML = '';
+            if (!Array.isArray(tokens)) return;
+
+            tokens.forEach(function(tok) {
+                if (tok.kind === 'tag') {
+                    container.appendChild(createInlineTagElement(tok));
+                } else {
+                    // text token; state==1 用绿色背景包裹
+                    const text = tok.text || '';
+                    if (tok.state === 1) {
+                        const span = document.createElement('span');
+                        span.className = 'diff-added';
+                        span.textContent = text;
+                        container.appendChild(span);
+                    } else {
+                        container.appendChild(document.createTextNode(text));
+                    }
+                }
+            });
+        }
+
+        function reportContentSize(maxContentWidth, minContentWidth) {
+            const el = document.getElementById('hintContent');
+            const bodyStyle = getComputedStyle(document.body);
+            const padX = parseFloat(bodyStyle.paddingLeft) + parseFloat(bodyStyle.paddingRight);
+            const padY = parseFloat(bodyStyle.paddingTop) + parseFloat(bodyStyle.paddingBottom);
+
+            const maxW = (maxContentWidth || 800) - padX;
+            const minW = Math.max(1, (minContentWidth || 1) - padX);
+
+            // 用脱离正常流的克隆节点测量
+            const probe = el.cloneNode(true);
+            probe.id = '';
+            probe.style.position = 'fixed';
+            probe.style.left = '-99999px';
+            probe.style.top = '0';
+            probe.style.flex = '0 0 auto';
+            probe.style.display = 'inline-block';
+            probe.style.width = 'auto';
+            probe.style.maxWidth = maxW + 'px';
+            probe.style.visibility = 'hidden';
+            document.body.appendChild(probe);
+
+            let naturalW = probe.scrollWidth;
+            let finalW = Math.min(Math.max(naturalW, minW), maxW);
+            probe.style.display = 'block';
+            probe.style.width = finalW + 'px';
+            probe.style.maxWidth = finalW + 'px';
+            let finalH = probe.scrollHeight;
+
+            document.body.removeChild(probe);
+
+            const width = Math.ceil(finalW + padX) + 2;
+            const height = Math.ceil(finalH + padY) + 2;
+            window.chrome.webview.postMessage(JSON.stringify({
+                action: 'contentSize',
+                data: { width: width, height: height }
+            }));
+        }
+
+        window.chrome.webview.addEventListener('message', function(e) {
+            try {
+                const msg = (typeof e.data === 'string') ? JSON.parse(e.data) : e.data;
+                if (msg.action === 'setContent' && msg.data) {
+                    renderTokens(msg.data.tokens || []);
+                    const maxW = msg.data.maxContentWidth;
+                    const minW = msg.data.minContentWidth;
+                    // 内容简单(纯文本+固定样式tag), 单次 rAF 即可完成布局后测量
+                    requestAnimationFrame(function() {
+                        reportContentSize(maxW, minW);
+                    });
+                }
+            } catch (err) {
+                console.error('Failed to parse message:', err);
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.chrome.webview.postMessage(JSON.stringify({ action: 'escapePressed' }));
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -28,6 +28,8 @@
 
 #include "ChatTokenStats.h"
 
+#include "InputHintWindow.h"
+
 #include "McpUpdater.h"
 
 #include "ChatSkillsTree.h"
@@ -35,8 +37,6 @@
 #include "ChatSettingMenu.h"
 
 #include "ChatNotify.h"
-
-#include "chatinputautocompletewindow.h"
 
 #define IDD_CHAT_DLG_VSIX 4039
 
@@ -222,8 +222,8 @@ protected:
 	void _UpdateCompressSummarizeTip();
 	int _compressSummarizeTipVersion;  // 当前已显示的提示版本号
 
-	// ── 输入自动补全测试 ──
-	CChatInputAutoCompleteWindow _inputAutoCompleteWindow;
+	// ── 输入自动补全 ──
+	CInputHintWindow _inputHintWindow;
 	bool _autoCompleteEnabled = false;
 
 };

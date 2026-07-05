@@ -14,8 +14,8 @@
 #include "ChatTask_CreateSkill.h"
 #include "ChatTask_Mcp.h"
 #include "ChatTask_CompressSummarize.h"
-#include "ChatTask_InputAutoComplete.h"
-#include "chatinputautocompletewindow.h"
+#include "ChatTask_InputHint.h"
+#include "InputHintWindow.h"
 #include <algorithm>
 #include <cstring>
 
@@ -680,10 +680,10 @@ void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::stri
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_InputAutoComplete(const std::wstring& content, const std::string& apiName, CChatInputAutoCompleteWindow* pResultWindow)
+void CChatTaskMgr::AddTask_InputHint(const std::wstring& content, const std::string& apiName, CInputHintWindow* pHintWindow, const CRect& anchorRect)
 {
-	CChatTask_InputAutoComplete* task = new CChatTask_InputAutoComplete(content, apiName);
-	task->SetResultWindow(pResultWindow);
+	CChatTask_InputHint* task = new CChatTask_InputHint(content, apiName);
+	task->SetHintWindow(pHintWindow, anchorRect);
 	_AddTask(task);
 }
 

@@ -168,7 +168,7 @@
     <Filter Include="GUI\ChatDialog\ChatInput\ChatMcpTip">
       <UniqueIdentifier>{0c677c96-2cac-4bd8-81f4-9e4f9416c06c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\ChatDialog\ChatTaskMgr\ChatTask_InputAutoComplete">
+    <Filter Include="GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint">
       <UniqueIdentifier>{1f3fe718-4476-4de2-ad23-221314605cf1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -558,10 +558,10 @@
       <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
     </ClCompile>
     <ClCompile Include="..\LazyBugSource\ChatInputAutoCompleteWindow.cpp">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputAutoComplete</Filter>
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClCompile>
-    <ClCompile Include="..\LazyBugSource\ChatTask_InputAutoComplete.cpp">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputAutoComplete</Filter>
+    <ClCompile Include="..\LazyBugSource\ChatTask_InputHint.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClCompile>
     <ClCompile Include="..\LazyBugSource\Utils_InputComplete.cpp">
       <Filter>Core\Utils</Filter>
@@ -1025,11 +1025,11 @@
     <ClInclude Include="..\LazyBugSource\ChatMcpTip.h">
       <Filter>GUI\ChatDialog\ChatInput\ChatMcpTip</Filter>
     </ClInclude>
-    <ClInclude Include="..\LazyBugSource\ChatTask_InputAutoComplete.h">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputAutoComplete</Filter>
+    <ClInclude Include="..\LazyBugSource\ChatTask_InputHint.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\ChatInputAutoCompleteWindow.h">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputAutoComplete</Filter>
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\Utils_InputComplete.h">
       <Filter>Core\Utils</Filter>
