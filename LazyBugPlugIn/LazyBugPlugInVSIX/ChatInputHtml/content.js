@@ -1148,6 +1148,326 @@ function handleSelectionChange() {
     });
 }
 
+// ===== 删除标记：光标保存/恢复辅助 =====
+// setDeletionMarks/clearDeletionMarks 会重建 DOM（拆分文本节点、包裹 span、normalize），
+// 导致原有选区失效、光标跳到行首。这里按“字符偏移”保存/恢复光标。
+// 由于这些操作不改变文本内容（仅包裹/展开节点、切换 class），字符偏移是稳定的。
+//
+// 关键：保存(_getCharOffset)与恢复(_locateCaret)必须使用【完全相同】的字符计数规则，
+// 否则在中英文混合、含 tag/ZWSP/<br> 时两者计数不一致，光标会偏移。
+// 统一规则：
+//   - 文本节点：按 textContent.length 计（含 ZWSP）
+//   - inline-tag：作为原子单位，按其 textContent.length 计
+//   - <br>：计为 0（与 Range.toString() 一致）
+//   - 其它元素：递归其子节点
+
+// 计算某个节点子树的字符长度（遵循统一计数规则）
+function _measureNodeChars(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent.length;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.classList && node.classList.contains('inline-tag')) {
+            return node.textContent.length;
+        }
+        if (node.tagName === 'BR') {
+            return 0;
+        }
+        let sum = 0;
+        for (let i = 0; i < node.childNodes.length; i++) {
+            sum += _measureNodeChars(node.childNodes[i]);
+        }
+        return sum;
+    }
+    return 0;
+}
+
+// 计算 (container, offset) 边界在 root 内的字符偏移（遵循统一计数规则）
+function _getCharOffset(root, container, offset) {
+    let count = 0;
+    let done = false;
+
+    function walk(node) {
+        if (done) return;
+
+        if (node === container) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                count += offset;
+            } else {
+                // 元素容器：offset 为子节点索引，累加索引之前所有子节点的字符数
+                for (let i = 0; i < offset && i < node.childNodes.length; i++) {
+                    count += _measureNodeChars(node.childNodes[i]);
+                }
+            }
+            done = true;
+            return;
+        }
+
+        if (node.nodeType === Node.TEXT_NODE) {
+            count += node.textContent.length;
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('inline-tag')) {
+                count += node.textContent.length;
+            } else if (node.tagName === 'BR') {
+                // 计 0
+            } else {
+                for (let i = 0; i < node.childNodes.length; i++) {
+                    walk(node.childNodes[i]);
+                    if (done) return;
+                }
+            }
+        }
+    }
+
+    walk(root);
+    return count;
+}
+
+// 保存编辑器内当前光标（按 inputEditor 内的字符偏移计）
+function _saveEditorCaret() {
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return null;
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return null;
+
+    const range = selection.getRangeAt(0);
+    if (!inputEditor.contains(range.startContainer) || !inputEditor.contains(range.endContainer)) {
+        return null;
+    }
+
+    const startOffset = _getCharOffset(inputEditor, range.startContainer, range.startOffset);
+    const endOffset = _getCharOffset(inputEditor, range.endContainer, range.endOffset);
+
+    return { start: startOffset, end: endOffset };
+}
+
+
+// 在 root 内定位字符偏移对应的 (node, offset)
+// 计数规则必须与 _getCharOffset 完全一致
+function _locateCaret(root, targetOffset) {
+    let remaining = targetOffset;
+    let found = null;
+
+    function walk(node) {
+        if (found) return;
+        for (let i = 0; i < node.childNodes.length; i++) {
+            if (found) return;
+            const child = node.childNodes[i];
+            if (child.nodeType === Node.TEXT_NODE) {
+                const len = child.textContent.length;
+                if (remaining <= len) {
+                    found = { node: child, offset: remaining };
+                    return;
+                }
+                remaining -= len;
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+                if (child.classList && child.classList.contains('inline-tag')) {
+                    // tag 作为原子单位：光标不进入内部，落在其前/后边界
+                    const len = child.textContent.length;
+                    if (remaining < len) {
+                        // 落在 tag 前边界（remaining==0）或后边界
+                        found = { node: node, offset: (remaining === 0) ? i : i + 1 };
+                        return;
+                    } else if (remaining === len) {
+                        found = { node: node, offset: i + 1 };
+                        return;
+                    }
+                    remaining -= len;
+                } else if (child.tagName === 'BR') {
+                    // 计 0，不递减；若偏移正好到此，落在 <br> 前
+                    if (remaining === 0) {
+                        found = { node: node, offset: i };
+                        return;
+                    }
+                } else {
+                    // 普通元素：递归其子节点
+                    walk(child);
+                }
+            }
+        }
+    }
+
+    walk(root);
+    // 未命中（偏移超出末尾）：落到最后一个可用位置
+    if (!found) {
+        found = { node: root, offset: root.childNodes.length };
+    }
+    return found;
+}
+
+
+// 恢复之前保存的光标
+function _restoreEditorCaret(saved) {
+    if (!saved) return;
+
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return;
+
+    const startPos = _locateCaret(inputEditor, saved.start);
+    const endPos = _locateCaret(inputEditor, saved.end);
+    if (!startPos || !endPos) return;
+
+    const selection = window.getSelection();
+    const range = document.createRange();
+    try {
+        range.setStart(startPos.node, startPos.offset);
+        range.setEnd(endPos.node, endPos.offset);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    } catch (e) {
+        // 定位失败时忽略，保持当前选区
+    }
+}
+
+// 设置删除标记 token 索引列表
+// 每个 type:'text' 项的每个字符算1个token，每个 type:'tag' 项算1个token
+function setDeletionMarks(indices) {
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return;
+
+    // 保存光标，改动 DOM 后恢复，避免光标跳到行首
+    const savedCaret = _saveEditorCaret();
+
+    // 先清除之前的标记
+    clearDeletionMarks();
+
+    if (!indices || indices.length === 0) {
+        _restoreEditorCaret(savedCaret);
+        return;
+    }
+    
+    // 构建 token 索引集合，方便 O(1) 查找
+    const indexSet = new Set(indices);
+    
+    // 遍历 DOM 节点，为每个 token 分配索引
+    let tokenIndex = 0;
+    const zwsp = AppState.zwsp;
+    
+    function processNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent;
+            let i = 0;
+            const textLen = text.length;
+            
+            // 收集需要标记为删除的字符范围
+            const ranges = [];
+            let rangeStart = -1;
+            
+            while (i < textLen) {
+                // 跳过 ZWSP
+                if (text[i] === zwsp) {
+                    i++;
+                    continue;
+                }
+                
+                const isMarked = indexSet.has(tokenIndex);
+                
+                if (isMarked && rangeStart === -1) {
+                    rangeStart = i;
+                } else if (!isMarked && rangeStart !== -1) {
+                    ranges.push({ start: rangeStart, end: i });
+                    rangeStart = -1;
+                }
+                
+                tokenIndex++;
+                i++;
+            }
+            
+            // 处理末尾的连续标记
+            if (rangeStart !== -1) {
+                ranges.push({ start: rangeStart, end: textLen });
+            }
+
+            // 没有需要标记的区间，保持原节点不变
+            if (ranges.length === 0) {
+                return;
+            }
+
+            // 一次性构建包含所有区间的片段（正常文本与 diff-deleted span 交替），整体替换原节点。
+            // 注意：不能在循环里对同一个 node 多次 insert/removeChild，否则多区间时会错乱。
+            const fragment = document.createDocumentFragment();
+            let cursor = 0;
+            for (let r = 0; r < ranges.length; r++) {
+                const range = ranges[r];
+                // 区间前的正常文本
+                if (range.start > cursor) {
+                    fragment.appendChild(document.createTextNode(text.substring(cursor, range.start)));
+                }
+                // 标记为删除的文本
+                const span = document.createElement('span');
+                span.className = 'diff-deleted';
+                span.textContent = text.substring(range.start, range.end);
+                fragment.appendChild(span);
+                cursor = range.end;
+            }
+            // 最后一个区间之后的正常文本
+            if (cursor < textLen) {
+                fragment.appendChild(document.createTextNode(text.substring(cursor)));
+            }
+
+            const parent = node.parentNode;
+            parent.insertBefore(fragment, node);
+            parent.removeChild(node);
+
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('inline-tag')) {
+                // tag 算作 1 个 token
+                if (indexSet.has(tokenIndex)) {
+                    node.classList.add('diff-deleted');
+                }
+                tokenIndex++;
+            } else if (node.tagName === 'BR') {
+                // <br> 也算作 1 个 token（对应 \n 字符）
+                // 但通常不标记 <br>
+                tokenIndex++;
+            } else {
+                // 递归处理子节点
+                // 先复制一份子节点列表，因为处理过程中会修改 DOM
+                const children = Array.from(node.childNodes);
+                for (const child of children) {
+                    processNode(child);
+                }
+            }
+        }
+    }
+    
+    // 处理编辑器中的所有节点
+    const children = Array.from(inputEditor.childNodes);
+    for (const child of children) {
+        processNode(child);
+    }
+
+    // 恢复光标位置
+    _restoreEditorCaret(savedCaret);
+}
+
+// 清除删除标记
+function clearDeletionMarks() {
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return;
+
+    // 保存光标，改动 DOM 后恢复
+    const savedCaret = _saveEditorCaret();
+    
+    // 移除 .inline-tag 上的 diff-deleted class
+    const taggedElements = inputEditor.querySelectorAll('.inline-tag.diff-deleted');
+    taggedElements.forEach(el => el.classList.remove('diff-deleted'));
+    
+    // 展开 .diff-deleted span，将其文本内容恢复为普通文本节点
+    const spans = inputEditor.querySelectorAll('span.diff-deleted');
+    spans.forEach(span => {
+        const textNode = document.createTextNode(span.textContent);
+        span.parentNode.replaceChild(textNode, span);
+    });
+    
+    // 合并相邻的文本节点
+    inputEditor.normalize();
+
+    // 恢复光标位置
+    _restoreEditorCaret(savedCaret);
+}
+
 // 导出到全局
 window.setInputContent = setInputContent;
 window.clearInputContent = clearInputContent;
@@ -1165,4 +1485,6 @@ window.handleCopy = handleCopy;
 window.handlePaste = handlePaste;
 window.handleArrowKeyNavigation = handleArrowKeyNavigation;
 window.handleTagDeletion = handleTagDeletion;
+window.setDeletionMarks = setDeletionMarks;
+window.clearDeletionMarks = clearDeletionMarks;
 window.handleSelectionChange = handleSelectionChange;

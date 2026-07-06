@@ -18,6 +18,16 @@ function forceUndoBoundary() {
     sel.addRange(range);
 }
 
+// 处理输入前事件（在 DOM 改变之前触发）
+// 若当前存在删除标记（diff-deleted），先清除它们，避免用户输入被标记 span/tag 影响
+function handleBeforeInput(event) {
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return;
+    if (inputEditor.querySelector('.diff-deleted')) {
+        clearDeletionMarks();
+    }
+}
+
 // 处理键盘按下
 function handleKeyDown(event) {
     // 如果自动补全列表可见，优先处理自动补全按键
@@ -106,6 +116,8 @@ function initializeEventListeners() {
     const atButton = document.getElementById('atButton');
 
     // 输入内容变化监听
+    // beforeinput 在 DOM 改变之前触发：先清除删除标记，避免用户输入被 diff-deleted span 影响
+    inputEditor.addEventListener('beforeinput', handleBeforeInput);
     inputEditor.addEventListener('input', debounce(notifyContentChanged, 300));
     inputEditor.addEventListener('input', ensureTagIntegrity);
     inputEditor.addEventListener('input', handleAutoComplete);

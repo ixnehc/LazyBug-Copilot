@@ -79,6 +79,12 @@ function processNativeMessage(data) {
                 window.hideCompressSummarizeTip();
             }
             break;
+        case 'setDeletionMarks':
+            if (window.setDeletionMarks) window.setDeletionMarks(data.indices || []);
+            break;
+        case 'clearDeletionMarks':
+            if (window.clearDeletionMarks) window.clearDeletionMarks();
+            break;
     }
 }
 

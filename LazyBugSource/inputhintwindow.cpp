@@ -1,5 +1,6 @@
 #include "stdh.h"
 #include "InputHintWindow.h"
+#include "chatinput.h"
 #include <nlohmann/json.hpp>
 #include "Utils.h"
 
@@ -256,9 +257,9 @@ void CInputHintWindow::_DoShowWindow()
 
 //====================== 显示/隐藏 ======================
 
-void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& content)
+void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff)
 {
-    _currentContent = content;
+    _currentContent = newDiff;
     _hasContent = true;
     _currentAnchorRect = anchorRect;
     _isContentSized = false;
@@ -306,6 +307,52 @@ void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInput
 
     // 兜底定时器: 若contentSize长时间未回传仍能显示
     _showTimerId = SetTimer(1, 2000, nullptr);
+
+    // 根据 oldDiff 设置 CChatInput 的删除标记（红色背景）
+    if (_pChatInput && !oldDiff.plainContent.empty())
+    {
+        std::vector<int> deletionIndices;
+        int tokenIdx = 0;
+        size_t pos = 0;
+
+        for (const auto& seg : oldDiff.tagSegments)
+        {
+            // 该 tag 之前的普通字符
+            while (pos < seg.startPos && pos < oldDiff.plainContent.size())
+            {
+                if (oldDiff.diffStates[pos] == 2)
+                    deletionIndices.push_back(tokenIdx);
+                tokenIdx++;
+                pos++;
+            }
+
+            // tag 本身（1 个 token）：全部字符均为删除才标记
+            bool allDeleted = true;
+            for (size_t i = seg.startPos; i < seg.endPos && i < oldDiff.plainContent.size(); i++)
+            {
+                if (oldDiff.diffStates[i] != 2)
+                {
+                    allDeleted = false;
+                    break;
+                }
+            }
+            if (allDeleted)
+                deletionIndices.push_back(tokenIdx);
+            tokenIdx++;
+            pos = seg.endPos;
+        }
+
+        // 最后一个 tag 之后的剩余字符
+        while (pos < oldDiff.plainContent.size())
+        {
+            if (oldDiff.diffStates[pos] == 2)
+                deletionIndices.push_back(tokenIdx);
+            tokenIdx++;
+            pos++;
+        }
+
+        _pChatInput->SetDeletionMarks(deletionIndices);
+    }
 }
 
 void CInputHintWindow::HideHint()
@@ -319,6 +366,12 @@ void CInputHintWindow::HideHint()
     if (IsWindowVisible())
     {
         CWnd::ShowWindow(SW_HIDE);
+    }
+
+    // 同步清除 CChatInput 的删除标记
+    if (_pChatInput)
+    {
+        _pChatInput->ClearDeletionMarks();
     }
 }
 

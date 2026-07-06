@@ -224,7 +224,7 @@ protected:
 
 	// ── 输入自动补全 ──
 	CInputHintWindow _inputHintWindow;
-	bool _autoCompleteEnabled = false;
+	bool _inputHintEnabled = false;
 
 };
 

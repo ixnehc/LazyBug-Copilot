@@ -931,6 +931,35 @@ void CChatInput::GetSelectedText(std::function<void(const std::wstring&)> callba
 	ExecuteScript(L"getSelectedText();", callback);
 }
 
+// 设置删除标记 token 索引列表
+void CChatInput::SetDeletionMarks(const std::vector<int>& deletionIndices)
+{
+	if (!_IsReady())
+		return;
+
+	// 构建 JSON 数组
+	std::wstring indicesJson = L"[";
+	for (size_t i = 0; i < deletionIndices.size(); i++)
+	{
+		if (i > 0)
+			indicesJson += L",";
+		indicesJson += std::to_wstring(deletionIndices[i]);
+	}
+	indicesJson += L"]";
+
+	std::wstring jsonMessage = L"{\"action\":\"setDeletionMarks\",\"indices\":" + indicesJson + L"}";
+	_PostWebMessageAsJson(jsonMessage);
+}
+
+// 清除删除标记
+void CChatInput::ClearDeletionMarks()
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring jsonMessage = L"{\"action\":\"clearDeletionMarks\"}";
+	_PostWebMessageAsJson(jsonMessage);
+}
 
 
 //====================== 标签相关实现 ======================

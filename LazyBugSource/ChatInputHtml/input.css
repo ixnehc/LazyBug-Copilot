@@ -167,3 +167,14 @@
     background-color: rgba(255, 255, 255, 0.2);
     opacity: 1;
 }
+
+/* 删除标记样式：红色背景 */
+.diff-deleted {
+    background-color: rgba(220, 53, 69, 0.35);
+    border-radius: 2px;
+}
+
+.inline-tag.diff-deleted {
+    background-color: rgba(220, 53, 69, 0.5) !important;
+    border-color: #dc3545 !important;
+}

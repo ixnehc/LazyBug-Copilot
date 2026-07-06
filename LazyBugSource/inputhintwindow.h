@@ -4,6 +4,8 @@
 #include <string>
 #include "Utils_InputHint.h"
 
+class CChatInput;
+
 // CInputHintWindow - 用于显示 Utils::DiffedInputContent 的提示窗口
 // 每个字符/tag 的状态(diffStates): 0-正常显示  1-绿色背景显示  2-不显示
 // 使用 WebView 显示, 窗口大小自适应内容(参考 CChatMcpTip)
@@ -16,10 +18,14 @@ public:
     // 创建提示窗口
     BOOL CreateHintWindow(CWnd* pParent);
 
-    // 显示提示窗口(传入已计算好状态的 DiffedInputContent)
-    void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& content);
+    // 设置关联的 CChatInput，ShowHint/HideHint 时会同步设置/清除删除标记
+    void SetChatInput(CChatInput* pInput) { _pChatInput = pInput; }
 
-    // 隐藏提示窗口
+    // 显示提示窗口(传入已计算好状态的 DiffedInputContent)
+    // oldDiff 用于在 CChatInput 上标记删除的 token（红色背景）
+    void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff);
+
+    // 隐藏提示窗口（同时清除删除标记）
     void HideHint();
 
     // 更新(用于前台窗口检测)
@@ -98,4 +104,7 @@ private:
 
     // 兜底显示(由定时器触发)
     void _DoShowWindow();
+
+    // 关联的 CChatInput
+    CChatInput* _pChatInput = nullptr;
 };

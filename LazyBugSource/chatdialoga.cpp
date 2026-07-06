@@ -326,6 +326,7 @@ BOOL CChatDialogA::OnInitDialog()
 		ctx.fileWriter = &_chatFileWriter;
 		ctx.chatUi = &_ui;
 		ctx.chatOpsCtrl = &_agent.GetOpsCtrl();
+		ctx.chatDialogA = this;
  		_chatTaskMgrBg.Init(ctx);
 	}
 
@@ -339,6 +340,7 @@ BOOL CChatDialogA::OnInitDialog()
 
 	// 创建输入补全提示窗口
 	_inputHintWindow.CreateHintWindow(this);
+	_inputHintWindow.SetChatInput(&_chatInput);
 
 	// 更新 favorite 状态
 	_UpdateFavoriteStatus();
@@ -513,6 +515,7 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 	_chatMcpsTree.Update();
 
 	_settingMenuWindow.Update();
+	_inputHintWindow.Update();
 
 //	_UpdateSyncImageTags();
 
@@ -1316,7 +1319,7 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 	// ── _toggle_auto: 开关自动补全 ──
 	if (plainText == L"_toggle_auto")
 	{
-		_autoCompleteEnabled = !_autoCompleteEnabled;
+		_inputHintEnabled = !_inputHintEnabled;
 		_inputHintWindow.HideHint();
 		return;
 	}
@@ -1625,11 +1628,12 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 	// ── 临时测试: 输入自动补全 ──
 	if (_agent.IsWorking())
 		return;
-	if (!_autoCompleteEnabled)
+	if (!_inputHintEnabled)
 		return;
 
-	// 中断上一个补全task
+	// 中断上一个补全task，清除 hint 窗口和删除标记
 	_chatTaskMgrBg.InterruptTaskType("InputHint");
+	_inputHintWindow.HideHint();
 
 	if (content.empty())
 	{
@@ -1648,6 +1652,11 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 
 void CChatDialogA::_HandleEscape()
 {
+	if (_inputHintWindow.IsWindowVisible())
+	{
+		_inputHintWindow.HideHint();
+		return;
+	}
 	_requestEscapeInputTime = GetAbsTick();
 
 }

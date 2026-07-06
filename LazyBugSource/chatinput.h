@@ -137,6 +137,14 @@ public:
     // 获取所有标签（包括不可见的）
     const std::vector<ChatInputTag>& GetTags() const { return _tags; }
     
+    // ===== 删除标记相关方法 =====
+    
+    // 设置删除标记 token 索引列表（每个字符算1个token，每个tag算1个token）
+    void SetDeletionMarks(const std::vector<int>& deletionIndices);
+    
+    // 清除删除标记
+    void ClearDeletionMarks();
+    
     // 获取可见的标签
 	std::vector<ChatInputTag> GetVisibleFileTags() const;
 
