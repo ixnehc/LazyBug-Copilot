@@ -180,6 +180,9 @@
     <Filter Include="GUI\ChatDialog\CommonHtml">
       <UniqueIdentifier>{d8dbe267-a0aa-499d-8184-c2ae00b43781}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\ChatDialog\ChatInput\InputHintWindow">
+      <UniqueIdentifier>{a918f5cf-5ed5-456b-a24c-971d299e0c29}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LazyBugPlugInControls.cpp">
@@ -569,11 +572,14 @@
     <ClCompile Include="..\LazyBugSource\ChatInputAutoCompleteWindow.cpp">
       <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClCompile>
-    <ClCompile Include="..\LazyBugSource\Utils_InputComplete.cpp">
+    <ClCompile Include="..\LazyBugSource\chattask_inputhint.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LazyBugSource\Utils_InputHint.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\LazyBugSource\ChatTask_InputAutoComplete.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\LazyBugSource\inputhintwindow.cpp">
+      <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -707,6 +713,9 @@
     </None>
     <None Include="..\LazyBugSource\CommonHtml\tag-utils.js">
       <Filter>GUI\ChatDialog\CommonHtml</Filter>
+    </None>
+    <None Include="..\LazyBugSource\inputhintwindow.html">
+      <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1136,10 +1145,15 @@
     <ClInclude Include="..\LazyBugSource\ChatInputAutoCompleteWindow.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClInclude>
-    <ClInclude Include="..\LazyBugSource\Utils_InputComplete.h">
+    <ClInclude Include="..\LazyBugSource\chattask_inputhint.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\Utils_InputHint.h">
       <Filter>Core\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\LazyBugSource\ChatTask_InputAutoComplete.h" />
+    <ClInclude Include="..\LazyBugSource\inputhintwindow.h">
+      <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LazyBugPlugInControls.rc">

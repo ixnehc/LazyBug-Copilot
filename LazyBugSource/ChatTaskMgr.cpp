@@ -680,10 +680,9 @@ void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::stri
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_InputHint(const std::wstring& content, const std::string& apiName, CInputHintWindow* pHintWindow, const CRect& anchorRect)
+void CChatTaskMgr::AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
 {
-	CChatTask_InputHint* task = new CChatTask_InputHint(content, apiName);
-	task->SetHintWindow(pHintWindow, anchorRect);
+	CChatTask_InputHint* task = new CChatTask_InputHint(content, apiName, caretTokenPos, anchorRect);
 	_AddTask(task);
 }
 

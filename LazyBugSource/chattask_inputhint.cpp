@@ -3,25 +3,57 @@
 #include "LlmChat.h"
 #include "LlmLib.h"
 #include "ChatOpsCtrl.h"
-#include "InputHintWindow.h"
+#include "ChatDialogA.h"
 #include <unordered_set>
 
-CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName)
+CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect)
 {
 	_originalInputContent = Utils::BuildInputContent(content);
 	_apiName = apiName;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
-	_pHintWindow = nullptr;
-	_anchorRect.SetRectEmpty();
+	_anchorRect = anchorRect;
+
+	// 将光标的 token 位置转换为 plainContent 中的字符位置
+	// token 规则: 普通字符 = 1 token, 每个 tag = 1 token(与 CChatInput 的编号一致)
+	_caretPlainPos = -1;
+	if (caretTokenPos >= 0)
+	{
+		const auto& plain = _originalInputContent.plainContent;
+		const auto& segs = _originalInputContent.tagSegments;
+		size_t pos = 0;
+		size_t segIdx = 0;
+		int tokenIdx = 0;
+		while (pos <= plain.size())
+		{
+			if (tokenIdx == caretTokenPos)
+			{
+				_caretPlainPos = (int)pos;
+				break;
+			}
+			if (pos >= plain.size())
+				break;
+
+			// 当前位置是否落在某个 tag 区间的起点
+			if (segIdx < segs.size() && pos == segs[segIdx].startPos)
+			{
+				pos = segs[segIdx].endPos;  // 整个 tag 前进(1 token)
+				segIdx++;
+			}
+			else
+			{
+				pos++;  // 普通字符(1 token)
+			}
+			tokenIdx++;
+		}
+	}
 }
+
 
 void CChatTask_InputHint::_Fail(const std::string& reason)
 {
-	if (_pHintWindow)
-	{
-		_pHintWindow->HideHint();
-	}
+	if (_context && _context->chatDialogA)
+		_context->chatDialogA->HideHint();
 	_status = TaskStatus::Failure;
 }
 
@@ -115,16 +147,19 @@ void CChatTask_InputHint::Start()
 		"suggest a plausible completion of what the user might be typing next.\n"
 		"You may also correct typos or improve the existing partial input when appropriate.\n"
 		"The completion should be concise and in the same language as the partial input.\n"
+		"A caret marker \xE2\x80\xB8 (U+2038) indicates the current cursor position in the partial input. "
+		"You should complete the text AT the caret position. The caret marker itself is NOT part of the "
+		"user's actual input, so you MUST NOT include it in your output.\n"
 		"You MUST strictly follow this output format and output NOTHING else:\n"
 		"<<Old Content>>~~||~~<<New Content>>\n"
-		"Where <Old Content> is the user's partial input, and <New Content> is the corrected and/or completed text.\n"
+		"Where <Old Content> is the user's partial input (WITHOUT the caret marker), and <New Content> is the corrected and/or completed text.\n"
 		"Old and new content are separated by ~~||~~.\n\n"
 		"Examples:\n"
-		"Partial input \"Hello\" -> output: Hello~~||~~Hello world\n"
-		"Partial input \"How are\" -> output: How are~~||~~How are you\n"
-		"Partial input \"请帮我\" -> output: 请帮我~~||~~请帮我写一个函数\n"
-		"Partial input \"hwo to\" (typo) -> output: hwo to~~||~~how to write\n"
-		"Partial input \"请帮我谢一个\" (typo) -> output: 请帮我谢一个~~||~~请帮我写一个函数\n\n";
+		"Partial input \"Hello\xE2\x80\xB8\" -> output: Hello~~||~~Hello world\n"
+		"Partial input \"How are\xE2\x80\xB8\" -> output: How are~~||~~How are you\n"
+		"Partial input \"请帮我\xE2\x80\xB8\" -> output: 请帮我~~||~~请帮我写一个函数\n"
+		"Partial input \"hwo to\xE2\x80\xB8\" (typo) -> output: hwo to~~||~~how to write\n"
+		"Partial input \"请写\xE2\x80\xB8一个函数\" (caret in middle) -> output: 请写一个函数~~||~~请写一个高效的函数\n\n";
 
 	if (!_chatContext.empty())
 	{
@@ -133,10 +168,18 @@ void CChatTask_InputHint::Start()
 		prompt += "\n\n";
 	}
 
+	// 在光标位置插入光标符号(仅用于提示 LLM 补全位置, 不属于实际输入内容)
+	std::wstring inputWithCaret = _originalInputContent.plainContent;
+	if (_caretPlainPos >= 0 && _caretPlainPos <= (int)inputWithCaret.size())
+	{
+		inputWithCaret.insert((size_t)_caretPlainPos, L"\x2038");
+	}
+
 	prompt += "User's partial input:\n";
-	prompt += widechar_to_utf8(_originalInputContent.plainContent.c_str());
+	prompt += widechar_to_utf8(inputWithCaret.c_str());
 	prompt += "\n\n";
 	prompt += "Completion:";
+
 
 	request.AddUserMessage(prompt.c_str());
 	request.isStreaming = true;
@@ -185,7 +228,7 @@ void CChatTask_InputHint::Update()
 					else
 						_resultText.clear();
 
-					if (_pHintWindow && !_resultText.empty())
+					if (!_resultText.empty())
 					{
 						// 解析 LLM 返回: old~~||~~new
 						const std::string separator = "~~||~~";
@@ -210,7 +253,8 @@ void CChatTask_InputHint::Update()
 							Utils::DiffedInputContent oldDiff, newDiff;
 							Utils::DiffInputContent(_originalInputContent, _newInputContent, oldDiff, newDiff);
 
-							_pHintWindow->ShowHint(_anchorRect, newDiff, oldDiff);
+							if (_context && _context->chatDialogA)
+								_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff);
 						}
 					}
 

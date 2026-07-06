@@ -253,7 +253,20 @@ HRESULT CChatInput::InitializeWebView()
 									// content 是 JSON 数组对象，需要转换为字符串
 									std::string contentJsonStr = jsonMsg["content"].dump();
 									std::wstring content = utf8_to_widechar(contentJsonStr);
-									_contentChangedCallback(content);
+
+									int caretPos = -1;
+									if (jsonMsg.contains("caretPos") && jsonMsg["caretPos"].is_number())
+									{
+										caretPos = jsonMsg["caretPos"].get<int>();
+									}
+
+									bool isComposing = false;
+									if (jsonMsg.contains("isComposing") && jsonMsg["isComposing"].is_boolean())
+									{
+										isComposing = jsonMsg["isComposing"].get<bool>();
+									}
+
+									_contentChangedCallback(content, caretPos, isComposing);
 								}
 							}
 							else if (action == "initialized")

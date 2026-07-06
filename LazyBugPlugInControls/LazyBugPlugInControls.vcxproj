@@ -370,7 +370,7 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_FastApply.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_FindInFiles.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_FindSymbolDefine.cpp" />
-    <ClCompile Include="..\LazyBugSource\ChatTask_InputAutoComplete.cpp" />
+    <ClCompile Include="..\LazyBugSource\chattask_inputhint.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Mcp.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_QueryFinish.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Question.cpp" />
@@ -422,6 +422,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\inputhintwindow.cpp" />
     <ClCompile Include="..\LazyBugSource\LlmChat.cpp" />
     <ClCompile Include="..\LazyBugSource\LlmFormatter.cpp" />
     <ClCompile Include="..\LazyBugSource\LlmLib.cpp" />
@@ -463,7 +464,7 @@
     <ClCompile Include="..\LazyBugSource\Utils_File.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_Image.cpp" />
-    <ClCompile Include="..\LazyBugSource\Utils_InputComplete.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_InputHint.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_Mcp.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_Skill.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_SolutionDump.cpp" />
@@ -520,6 +521,7 @@
     <None Include="..\LazyBugSource\ChatSkillTip.html" />
     <None Include="..\LazyBugSource\CommonHtml\tag-common.css" />
     <None Include="..\LazyBugSource\CommonHtml\tag-utils.js" />
+    <None Include="..\LazyBugSource\inputhintwindow.html" />
     <None Include="..\LazyBugSource\RepairWnd.html" />
     <None Include="LazyBugPlugInControls.def" />
     <None Include="packages.config" />
@@ -559,7 +561,9 @@
     <ClInclude Include="..\Common\timer\timer.h" />
     <ClInclude Include="..\Common\xml\tinyxml.h" />
     <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
-    <ClInclude Include="..\LazyBugSource\Utils_InputComplete.h" />
+    <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
+    <ClInclude Include="..\LazyBugSource\inputhintwindow.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_InputHint.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2EnvironmentOptions.h" />
     <ClInclude Include="..\LazyBugSource\BackupDepot.h" />
@@ -622,7 +626,6 @@
     <ClInclude Include="..\LazyBugSource\ChatTask_FastApply.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_FindInFiles.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_FindSymbolDefine.h" />
-    <ClInclude Include="..\LazyBugSource\ChatTask_InputAutoComplete.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_Mcp.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_QueryFinish.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_Question.h" />

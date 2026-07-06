@@ -128,7 +128,7 @@ public:
 	void AddTask_CreateSkill(const LlmToolCall& toolCall);
 	void AddTask_Mcp(const LlmToolCall& toolCall);
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
-	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, class CInputHintWindow* pHintWindow, const CRect& anchorRect);
+	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos);
 	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls);
 
 	// 获取任务统计信息

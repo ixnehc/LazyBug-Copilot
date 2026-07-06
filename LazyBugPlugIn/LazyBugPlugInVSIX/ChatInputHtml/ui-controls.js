@@ -469,9 +469,9 @@ function setInputHintToggleButtonState(enabled) {
     const button = document.getElementById('inputHintToggleButton');
     if (button) {
         if (enabled) {
-            button.classList.remove('disabled');
+            button.classList.add('enabled');
         } else {
-            button.classList.add('disabled');
+            button.classList.remove('enabled');
         }
     }
 }
@@ -480,9 +480,9 @@ function setInputHintToggleButtonState(enabled) {
 function handleInputHintToggleClick() {
     const button = document.getElementById('inputHintToggleButton');
     if (button) {
-        const isCurrentlyEnabled = !button.classList.contains('disabled');
-        // 切换状态 - 如果当前是启用状态，点击后变为禁用（添加disabled类）
-        // 如果当前是禁用状态，点击后变为启用（移除disabled类）
+        const isCurrentlyEnabled = button.classList.contains('enabled');
+        // 切换状态 - 如果当前是启用状态，点击后变为禁用（移除enabled类）
+        // 如果当前是禁用状态，点击后变为启用（添加enabled类）
         sendMessageToNative({
             action: 'inputHintToggleClicked',
             enabled: !isCurrentlyEnabled

@@ -358,7 +358,9 @@ function notifyContentChanged() {
     
     sendMessageToNative({
         action: 'contentChanged',
-        content: JSON.parse(contentJson)
+        content: JSON.parse(contentJson),
+        caretPos: getCaretTokenPosition(),
+        isComposing: AppState.isInputComposing
     });
 }
 
@@ -1222,6 +1224,99 @@ function _getCharOffset(root, container, offset) {
     walk(root);
     return count;
 }
+
+// 计算某个节点子树的 token 数（token 规则：字符=1，tag=1，<br>=1，跳过 ZWSP）
+// 必须与 setDeletionMarks 的 token 编号规则一致
+function _measureNodeTokens(node) {
+    const zwsp = AppState.zwsp;
+    if (node.nodeType === Node.TEXT_NODE) {
+        let cnt = 0;
+        const text = node.textContent;
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] !== zwsp) cnt++;
+        }
+        return cnt;
+    }
+    if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.classList && node.classList.contains('inline-tag')) {
+            return 1;
+        }
+        if (node.tagName === 'BR') {
+            return 1;
+        }
+        let sum = 0;
+        for (let i = 0; i < node.childNodes.length; i++) {
+            sum += _measureNodeTokens(node.childNodes[i]);
+        }
+        return sum;
+    }
+    return 0;
+}
+
+// 计算 (container, offset) 边界在 root 内的 token 位置（光标前的 token 数）
+function _getCaretTokenPosition(root, container, offset) {
+    const zwsp = AppState.zwsp;
+    let count = 0;
+    let done = false;
+
+    function walk(node) {
+        if (done) return;
+
+        if (node === container) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                // 累加该文本节点中 offset 之前的非 ZWSP 字符
+                const text = node.textContent;
+                for (let i = 0; i < offset && i < text.length; i++) {
+                    if (text[i] !== zwsp) count++;
+                }
+            } else {
+                // 元素容器：offset 为子节点索引，累加索引之前所有子节点的 token 数
+                for (let i = 0; i < offset && i < node.childNodes.length; i++) {
+                    count += _measureNodeTokens(node.childNodes[i]);
+                }
+            }
+            done = true;
+            return;
+        }
+
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent;
+            for (let i = 0; i < text.length; i++) {
+                if (text[i] !== zwsp) count++;
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('inline-tag')) {
+                count += 1;
+            } else if (node.tagName === 'BR') {
+                count += 1;
+            } else {
+                for (let i = 0; i < node.childNodes.length; i++) {
+                    walk(node.childNodes[i]);
+                    if (done) return;
+                }
+            }
+        }
+    }
+
+    walk(root);
+    return count;
+}
+
+// 获取当前光标的 token 位置（无选区/不在编辑器内返回 -1）
+function getCaretTokenPosition() {
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return -1;
+
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return -1;
+
+    const range = selection.getRangeAt(0);
+    if (!inputEditor.contains(range.endContainer)) return -1;
+
+    return _getCaretTokenPosition(inputEditor, range.endContainer, range.endOffset);
+}
+
+
 
 // 保存编辑器内当前光标（按 inputEditor 内的字符偏移计）
 function _saveEditorCaret() {

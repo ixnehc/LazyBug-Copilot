@@ -97,6 +97,10 @@ public:
 	// 设置焦点到ChatInput
 	void SetFocusToChatInput();
 
+	// 输入自动补全
+	void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff);
+	void HideHint();
+
 	// 更新设置菜单按钮状态（根据是否有打开的数据库文件夹）
 	void UpdateSettingMenuButton();
 
@@ -169,7 +173,7 @@ protected:
 
 	void _OnSendMessage(const std::wstring& content);
 
-	void _OnInputContentChanged(const std::wstring& content);
+	void _OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing);
 
 	// WebView消息处理
 	void _OnWebViewMessage(const std::wstring& message);
@@ -225,6 +229,10 @@ protected:
 	// ── 输入自动补全 ──
 	CInputHintWindow _inputHintWindow;
 	bool _inputHintEnabled = false;
+	bool _isInputComposing = false;
+
+	bool _CanShowHint() const { return !_isInputComposing; }
+	void _UpdateHideHint();
 
 };
 

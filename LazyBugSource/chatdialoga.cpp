@@ -238,8 +238,8 @@ BOOL CChatDialogA::OnInitDialog()
 	});
 
 	// 设置内容修改回调
-	_chatInput.SetContentChangedCallback([this](const std::wstring& content) {
-		_OnInputContentChanged(content);
+	_chatInput.SetContentChangedCallback([this](const std::wstring& content, int caretPos, bool isComposing) {
+		_OnInputContentChanged(content, caretPos, isComposing);
 	});
 
 	// 设置标签点击回调
@@ -524,6 +524,7 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 	_settingMenuWindow.Update();
 	_inputHintWindow.Update();
+	_UpdateHideHint();
 
 //	_UpdateSyncImageTags();
 
@@ -1626,9 +1627,22 @@ void CChatDialogA::_UpdateContextUsage()
 }
 
 
-void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
+void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing)
 {
 	_inputHistory.OnModifyCurrent(content);
+
+	// 中断上一个补全task，清除 hint 窗口和删除标记
+	_chatTaskMgrBg.InterruptTaskType("InputHint");
+	_inputHintWindow.HideHint();
+
+	// 更新 IME composition 状态
+	_isInputComposing = isComposing;
+
+	// composition 期间不触发 hint，立即隐藏已有 hint
+	if (isComposing)
+	{
+		return;
+	}
 
 // 	if (_agent.IsWorking())
 // 		_agent.Pause();
@@ -1639,13 +1653,9 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 	if (!_inputHintEnabled)
 		return;
 
-	// 中断上一个补全task，清除 hint 窗口和删除标记
-	_chatTaskMgrBg.InterruptTaskType("InputHint");
-	_inputHintWindow.HideHint();
 
 	if (content.empty())
 	{
-		_inputHintWindow.HideHint();
 		return;
 	}
 
@@ -1655,7 +1665,27 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content)
 
 	CRect inputRect;
 	_chatInput.GetWindowRect(&inputRect);
-	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, &_inputHintWindow, inputRect);
+	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos);
+}
+
+void CChatDialogA::_UpdateHideHint()
+{
+	if (!_CanShowHint())
+	{
+		_inputHintWindow.HideHint();
+	}
+}
+
+void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff)
+{
+	if (!_CanShowHint())
+		return;
+	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff);
+}
+
+void CChatDialogA::HideHint()
+{
+	_inputHintWindow.HideHint();
 }
 
 void CChatDialogA::_HandleEscape()

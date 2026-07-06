@@ -128,26 +128,29 @@
 
 /* 输入提示开关按钮 */
 .input-hint-toggle-button {
-    background-color: var(--button-bg);
+    background-color: #3c3c3c;
     border: 1px solid var(--border-color);
     color: var(--text-color);
-    width: 28px;
+    width: 32px;
     height: 24px;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    padding: 0;
     flex-shrink: 0;
     transition: all 0.15s ease;
     align-self: flex-end;
     margin-bottom: 2px;
+    margin-left: auto;
     position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .input-hint-toggle-button:hover:not(:disabled) {
-    background-color: var(--button-hover);
+    background-color: #4c4c4c;
     border-color: var(--primary-color);
 }
 
@@ -156,22 +159,21 @@
     cursor: not-allowed;
 }
 
-/* 禁用状态 - 在右下角显示红色禁用符号 */
-.input-hint-toggle-button.disabled::after {
-    content: "⊘";
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    font-size: 10px;
-    color: #dc3545;
-    background-color: var(--bg-color);
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
+/* 💡图标 */
+.input-hint-toggle-icon {
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    fill: none;
+    stroke: var(--text-color);
+    stroke-width: 1.5;
+    opacity: 0.6;
+}
+
+/* 启用状态 - 实心灯泡 */
+.input-hint-toggle-button.enabled .input-hint-toggle-icon {
+    fill: #ffd633;
+    stroke: #ffd633;
+    opacity: 1;
 }
 
 /* 标签栏滚动条 */

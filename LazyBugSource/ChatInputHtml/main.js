@@ -124,6 +124,16 @@ function initializeEventListeners() {
     inputEditor.addEventListener('input', updateWatermarkVisibility);
     inputEditor.addEventListener('keydown', handleKeyDown);
     
+    // IME 组合输入事件监听
+    inputEditor.addEventListener('compositionstart', function() {
+        AppState.isInputComposing = true;
+    });
+    inputEditor.addEventListener('compositionend', function() {
+        AppState.isInputComposing = false;
+        // 组合输入结束后补发一次 contentChanged，让 C++ 端解除 composition 状态
+        notifyContentChanged();
+    });
+    
     // 复制、剪切和粘贴事件监听
     inputEditor.addEventListener('copy', handleCopy);
     inputEditor.addEventListener('cut', handleCopy);

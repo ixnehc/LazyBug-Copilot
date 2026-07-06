@@ -4,7 +4,8 @@ const AppState = {
     currentTags: [],
     currentToolButtons: [],
     zwsp: '\u200B',
-    isPasting: false  // paste 期间屏蔽 ensureTagIntegrity，防止其 DOM 操作污染 undo 栈
+    isPasting: false,  // paste 期间屏蔽 ensureTagIntegrity，防止其 DOM 操作污染 undo 栈
+    isInputComposing: false  // IME 组合输入期间为 true
 };
 
 
