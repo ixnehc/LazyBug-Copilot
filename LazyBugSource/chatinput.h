@@ -28,6 +28,7 @@ using InputFilePastedCallback = std::function<void(const std::wstring&)>; // 文
 using InputSkillButtonClickedCallback = std::function<void(const RECT&)>; // Skill按钮点击回调，参数为按钮屏幕绝对坐标
 using InputMcpButtonClickedCallback = std::function<void(const RECT&)>; // MCP按钮点击回调，参数为按钮屏幕绝对坐标
 using InputCompressIntensityChangedCallback = std::function<void(int)>; // 压缩强度改变回调，参数为强度值(0-5)
+using InputHintToggleCallback = std::function<void(bool)>; // 输入提示开关按钮点击回调，参数为新的启用状态
 
 // 工具栏按钮结构
 struct ChatInputToolButton
@@ -78,6 +79,10 @@ public:
     void SetSkillButtonClickedCallback(InputSkillButtonClickedCallback callback);
     void SetMcpButtonClickedCallback(InputMcpButtonClickedCallback callback);
     void SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback);
+    void SetInputHintToggleCallback(InputHintToggleCallback callback);
+    
+    // 设置输入提示开关按钮状态
+    void SetInputHintToggleButtonState(bool enabled);
     
     // 获取WebView2环境和核心WebView
     ICoreWebView2* GetCoreWebView2() { return _webView; }
@@ -281,6 +286,7 @@ private:
     InputSkillButtonClickedCallback _skillButtonClickedCallback;
     InputMcpButtonClickedCallback _mcpButtonClickedCallback;
     InputCompressIntensityChangedCallback _compressIntensityChangedCallback;
+    InputHintToggleCallback _inputHintToggleCallback;
     
     // 脚本执行回调映射
     std::map<int, std::function<void(const std::wstring&)>> _scriptCallbacks;

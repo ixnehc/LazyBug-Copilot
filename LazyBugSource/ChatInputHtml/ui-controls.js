@@ -464,6 +464,32 @@ function hideCompressSummarizeTip() {
     }
 }
 
+// 设置输入提示开关按钮状态
+function setInputHintToggleButtonState(enabled) {
+    const button = document.getElementById('inputHintToggleButton');
+    if (button) {
+        if (enabled) {
+            button.classList.remove('disabled');
+        } else {
+            button.classList.add('disabled');
+        }
+    }
+}
+
+// 处理输入提示开关按钮点击
+function handleInputHintToggleClick() {
+    const button = document.getElementById('inputHintToggleButton');
+    if (button) {
+        const isCurrentlyEnabled = !button.classList.contains('disabled');
+        // 切换状态 - 如果当前是启用状态，点击后变为禁用（添加disabled类）
+        // 如果当前是禁用状态，点击后变为启用（移除disabled类）
+        sendMessageToNative({
+            action: 'inputHintToggleClicked',
+            enabled: !isCurrentlyEnabled
+        });
+    }
+}
+
 // 导出到全局
 window.updateToolButtons = updateToolButtons;
 window.createToolButtonElement = createToolButtonElement;
@@ -487,3 +513,5 @@ window.handleMcpClick = handleMcpClick;
 window.focusEditor = focusEditor;
 window.showCompressSummarizeTip = showCompressSummarizeTip;
 window.hideCompressSummarizeTip = hideCompressSummarizeTip;
+window.setInputHintToggleButtonState = setInputHintToggleButtonState;
+window.handleInputHintToggleClick = handleInputHintToggleClick;

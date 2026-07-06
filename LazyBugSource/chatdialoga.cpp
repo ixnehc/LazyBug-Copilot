@@ -228,6 +228,8 @@ BOOL CChatDialogA::OnInitDialog()
 		{
 			_chatInput.SetInputContent_(content);
 		}
+		// 初始化输入提示开关按钮状态
+		_chatInput.SetInputHintToggleButtonState(_inputHintEnabled);
 	});
 
 	// 设置Page Up/Page Down按键回调
@@ -263,6 +265,12 @@ BOOL CChatDialogA::OnInitDialog()
 	// 设置压缩强度改变回调
 	_chatInput.SetCompressIntensityChangedCallback([this](int intensity) {
 		CChatOpsCompress::SaveIntensityForCurrentApi(static_cast<ChatOpCompressIntensity>(intensity));
+	});
+
+	// 设置输入提示开关按钮点击回调
+	_chatInput.SetInputHintToggleCallback([this](bool enabled) {
+		_inputHintEnabled = enabled;
+		_chatInput.SetInputHintToggleButtonState(_inputHintEnabled);
 	});
 
 	// 创建Skills弹出窗口

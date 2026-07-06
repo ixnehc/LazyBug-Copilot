@@ -85,6 +85,11 @@ function processNativeMessage(data) {
         case 'clearDeletionMarks':
             if (window.clearDeletionMarks) window.clearDeletionMarks();
             break;
+        case 'setInputHintToggleButtonState':
+            if (window.setInputHintToggleButtonState) {
+                window.setInputHintToggleButtonState(data.enabled !== false);
+            }
+            break;
     }
 }
 

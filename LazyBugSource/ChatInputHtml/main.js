@@ -149,6 +149,12 @@ function initializeEventListeners() {
         mcpButton.addEventListener('click', handleMcpClick);
     }
 
+    // 输入提示开关按钮点击
+    const inputHintToggleButton = document.getElementById('inputHintToggleButton');
+    if (inputHintToggleButton) {
+        inputHintToggleButton.addEventListener('click', handleInputHintToggleClick);
+    }
+
     // Stop按钮点击
     if (stopButton) {
         stopButton.addEventListener('click', handleStopClick);

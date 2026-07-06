@@ -527,6 +527,17 @@ HRESULT CChatInput::InitializeWebView()
 									}
 								}
 							}
+							else if (action == "inputHintToggleClicked")
+							{
+								if (jsonMsg.contains("enabled") && jsonMsg["enabled"].is_boolean())
+								{
+									bool enabled = jsonMsg["enabled"].get<bool>();
+									if (_inputHintToggleCallback)
+									{
+										_inputHintToggleCallback(enabled);
+									}
+								}
+							}
 							else if (action == "openLogFile")
 							{
 								if (jsonMsg.contains("path") && jsonMsg["path"].is_string())
@@ -728,6 +739,22 @@ void CChatInput::SetMcpButtonClickedCallback(InputMcpButtonClickedCallback callb
 void CChatInput::SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback)
 {
 	_compressIntensityChangedCallback = callback;
+}
+
+void CChatInput::SetInputHintToggleCallback(InputHintToggleCallback callback)
+{
+	_inputHintToggleCallback = callback;
+}
+
+void CChatInput::SetInputHintToggleButtonState(bool enabled)
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring jsonMessage = L"{\"action\":\"setInputHintToggleButtonState\",\"enabled\":";
+	jsonMessage += (enabled ? L"true" : L"false");
+	jsonMessage += L"}";
+	_PostWebMessageAsJson(jsonMessage);
 }
 
 // 调整WebView大小
