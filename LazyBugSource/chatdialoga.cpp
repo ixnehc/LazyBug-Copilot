@@ -1668,6 +1668,11 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos);
 }
 
+bool CChatDialogA::_CanShowHint()
+{
+	return !_isInputComposing && !_agent.IsWorking() && _chatInput.GetAutoCompleteList() && !_chatInput.GetAutoCompleteList()->IsVisible();
+}
+
 void CChatDialogA::_UpdateHideHint()
 {
 	if (!_CanShowHint())

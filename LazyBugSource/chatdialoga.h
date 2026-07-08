@@ -231,7 +231,7 @@ protected:
 	bool _inputHintEnabled = false;
 	bool _isInputComposing = false;
 
-	bool _CanShowHint() const { return !_isInputComposing; }
+	bool _CanShowHint();
 	void _UpdateHideHint();
 
 };
