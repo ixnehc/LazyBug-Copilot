@@ -372,6 +372,7 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_FindSymbolDefine.cpp" />
     <ClCompile Include="..\LazyBugSource\chattask_inputhint.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_InputHint2.cpp" />
+    <ClCompile Include="..\LazyBugSource\chattask_inputhint3.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Mcp.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_QueryFinish.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Question.cpp" />
@@ -437,6 +438,7 @@
     <ClCompile Include="..\LazyBugSource\LspClient.cpp" />
     <ClCompile Include="..\LazyBugSource\McpUpdater.cpp" />
     <ClCompile Include="..\LazyBugSource\NameIndexer.cpp" />
+    <ClCompile Include="..\LazyBugSource\PinyinLib.cpp" />
     <ClCompile Include="..\LazyBugSource\ProjFileScanner.cpp" />
     <ClCompile Include="..\LazyBugSource\RepairWnd.cpp" />
     <ClCompile Include="..\LazyBugSource\RepairWndG.cpp">
@@ -564,7 +566,9 @@
     <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_InputHint2.h" />
+    <ClInclude Include="..\LazyBugSource\chattask_inputhint3.h" />
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h" />
+    <ClInclude Include="..\LazyBugSource\PinyinLib.h" />
     <ClInclude Include="..\LazyBugSource\Utils_InputHint.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2EnvironmentOptions.h" />

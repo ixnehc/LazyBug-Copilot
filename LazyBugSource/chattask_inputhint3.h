@@ -1,0 +1,30 @@
+#pragma once
+#include "ChatTaskMgr.h"
+#include "Utils_InputHint.h"
+
+class CChatTask_InputHint3 : public CChatTask
+{
+public:
+    CChatTask_InputHint3(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect);
+
+    const char* GetType() override { return "InputHint3"; }
+    void Start() override;
+    void Update() override;
+    void Interrupt() override;
+    int GetLlmSessionCount() override { return 1; }
+
+private:
+    void _Fail(const std::string& reason = "");
+    std::string _CollectChatContextFromOps();
+
+    std::string              _chatContext;
+    Utils::InputContent      _originalInputContent;
+    Utils::InputContent      _newInputContent;
+    int                      _caretPlainPos;
+    std::string              _apiName;
+    std::string              _resultText;
+    bool                     _hasStartedRequest;
+    bool                     _requestInterrupt;
+
+    CRect                    _anchorRect;
+};

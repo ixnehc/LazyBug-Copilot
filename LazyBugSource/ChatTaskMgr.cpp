@@ -16,6 +16,7 @@
 #include "ChatTask_CompressSummarize.h"
 #include "ChatTask_InputHint.h"
 #include "ChatTask_InputHint2.h"
+#include "ChatTask_InputHint3.h"
 #include "InputHintWindow.h"
 #include <algorithm>
 #include <cstring>
@@ -693,6 +694,12 @@ void CChatTaskMgr::AddTask_InputHint(const std::wstring& content, const std::str
 void CChatTaskMgr::AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
 {
 	CChatTask_InputHint2* task = new CChatTask_InputHint2(content, apiName, caretTokenPos, anchorRect);
+	_AddTask(task);
+}
+
+void CChatTaskMgr::AddTask_InputHint3(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
+{
+	CChatTask_InputHint3* task = new CChatTask_InputHint3(content, apiName, caretTokenPos, anchorRect);
 	_AddTask(task);
 }
 
