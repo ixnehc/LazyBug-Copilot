@@ -15,6 +15,7 @@
 #include "ChatTask_Mcp.h"
 #include "ChatTask_CompressSummarize.h"
 #include "ChatTask_InputHint.h"
+#include "ChatTask_InputHint2.h"
 #include "InputHintWindow.h"
 #include <algorithm>
 #include <cstring>
@@ -229,7 +230,6 @@ CChatTask::CChatTask()
 {
 	_context = nullptr;
 	_status = TaskStatus::Pending;
-	_llmChat = nullptr;
 }
 
 bool CChatTask::CheckType(const char* tp)
@@ -423,8 +423,8 @@ TaskStatus CChatTaskMgr::_CheckPendingTaskNextStep(CChatTask* task)
 	if (_running.size() >= _GetMaxConcurrentTasks())
 		return TaskStatus::Pending;
 
-	// 检查是否需要LlmSession但没有可用的
-	if (task->NeedLlmSession() && _availableLlmChats.empty())
+	// 检查是否需要LlmSession但没有足够的可用LlmChat
+	if ((int)_availableLlmChats.size() < task->GetLlmSessionCount())
 		return TaskStatus::Pending;
 
 	// 检查任务依赖
@@ -450,10 +450,13 @@ void CChatTaskMgr::_StartTask(CChatTask* task)
 	// 将context实例的地址传给任务
 	task->_context = &_context;
 	
-	// 如果需要LlmSession，分配一个
-	if (task->NeedLlmSession())
+	// 如果需要LlmSession，分配所需数量的LlmChat
+	int sessionCount = task->GetLlmSessionCount();
+	for (int i = 0; i < sessionCount; ++i)
 	{
-		task->_llmChat = _AllocateLlmChat();
+		CLlmChat* llmChat = _AllocateLlmChat();
+		if (llmChat)
+			task->_llmChats.push_back(llmChat);
 	}
 	
 	task->_status = TaskStatus::Running;
@@ -470,12 +473,13 @@ void CChatTaskMgr::_RemoveFinishedTasks()
 		auto* task = *runningIt;
 		if (task && task->IsFinished())
 		{
-			// 回收LlmChat资源
-			if (task->_llmChat)
+			// 回收所有LlmChat资源
+			for (auto* llmChat : task->_llmChats)
 			{
-				_ReleaseLlmChat(task->_llmChat);
-				task->_llmChat = nullptr;
+				if (llmChat)
+					_ReleaseLlmChat(llmChat);
 			}
+			task->_llmChats.clear();
 			
 			// 直接删除任务
 			delete task;
@@ -683,6 +687,12 @@ void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::stri
 void CChatTaskMgr::AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
 {
 	CChatTask_InputHint* task = new CChatTask_InputHint(content, apiName, caretTokenPos, anchorRect);
+	_AddTask(task);
+}
+
+void CChatTaskMgr::AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
+{
+	CChatTask_InputHint2* task = new CChatTask_InputHint2(content, apiName, caretTokenPos, anchorRect);
 	_AddTask(task);
 }
 

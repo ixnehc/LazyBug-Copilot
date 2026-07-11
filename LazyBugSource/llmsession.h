@@ -49,6 +49,16 @@ struct LlmSessionSetting
 };
 
 
+// 判断 API 格式是否会在响应中返回 reasoning_content（思考内容）
+inline bool IsSendingBackReasoningContent(LlmApiFormat fmt)
+{
+	return (fmt == LlmApiFormat::DeepSeek) ||
+	       (fmt == LlmApiFormat::Kimi) ||
+	       (fmt == LlmApiFormat::GLM) ||
+		(fmt == LlmApiFormat::OpenAI_)||
+		(fmt == LlmApiFormat::OpenRouter);
+}
+
 struct LlmSessionRequest
 {
 	LlmSessionRequest()

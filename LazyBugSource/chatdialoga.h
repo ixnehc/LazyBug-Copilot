@@ -98,7 +98,7 @@ public:
 	void SetFocusToChatInput();
 
 	// 输入自动补全
-	void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff);
+	void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos = -1);
 	void HideHint();
 
 	// 更新设置菜单按钮状态（根据是否有打开的数据库文件夹）
@@ -190,6 +190,7 @@ protected:
 	void _HandleChatSettingPageClose();
 	void _HandleTagClicked(const std::wstring& tagId);
 	void _HandleEscape();
+	bool _HandleTab();
 	void _HandleSkillButtonClicked(const RECT& btnRect);
 	void _HandleMcpButtonClicked(const RECT& btnRect);
 

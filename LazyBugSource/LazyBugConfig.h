@@ -32,5 +32,7 @@
 
 #define LAZYBUG_CLI_WHITELIST_FILENAME "cli_whitelist.txt"
 
+#define LAZYBUG_PINYIN_LIB_FILENAME "pinyin_lib.txt"
+
 #define LAZYBUG_GLOBAL_CONTEXT_FILENAME "global_rules.md"
 #define LAZYBUG_PROJECT_CONTEXT_FILENAME "project_rules.md"

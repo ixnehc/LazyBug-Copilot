@@ -1,13 +1,14 @@
 // 内容处理（输入输出、粘贴、光标导航）
 
 // 设置输入内容
-function setInputContent(content) {
+function setInputContent(content, caretTokenPos) {
     const inputEditor = document.getElementById('inputEditor');
     if (!inputEditor) return;
     
     console.log('setInputContent called with:', content);
     console.log('Content type:', typeof content);
     console.log('Is array:', Array.isArray(content));
+    console.log('caretTokenPos:', caretTokenPos);
     
     inputEditor.innerHTML = '';
     
@@ -71,12 +72,41 @@ function setInputContent(content) {
         inputEditor.appendChild(textNode);
     }
     
+    // 设置光标位置
     const selection = window.getSelection();
     const range = document.createRange();
-    range.selectNodeContents(inputEditor);
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
+    
+    if (typeof caretTokenPos === 'number' && caretTokenPos >= 0) {
+        // 根据 token 位置定位光标
+        const caretLocation = _locateCaretByToken(inputEditor, caretTokenPos);
+        if (caretLocation) {
+            try {
+                range.setStart(caretLocation.node, caretLocation.offset);
+                range.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            } catch (e) {
+                console.warn('Failed to set caret at token position:', e);
+                // 回退到末尾
+                range.selectNodeContents(inputEditor);
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+        } else {
+            // 定位失败，回退到末尾
+            range.selectNodeContents(inputEditor);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    } else {
+        // 默认折叠到末尾
+        range.selectNodeContents(inputEditor);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
     
     console.log('setInputContent completed, final editor content:', inputEditor.innerHTML);
     updateWatermarkVisibility();
@@ -90,7 +120,7 @@ function setInputContent(content) {
         inputEditor.offsetHeight; 
         inputEditor.setAttribute('contenteditable', 'true');
         
-        // 重新聚焦并设置光标到末尾，因为切换 contenteditable 可能会丢失焦点
+        // 重新聚焦并恢复光标位置
         inputEditor.focus();
         selection.removeAllRanges();
         selection.addRange(range);
@@ -1375,6 +1405,85 @@ function _locateCaret(root, targetOffset) {
                         found = { node: node, offset: i };
                         return;
                     }
+                } else {
+                    // 普通元素：递归其子节点
+                    walk(child);
+                }
+            }
+        }
+    }
+
+    walk(root);
+    // 未命中（偏移超出末尾）：落到最后一个可用位置
+    if (!found) {
+        found = { node: root, offset: root.childNodes.length };
+    }
+    return found;
+}
+
+
+// 在 root 内定位 token 偏移对应的 (node, offset)
+// 计数规则与 _getCaretTokenPosition 一致：字符=1，tag=1，<br>=1，跳过 ZWSP
+function _locateCaretByToken(root, targetToken) {
+    const zwsp = AppState.zwsp;
+    let remaining = targetToken;
+    let found = null;
+
+    function walk(node) {
+        if (found) return;
+        for (let i = 0; i < node.childNodes.length; i++) {
+            if (found) return;
+            const child = node.childNodes[i];
+            if (child.nodeType === Node.TEXT_NODE) {
+                // 统计非 ZWSP 字符数
+                const text = child.textContent;
+                let tokenCount = 0;
+                for (let j = 0; j < text.length; j++) {
+                    if (text[j] !== zwsp) tokenCount++;
+                }
+                if (remaining < tokenCount) {
+                    // 落在此文本节点内，找到第 remaining 个非 ZWSP 字符的位置
+                    let nonZwspIndex = 0;
+                    let charOffset = 0;
+                    for (let j = 0; j < text.length; j++) {
+                        if (text[j] !== zwsp) {
+                            if (nonZwspIndex === remaining) {
+                                found = { node: child, offset: j };
+                                return;
+                            }
+                            nonZwspIndex++;
+                        }
+                        charOffset = j + 1;
+                    }
+                    // 不应该到达这里
+                    found = { node: child, offset: text.length };
+                    return;
+                } else if (remaining === tokenCount) {
+                    // 落在此文本节点末尾
+                    found = { node: child, offset: text.length };
+                    return;
+                }
+                remaining -= tokenCount;
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+                if (child.classList && child.classList.contains('inline-tag')) {
+                    // tag 作为原子单位，计 1 token
+                    if (remaining === 0) {
+                        // 落在 tag 前边界
+                        found = { node: node, offset: i };
+                        return;
+                    } else if (remaining === 1) {
+                        // 落在 tag 后边界
+                        found = { node: node, offset: i + 1 };
+                        return;
+                    }
+                    remaining -= 1;
+                } else if (child.tagName === 'BR') {
+                    // <br> 计 1 token
+                    if (remaining === 0) {
+                        found = { node: node, offset: i };
+                        return;
+                    }
+                    remaining -= 1;
                 } else {
                     // 普通元素：递归其子节点
                     walk(child);

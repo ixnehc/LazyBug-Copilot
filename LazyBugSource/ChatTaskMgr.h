@@ -67,11 +67,11 @@ class CChatTask
 {
 public:
 	CChatTask();
-	virtual ~CChatTask() = default;
+	virtual ~CChatTask() = default; 
 	
 	virtual const char* GetType() = 0;
 	virtual void Start() = 0;
-	virtual bool NeedLlmSession()	{		return false;	}
+	virtual int GetLlmSessionCount()	{		return 0;	}
 	bool IsFinished() { return _status == TaskStatus::Success || _status == TaskStatus::Failure; }
 	virtual void Update() {} // 每帧更新，可选实现
 	virtual void Interrupt() {} // 中断任务，可选实现
@@ -91,7 +91,7 @@ public:
 
 	ChatTaskContext* _context;
 	TaskStatus _status;
-	CLlmChat* _llmChat;
+	std::vector<CLlmChat*> _llmChats;
 
 	LlmToolCall _toolCall;
 };
@@ -129,6 +129,8 @@ public:
 	void AddTask_Mcp(const LlmToolCall& toolCall);
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
 	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos);
+	void AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos);
+
 	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls);
 
 	// 获取任务统计信息

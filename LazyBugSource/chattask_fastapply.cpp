@@ -85,7 +85,7 @@ void CChatTask_FastApply::Start()
 	request.isStreaming = false;
 
 	// 发送请求到LLM
-	if (!_llmChat->Request(request, setting))
+	if (!_llmChats[0]->Request(request, setting))
 	{
 		_status = TaskStatus::Failure;
 		return;
@@ -98,15 +98,15 @@ void CChatTask_FastApply::Start()
 
 void CChatTask_FastApply::Update()
 {
-	if (!_hasStartedRequest || !_llmChat)
+	if (!_hasStartedRequest || _llmChats.empty())
 		return;
 
 	// 检查LLM会话状态
-	if (_llmChat->HasActiveSession())
+	if (_llmChats[0]->HasActiveSession())
 	{
 		LlmSessionOutput output;
 		
-		if (_llmChat->Process(output, _requestInterrupt))
+		if (_llmChats[0]->Process(output, _requestInterrupt))
 		{
 			// 收集所有输出内容，参考CChatProcessor_CollectFileEdited的做法
 			if (!output.content.empty())

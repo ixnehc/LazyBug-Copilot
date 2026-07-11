@@ -16,7 +16,7 @@ public:
 	void Start() override;
 	void Update() override;
 	void Interrupt() override;
-	bool NeedLlmSession() override { return true; }
+	int GetLlmSessionCount() override { return 1; }
 	bool IsEvaluationMode() const { return _evaluationMode; }
 
 private:

@@ -581,6 +581,9 @@
     <ClCompile Include="..\LazyBugSource\inputhintwindow.cpp">
       <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatTask_InputHint2.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -1153,6 +1156,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h">
       <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatTask_InputHint2.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

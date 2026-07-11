@@ -23,6 +23,8 @@
 
 #include "LlmLib.h"
 
+#include "PinyinLib.h"
+
 #include "ChatOpsCompress.h"
 
 #include "nlohmann/json.hpp"
@@ -136,6 +138,8 @@ BOOL CChatDialogA::OnInitDialog()
 	g_llmLib.Init();
 	g_llmTools.Init();
 
+	CPinyinLib::LoadLib();
+
 	_ui.Create(CRect(0, 0, 200, 200), this, 4022);
 	_ui.ShowWindow(SW_SHOW);
 
@@ -219,6 +223,10 @@ BOOL CChatDialogA::OnInitDialog()
 
 	_chatInput.SetEscapeCallback([this]() {
 		_HandleEscape();
+	});
+
+	_chatInput.SetTabCallback([this]() -> bool {
+		return _HandleTab();
 	});
 
 	// 设置ChatInput准备就绪回调，将历史输入内容设置到输入框
@@ -1325,11 +1333,10 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 	// 从完整内容中提取纯文本
 	std::wstring plainText = ExtractPlainText(content);
 
-	// ── _toggle_auto: 开关自动补全 ──
-	if (plainText == L"_toggle_auto")
+	// ── _runTestCase: 运行 InputHint 测试用例 ──
+	if (plainText == L"_runTestCase")
 	{
-		_inputHintEnabled = !_inputHintEnabled;
-		_inputHintWindow.HideHint();
+		Utils::RunTestCases();
 		return;
 	}
 
@@ -1379,10 +1386,11 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 	{
 		if (true)
 		{
-			extern std::deque<std::string> g_requests;
-			extern std::deque<std::string> g_receives;
-			g_requests.clear();
-			g_receives.clear();
+			extern void ClearRecentRequests();
+			ClearRecentRequests();
+
+			extern void ClearRecentReceives();
+			ClearRecentReceives();
 		}
 
 		_agent.RemoveDisabledSessions();
@@ -1633,6 +1641,7 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 
 	// 中断上一个补全task，清除 hint 窗口和删除标记
 	_chatTaskMgrBg.InterruptTaskType("InputHint");
+	//_chatTaskMgrBg.InterruptTaskType("InputHint2");
 	_inputHintWindow.HideHint();
 
 	// 更新 IME composition 状态
@@ -1666,6 +1675,7 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 	CRect inputRect;
 	_chatInput.GetWindowRect(&inputRect);
 	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos);
+	//_chatTaskMgrBg.AddTask_InputHint2(content, autoCompleteApi, inputRect, caretPos);
 }
 
 bool CChatDialogA::_CanShowHint()
@@ -1681,11 +1691,11 @@ void CChatDialogA::_UpdateHideHint()
 	}
 }
 
-void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff)
+void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos)
 {
 	if (!_CanShowHint())
 		return;
-	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff);
+	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff, newFullContent, applyCaretTokenPos);
 }
 
 void CChatDialogA::HideHint()
@@ -1702,6 +1712,16 @@ void CChatDialogA::_HandleEscape()
 	}
 	_requestEscapeInputTime = GetAbsTick();
 
+}
+
+bool CChatDialogA::_HandleTab()
+{
+	if (_inputHintWindow.IsWindowVisible())
+	{
+		_inputHintWindow.ApplyHint();
+		return true;
+	}
+	return false;
 }
 
 void CChatDialogA::_HandleSkillButtonClicked(const RECT& btnRect)

@@ -14,7 +14,7 @@ public:
 	void Start() override;
 	void Update() override;
 	void Interrupt() override;
-	bool NeedLlmSession() override { return true; }
+	int GetLlmSessionCount() override { return 1; }
 
 	bool DependsOn(CChatTask* task) override;
 

@@ -207,6 +207,15 @@
     <Content Include="llm_default.ini">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="pinyin_lib.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="rules\chatrules_checkcomplete.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="rules\chatrules_inputhint.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="ttt.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>

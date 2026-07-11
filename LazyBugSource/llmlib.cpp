@@ -170,6 +170,10 @@ void CLlmLib::_LoadLlmSessionSetting(LlmSessionSetting& setting, const LlmApi &a
 	setting.rulesFiles[0] = GetCurModuleFolderPath_utf8();
 	setting.rulesFiles[0] += "\\rules\\";
 
+	if (ruleName&&ruleName[0])
+		setting.rulesFiles[0] = "D:\\LazyBug\\LazyBugSource\\";//XXXXXXXXXXXXXXX调试用
+
+
 	// 设置规则文件路径
 	if (ruleName && strlen(ruleName) > 0)
 		setting.rulesFiles[0] += ruleName;

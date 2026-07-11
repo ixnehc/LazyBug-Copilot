@@ -230,6 +230,11 @@ void CInputHintWindow::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
         HideHint();
         return;
     }
+    if (nChar == VK_TAB)
+    {
+        ApplyHint();
+        return;
+    }
     CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
@@ -247,7 +252,7 @@ void CInputHintWindow::OnTimer(UINT_PTR nIDEvent)
 void CInputHintWindow::_DoShowWindow()
 {
     // 兜底显示: 仅在窗口尚未可见且contentSize未回传时才执行
-    if (IsWindowVisible() || _isContentSized)
+    if (IsWindowVisible() || _isContentSized || _currentContent.plainContent.empty())
         return;
 
     SetWindowPos(&CWnd::wndTopMost, _pendingWindowRect.left, _pendingWindowRect.top,
@@ -257,9 +262,14 @@ void CInputHintWindow::_DoShowWindow()
 
 //====================== 显示/隐藏 ======================
 
-void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff)
+void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos)
 {
+    if (newDiff.plainContent.empty() && std::find(oldDiff.diffStates.begin(), oldDiff.diffStates.end(), 2) == oldDiff.diffStates.end())
+        return;
+
     _currentContent = newDiff;
+    _newFullContent = newFullContent;
+    _applyCaretTokenPos = applyCaretTokenPos;
     _hasContent = true;
     _currentAnchorRect = anchorRect;
     _isContentSized = false;
@@ -353,6 +363,12 @@ void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInput
 
         _pChatInput->SetDeletionMarks(deletionIndices);
     }
+
+    // 通知 CChatInput JS 层 hint 窗口可见，以启用 Tab 键拦截
+    if (_pChatInput)
+    {
+        _pChatInput->SetHintVisible(true);
+    }
 }
 
 void CInputHintWindow::HideHint()
@@ -372,7 +388,20 @@ void CInputHintWindow::HideHint()
     if (_pChatInput)
     {
         _pChatInput->ClearDeletionMarks();
+        _pChatInput->SetHintVisible(false);
     }
+}
+
+void CInputHintWindow::ApplyHint()
+{
+    if (!_hasContent || !_pChatInput)
+        return;
+
+    // 从完整的 _newFullContent 重建 JSON（而非仅含中间变化区的 _currentContent）
+    std::wstring fullContent = Utils::BuildFullContent(_newFullContent);
+    _pChatInput->SetInputContent_(fullContent, _applyCaretTokenPos);
+
+    HideHint();
 }
 
 CRect CInputHintWindow::CalculateWindowRect(const RECT& anchorRect, int width, int height)
@@ -434,9 +463,12 @@ void CInputHintWindow::_OnContentSize(int contentWidth, int contentHeight)
 
     // 方案B: 首次收到contentSize即调整尺寸并显示(无稳定期延迟)
     _pendingWindowRect = CalculateWindowRect(_currentAnchorRect, width, height);
-    SetWindowPos(&CWnd::wndTopMost, _pendingWindowRect.left, _pendingWindowRect.top,
-        _pendingWindowRect.Width(), _pendingWindowRect.Height(),
-        SWP_NOACTIVATE | SWP_SHOWWINDOW);
+    if (!_currentContent.plainContent.empty())
+    {
+        SetWindowPos(&CWnd::wndTopMost, _pendingWindowRect.left, _pendingWindowRect.top,
+            _pendingWindowRect.Width(), _pendingWindowRect.Height(),
+            SWP_NOACTIVATE | SWP_SHOWWINDOW);
+    }
 
     if (_controller != nullptr)
     {

@@ -25,12 +25,12 @@ bool IsPrompCachingEnabled()
 
 
 std::deque<std::string> g_requests;
+static std::mutex g_requestsMutex;
 
 // 保存最近的请求到文件
 void SaveRecentRequests(const std::string& filename = "recent_requests.txt")
 {
-	static std::mutex s_mutex;
-	std::lock_guard<std::mutex> lock(s_mutex);
+	std::lock_guard<std::mutex> lock(g_requestsMutex);
 
 	std::string path = GetOpenedDBFolderPath_utf8();
 	path += "\\_log\\" + filename;
@@ -46,13 +46,26 @@ void SaveRecentRequests(const std::string& filename = "recent_requests.txt")
 	}
 }
 
+// 清空请求记录（线程安全）
+void ClearRecentRequests()
+{
+	std::lock_guard<std::mutex> lock(g_requestsMutex);
+	g_requests.clear();
+}
+
 std::deque<std::string> g_receives;
+static std::mutex g_receivesMutex;
 
 // 保存最近的请求到文件
-void SaveRecentReceives(const std::string& filename = "recent_receives.txt")
+// 若 newData 非空，则先将其追加到 g_receives（与写文件在同一锁内完成）
+void SaveRecentReceives(const std::string& filename = "recent_receives.txt", const std::string* newData = nullptr)
 {
-	static std::mutex s_mutex;
-	std::lock_guard<std::mutex> lock(s_mutex);
+	std::lock_guard<std::mutex> lock(g_receivesMutex);
+
+	if (newData && !newData->empty())
+	{
+		g_receives.push_back(*newData);
+	}
 
 	std::string path = GetOpenedDBFolderPath_utf8();
 	path += "\\_log\\" + filename;
@@ -66,6 +79,13 @@ void SaveRecentReceives(const std::string& filename = "recent_receives.txt")
 		}
 		outFile.close();
 	}
+}
+
+// 清空接收记录（线程安全）
+void ClearRecentReceives()
+{
+	std::lock_guard<std::mutex> lock(g_receivesMutex);
+	g_receives.clear();
 }
 
 
@@ -111,11 +131,7 @@ struct LlmResponse
 
 void LlmSessionRequest::_ProcessReasoning(const LlmSessionSetting& setting)
 {
-	bool isKimi = (setting.apiFormat == LlmApiFormat::Kimi);
-	bool isDeepSeek = (setting.apiFormat == LlmApiFormat::DeepSeek);
-	bool isGLM = (setting.apiFormat == LlmApiFormat::GLM);
-
-	if (isKimi||isDeepSeek||isGLM)
+	if (IsSendingBackReasoningContent(setting.apiFormat))
 		return;
 
 	// 需要处理的情况：reasoning后面紧跟一个tool call
@@ -161,11 +177,7 @@ void LlmSessionRequest::_ProcessReasoning(const LlmSessionSetting& setting)
 
 void LlmSessionRequest::_ProcessReasoning2(const LlmSessionSetting& setting)
 {
-	bool isKimi = (setting.apiFormat == LlmApiFormat::Kimi);
-	bool isDeepSeek = (setting.apiFormat == LlmApiFormat::DeepSeek);
-	bool isGLM = (setting.apiFormat == LlmApiFormat::GLM);
-
-	if ((!isKimi) && (!isDeepSeek)&&(!isGLM))
+	if (!IsSendingBackReasoningContent(setting.apiFormat))
 		return;
 
 	std::string recentReasoningContent;
@@ -378,7 +390,7 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 			messages.back().contains("content") && !messages.back()["content"].is_null() &&
 			!messages.back().contains("tool_calls"))
 		{
-			if ((setting.apiFormat == LlmApiFormat::DeepSeek)|| (setting.apiFormat == LlmApiFormat::Kimi) || (setting.apiFormat == LlmApiFormat::GLM))
+			if (IsSendingBackReasoningContent(setting.apiFormat))
 			{
 				// 合并tool_calls和reasoning_content到最后一个assistant消息
 				json& lastMessage = messages.back();
@@ -412,10 +424,7 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 				return;
 			}
 			//我们要保证两个assistant不连续,所以额外添加一个user 消息
-			if ((setting.apiFormat != LlmApiFormat::Anthropic_)&& 
-				(setting.apiFormat != LlmApiFormat::GLM)&&
-				(setting.apiFormat != LlmApiFormat::Kimi)&&
-				(setting.apiFormat != LlmApiFormat::DeepSeek))
+			if ((setting.apiFormat != LlmApiFormat::Anthropic_)&& !IsSendingBackReasoningContent(setting.apiFormat))
 				CommitUserMessage(messages, "ok", setting);
 			messages.insert(messages.end(), parsedJson.begin(), parsedJson.end());
 			return;
@@ -424,7 +433,7 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 		// 从后向前查找最后一个包含 tool_calls 的 assistant 消息
 		// 如果遇到既不是tool call也不是tool result的消息，就不能合并
 		int lastAssistantIndex = -1;
-		if ((setting.apiFormat == LlmApiFormat::DeepSeek) || (setting.apiFormat == LlmApiFormat::Kimi) || (setting.apiFormat == LlmApiFormat::GLM))
+		if (IsSendingBackReasoningContent(setting.apiFormat))
 		{
 			for (int i = (int)messages.size() - 1; i >= 0; i--)
 			{
@@ -840,9 +849,7 @@ size_t LlmWriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 		session->m_buffer.erase(std::remove(session->m_buffer.begin(), session->m_buffer.end(), '\n'), session->m_buffer.end());
 	}
 
-	g_receives.push_back(t);
-
-	SaveRecentReceives();
+	SaveRecentReceives("recent_receives.txt", &t);
 
     // 处理缓冲区中的完整行
     size_t pos = 0;
@@ -1379,7 +1386,10 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 
     std::string requestBody = requestJson.dump();
 
-	g_requests.push_back(requestBody);
+	{
+		std::lock_guard<std::mutex> lock(g_requestsMutex);
+		g_requests.push_back(requestBody);
+	}
 
 	SaveRecentRequests();
 

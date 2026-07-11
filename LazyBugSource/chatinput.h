@@ -29,6 +29,7 @@ using InputSkillButtonClickedCallback = std::function<void(const RECT&)>; // Ski
 using InputMcpButtonClickedCallback = std::function<void(const RECT&)>; // MCP按钮点击回调，参数为按钮屏幕绝对坐标
 using InputCompressIntensityChangedCallback = std::function<void(int)>; // 压缩强度改变回调，参数为强度值(0-5)
 using InputHintToggleCallback = std::function<void(bool)>; // 输入提示开关按钮点击回调，参数为新的启用状态
+using InputTabCallback = std::function<bool()>; // Tab键按下回调，返回true表示已处理(阻止默认行为)
 
 // 工具栏按钮结构
 struct ChatInputToolButton
@@ -80,6 +81,10 @@ public:
     void SetMcpButtonClickedCallback(InputMcpButtonClickedCallback callback);
     void SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback);
     void SetInputHintToggleCallback(InputHintToggleCallback callback);
+    void SetTabCallback(InputTabCallback callback);
+    
+    // 通知 JS 侧 InputHint 窗口是否可见（用于条件拦截 Tab 键）
+    void SetHintVisible(bool visible);
     
     // 设置输入提示开关按钮状态
     void SetInputHintToggleButtonState(bool enabled);
@@ -99,7 +104,7 @@ public:
     // 获取和设置输入内容
     void GetInputContent(std::function<void(const std::wstring&)> callback);  // 获取包含标签信息的完整内容
     void GetInputPlainText(std::function<void(const std::wstring&)> callback); // 获取纯文本内容
-    void SetInputContent_(const std::wstring& content);  // 设置包含标签信息的完整内容
+    void SetInputContent_(const std::wstring& content, int caretTokenPos = -1);  // 设置包含标签信息的完整内容，可选指定光标 token 位置
     void ClearInput_();
     
     // 插入文本到光标位置
@@ -287,6 +292,7 @@ private:
     InputMcpButtonClickedCallback _mcpButtonClickedCallback;
     InputCompressIntensityChangedCallback _compressIntensityChangedCallback;
     InputHintToggleCallback _inputHintToggleCallback;
+    InputTabCallback _tabCallback;
     
     // 脚本执行回调映射
     std::map<int, std::function<void(const std::wstring&)>> _scriptCallbacks;

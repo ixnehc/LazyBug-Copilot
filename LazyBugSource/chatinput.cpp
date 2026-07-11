@@ -469,6 +469,13 @@ HRESULT CChatInput::InitializeWebView()
 									_escapeCallback();
 								}
 							}
+							else if (action == "tab")
+							{
+								if (_tabCallback)
+								{
+									_tabCallback();
+								}
+							}
 							else if (action == "filePasted")
 							{
 								if (_filePastedCallback)
@@ -759,6 +766,20 @@ void CChatInput::SetInputHintToggleCallback(InputHintToggleCallback callback)
 	_inputHintToggleCallback = callback;
 }
 
+void CChatInput::SetTabCallback(InputTabCallback callback)
+{
+	_tabCallback = callback;
+}
+
+void CChatInput::SetHintVisible(bool visible)
+{
+	if (_webView)
+	{
+		std::wstring script = L"window.__hintVisible = " + std::wstring(visible ? L"true;" : L"false;");
+		_webView->ExecuteScript(script.c_str(), nullptr);
+	}
+}
+
 void CChatInput::SetInputHintToggleButtonState(bool enabled)
 {
 	if (!_IsReady())
@@ -907,7 +928,7 @@ void CChatInput::GetInputPlainText(std::function<void(const std::wstring&)> call
 }
 
 // 设置输入内容（支持包含标签信息的完整内容）
-void CChatInput::SetInputContent_(const std::wstring& content)
+void CChatInput::SetInputContent_(const std::wstring& content, int caretTokenPos)
 {
 	if (!_IsReady())
 		return;
@@ -924,7 +945,15 @@ void CChatInput::SetInputContent_(const std::wstring& content)
 	// 将content作为字符串传递，让JavaScript端解析
 	// 先转义JSON字符串，确保它能安全地嵌入到JSON消息中
 	std::wstring safeContent = EscapeJsonString(content);
-	std::wstring jsonMessage = L"{\"action\":\"setContent\",\"content\":\"" + safeContent + L"\"}";
+	std::wstring jsonMessage;
+	if (caretTokenPos >= 0)
+	{
+		jsonMessage = L"{\"action\":\"setContent\",\"content\":\"" + safeContent + L"\",\"caretPos\":" + std::to_wstring(caretTokenPos) + L"}";
+	}
+	else
+	{
+		jsonMessage = L"{\"action\":\"setContent\",\"content\":\"" + safeContent + L"\"}";
+	}
 
 	_PostWebMessageAsJson(jsonMessage);
 }

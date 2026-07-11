@@ -1,6 +1,13 @@
 ﻿#include "stdh.h"
 #include "Utils_InputHint.h"
 #include "../Common/codediff/dmp_diff.h"
+#include "LlmChat.h"
+#include "LlmLib.h"
+#include "utils_file.h"
+#include <fstream>
+
+extern CLlmLib g_llmLib;
+extern const char* GetOpenedDBFolderPath_utf8();
 
 // 外部函数声明
 extern std::string widechar_to_utf8(const wchar_t* str);
@@ -173,6 +180,185 @@ InputContent BuildInputContent(const std::wstring& fullContent)
     return result;
 }
 
+// ─── BuildFullContent ─────────────────────────────────────────────────────────
+// BuildInputContent 的逆操作：将 InputContent 重建为 CChatInput 的完整 JSON 数组字串
+std::wstring BuildFullContent(const InputContent& inputContent)
+{
+    nlohmann::json result = nlohmann::json::array();
+
+    const std::wstring& s = inputContent.plainContent;
+    size_t pos = 0;
+
+    for (const auto& seg : inputContent.tagSegments)
+    {
+        // tag 之前的普通文本
+        if (pos < seg.startPos)
+        {
+            std::wstring textPart = s.substr(pos, seg.startPos - pos);
+            if (!textPart.empty())
+            {
+                nlohmann::json item;
+                item["type"] = "text";
+                item["content"] = widechar_to_utf8(textPart.c_str());
+                result.push_back(item);
+            }
+        }
+
+        // tag 本身: 恢复 rawText
+        try
+        {
+            nlohmann::json tagItem = nlohmann::json::parse(seg.rawText);
+            result.push_back(tagItem);
+        }
+        catch (...)
+        {
+            // 如果 rawText 解析失败，回退为 text 类型
+            nlohmann::json item;
+            item["type"] = "text";
+            item["content"] = widechar_to_utf8((L"[" + seg.tagText + L"]").c_str());
+            result.push_back(item);
+        }
+
+        pos = seg.endPos;
+    }
+
+    // 最后一个 tag 之后的剩余文本
+    if (pos < s.size())
+    {
+        std::wstring textPart = s.substr(pos);
+        if (!textPart.empty())
+        {
+            nlohmann::json item;
+            item["type"] = "text";
+            item["content"] = widechar_to_utf8(textPart.c_str());
+            result.push_back(item);
+        }
+    }
+
+    // 如果没有 tag 也没有内容, 返回空数组
+    std::string utf8Result = result.dump();
+    return utf8_to_widechar(utf8Result);
+}
+
+// ─── CalcApplyCaretPos ─────────────────────────────────────────────────────────
+int CalcApplyCaretPos(const std::wstring& oldPlain, const std::wstring& newPlain,
+                      const InputContent& newInputContent, int caretPlainPos)
+{
+    // 无效输入检查
+    if (newPlain.empty())
+        return -1;
+
+    // 对 old/new plain 做字符级 diff，构建 old->new 位置映射并记录最后一个插入位置
+    MyersDiff<std::wstring> differ(oldPlain, newPlain);
+
+    std::vector<int> oldToNew(oldPlain.size(), -1);
+    size_t oldIdx = 0;
+    size_t newIdx = 0;
+    size_t lastInsertEnd = 0;  // 最后一个 Insert 段结束位置的下一个字符位置
+
+    for (const auto& d : differ.diffs())
+    {
+        size_t len = d.text.size();
+        if (d.operation == DiffOp_Equal)
+        {
+            for (size_t k = 0; k < len && oldIdx + k < oldToNew.size(); ++k)
+                oldToNew[oldIdx + k] = (int)(newIdx + k);
+            oldIdx += len;
+            newIdx += len;
+        }
+        else if (d.operation == DiffOp_Delete)
+        {
+            oldIdx += len;  // 旧字符被删除，无对应
+        }
+        else // DiffOp_Insert
+        {
+            lastInsertEnd = newIdx + len;  // 记录插入段结束位置
+            newIdx += len;
+        }
+    }
+
+    // 计算位置 A：光标前字符的新位置
+    size_t posA = 0;
+    if (caretPlainPos <= 0 || oldPlain.empty())
+    {
+        // 光标在开头或之前，A = 0
+        posA = 0;
+    }
+    else
+    {
+        int targetOldPos = caretPlainPos - 1;
+        if (targetOldPos >= (int)oldToNew.size())
+            targetOldPos = (int)oldToNew.size() - 1;
+
+        // 查找该字符的映射
+        int mapped = oldToNew[targetOldPos];
+        if (mapped >= 0)
+        {
+            // 映射有效，光标落在该字符之后
+            posA = (size_t)mapped + 1;
+        }
+        else
+        {
+            // 该字符被删除，向前回退到最近有效映射
+            int fallback = targetOldPos - 1;
+            while (fallback >= 0 && oldToNew[fallback] < 0)
+                --fallback;
+            if (fallback >= 0)
+                posA = (size_t)oldToNew[fallback] + 1;
+            else
+                posA = 0;  // 没有有效映射，放到开头
+        }
+    }
+
+    // 计算位置 B：最后一个 Add 字符之后
+    size_t posB = lastInsertEnd;
+
+    // 取 max(A, B) 作为最终字符位置
+    size_t charPos = (posA > posB) ? posA : posB;
+
+    // 钳到 newPlain 范围内
+    if (charPos > newPlain.size())
+        charPos = newPlain.size();
+
+    // 将字符位置转换为 token 位置
+    // 遍历 newInputContent：普通字符 = 1 token，tag = 1 token
+    int tokenPos = 0;
+    size_t charIdx = 0;
+    const auto& segments = newInputContent.tagSegments;
+    size_t segIdx = 0;
+
+    while (charIdx < charPos && charIdx < newPlain.size())
+    {
+        // 检查当前位置是否在某个 tag 区间内
+        bool inTag = false;
+        while (segIdx < segments.size() && segments[segIdx].startPos <= charIdx)
+        {
+            if (segments[segIdx].startPos <= charIdx && charIdx < segments[segIdx].endPos)
+            {
+                // 在 tag 内，整个 tag 算 1 token
+                tokenPos++;
+                charIdx = segments[segIdx].endPos;  // 跳过整个 tag
+                segIdx++;
+                inTag = true;
+                break;
+            }
+            if (segments[segIdx].endPos <= charIdx)
+                segIdx++;
+            else
+                break;
+        }
+
+        if (!inTag)
+        {
+            // 普通字符，1 字符 = 1 token
+            tokenPos++;
+            charIdx++;
+        }
+    }
+
+    return tokenPos;
+}
+
 // ─── ReplaceInputContent ──────────────────────────────────────────────────────
 bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldContent, const std::wstring& newContent)
 {
@@ -183,6 +369,10 @@ bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldCont
 
     size_t pos = oldPlain.find(oldContent);
     if (pos == std::wstring::npos)
+        return false;
+
+    // 检查是否有多个匹配
+    if (oldPlain.find(oldContent, pos + oldContent.size()) != std::wstring::npos)
         return false;
 
     // 生成替换后的新字串
@@ -351,6 +541,269 @@ void DiffInputContent(const InputContent& oldContent, const InputContent& newCon
             }
         }
     }
+}
+
+// ─── IsValidCompletion ────────────────────────────────────────────────────────
+bool IsValidCompletion(const std::wstring& oldContent, const std::wstring& newContent)
+{
+    // 统计行数: 补全不应引入比原输入更多的行(禁止把单行输入补成多行"方案")
+    auto countLines = [](const std::wstring& s) -> int
+    {
+        int lines = 1;
+        for (wchar_t c : s)
+            if (c == L'\n')
+                lines++;
+        return lines;
+    };
+
+    if (countLines(newContent) > countLines(oldContent))
+        return false;
+
+    // new 相对 old 的增删字符数不应过多(续写应是"少量"增补)
+    // 阈值: max(输入长度, 64) —— 既容忍短输入的合理补全, 又拦住整段回答
+    int deltaChars = (int)newContent.size() - (int)oldContent.size();
+    if (deltaChars < 0)
+        deltaChars = -deltaChars;
+    int limit = (int)oldContent.size();
+    if (limit < 64)
+        limit = 64;
+    if (deltaChars > limit)
+        return false;
+
+    return true;
+}
+
+// ─── FixDuplicationAtJoin ─────────────────────────────────────────────────────
+// 将 originalPlain 中的 oldContent 替换为 newContent 后,
+// newContent 结尾处可能与原串中紧接其后的剩余后缀产生重复.
+// 检测 newContent 末尾与 remainingSuffix 开头的公共子串, 若长度 >= threshold,
+// 则从 newContent 末尾删除该重复部分.
+// 返回 true 表示已修复(newContent 已修改).
+bool FixDuplicationAtJoin(const std::wstring& originalPlain, const std::wstring& oldContent,
+                          std::wstring& newContent, size_t threshold)
+{
+    // 找到 oldContent 在原始串中的位置, 必须唯一
+    size_t pos = originalPlain.find(oldContent);
+    if (pos == std::wstring::npos)
+        return false;
+    // 多重匹配 → 无法安全定位, 放弃修复
+    if (originalPlain.find(oldContent, pos + oldContent.size()) != std::wstring::npos)
+        return false;
+
+    // 旧内容之后剩余的原串后缀
+    std::wstring remainingSuffix = originalPlain.substr(pos + oldContent.size());
+    if (remainingSuffix.empty())
+        return false;
+
+    // 计算 newContent 后缀与 remainingSuffix 前缀的最长公共子串长度
+    size_t maxLen = newContent.size();
+    if (remainingSuffix.size() < maxLen)
+        maxLen = remainingSuffix.size();
+
+    size_t overlapLen = 0;
+    for (size_t k = maxLen; k >= 1; --k)
+    {
+        if (newContent.compare(newContent.size() - k, k,
+                               remainingSuffix, 0, k) == 0)
+        {
+            overlapLen = k;
+            break;
+        }
+    }
+
+    if (overlapLen < threshold)
+        return false;
+
+    // 从 newContent 末尾删除重复部分
+    newContent.erase(newContent.size() - overlapLen);
+    return true;
+}
+
+// ─── RunTestCases ─────────────────────────────────────────────────────────────
+void RunTestCases()
+{
+	const char* dbPath = GetOpenedDBFolderPath_utf8();
+	std::string logDir = std::string(dbPath) + "\\_log\\InputHint";
+	std::wstring testDir = utf8_to_widechar(logDir) + L"\\TestCases";
+	EnsureFolder(widechar_to_utf8(testDir.c_str()).c_str());
+
+	// 收集所有 JSON 文件
+	std::vector<std::wstring> jsonFiles;
+	WIN32_FIND_DATAW fd;
+	HANDLE hFind = FindFirstFileW((testDir + L"\\*.json").c_str(), &fd);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return;
+	do
+	{
+		if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			jsonFiles.push_back(testDir + L"\\" + fd.cFileName);
+	} while (FindNextFileW(hFind, &fd));
+	FindClose(hFind);
+
+	if (jsonFiles.empty())
+		return;
+
+	// 按文件名排序，保证执行顺序可预测
+	std::sort(jsonFiles.begin(), jsonFiles.end());
+
+	// 获取 auto complete API
+	std::string apiName = g_llmLib.GetAutoCompleteApi();
+	if (apiName.empty())
+		return;
+
+	LlmSessionSetting setting;
+	if (!g_llmLib.LoadLlmSetting(setting, apiName, false, "chatrule_inputhint"))
+		return;
+
+	setting.api.tools.clear();
+
+	for (const auto& filePath : jsonFiles)
+	{
+		// 读取 JSON 文件
+		std::ifstream ifs(filePath);
+		if (!ifs.is_open())
+			continue;
+
+		nlohmann::ordered_json testJson;
+		try
+		{
+			ifs >> testJson;
+		}
+		catch (const nlohmann::json::exception&)
+		{
+			continue;
+		}
+		ifs.close();
+
+		// 跳过已有 testResult 的测试用例
+		if (testJson.contains("testResult"))
+			continue;
+
+		std::string context    = testJson.value("context", "");
+		std::string origContent= testJson.value("originalContent", "");
+
+		if (origContent.empty())
+			continue;
+
+		// 重建 user message（与 CChatTask_InputHint::Start() 格式一致，约束文字由底层 rules 自动注入）
+		std::string userMsg;
+		if (!context.empty())
+		{
+			userMsg += "Recent chat context:\n";
+			userMsg += context;
+			userMsg += "\n\n";
+		}
+		userMsg += "User's partial input:\n";
+		userMsg += origContent;
+		userMsg += "\n\n";
+		userMsg += "Completion:";
+
+		// 构造请求
+		LlmSessionRequest request;
+		request.AddUserMessage(userMsg.c_str());
+		request.isStreaming = true;
+
+		CLlmChat llmChat;
+		llmChat.Init();
+		if (!llmChat.Request(request, setting))
+		{
+			llmChat.Clear();
+			continue;
+		}
+
+		// 同步等待完成（泵送窗口消息以防 UI 卡死）
+		LlmSessionOutput output;
+		while (true)
+		{
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
+
+			if (llmChat.Process(output))
+			{
+				if (output.isCompleted || output.hasError)
+					break;
+			}
+			::Sleep(50);
+		}
+		llmChat.Clear();
+
+		// 保存测试结果
+		if (output.isCompleted && !output.hasError)
+		{
+			std::string rawResult = output.fullContent;
+			// 去除首尾空白
+			size_t start = rawResult.find_first_not_of(" \t\r\n");
+			size_t end   = rawResult.find_last_not_of(" \t\r\n");
+			if (start != std::string::npos && end != std::string::npos)
+				rawResult = rawResult.substr(start, end - start + 1);
+			else
+				rawResult.clear();
+
+			testJson["testContent"] = origContent;
+			testJson["testRaw"] = rawResult;
+
+			// 去掉光标符号，构建 InputContent
+			std::string cleanContent = origContent;
+			const std::string caretUtf8 = "\xE2\x80\xB8"; // ‸ U+2038
+			size_t caretPos = cleanContent.find(caretUtf8);
+			if (caretPos != std::string::npos)
+				cleanContent.erase(caretPos, caretUtf8.size());
+
+			std::wstring cleanW = utf8_to_widechar(cleanContent);
+			InputContent inputContent = BuildInputContent(cleanW);
+
+			// 解析 old~~||~~new
+			const std::string separator = "~~||~~";
+			size_t sepPos = rawResult.find(separator);
+			if (sepPos != std::string::npos)
+			{
+				std::string oldUtf8 = rawResult.substr(0, sepPos);
+				std::string newUtf8 = rawResult.substr(sepPos + separator.size());
+				std::wstring oldW = utf8_to_widechar(oldUtf8);
+				std::wstring newW = utf8_to_widechar(newUtf8);
+
+				if (!IsValidCompletion(oldW, newW))
+				{
+					// 不合理的补全(多行/过长的"回答式"结果), 视为无补全
+					testJson["testValid"] = false;
+					testJson["testResult"] = widechar_to_utf8(inputContent.plainContent.c_str());
+				}
+				else
+				{
+					testJson["testValid"] = true;
+					InputContent newContent = inputContent;
+					if (!ReplaceInputContent(newContent, oldW, newW))
+					{
+						newContent.plainContent = newW;
+						newContent.tagSegments.clear();
+					}
+					testJson["testResult"] = widechar_to_utf8(newContent.plainContent.c_str());
+				}
+			}
+			else
+			{
+				testJson["testResult"] = rawResult;
+			}
+		}
+		else
+		{
+			testJson["testRaw"] = nullptr;
+			testJson["testResult"] = nullptr;
+			if (output.hasError && !output.errorMessage.empty())
+				testJson["testError"] = output.errorMessage;
+		}
+
+		std::ofstream ofs(filePath);
+		if (ofs.is_open())
+		{
+			ofs << testJson.dump(2);
+			ofs.close();
+		}
+	}
 }
 
 } // namespace Utils

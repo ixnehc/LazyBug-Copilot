@@ -13,7 +13,7 @@ public:
 	void Start() override;
 	void Update() override;
 	void Interrupt() override;
-	bool NeedLlmSession() override { return false; }
+	int GetLlmSessionCount() override { return 0; }
 
 private:
 	void _Fail(const char* reason);

@@ -102,6 +102,13 @@ function handleKeyDown(event) {
             direction: 'down',
             content: JSON.parse(contentJson)
         });
+    } else if (event.key === 'Tab') {
+        if (window.__hintVisible) {
+            event.preventDefault();
+            sendMessageToNative({
+                action: 'tab'
+            });
+        }
     }
 }
 

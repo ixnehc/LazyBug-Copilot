@@ -21,12 +21,17 @@ public:
     // 设置关联的 CChatInput，ShowHint/HideHint 时会同步设置/清除删除标记
     void SetChatInput(CChatInput* pInput) { _pChatInput = pInput; }
 
-    // 显示提示窗口(传入已计算好状态的 DiffedInputContent)
+    // 显示提示窗口(传入已计算好状态的 DiffedInputContent 及完整的新内容)
     // oldDiff 用于在 CChatInput 上标记删除的 token（红色背景）
-    void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff);
+    // newFullContent 是完整的新 InputContent，用于 ApplyHint 重建完整 JSON
+    // applyCaretTokenPos 是 Apply 后光标应定位的 token 位置（-1 表示默认末尾）
+    void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos = -1);
 
     // 隐藏提示窗口（同时清除删除标记）
     void HideHint();
+
+    // 应用当前提示内容到 CChatInput 并隐藏窗口
+    void ApplyHint();
 
     // 更新(用于前台窗口检测)
     void Update();
@@ -70,8 +75,12 @@ private:
     // 前台窗口监控
     DWORD _currentProcessId;
 
-    // 当前要显示的内容
+    // 当前要显示的内容(diff 视图, 仅中间变化区域)
     Utils::DiffedInputContent _currentContent;
+    // 完整的新内容(用于 ApplyHint 重建完整 JSON)
+    Utils::InputContent _newFullContent;
+    // Apply 后光标应定位的 token 位置（-1 表示默认末尾）
+    int _applyCaretTokenPos;
     bool _hasContent;
 
     // 当前锚点矩形(收到contentSize后重新计算位置时使用)

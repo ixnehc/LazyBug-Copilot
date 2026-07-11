@@ -29,7 +29,7 @@ function processNativeMessage(data) {
             break;
         case 'setContent':
             console.log('setContent action received, data.content:', data.content);
-            if (window.setInputContent) window.setInputContent(data.content || '[]');
+            if (window.setInputContent) window.setInputContent(data.content || '[]', data.caretPos);
             break;
         case 'clearContent':
             if (window.clearInputContent) window.clearInputContent();

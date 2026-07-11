@@ -312,7 +312,7 @@ void CChatTask_CompressSummarize::Start()
 		request.AddUserMessage(prompt.c_str());
 		request.isStreaming = true;
 
-		if (!_llmChat->Request(request, setting))
+		if (!_llmChats[0]->Request(request, setting))
 		{
 			_Fail("Failed to send LLM request");
 			return;
@@ -326,15 +326,15 @@ void CChatTask_CompressSummarize::Start()
 
 void CChatTask_CompressSummarize::Update()
 {
-	if (!_llmChat)
+	if (_llmChats.empty())
 		return;
 
 	// 检查LLM会话状态
-	if (_llmChat->HasActiveSession())
+	if (_llmChats[0]->HasActiveSession())
 	{
 		LlmSessionOutput output;
 		
-		if (_llmChat->Process(output, _requestInterrupt))
+		if (_llmChats[0]->Process(output, _requestInterrupt))
 		{
 			// 检查会话是否完成
 			if (output.isCompleted)

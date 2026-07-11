@@ -4,7 +4,15 @@
 #include "LlmLib.h"
 #include "ChatOpsCtrl.h"
 #include "ChatDialogA.h"
+#include "utils_file.h"
+#include <fstream>
+#include <sstream>
 #include <unordered_set>
+#include <algorithm>
+#include <cctype>
+
+
+extern const char* GetOpenedDBFolderPath_utf8();
 
 CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect)
 {
@@ -13,6 +21,13 @@ CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std:
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 	_anchorRect = anchorRect;
+
+	_checkCompleteStarted = false;
+	_inputHintFinished = false;
+	_checkCompleteFinished = false;
+	_isInputComplete = false;
+	_hintValid = false;
+
 
 	// 将光标的 token 位置转换为 plainContent 中的字符位置
 	// token 规则: 普通字符 = 1 token, 每个 tag = 1 token(与 CChatInput 的编号一致)
@@ -56,6 +71,8 @@ void CChatTask_InputHint::_Fail(const std::string& reason)
 		_context->chatDialogA->HideHint();
 	_status = TaskStatus::Failure;
 }
+
+
 
 std::string CChatTask_InputHint::_CollectChatContextFromOps()
 {
@@ -131,41 +148,22 @@ void CChatTask_InputHint::Start()
 	_chatContext = _CollectChatContextFromOps();
 
 	LlmSessionSetting setting;
-	if (!g_llmLib.LoadLlmSetting(setting, _apiName, false, ""))
+	if (!g_llmLib.LoadLlmSetting(setting, _apiName, false, "chatrules_inputhint"))
 	{
 		_Fail("Failed to load LLM setting");
 		return;
 	}
 
 	setting.api.tools.clear();
-	setting.rulesFiles.clear();
 
 	LlmSessionRequest request;
 
-	std::string prompt;
-	prompt = "You are an input auto-completion assistant. Based on the recent chat context and the user's partial input,\n"
-		"suggest a plausible completion of what the user might be typing next.\n"
-		"You may also correct typos or improve the existing partial input when appropriate.\n"
-		"The completion should be concise and in the same language as the partial input.\n"
-		"A caret marker \xE2\x80\xB8 (U+2038) indicates the current cursor position in the partial input. "
-		"You should complete the text AT the caret position. The caret marker itself is NOT part of the "
-		"user's actual input, so you MUST NOT include it in your output.\n"
-		"You MUST strictly follow this output format and output NOTHING else:\n"
-		"<<Old Content>>~~||~~<<New Content>>\n"
-		"Where <Old Content> is the user's partial input (WITHOUT the caret marker), and <New Content> is the corrected and/or completed text.\n"
-		"Old and new content are separated by ~~||~~.\n\n"
-		"Examples:\n"
-		"Partial input \"Hello\xE2\x80\xB8\" -> output: Hello~~||~~Hello world\n"
-		"Partial input \"How are\xE2\x80\xB8\" -> output: How are~~||~~How are you\n"
-		"Partial input \"请帮我\xE2\x80\xB8\" -> output: 请帮我~~||~~请帮我写一个函数\n"
-		"Partial input \"hwo to\xE2\x80\xB8\" (typo) -> output: hwo to~~||~~how to write\n"
-		"Partial input \"请写\xE2\x80\xB8一个函数\" (caret in middle) -> output: 请写一个函数~~||~~请写一个高效的函数\n\n";
-
+	std::string userMsg;
 	if (!_chatContext.empty())
 	{
-		prompt += "Recent chat context:\n";
-		prompt += _chatContext;
-		prompt += "\n\n";
+		userMsg += "Recent chat context:\n";
+		userMsg += _chatContext;
+		userMsg += "\n\n";
 	}
 
 	// 在光标位置插入光标符号(仅用于提示 LLM 补全位置, 不属于实际输入内容)
@@ -174,99 +172,275 @@ void CChatTask_InputHint::Start()
 	{
 		inputWithCaret.insert((size_t)_caretPlainPos, L"\x2038");
 	}
+	_inputWithCaret = inputWithCaret;
 
-	prompt += "User's partial input:\n";
-	prompt += widechar_to_utf8(inputWithCaret.c_str());
-	prompt += "\n\n";
-	prompt += "Completion:";
+	userMsg += "User's partial input:\n";
+	userMsg += widechar_to_utf8(inputWithCaret.c_str());
+// 	userMsg += "\n\n";
+// 	userMsg += "Completion:";
 
-
-	request.AddUserMessage(prompt.c_str());
+	request.AddUserMessage(userMsg.c_str());
 	request.isStreaming = true;
 
-	if (!_llmChat->Request(request, setting))
+	if (!_llmChats[0]->Request(request, setting))
 	{
 		_Fail("Failed to send LLM request");
 		return;
 	}
 
 	_hasStartedRequest = true;
+
+	// 同时(无先后)发送一个独立的 checkcomplete 请求, 判断输入是否语法完整
+	// 使用 _llmChats[1]
+	if (_llmChats.size() >= 2)
+	{
+		LlmSessionSetting ccSetting;
+		if (g_llmLib.LoadLlmSetting(ccSetting, _apiName, false, "chatrules_checkcomplete"))
+		{
+			ccSetting.api.tools.clear();
+
+			LlmSessionRequest ccRequest;
+			// checkcomplete 只判断用户当前输入的完整性, 用原始纯文本(不含光标标记)
+			std::string ccMsg = widechar_to_utf8(_originalInputContent.plainContent.c_str());
+			ccRequest.AddUserMessage(ccMsg.c_str());
+			ccRequest.isStreaming = true;
+
+			if (_llmChats[1]->Request(ccRequest, ccSetting))
+				_checkCompleteStarted = true;
+		}
+	}
+
+	// 若 checkcomplete 请求未能启动, 视为已完成(不阻塞最终决定)
+	if (!_checkCompleteStarted)
+	{
+		_checkCompleteFinished = true;
+		_isInputComplete = false;
+	}
+
 	_status = TaskStatus::Running;
 }
+
 
 void CChatTask_InputHint::Update()
 {
 	if (_status != TaskStatus::Running)
 		return;
 
-	if (!_llmChat)
+	// 两个请求并行处理, 无先后
+	_ProcessInputHintSession();
+	_ProcessCheckCompleteSession();
+
+	// 两个请求都完成后再统一决定显示/隐藏
+	_TryFinalize();
+}
+
+void CChatTask_InputHint::_ProcessInputHintSession()
+{
+	if (_inputHintFinished)
 		return;
 
-	if (_llmChat->HasActiveSession())
+	if (_llmChats.empty())
 	{
-		LlmSessionOutput output;
-		if (_llmChat->Process(output, _requestInterrupt))
+		_inputHintFinished = true;
+		return;
+	}
+
+	if (!_llmChats[0]->HasActiveSession())
+	{
+		if (_hasStartedRequest)
+			_Fail("LLM session ended unexpectedly");
+		return;
+	}
+
+	LlmSessionOutput output;
+	if (!_llmChats[0]->Process(output, _requestInterrupt))
+		return;
+
+	if (!output.isCompleted)
+		return;
+
+	if (_requestInterrupt)
+	{
+		_Fail("Interrupted");
+		return;
+	}
+	if (output.hasError)
+	{
+		_Fail(output.errorMessage);
+		return;
+	}
+
+	_resultText = output.fullContent;
+
+	size_t start = _resultText.find_first_not_of(" \t\r\n");
+	size_t end = _resultText.find_last_not_of(" \t\r\n");
+	if (start != std::string::npos && end != std::string::npos)
+		_resultText = _resultText.substr(start, end - start + 1);
+	else
+		_resultText.clear();
+
+	if (!_resultText.empty())
+	{
+		// 解析 LLM 返回: old~~||~~new
+		const std::string separator = "~~||~~";
+		size_t sepPos = _resultText.find(separator);
+		if (sepPos != std::string::npos)
 		{
-			if (output.isCompleted)
+			std::string oldUtf8 = _resultText.substr(0, sepPos);
+			std::string newUtf8 = _resultText.substr(sepPos + separator.size());
+
+			std::wstring oldW = utf8_to_widechar(oldUtf8);
+			std::wstring newW = utf8_to_widechar(newUtf8);
+
+			// 校验补全结果的合理性: InputHint 只做简短续写,
+			// 拒绝把输入当成"问题"去长篇回答的异常结果
+			if (Utils::IsValidCompletion(oldW, newW))
 			{
-				if (_requestInterrupt)
-				{
-					_Fail("Interrupted");
-				}
-				else if (output.hasError)
-				{
-					_Fail(output.errorMessage);
-				}
-				else
-				{
-					_resultText = output.fullContent;
+				// 修复 LLM 未纳入光标后内容导致的拼接重复
+				Utils::FixDuplicationAtJoin(_originalInputContent.plainContent, oldW, newW);
 
-					size_t start = _resultText.find_first_not_of(" \t\r\n");
-					size_t end = _resultText.find_last_not_of(" \t\r\n");
-					if (start != std::string::npos && end != std::string::npos)
-						_resultText = _resultText.substr(start, end - start + 1);
-					else
-						_resultText.clear();
+				// 基于原始 InputContent 拷贝后用 ReplaceInputContent 应用替换
+				_newInputContent = _originalInputContent;
+				bool replaced = Utils::ReplaceInputContent(_newInputContent, oldW, newW);
 
-					if (!_resultText.empty())
+				// 如果 oldW 以 "<<Old Content>>" 开头，去掉后再尝试一次
+				if (!replaced)
+				{
+					const std::wstring oldPrefix = L"<<Old Content>>";
+					if (oldW.size() > oldPrefix.size() &&
+						oldW.compare(0, oldPrefix.size(), oldPrefix) == 0)
 					{
-						// 解析 LLM 返回: old~~||~~new
-						const std::string separator = "~~||~~";
-						size_t sepPos = _resultText.find(separator);
-						if (sepPos != std::string::npos)
-						{
-							std::string oldUtf8 = _resultText.substr(0, sepPos);
-							std::string newUtf8 = _resultText.substr(sepPos + separator.size());
-
-							std::wstring oldW = utf8_to_widechar(oldUtf8);
-							std::wstring newW = utf8_to_widechar(newUtf8);
-
-							// 基于原始 InputContent 拷贝后用 ReplaceInputContent 应用替换
-							_newInputContent = _originalInputContent;
-							if (!Utils::ReplaceInputContent(_newInputContent, oldW, newW))
-							{
-								// 替换失败(可能在 tag 内部), 退化为纯文本构建
-								_newInputContent.plainContent = newW;
-								_newInputContent.tagSegments.clear();
-							}
-
-							Utils::DiffedInputContent oldDiff, newDiff;
-							Utils::DiffInputContent(_originalInputContent, _newInputContent, oldDiff, newDiff);
-
-							if (_context && _context->chatDialogA)
-								_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff);
-						}
+						std::wstring strippedOld = oldW.substr(oldPrefix.size());
+						_newInputContent = _originalInputContent;
+						Utils::FixDuplicationAtJoin(_originalInputContent.plainContent, strippedOld, newW);
+						replaced = Utils::ReplaceInputContent(_newInputContent, strippedOld, newW);
 					}
-
-					_status = TaskStatus::Success;
 				}
+
+				// 替换失败(可能在 tag 内部), 退化为纯文本构建
+				if (!replaced)
+				{
+					_newInputContent.plainContent = newW;
+					_newInputContent.tagSegments.clear();
+				}
+
+				// 计算 diff 并暂存, 等 checkcomplete 也完成后再决定是否显示
+				Utils::DiffInputContent(_originalInputContent, _newInputContent, _pendingOldDiff, _pendingNewDiff);
+				_hintValid = true;
 			}
 		}
+
 	}
-	else if (_hasStartedRequest)
+
+	_inputHintFinished = true;
+}
+
+void CChatTask_InputHint::_ProcessCheckCompleteSession()
+{
+	if (_checkCompleteFinished)
+		return;
+
+	if (!_checkCompleteStarted)
 	{
-		_Fail("LLM session ended unexpectedly");
+		_checkCompleteFinished = true;
+		return;
 	}
+
+	if (_llmChats.size() < 2 || !_llmChats[1]->HasActiveSession())
+	{
+		// 会话意外结束, 视为未知(按不完整处理, 不阻塞显示)
+		_checkCompleteFinished = true;
+		_isInputComplete = false;
+		return;
+	}
+
+	LlmSessionOutput output;
+	if (!_llmChats[1]->Process(output, _requestInterrupt))
+		return;
+
+	if (!output.isCompleted)
+		return;
+
+	if (!_requestInterrupt && !output.hasError)
+	{
+		// 解析结果: 包含 [complete] 视为完整; 否则(含 [incomplete] 或其它)视为不完整
+		std::string result = output.fullContent;
+		std::transform(result.begin(), result.end(), result.begin(),
+			[](unsigned char c) { return (char)std::tolower(c); });
+		_isInputComplete = (result.find("[complete]") != std::string::npos);
+	}
+
+	_checkCompleteFinished = true;
+}
+
+void CChatTask_InputHint::_TryFinalize()
+{
+	// task 已在处理中失败, 无需再决定
+	if (_status != TaskStatus::Running)
+		return;
+
+	// 两个请求都完成后才决定
+	if (!_inputHintFinished || !_checkCompleteFinished)
+		return;
+
+	if (_context && _context->chatDialogA)
+	{
+		// 输入语法完整时不显示补全; 否则若有有效补全则显示
+		if (!_isInputComplete && _hintValid)
+		{
+			// 计算补全后光标应定位的 token 位置
+			int applyCaretTokenPos = Utils::CalcApplyCaretPos(
+				_originalInputContent.plainContent,
+				_newInputContent.plainContent,
+				_newInputContent,
+				_caretPlainPos);
+			_context->chatDialogA->ShowHint(_anchorRect, _pendingNewDiff, _pendingOldDiff, _newInputContent, applyCaretTokenPos);
+		}
+		else
+			_context->chatDialogA->HideHint();
+	}
+
+	// 保存请求与结果到 recent.json（此时 inputhint 和 checkcomplete 结果均已就绪）
+	if (!_requestInterrupt && !_resultText.empty())
+	{
+		const char* dbPath = GetOpenedDBFolderPath_utf8();
+		std::string rawDir = std::string(dbPath) + "\\_log\\InputHint\\raw";
+		Utils::EnsureFolder(rawDir.c_str());
+
+		std::wstring wDir = utf8_to_widechar(rawDir);
+
+		// 滚动保留最近 5 条记录: recent4.json → 删除, recent3.json → recent4.json, ...
+		DeleteFileW((wDir + L"\\recent4.json").c_str());
+		MoveFileW((wDir + L"\\recent3.json").c_str(), (wDir + L"\\recent4.json").c_str());
+		MoveFileW((wDir + L"\\recent2.json").c_str(), (wDir + L"\\recent3.json").c_str());
+		MoveFileW((wDir + L"\\recent1.json").c_str(), (wDir + L"\\recent2.json").c_str());
+		MoveFileW((wDir + L"\\recent.json").c_str(), (wDir + L"\\recent1.json").c_str());
+
+		std::wstring filename = wDir + L"\\recent.json";
+
+		// 确定 checkComplete 状态
+		const char* checkCompleteState = "incomplete";
+		if (!_checkCompleteStarted)
+			checkCompleteState = "blocked";
+		else if (_isInputComplete)
+			checkCompleteState = "complete";
+
+		nlohmann::ordered_json j;
+		j["context"] = _chatContext;
+		j["originalContent"] = widechar_to_utf8(_inputWithCaret.c_str());
+		j["originalRaw"] = _resultText;
+		j["originalResult"] = widechar_to_utf8(_newInputContent.plainContent.c_str());
+		j["checkComplete"] = checkCompleteState;
+
+		std::ofstream ofs(filename);
+		if (ofs.is_open())
+		{
+			ofs << j.dump(2);
+			ofs.close();
+		}
+	}
+
+	_status = TaskStatus::Success;
 }
 
 void CChatTask_InputHint::Interrupt()
@@ -274,3 +448,4 @@ void CChatTask_InputHint::Interrupt()
 	_requestInterrupt = true;
 	Update();
 }
+

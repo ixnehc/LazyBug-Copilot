@@ -85,7 +85,7 @@ void CChatTask_VerifyLlmApiProvider::Start()
 		if (isEmbeddingEndpoint)
 		{
 			// Embedding endpoint: 使用异步embedding请求验证
-			if (!_llmChat->RequestEmbedding(u8"test", setting))
+			if (!_llmChats[0]->RequestEmbedding(u8"test", setting))
 			{
 				_Fail();
 				return;
@@ -99,7 +99,7 @@ void CChatTask_VerifyLlmApiProvider::Start()
 		request.AddUserMessage(u8"Please give me an animal's name of 4 letters");
 		request.isStreaming = false;
 
-		if (!_llmChat->Request(request, setting))
+		if (!_llmChats[0]->Request(request, setting))
 		{
 			_Fail();
 			return;
@@ -113,15 +113,15 @@ void CChatTask_VerifyLlmApiProvider::Start()
 
 void CChatTask_VerifyLlmApiProvider::Update()
 {
-	if (!_llmChat)
+	if (_llmChats.empty())
 		return;
 
 	// 检查LLM会话状态
-	if (_llmChat->HasActiveSession())
+	if (_llmChats[0]->HasActiveSession())
 	{
 		LlmSessionOutput output;
 		
-		if (_llmChat->Process(output, _requestInterrupt))
+		if (_llmChats[0]->Process(output, _requestInterrupt))
 		{
 			// 检查会话是否完成
 			if (output.isCompleted)
