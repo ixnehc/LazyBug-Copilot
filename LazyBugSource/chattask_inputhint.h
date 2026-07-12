@@ -11,7 +11,7 @@ public:
     void Start() override;
     void Update() override;
     void Interrupt() override;
-    int GetLlmSessionCount() override { return 2; }//设为1表示,屏蔽check complete,设为2打开
+    int GetLlmSessionCount() override { return 1; }//设为1表示,屏蔽check complete,设为2打开
 
 private:
     void _Fail(const std::string& reason = "");

@@ -1640,8 +1640,8 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 	_inputHistory.OnModifyCurrent(content);
 
 	// 中断上一个补全task，清除 hint 窗口和删除标记
-	//_chatTaskMgrBg.InterruptTaskType("InputHint");
-	//_chatTaskMgrBg.InterruptTaskType("InputHint2");
+	_chatTaskMgrBg.InterruptTaskType("InputHint");
+	_chatTaskMgrBg.InterruptTaskType("InputHint2");
 	_chatTaskMgrBg.InterruptTaskType("InputHint3");
 	_inputHintWindow.HideHint();
 
@@ -1675,9 +1675,9 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 
 	CRect inputRect;
 	_chatInput.GetWindowRect(&inputRect);
-	//_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos);
+	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos);
 	//_chatTaskMgrBg.AddTask_InputHint2(content, autoCompleteApi, inputRect, caretPos);
-	_chatTaskMgrBg.AddTask_InputHint3(content, autoCompleteApi, inputRect, caretPos);
+	//_chatTaskMgrBg.AddTask_InputHint3(content, autoCompleteApi, inputRect, caretPos);
 }
 
 bool CChatDialogA::_CanShowHint()
