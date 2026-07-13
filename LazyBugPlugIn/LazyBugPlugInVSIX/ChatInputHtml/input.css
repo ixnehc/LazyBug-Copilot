@@ -43,6 +43,15 @@
     visibility: hidden;
 }
 
+/* Ghost text 提示 */
+.ghost-suggestion {
+    color: var(--placeholder-color);
+    opacity: 0.6;
+    font-style: italic;
+    user-select: none;
+    pointer-events: none;
+}
+
 /* 键盘按键样式 */
 .keyboard-key {
     display: inline-block;

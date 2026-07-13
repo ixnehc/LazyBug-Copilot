@@ -1030,6 +1030,28 @@ void CChatInput::ClearDeletionMarks()
 	_PostWebMessageAsJson(jsonMessage);
 }
 
+// 显示 ghost text 提示
+void CChatInput::ShowGhostSuggestion(const std::wstring& text, int tokenIndex)
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring safeText = EscapeJsonString(text);
+	std::wstring jsonMessage = L"{\"action\":\"showGhostSuggestion\",\"text\":\"" + safeText +
+		L"\",\"tokenIndex\":" + std::to_wstring(tokenIndex) + L"}";
+	_PostWebMessageAsJson(jsonMessage);
+}
+
+// 清除 ghost text 提示
+void CChatInput::ClearGhostSuggestion()
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring jsonMessage = L"{\"action\":\"clearGhostSuggestion\"}";
+	_PostWebMessageAsJson(jsonMessage);
+}
+
 
 //====================== 标签相关实现 ======================
 

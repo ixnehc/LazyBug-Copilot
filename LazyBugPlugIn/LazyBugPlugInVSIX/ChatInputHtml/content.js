@@ -1692,3 +1692,106 @@ window.handleTagDeletion = handleTagDeletion;
 window.setDeletionMarks = setDeletionMarks;
 window.clearDeletionMarks = clearDeletionMarks;
 window.handleSelectionChange = handleSelectionChange;
+
+// ─── Ghost text 提示 ──────────────────────────────────────────────────────────
+
+function clearGhostSuggestion() {
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return;
+
+    const ghosts = inputEditor.querySelectorAll('.ghost-suggestion');
+    ghosts.forEach(ghost => ghost.remove());
+    inputEditor.normalize();
+}
+
+function showGhostSuggestion(text, tokenIndex) {
+    const inputEditor = document.getElementById('inputEditor');
+    if (!inputEditor) return;
+
+    // 先清除已有的 ghost text
+    clearGhostSuggestion();
+
+    if (!text) return;
+
+    const zwsp = AppState.zwsp;
+    const ghostSpan = document.createElement('span');
+    ghostSpan.className = 'ghost-suggestion';
+    ghostSpan.textContent = text;
+    ghostSpan.setAttribute('contenteditable', 'false');
+
+    let currentToken = 0;
+    let inserted = false;
+
+    function tryInsertBefore(node) {
+        // 在 node 之前插入 ghost span, 并标记已插入
+        node.parentNode.insertBefore(ghostSpan, node);
+        inserted = true;
+    }
+
+    function processNode(node) {
+        if (inserted) return;
+
+        if (node.nodeType === Node.TEXT_NODE) {
+            const textContent = node.textContent;
+            for (let i = 0; i < textContent.length; i++) {
+                if (textContent[i] === zwsp) continue;
+
+                if (currentToken === tokenIndex) {
+                    // 在当前字符前插入 ghost span, 需要拆分文本节点
+                    const before = document.createTextNode(textContent.substring(0, i));
+                    const after = document.createTextNode(textContent.substring(i));
+                    const parent = node.parentNode;
+                    parent.insertBefore(before, node);
+                    parent.insertBefore(ghostSpan, node);
+                    parent.insertBefore(after, node);
+                    parent.removeChild(node);
+                    inserted = true;
+                    return;
+                }
+                currentToken++;
+            }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.classList && node.classList.contains('inline-tag')) {
+                if (currentToken === tokenIndex) {
+                    tryInsertBefore(node);
+                    return;
+                }
+                currentToken++;
+            } else if (node.tagName === 'BR') {
+                if (currentToken === tokenIndex) {
+                    tryInsertBefore(node);
+                    return;
+                }
+                currentToken++;
+            } else {
+                const children = Array.from(node.childNodes);
+                for (const child of children) {
+                    processNode(child);
+                    if (inserted) return;
+                }
+            }
+        }
+    }
+
+    const children = Array.from(inputEditor.childNodes);
+    for (const child of children) {
+        processNode(child);
+        if (inserted) break;
+    }
+
+    // tokenIndex >= 总 token 数时, 追加到末尾
+    if (!inserted) {
+        inputEditor.appendChild(ghostSpan);
+    }
+
+    // 将光标移动到 ghost text 的起始位置
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.setStartBefore(ghostSpan);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+
+window.showGhostSuggestion = showGhostSuggestion;
+window.clearGhostSuggestion = clearGhostSuggestion;

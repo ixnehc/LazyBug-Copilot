@@ -31,6 +31,14 @@ struct DiffedInputContent:public InputContent
 	std::vector<char> diffStates;//记录plainContent里每个字符的状态. 0:No change, 1: Add, 2: Delete
 };
 
+// Ghost text 提示: 当 diff 无删除且新增内容连续时, 用 ghost text 替代弹出窗口
+struct GhostContent
+{
+	std::wstring text;              // ghost text 内容
+	int          tokenIndex = -1;   // 在完整内容中插入 ghost text 的 token 位置(-1 表示无效)
+	bool IsValid() const { return !text.empty() && tokenIndex >= 0; }
+};
+
 // 从 CChatInput 的原始内容(fullContent)构建 InputContent(含 tag 区间信息)
 InputContent BuildInputContent(const std::wstring& fullContent);
 
@@ -57,7 +65,7 @@ int CalcApplyCaretPos(const std::wstring& oldPlain, const std::wstring& newPlain
 bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldContent, const std::wstring& newContent,
                          int caretPos = -1);
 
-void DiffInputContent(const InputContent& oldContent, const InputContent& newContent, DiffedInputContent& oldResult, DiffedInputContent& newResult);
+void DiffInputContent(const InputContent& oldContent, const InputContent& newContent, DiffedInputContent& oldResult, DiffedInputContent& newResult, GhostContent& ghostContent);
 
 // 校验 LLM 返回的输入补全是否合理: InputHint 只做简短续写,
 // 拒绝"把输入当成问题去长篇回答"式的结果(多行 / 增删字符过多)。

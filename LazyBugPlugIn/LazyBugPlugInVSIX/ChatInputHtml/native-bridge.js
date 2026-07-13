@@ -85,6 +85,12 @@ function processNativeMessage(data) {
         case 'clearDeletionMarks':
             if (window.clearDeletionMarks) window.clearDeletionMarks();
             break;
+        case 'showGhostSuggestion':
+            if (window.showGhostSuggestion) window.showGhostSuggestion(data.text || '', data.tokenIndex || 0);
+            break;
+        case 'clearGhostSuggestion':
+            if (window.clearGhostSuggestion) window.clearGhostSuggestion();
+            break;
         case 'setInputHintToggleButtonState':
             if (window.setInputHintToggleButtonState) {
                 window.setInputHintToggleButtonState(data.enabled !== false);

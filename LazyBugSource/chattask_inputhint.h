@@ -48,6 +48,7 @@ private:
     bool                     _hintValid;              // inputhint 是否产生了有效补全
     Utils::DiffedInputContent _pendingNewDiff;
     Utils::DiffedInputContent _pendingOldDiff;
+    Utils::GhostContent       _pendingGhost;
 
     CRect                    _anchorRect;
 };

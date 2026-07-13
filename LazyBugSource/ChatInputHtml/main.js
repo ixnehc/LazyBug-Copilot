@@ -26,6 +26,9 @@ function handleBeforeInput(event) {
     if (inputEditor.querySelector('.diff-deleted')) {
         clearDeletionMarks();
     }
+    if (inputEditor.querySelector('.ghost-suggestion')) {
+        clearGhostSuggestion();
+    }
 }
 
 // 处理键盘按下

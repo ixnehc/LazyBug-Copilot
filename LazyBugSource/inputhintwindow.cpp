@@ -262,15 +262,32 @@ void CInputHintWindow::_DoShowWindow()
 
 //====================== 显示/隐藏 ======================
 
-void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos)
+void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos, const Utils::GhostContent& ghostContent)
 {
     if (newDiff.plainContent.empty() && std::find(oldDiff.diffStates.begin(), oldDiff.diffStates.end(), 2) == oldDiff.diffStates.end())
         return;
+
+    // Ghost text 模式: 无删除且新增连续时, 直接在输入框显示 ghost text
+    if (ghostContent.IsValid())
+    {
+        _newFullContent = newFullContent;
+        _applyCaretTokenPos = applyCaretTokenPos;
+        _hasContent = true;
+        _isGhostMode = true;
+
+        if (_pChatInput)
+        {
+            _pChatInput->ShowGhostSuggestion(ghostContent.text, ghostContent.tokenIndex);
+            _pChatInput->SetHintVisible(true);
+        }
+        return;
+    }
 
     _currentContent = newDiff;
     _newFullContent = newFullContent;
     _applyCaretTokenPos = applyCaretTokenPos;
     _hasContent = true;
+    _isGhostMode = false;
     _currentAnchorRect = anchorRect;
     _isContentSized = false;
 
@@ -384,12 +401,18 @@ void CInputHintWindow::HideHint()
         CWnd::ShowWindow(SW_HIDE);
     }
 
-    // 同步清除 CChatInput 的删除标记
+    // 同步清除 CChatInput 的删除标记 / ghost text
     if (_pChatInput)
     {
-        _pChatInput->ClearDeletionMarks();
+        if (_isGhostMode)
+            _pChatInput->ClearGhostSuggestion();
+        else
+            _pChatInput->ClearDeletionMarks();
         _pChatInput->SetHintVisible(false);
     }
+
+    _isGhostMode = false;
+    _hasContent = false;
 }
 
 void CInputHintWindow::ApplyHint()
@@ -495,7 +518,7 @@ void CInputHintWindow::CheckForegroundWindow()
 
 void CInputHintWindow::Update()
 {
-    if (!IsWindowVisible())
+    if (!IsWindowVisible() && !HasPendingHint())
         return;
 
     CheckForegroundWindow();

@@ -396,7 +396,7 @@ void CChatTask_InputHint::_ProcessInputHintSession()
 				}
 
 				// 计算 diff 并暂存, 等 checkcomplete 也完成后再决定是否显示
-				Utils::DiffInputContent(_originalInputContent, _newInputContent, _pendingOldDiff, _pendingNewDiff);
+				Utils::DiffInputContent(_originalInputContent, _newInputContent, _pendingOldDiff, _pendingNewDiff, _pendingGhost);
 				_hintValid = true;
 			}
 		}
@@ -465,7 +465,7 @@ void CChatTask_InputHint::_TryFinalize()
 				_newInputContent.plainContent,
 				_newInputContent,
 				_caretPlainPos);
-			_context->chatDialogA->ShowHint(_anchorRect, _pendingNewDiff, _pendingOldDiff, _newInputContent, applyCaretTokenPos);
+			_context->chatDialogA->ShowHint(_anchorRect, _pendingNewDiff, _pendingOldDiff, _newInputContent, applyCaretTokenPos, _pendingGhost);
 		}
 		else
 			_context->chatDialogA->HideHint();

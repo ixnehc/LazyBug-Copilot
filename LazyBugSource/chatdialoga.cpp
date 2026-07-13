@@ -1693,11 +1693,11 @@ void CChatDialogA::_UpdateHideHint()
 	}
 }
 
-void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos)
+void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos, const Utils::GhostContent& ghostContent)
 {
 	if (!_CanShowHint())
 		return;
-	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff, newFullContent, applyCaretTokenPos);
+	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff, newFullContent, applyCaretTokenPos, ghostContent);
 }
 
 void CChatDialogA::HideHint()
@@ -1718,7 +1718,7 @@ void CChatDialogA::_HandleEscape()
 
 bool CChatDialogA::_HandleTab()
 {
-	if (_inputHintWindow.IsWindowVisible())
+	if (_inputHintWindow.IsWindowVisible() || _inputHintWindow.HasPendingHint())
 	{
 		_inputHintWindow.ApplyHint();
 		return true;

@@ -155,6 +155,12 @@ public:
     // 清除删除标记
     void ClearDeletionMarks();
     
+    // 显示 ghost text 提示（在指定 token 位置后插入灰色幽灵文字）
+    void ShowGhostSuggestion(const std::wstring& text, int tokenIndex);
+    
+    // 清除 ghost text 提示
+    void ClearGhostSuggestion();
+    
     // 获取可见的标签
 	std::vector<ChatInputTag> GetVisibleFileTags() const;
 

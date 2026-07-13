@@ -249,7 +249,8 @@ void CChatTask_InputHint3::Update()
 						}
 
 						Utils::DiffedInputContent oldDiff, newDiff;
-						Utils::DiffInputContent(_originalInputContent, _newInputContent, oldDiff, newDiff);
+						Utils::GhostContent ghostContent;
+						Utils::DiffInputContent(_originalInputContent, _newInputContent, oldDiff, newDiff, ghostContent);
 
 						int applyCaretTokenPos = Utils::CalcApplyCaretPos(
 							_originalInputContent.plainContent,
@@ -258,7 +259,7 @@ void CChatTask_InputHint3::Update()
 							_caretPlainPos);
 
 						if (_context && _context->chatDialogA)
-							_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos);
+							_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos, ghostContent);
 					}
 
 					// 保存请求与结果到 recent.json

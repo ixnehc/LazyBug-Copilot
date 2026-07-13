@@ -231,7 +231,8 @@ void CChatTask_InputHint2::Update()
 							}
 
 							Utils::DiffedInputContent oldDiff, newDiff;
-							Utils::DiffInputContent(_originalInputContent, _newInputContent, oldDiff, newDiff);
+							Utils::GhostContent ghostContent;
+							Utils::DiffInputContent(_originalInputContent, _newInputContent, oldDiff, newDiff, ghostContent);
 
 							// 计算补全后光标应定位的 token 位置
 							int applyCaretTokenPos = Utils::CalcApplyCaretPos(
@@ -241,7 +242,7 @@ void CChatTask_InputHint2::Update()
 								_caretPlainPos);
 
 							if (_context && _context->chatDialogA)
-								_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos);
+								_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos, ghostContent);
 						}
 					}
 

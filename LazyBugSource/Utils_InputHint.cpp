@@ -499,7 +499,7 @@ bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldCont
 
 // ─── DiffInputContent ─────────────────────────────────────────────────────────
 void DiffInputContent(const InputContent& oldContent, const InputContent& newContent,
-                      DiffedInputContent& oldResult, DiffedInputContent& newResult)
+                      DiffedInputContent& oldResult, DiffedInputContent& newResult, GhostContent& ghostContent)
 {
     const std::wstring& oldPlain = oldContent.plainContent;
     const std::wstring& newPlain = newContent.plainContent;
@@ -594,6 +594,54 @@ void DiffInputContent(const InputContent& oldContent, const InputContent& newCon
             }
         }
     }
+
+    // ── 8. 计算 GhostContent ──
+    ghostContent.text.clear();
+    ghostContent.tokenIndex = -1;
+
+    // 有删除时不使用 ghost text
+    bool hasDeletion = false;
+    for (char s : oldResult.diffStates)
+    {
+        if (s == 2) { hasDeletion = true; break; }
+    }
+    if (hasDeletion)
+        return;
+
+    // 检查 newResult 中所有 1 是否构成一个连续区间(允许 0*1+0* 模式)
+    size_t firstOne = (size_t)-1, lastOne = (size_t)-1;
+    bool hasAdd = false;
+    bool seenZeroAfterOne = false;
+    for (size_t i = 0; i < newResult.diffStates.size(); ++i)
+    {
+        if (newResult.diffStates[i] == 1)
+        {
+            if (seenZeroAfterOne)
+                return;  // 0 之后又出现 1, 不连续
+            if (!hasAdd) { firstOne = i; hasAdd = true; }
+            lastOne = i;
+        }
+        else if (hasAdd && newResult.diffStates[i] == 0)
+        {
+            seenZeroAfterOne = true;
+        }
+    }
+    if (!hasAdd)
+        return;  // 无新增
+
+    // 提取 ghost text
+    ghostContent.text = newResult.plainContent.substr(firstOne, lastOne - firstOne + 1);
+
+    // 计算 token index: ghost text 在完整 newContent 中的绝对字符位置
+    size_t absCharPos = newMidStart + firstOne;
+    int tokenIdx = 0;
+    for (const auto& t : newTokensAll)
+    {
+        if (t.offset >= absCharPos)
+            break;
+        tokenIdx++;
+    }
+    ghostContent.tokenIndex = tokenIdx;
 }
 
 // ─── IsValidCompletion ────────────────────────────────────────────────────────

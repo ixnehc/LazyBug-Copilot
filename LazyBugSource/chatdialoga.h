@@ -98,7 +98,7 @@ public:
 	void SetFocusToChatInput();
 
 	// 输入自动补全
-	void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos = -1);
+	void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos = -1, const Utils::GhostContent& ghostContent = Utils::GhostContent{});
 	void HideHint();
 
 	// 更新设置菜单按钮状态（根据是否有打开的数据库文件夹）
