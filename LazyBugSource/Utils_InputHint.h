@@ -49,10 +49,13 @@ int CalcApplyCaretPos(const std::wstring& oldPlain, const std::wstring& newPlain
                       const InputContent& newInputContent, int caretPlainPos);
 
 // 将 inputContent.plainContent 中的 oldContent 替换为 newContent。
+// caretPos >= 0 时: 仅在包含该字符位置的行内查找和替换
+// caretPos <  0 时: 在整个 plainContent 中查找和替换(兼容旧行为)
 // 替换后与原字串做 diff, 尝试将原有 tagSegment 的区间映射到新字串:
 //   - 若某个 tag 区间无法在新字串中完整、连续地映射(被删除或被打断), 返回 false 且不修改。
 //   - 否则更新 plainContent 及各 tagSegment 的新位置, 返回 true。
-bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldContent, const std::wstring& newContent);
+bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldContent, const std::wstring& newContent,
+                         int caretPos = -1);
 
 void DiffInputContent(const InputContent& oldContent, const InputContent& newContent, DiffedInputContent& oldResult, DiffedInputContent& newResult);
 

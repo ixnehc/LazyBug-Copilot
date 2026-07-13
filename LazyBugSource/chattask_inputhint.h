@@ -17,6 +17,10 @@ private:
     void _Fail(const std::string& reason = "");
     std::string _CollectChatContextFromOps();
 
+    // 启动 inputhint(补全)会话, 返回 true 表示成功发送请求
+    bool _StartInputHintSession();
+    // 启动 checkcomplete(完整性判断)会话, 返回 true 表示成功发送请求
+    bool _StartCheckCompleteSession();
     // 处理 inputhint(补全) 会话的输出, 完成后填充 _pendingNewDiff/_pendingOldDiff 等
     void _ProcessInputHintSession();
     // 处理 checkcomplete(完整性判断) 会话的输出

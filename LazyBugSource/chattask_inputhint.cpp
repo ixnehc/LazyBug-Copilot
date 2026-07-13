@@ -147,12 +147,41 @@ void CChatTask_InputHint::Start()
 	// 在 task 内收集上下文
 	_chatContext = _CollectChatContextFromOps();
 
-	LlmSessionSetting setting;
-	if (!g_llmLib.LoadLlmSetting(setting, _apiName, false, "chatrules_inputhint"))
+	// 在光标位置插入光标符号(仅用于提示 LLM 补全位置, 不属于实际输入内容)
+	std::wstring inputWithCaret = _originalInputContent.plainContent;
+	if (_caretPlainPos >= 0 && _caretPlainPos <= (int)inputWithCaret.size())
 	{
-		_Fail("Failed to load LLM setting");
+		inputWithCaret.insert((size_t)_caretPlainPos, L"\x2038");
+	}
+	_inputWithCaret = inputWithCaret;
+
+	// 同时(无先后)启动两个独立请求
+	bool hintStarted = _StartInputHintSession();
+	bool ccStarted   = _StartCheckCompleteSession();
+
+	if (!hintStarted)
+	{
+		_Fail("Failed to send LLM request");
 		return;
 	}
+
+	_hasStartedRequest = true;
+
+	// 若 checkcomplete 请求未能启动, 视为已完成(不阻塞最终决定)
+	if (!ccStarted)
+	{
+		_checkCompleteFinished = true;
+		_isInputComplete = false;
+	}
+
+	_status = TaskStatus::Running;
+}
+
+bool CChatTask_InputHint::_StartInputHintSession()
+{
+	LlmSessionSetting setting;
+	if (!g_llmLib.LoadLlmSetting(setting, _apiName, false, "chatrules_inputhint"))
+		return false;
 
 	setting.api.tools.clear();
 
@@ -166,58 +195,90 @@ void CChatTask_InputHint::Start()
 		userMsg += "\n\n";
 	}
 
-	// 在光标位置插入光标符号(仅用于提示 LLM 补全位置, 不属于实际输入内容)
-	std::wstring inputWithCaret = _originalInputContent.plainContent;
-	if (_caretPlainPos >= 0 && _caretPlainPos <= (int)inputWithCaret.size())
+	// 将 _inputWithCaret 按行拆分, 找到包含光标标记 ‸ 的行
+	// 仅将光标行作为"待补全输入"提交; 其余行按前后分区作为上下文, 不参与输出
+	std::wstring caretLine;
+	std::vector<std::wstring> linesBefore, linesAfter;
+	bool foundCaret = false;
+
+	const std::wstring& text = _inputWithCaret;
+	size_t lineStart = 0;
+	for (size_t i = 0; i <= text.size(); ++i)
 	{
-		inputWithCaret.insert((size_t)_caretPlainPos, L"\x2038");
-	}
-	_inputWithCaret = inputWithCaret;
-
-	userMsg += "User's partial input:\n";
-	userMsg += widechar_to_utf8(inputWithCaret.c_str());
-// 	userMsg += "\n\n";
-// 	userMsg += "Completion:";
-
-	request.AddUserMessage(userMsg.c_str());
-	request.isStreaming = true;
-
-	if (!_llmChats[0]->Request(request, setting))
-	{
-		_Fail("Failed to send LLM request");
-		return;
-	}
-
-	_hasStartedRequest = true;
-
-	// 同时(无先后)发送一个独立的 checkcomplete 请求, 判断输入是否语法完整
-	// 使用 _llmChats[1]
-	if (_llmChats.size() >= 2)
-	{
-		LlmSessionSetting ccSetting;
-		if (g_llmLib.LoadLlmSetting(ccSetting, _apiName, false, "chatrules_checkcomplete"))
+		if (i == text.size() || text[i] == L'\n')
 		{
-			ccSetting.api.tools.clear();
-
-			LlmSessionRequest ccRequest;
-			// checkcomplete 只判断用户当前输入的完整性, 用原始纯文本(不含光标标记)
-			std::string ccMsg = widechar_to_utf8(_originalInputContent.plainContent.c_str());
-			ccRequest.AddUserMessage(ccMsg.c_str());
-			ccRequest.isStreaming = true;
-
-			if (_llmChats[1]->Request(ccRequest, ccSetting))
-				_checkCompleteStarted = true;
+			std::wstring line = text.substr(lineStart, i - lineStart);
+			bool hasCaret = (line.find(L'\x2038') != std::wstring::npos);
+			if (!foundCaret && hasCaret)
+			{
+				caretLine = line;
+				foundCaret = true;
+			}
+			else if (!foundCaret)
+			{
+				linesBefore.push_back(line);
+			}
+			else
+			{
+				linesAfter.push_back(line);
+			}
+			lineStart = i + 1;
 		}
 	}
 
-	// 若 checkcomplete 请求未能启动, 视为已完成(不阻塞最终决定)
-	if (!_checkCompleteStarted)
+	// 光标行无标记则回退到完整内容(不应发生)
+	if (caretLine.empty())
+		caretLine = _inputWithCaret;
+
+	if (!linesBefore.empty())
 	{
-		_checkCompleteFinished = true;
-		_isInputComplete = false;
+		userMsg += "Lines before current line (for context only, do NOT modify):\n";
+		for (const auto& line : linesBefore)
+			userMsg += widechar_to_utf8(line.c_str()) + "\n";
+		userMsg += "\n";
 	}
 
-	_status = TaskStatus::Running;
+	if (!linesAfter.empty())
+	{
+		userMsg += "Lines after current line (for context only, do NOT modify):\n";
+		for (const auto& line : linesAfter)
+			userMsg += widechar_to_utf8(line.c_str()) + "\n";
+		userMsg += "\n";
+	}
+
+	userMsg += "User's partial input:\n";
+	userMsg += widechar_to_utf8(caretLine.c_str());
+
+	request.AddUserMessage(userMsg.c_str());
+	request.isStreaming = true;
+	request.allowMcpTools = false;
+
+	return _llmChats[0]->Request(request, setting);
+}
+
+bool CChatTask_InputHint::_StartCheckCompleteSession()
+{
+	if (_llmChats.size() < 2)
+		return false;
+
+	LlmSessionSetting ccSetting;
+	if (!g_llmLib.LoadLlmSetting(ccSetting, _apiName, false, "chatrules_checkcomplete"))
+		return false;
+
+	ccSetting.api.tools.clear();
+
+	LlmSessionRequest ccRequest;
+	// checkcomplete 只判断用户当前输入的完整性, 用原始纯文本(不含光标标记)
+	std::string ccMsg = widechar_to_utf8(_originalInputContent.plainContent.c_str());
+	ccRequest.AddUserMessage(ccMsg.c_str());
+	ccRequest.isStreaming = true;
+	ccRequest.allowMcpTools = false;
+
+	if (!_llmChats[1]->Request(ccRequest, ccSetting))
+		return false;
+
+	_checkCompleteStarted = true;
+	return true;
 }
 
 
@@ -292,6 +353,16 @@ void CChatTask_InputHint::_ProcessInputHintSession()
 			std::wstring oldW = utf8_to_widechar(oldUtf8);
 			std::wstring newW = utf8_to_widechar(newUtf8);
 
+			// 删除 LLM 可能残留的光标标记
+			static const wchar_t caretMarker = L'\x2038';
+			auto removeCaret = [](std::wstring& s) {
+				size_t p = s.find(caretMarker);
+				if (p != std::wstring::npos)
+					s.erase(p, 1);
+				};
+			removeCaret(oldW);
+			removeCaret(newW);
+
 			// 校验补全结果的合理性: InputHint 只做简短续写,
 			// 拒绝把输入当成"问题"去长篇回答的异常结果
 			if (Utils::IsValidCompletion(oldW, newW))
@@ -301,7 +372,7 @@ void CChatTask_InputHint::_ProcessInputHintSession()
 
 				// 基于原始 InputContent 拷贝后用 ReplaceInputContent 应用替换
 				_newInputContent = _originalInputContent;
-				bool replaced = Utils::ReplaceInputContent(_newInputContent, oldW, newW);
+				bool replaced = Utils::ReplaceInputContent(_newInputContent, oldW, newW, _caretPlainPos);
 
 				// 如果 oldW 以 "<<Old Content>>" 开头，去掉后再尝试一次
 				if (!replaced)
@@ -313,15 +384,15 @@ void CChatTask_InputHint::_ProcessInputHintSession()
 						std::wstring strippedOld = oldW.substr(oldPrefix.size());
 						_newInputContent = _originalInputContent;
 						Utils::FixDuplicationAtJoin(_originalInputContent.plainContent, strippedOld, newW);
-						replaced = Utils::ReplaceInputContent(_newInputContent, strippedOld, newW);
+						replaced = Utils::ReplaceInputContent(_newInputContent, strippedOld, newW, _caretPlainPos);
 					}
 				}
 
 				// 替换失败(可能在 tag 内部), 退化为纯文本构建
 				if (!replaced)
 				{
-					_newInputContent.plainContent = newW;
-					_newInputContent.tagSegments.clear();
+					_Fail("Fail to replace");
+					return;
 				}
 
 				// 计算 diff 并暂存, 等 checkcomplete 也完成后再决定是否显示

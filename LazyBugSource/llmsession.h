@@ -64,6 +64,7 @@ struct LlmSessionRequest
 	LlmSessionRequest()
 	{
 		isStreaming = true;
+		allowMcpTools = true;
 	}
 
 	struct Entry
@@ -89,7 +90,7 @@ struct LlmSessionRequest
 		std::string mimeType;    // 非空表示 content 是 base64 图片数据
 	};
 
-	void Clear() { entries.clear();	prompt.clear();isStreaming = true; }
+	void Clear() { entries.clear();	prompt.clear();isStreaming = true; allowMcpTools = true; }
 
 	void CommitMessages(json& messages, const LlmSessionSetting& setting);
 
@@ -127,6 +128,7 @@ struct LlmSessionRequest
 	std::vector<Entry> entries;
 	std::string prompt;
 	bool isStreaming;
+	bool allowMcpTools;
 };
 
 struct LlmSessionUsage

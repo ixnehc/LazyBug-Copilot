@@ -360,20 +360,73 @@ int CalcApplyCaretPos(const std::wstring& oldPlain, const std::wstring& newPlain
 }
 
 // ─── ReplaceInputContent ──────────────────────────────────────────────────────
-bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldContent, const std::wstring& newContent)
+bool ReplaceInputContent(InputContent& inputContent, const std::wstring& oldContent, const std::wstring& newContent,
+                         int caretPos)
 {
     if (oldContent.empty())
         return false;
 
     const std::wstring oldPlain = inputContent.plainContent;
 
-    size_t pos = oldPlain.find(oldContent);
-    if (pos == std::wstring::npos)
-        return false;
+    size_t pos;
+    size_t lineStart = 0;
+    size_t lineEnd   = oldPlain.size();
 
-    // 检查是否有多个匹配
-    if (oldPlain.find(oldContent, pos + oldContent.size()) != std::wstring::npos)
-        return false;
+    if (caretPos >= 0)
+    {
+        // ── 仅在光标所在行内查找 ──
+        int cp = caretPos;
+        if (cp > (int)oldPlain.size())
+            cp = (int)oldPlain.size();
+
+        // 处理光标在行末的情况:
+        //   cp == oldPlain.size()   → 光标在全文末尾(最后一行末尾)
+        //   oldPlain[cp] == L'\n'   → 光标在换行符处(即上一行末尾)
+        if (cp == (int)oldPlain.size() || oldPlain[(size_t)cp] == L'\n')
+        {
+            // 光标在行末: 所在行从上一个 \n 后到 cp 位置(不含)
+            lineEnd = (size_t)cp;
+            lineStart = 0;
+            for (int i = cp - 1; i >= 0; --i)
+            {
+                if (oldPlain[(size_t)i] == L'\n') { lineStart = (size_t)i + 1; break; }
+            }
+        }
+        else
+        {
+            // 光标在行中: 向前后搜索 \n 确定行范围
+            lineStart = 0;
+            for (int i = cp; i >= 0; --i)
+            {
+                if (oldPlain[(size_t)i] == L'\n') { lineStart = (size_t)i + 1; break; }
+            }
+            lineEnd = oldPlain.size();
+            for (size_t i = (size_t)cp; i < oldPlain.size(); ++i)
+            {
+                if (oldPlain[i] == L'\n') { lineEnd = i; break; }
+            }
+        }
+
+        // 在光标行内搜索 oldContent
+        pos = oldPlain.find(oldContent, lineStart);
+        if (pos == std::wstring::npos || pos + oldContent.size() > lineEnd)
+            return false;
+
+        // 唯一性检查: 光标行内不得有第二个匹配
+        if (oldPlain.find(oldContent, pos + oldContent.size()) < lineEnd)
+            return false;
+    }
+    else
+    {
+        // ── 全局查找(兼容旧行为) ──
+        pos = oldPlain.find(oldContent);
+        if (pos == std::wstring::npos)
+            return false;
+
+        // 多重匹配检查
+        if (oldPlain.find(oldContent, pos + oldContent.size()) != std::wstring::npos)
+            return false;
+    }
 
     // 生成替换后的新字串
     std::wstring newPlain = oldPlain;

@@ -10,7 +10,7 @@ The "partial input" you see is ALWAYS the single line where the caret is. "Lines
 The completion MUST be a single line and short (a brief continuation of the current sentence). NEVER produce multiple lines, lists, numbered steps or paragraphs.
 The <New Content> MUST only add a small amount of text to <Old Content>.
 CRITICAL: <New Content> MUST contain the ENTIRE <Old Content> verbatim. You may ONLY insert a small amount of text at the caret position (and fix obvious typos in place). You MUST NEVER delete, drop, shorten, summarize or omit ANY character from the caret line.
-If the input already looks complete, output <Old Content>~~||~~<Old Content> (no completion).
+If the input already looks complete, output <Old Content>~~||~~<Old Content> unchanged (no completion).
 The input is considered complete when its meaning is already clear and self-contained, even if it lacks ending punctuation (e.g., period, question mark, exclamation mark)
 or ends mid-line.
 Do NOT add punctuation or minor words just because the sentence "looks" unfinished — only complete if there is a genuine semantic gap.

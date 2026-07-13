@@ -1228,7 +1228,8 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	}
 
 	// 添加 MCP tools
-	g_llmMcps.FillToolsJson(requestJson);
+	if (request.allowMcpTools)
+		g_llmMcps.FillToolsJson(requestJson);
 
 	// 给tools数组最后一个tool添加cache_control
 	AddToolsCacheControl(requestJson);
