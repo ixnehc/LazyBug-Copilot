@@ -1707,7 +1707,7 @@ void CChatDialogA::HideHint()
 
 void CChatDialogA::_HandleEscape()
 {
-	if (_inputHintWindow.IsWindowVisible())
+	if (_inputHintWindow.IsWindowVisible() || _inputHintWindow.HasPendingHint())
 	{
 		_inputHintWindow.HideHint();
 		return;

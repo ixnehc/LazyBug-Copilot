@@ -1158,6 +1158,12 @@ function handleSelectionChange() {
     const inputEditor = document.getElementById('inputEditor');
     if (!inputEditor) return;
 
+    // 光标移动时隐藏 hint（ghost text 或删除标记存在时）
+    if (!_suppressHintHide &&
+        (inputEditor.querySelector('.ghost-suggestion') || inputEditor.querySelector('.diff-deleted'))) {
+        sendMessageToNative({ action: 'escape' });
+    }
+
     // 持续保存当前光标位置，以便失去焦点后恢复
     if (typeof saveSelection === 'function') {
         saveSelection();
@@ -1531,6 +1537,7 @@ function setDeletionMarks(indices) {
     if (!inputEditor) return;
 
     // 保存光标，改动 DOM 后恢复，避免光标跳到行首
+    _suppressHintHide = true;
     const savedCaret = _saveEditorCaret();
 
     // 先清除之前的标记
@@ -1644,6 +1651,7 @@ function setDeletionMarks(indices) {
 
     // 恢复光标位置
     _restoreEditorCaret(savedCaret);
+    setTimeout(() => { _suppressHintHide = false; }, 0);
 }
 
 // 清除删除标记
@@ -1694,6 +1702,9 @@ window.clearDeletionMarks = clearDeletionMarks;
 window.handleSelectionChange = handleSelectionChange;
 
 // ─── Ghost text 提示 ──────────────────────────────────────────────────────────
+
+// 抑制标志: showGhostSuggestion 移动光标时会触发 selectionchange, 需跳过
+let _suppressHintHide = false;
 
 function clearGhostSuggestion() {
     const inputEditor = document.getElementById('inputEditor');
@@ -1785,12 +1796,14 @@ function showGhostSuggestion(text, tokenIndex) {
     }
 
     // 将光标移动到 ghost text 的起始位置
+    _suppressHintHide = true;
     const sel = window.getSelection();
     const range = document.createRange();
     range.setStartBefore(ghostSpan);
     range.collapse(true);
     sel.removeAllRanges();
     sel.addRange(range);
+    setTimeout(() => { _suppressHintHide = false; }, 0);
 }
 
 window.showGhostSuggestion = showGhostSuggestion;

@@ -666,8 +666,8 @@ bool IsValidCompletion(const std::wstring& oldContent, const std::wstring& newCo
     if (deltaChars < 0)
         deltaChars = -deltaChars;
     int limit = (int)oldContent.size();
-    if (limit < 64)
-        limit = 64;
+    if (limit < 256)
+        limit = 256;
     if (deltaChars > limit)
         return false;
 
