@@ -246,8 +246,8 @@ BOOL CChatDialogA::OnInitDialog()
 	});
 
 	// 设置内容修改回调
-	_chatInput.SetContentChangedCallback([this](const std::wstring& content, int caretPos, bool isComposing) {
-		_OnInputContentChanged(content, caretPos, isComposing);
+	_chatInput.SetContentChangedCallback([this](const std::wstring& content, int caretPos, bool isComposing, const RECT& caretScreenRect) {
+		_OnInputContentChanged(content, caretPos, isComposing, caretScreenRect);
 	});
 
 	// 设置标签点击回调
@@ -1635,7 +1635,7 @@ void CChatDialogA::_UpdateContextUsage()
 }
 
 
-void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing)
+void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing, const RECT& caretScreenRect)
 {
 	_inputHistory.OnModifyCurrent(content);
 
@@ -1673,16 +1673,33 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 	if (autoCompleteApi.empty())
 		return;
 
-	CRect inputRect;
-	_chatInput.GetWindowRect(&inputRect);
-	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos, _chatInput.GetContentVersion());
-	//_chatTaskMgrBg.AddTask_InputHint2(content, autoCompleteApi, inputRect, caretPos);
-	//_chatTaskMgrBg.AddTask_InputHint3(content, autoCompleteApi, inputRect, caretPos);
+	// 优先使用 JS 上报的光标屏幕坐标; 无效时回退到整个输入框的位置
+	CRect anchorRect;
+	// caretScreenRect 宽度可能为 0(零宽光标), 不能直接用 IsRectEmpty
+	if (caretScreenRect.top < caretScreenRect.bottom && caretScreenRect.left < caretScreenRect.right + 1)
+	{
+		CRect inputRect;
+		_chatInput.GetWindowRect(&inputRect);
+		// 左右对齐输入框边缘, 但左边界用光标横坐标(供 hint 窗口水平定位)
+		// 上下对齐光标所在行
+		anchorRect.left   = caretScreenRect.left;
+		anchorRect.right  = inputRect.right;
+		anchorRect.top    = caretScreenRect.top;
+		anchorRect.bottom = caretScreenRect.bottom;
+	}
+	else
+	{
+		_chatInput.GetWindowRect(&anchorRect);
+	}
+
+	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, anchorRect, caretPos, _chatInput.GetContentVersion());
+	//_chatTaskMgrBg.AddTask_InputHint2(content, autoCompleteApi, anchorRect, caretPos);
+	//_chatTaskMgrBg.AddTask_InputHint3(content, autoCompleteApi, anchorRect, caretPos);
 }
 
 bool CChatDialogA::_CanShowHint()
 {
-	return !_isInputComposing && !_agent.IsWorking() && _chatInput.GetAutoCompleteList() && !_chatInput.GetAutoCompleteList()->IsVisible();
+	return !_isInputComposing && !_agent.IsWorking() && _chatInput.GetAutoCompleteList() && !_chatInput.GetAutoCompleteList()->IsVisible() && _chatInput.HasFocus();
 }
 
 void CChatDialogA::_UpdateHideHint()

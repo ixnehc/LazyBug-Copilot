@@ -383,18 +383,50 @@ function insertInlineTag(tagData) {
     notifyContentChanged();
 }
 
+// 获取光标在 webview 内的客户端坐标(相对于文档视口)
+function _getCaretClientRect() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return null;
+
+    const range = selection.getRangeAt(0);
+    if (!range.collapsed) return null;  // 有选区时不获取
+
+    const rects = range.getClientRects();
+    if (rects.length > 0) {
+        const r = rects[0];
+        return { x: r.left, y: r.top, width: r.width, height: r.height };
+    }
+    // getClientRects 可能返回空(如光标在空行), 回退用 range 的 startContainer 构造一个零宽矩形
+    const node = range.startContainer;
+    if (node.nodeType === Node.TEXT_NODE) {
+        // 在文本节点中, 用 Range 获取近似位置
+        const tmpRange = document.createRange();
+        tmpRange.setStart(node, Math.max(0, range.startOffset - 1));
+        tmpRange.setEnd(node, range.startOffset);
+        const tmpRects = tmpRange.getClientRects();
+        if (tmpRects.length > 0) {
+            const r = tmpRects[0];
+            return { x: r.right, y: r.top, width: 0, height: r.height };
+        }
+    }
+    return null;
+}
+
 // 通知内容变化
 function notifyContentChanged() {
     if (!AppState.isInitialized) return;
     
     const contentJson = getInputContent();
     
+    const caretRect = _getCaretClientRect();
+    
     sendMessageToNative({
         action: 'contentChanged',
         content: JSON.parse(contentJson),
         caretPos: getCaretTokenPosition(),
         isComposing: AppState.isInputComposing,
-        contentVersion: _contentVersion
+        contentVersion: _contentVersion,
+        caretRect: caretRect
     });
 }
 

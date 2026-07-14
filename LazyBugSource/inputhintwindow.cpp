@@ -432,27 +432,29 @@ CRect CInputHintWindow::CalculateWindowRect(const RECT& anchorRect, int width, i
     RECT workArea;
     SystemParametersInfo(SPI_GETWORKAREA, 0, &workArea, 0);
 
-    int x = anchorRect.right + 4;
-    int y = anchorRect.top;
-
+    // 水平: 左边缘对齐光标横坐标, 超出屏幕时向左平移
+    int x = anchorRect.left;
     if (x + width > workArea.right)
     {
-        x = anchorRect.left - width - 4;
+        x = workArea.right - width;
     }
-
-    if (y + height > workArea.bottom)
-    {
-        y = workArea.bottom - height;
-    }
-    if (y < workArea.top)
-    {
-        y = workArea.top;
-    }
-
     if (x < workArea.left)
     {
         x = workArea.left;
     }
+
+    // 垂直: 优先在光标上方, 空间不足时放下方
+    int y = anchorRect.top - height - 4;
+    if (y < workArea.top)
+    {
+        y = anchorRect.bottom + 4;
+    }
+
+    // 最终钳制
+    if (y + height > workArea.bottom)
+        y = workArea.bottom - height;
+    if (y < workArea.top)
+        y = workArea.top;
 
     return CRect(x, y, x + width, y + height);
 }

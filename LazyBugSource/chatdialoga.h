@@ -173,7 +173,7 @@ protected:
 
 	void _OnSendMessage(const std::wstring& content);
 
-	void _OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing);
+	void _OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing, const RECT& caretScreenRect);
 
 	// WebView消息处理
 	void _OnWebViewMessage(const std::wstring& message);

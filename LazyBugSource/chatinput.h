@@ -15,7 +15,7 @@
 // 回调函数类型定义
 using InputSendCallback = std::function<void(const std::wstring&, const std::wstring&)>; // contentJson, plainText
 using InputToolButtonClickedCallback = std::function<void(const std::wstring&, const std::wstring&)>; // buttonId, action
-using InputContentChangedCallback = std::function<void(const std::wstring&, int, bool)>; // contentJson, caretTokenPos, isComposing
+using InputContentChangedCallback = std::function<void(const std::wstring&, int, bool, const RECT&)>; // contentJson, caretTokenPos, isComposing, caretScreenRect
 using InputTagRemovedCallback = std::function<void(const std::wstring&)>; // tagId
 using InputAutoCompleteRequestCallback = std::function<void(const std::wstring&)>; // 请求自动补全候选项
 using InputPageNavigationCallback = std::function<void(bool, const std::wstring&)>; // isPrevious - true为Page Up，false为Page Down, currentContent - 当前输入内容(与OnSendMessage的content格式一致)
@@ -259,6 +259,7 @@ public:
 	void RequestOccupyFocus() { _requestGainFocus = true; }
 	void OccupyFocus();
 	void FocusEditor();
+	bool HasFocus() const { return _hasFocus; }
 
 	void WaitTillWebViewReady();
 
@@ -321,6 +322,7 @@ private:
 	DWORD _lastTimeForeground;
 	bool _wasForeground;
 	bool _requestGainFocus;
+	bool _hasFocus = false;
 
 	void _GenClipboardImageName(std::string& name, std::wstring& path);
 

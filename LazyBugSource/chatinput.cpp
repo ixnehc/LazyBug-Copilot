@@ -271,7 +271,21 @@ HRESULT CChatInput::InitializeWebView()
 										_contentVersion = jsonMsg["contentVersion"].get<int>();
 									}
 
-									_contentChangedCallback(content, caretPos, isComposing);
+									// 解析光标屏幕坐标(来自 JS getClientRects + ClientToScreen)
+									RECT caretScreenRect = {};
+									if (jsonMsg.contains("caretRect") && !jsonMsg["caretRect"].is_null())
+									{
+										auto& cr = jsonMsg["caretRect"];
+										caretScreenRect.left   = cr.value("x", 0);
+										caretScreenRect.top    = cr.value("y", 0);
+										caretScreenRect.right  = caretScreenRect.left + cr.value("width", 0);
+										caretScreenRect.bottom = caretScreenRect.top  + cr.value("height", 0);
+										// JS getClientRects 返回的是相对 webview 视口的坐标, 转为屏幕坐标
+										::ClientToScreen(m_hWnd, (LPPOINT)&caretScreenRect.left);
+										::ClientToScreen(m_hWnd, (LPPOINT)&caretScreenRect.right);
+									}
+
+									_contentChangedCallback(content, caretPos, isComposing, caretScreenRect);
 								}
 							}
 							else if (action == "initialized")
@@ -1896,6 +1910,8 @@ void CChatInput::_UpdateGainFocus()
 
 	HWND hFocusWnd = ::GetFocus();
 	bool hasFocus = (hFocusWnd == m_hWnd || (hFocusWnd && ::IsChild(m_hWnd, hFocusWnd)));
+
+	_hasFocus = hasFocus;
 
 	if (hasFocus)
 	{

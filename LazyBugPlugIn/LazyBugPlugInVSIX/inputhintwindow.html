@@ -143,12 +143,16 @@
             probe.style.visibility = 'hidden';
             document.body.appendChild(probe);
 
-            let naturalW = probe.scrollWidth;
+            // scrollWidth 是取整后的整数, 真实自然宽度常为小数;
+            // 若向下取整后回填作为固定宽度, 内容会因差 <1px 而多换一行.
+            // 用 getBoundingClientRect().width(小数) 并向上取整以避免.
+            let naturalW = Math.ceil(probe.getBoundingClientRect().width);
             let finalW = Math.min(Math.max(naturalW, minW), maxW);
             probe.style.display = 'block';
             probe.style.width = finalW + 'px';
             probe.style.maxWidth = finalW + 'px';
-            let finalH = probe.scrollHeight;
+            let finalH = Math.ceil(probe.getBoundingClientRect().height);
+
 
             document.body.removeChild(probe);
 
