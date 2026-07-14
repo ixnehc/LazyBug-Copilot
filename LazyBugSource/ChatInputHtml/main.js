@@ -29,6 +29,9 @@ function handleBeforeInput(event) {
     if (inputEditor.querySelector('.ghost-suggestion')) {
         clearGhostSuggestion();
     }
+    // 用户输入导致内容变化，递增版本号并同步到 C++ 以中断旧 task
+    _contentVersion++;
+    sendMessageToNative({ action: 'contentVersionIncreased', contentVersion: _contentVersion });
 }
 
 // 处理键盘按下
@@ -130,7 +133,6 @@ function initializeEventListeners() {
     inputEditor.addEventListener('beforeinput', handleBeforeInput);
     const _debouncedNotifyContentChanged = debounce(notifyContentChanged, 300);
     inputEditor.addEventListener('input', function() {
-        _contentVersion++;
         _debouncedNotifyContentChanged();
     });
     inputEditor.addEventListener('input', ensureTagIntegrity);

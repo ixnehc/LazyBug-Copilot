@@ -266,11 +266,6 @@ HRESULT CChatInput::InitializeWebView()
 										isComposing = jsonMsg["isComposing"].get<bool>();
 									}
 
-									if (jsonMsg.contains("contentVersion") && jsonMsg["contentVersion"].is_number())
-									{
-										_contentVersion = jsonMsg["contentVersion"].get<int>();
-									}
-
 									// 解析光标屏幕坐标(来自 JS getClientRects + ClientToScreen)
 									RECT caretScreenRect = {};
 									if (jsonMsg.contains("caretRect") && !jsonMsg["caretRect"].is_null())
@@ -478,6 +473,18 @@ HRESULT CChatInput::InitializeWebView()
 										// 从有悬停变为无悬停，隐藏预览
 										_currentHoveredImageFilePath.clear();
 										_imageTipWindow.HideWindow();
+									}
+								}
+							}
+							else if (action == "contentVersionIncreased")
+							{
+								if (jsonMsg.contains("contentVersion") && jsonMsg["contentVersion"].is_number())
+								{
+									int version = jsonMsg["contentVersion"].get<int>();
+									_contentVersion = version;
+									if (_contentVersionIncreasedCallback)
+									{
+										_contentVersionIncreasedCallback(version);
 									}
 								}
 							}
@@ -788,6 +795,11 @@ void CChatInput::SetInputHintToggleCallback(InputHintToggleCallback callback)
 void CChatInput::SetTabCallback(InputTabCallback callback)
 {
 	_tabCallback = callback;
+}
+
+void CChatInput::SetContentVersionIncreasedCallback(InputContentVersionIncreasedCallback callback)
+{
+	_contentVersionIncreasedCallback = callback;
 }
 
 void CChatInput::SetHintVisible(bool visible)

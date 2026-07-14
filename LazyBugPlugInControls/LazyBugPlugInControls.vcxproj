@@ -164,7 +164,7 @@
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;_USRDLL;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;LazyBugPlugInControls_EXPORT;VS_EXTENSION;GUILIB_IGNORE_IMPORT;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include</AdditionalIncludeDirectories>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

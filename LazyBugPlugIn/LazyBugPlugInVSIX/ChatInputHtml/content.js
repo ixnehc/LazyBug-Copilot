@@ -1194,10 +1194,17 @@ function handleSelectionChange() {
     const inputEditor = document.getElementById('inputEditor');
     if (!inputEditor) return;
 
-    // 光标移动时隐藏 hint（ghost text 或删除标记存在时）
-    if (!_suppressHintHide &&
-        (inputEditor.querySelector('.ghost-suggestion') || inputEditor.querySelector('.diff-deleted'))) {
-        sendMessageToNative({ action: 'escape' });
+    // 光标移动时清除 hint
+    if (!_suppressHintHide) {
+        if (inputEditor.querySelector('.ghost-suggestion')) {
+            clearGhostSuggestion();
+        }
+        if (inputEditor.querySelector('.diff-deleted')) {
+            clearDeletionMarks();
+        }
+        // 无论是否有 hint 标记，光标移动都递增版本号以中断旧 task
+        _contentVersion++;
+        sendMessageToNative({ action: 'contentVersionIncreased', contentVersion: _contentVersion });
     }
 
     // 持续保存当前光标位置，以便失去焦点后恢复

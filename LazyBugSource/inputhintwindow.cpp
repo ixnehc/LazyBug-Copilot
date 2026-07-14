@@ -401,18 +401,21 @@ void CInputHintWindow::HideHint()
         CWnd::ShowWindow(SW_HIDE);
     }
 
-    // 同步清除 CChatInput 的删除标记 / ghost text
-    if (_pChatInput)
-    {
-        if (_isGhostMode)
-            _pChatInput->ClearGhostSuggestion();
-        else
-            _pChatInput->ClearDeletionMarks();
-        _pChatInput->SetHintVisible(false);
-    }
+	if (_hasContent)
+	{
+		// 同步清除 CChatInput 的删除标记 / ghost text
+		if (_pChatInput)
+		{
+			if (_isGhostMode)
+				_pChatInput->ClearGhostSuggestion();
+			else
+				_pChatInput->ClearDeletionMarks();
+			_pChatInput->SetHintVisible(false);
+		}
 
-    _isGhostMode = false;
-    _hasContent = false;
+		_isGhostMode = false;
+		_hasContent = false;
+	}
 }
 
 void CInputHintWindow::ApplyHint()

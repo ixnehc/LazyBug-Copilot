@@ -191,6 +191,7 @@ protected:
 	void _HandleTagClicked(const std::wstring& tagId);
 	void _HandleEscape();
 	bool _HandleTab();
+	void _HandleContentVersionIncreased(int contentVersion);
 	void _HandleSkillButtonClicked(const RECT& btnRect);
 	void _HandleMcpButtonClicked(const RECT& btnRect);
 

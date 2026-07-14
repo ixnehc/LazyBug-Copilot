@@ -229,6 +229,10 @@ BOOL CChatDialogA::OnInitDialog()
 		return _HandleTab();
 	});
 
+	_chatInput.SetContentVersionIncreasedCallback([this](int contentVersion) {
+		_HandleContentVersionIncreased(contentVersion);
+	});
+
 	// 设置ChatInput准备就绪回调，将历史输入内容设置到输入框
 	_chatInput.SetReadyCallback([this]() {
 		const std::wstring& content = _inputHistory.GetCurrentContent();
@@ -1639,12 +1643,6 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 {
 	_inputHistory.OnModifyCurrent(content);
 
-	// 中断上一个补全task，清除 hint 窗口和删除标记
-	_chatTaskMgrBg.InterruptTaskType("InputHint");
-	_chatTaskMgrBg.InterruptTaskType("InputHint2");
-	_chatTaskMgrBg.InterruptTaskType("InputHint3");
-	_inputHintWindow.HideHint();
-
 	// 更新 IME composition 状态
 	_isInputComposing = isComposing;
 
@@ -1714,6 +1712,8 @@ void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputCont
 {
 	if (!_CanShowHint())
 		return;
+	if (contentVersion != _chatInput.GetContentVersion())
+		return;
 	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff, newFullContent, applyCaretTokenPos, ghostContent, contentVersion);
 }
 
@@ -1741,6 +1741,16 @@ bool CChatDialogA::_HandleTab()
 		return true;
 	}
 	return false;
+}
+
+void CChatDialogA::_HandleContentVersionIncreased(int contentVersion)
+{
+	// 内容版本号递增：用户通过 beforeinput 或 selectionchange 产生了新内容
+	// 无条件中断所有 hint task 并隐藏 hint
+	_chatTaskMgrBg.InterruptTaskType("InputHint");
+	_chatTaskMgrBg.InterruptTaskType("InputHint2");
+	_chatTaskMgrBg.InterruptTaskType("InputHint3");
+	_inputHintWindow.HideHint();
 }
 
 void CChatDialogA::_HandleSkillButtonClicked(const RECT& btnRect)
