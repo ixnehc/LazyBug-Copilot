@@ -128,7 +128,11 @@ function initializeEventListeners() {
     // 输入内容变化监听
     // beforeinput 在 DOM 改变之前触发：先清除删除标记，避免用户输入被 diff-deleted span 影响
     inputEditor.addEventListener('beforeinput', handleBeforeInput);
-    inputEditor.addEventListener('input', debounce(notifyContentChanged, 300));
+    const _debouncedNotifyContentChanged = debounce(notifyContentChanged, 300);
+    inputEditor.addEventListener('input', function() {
+        _contentVersion++;
+        _debouncedNotifyContentChanged();
+    });
     inputEditor.addEventListener('input', ensureTagIntegrity);
     inputEditor.addEventListener('input', handleAutoComplete);
     inputEditor.addEventListener('input', updateWatermarkVisibility);

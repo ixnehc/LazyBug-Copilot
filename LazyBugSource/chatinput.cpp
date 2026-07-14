@@ -266,6 +266,11 @@ HRESULT CChatInput::InitializeWebView()
 										isComposing = jsonMsg["isComposing"].get<bool>();
 									}
 
+									if (jsonMsg.contains("contentVersion") && jsonMsg["contentVersion"].is_number())
+									{
+										_contentVersion = jsonMsg["contentVersion"].get<int>();
+									}
+
 									_contentChangedCallback(content, caretPos, isComposing);
 								}
 							}
@@ -1001,7 +1006,7 @@ void CChatInput::GetSelectedText(std::function<void(const std::wstring&)> callba
 }
 
 // 设置删除标记 token 索引列表
-void CChatInput::SetDeletionMarks(const std::vector<int>& deletionIndices)
+void CChatInput::SetDeletionMarks(const std::vector<int>& deletionIndices, int contentVersion)
 {
 	if (!_IsReady())
 		return;
@@ -1016,7 +1021,8 @@ void CChatInput::SetDeletionMarks(const std::vector<int>& deletionIndices)
 	}
 	indicesJson += L"]";
 
-	std::wstring jsonMessage = L"{\"action\":\"setDeletionMarks\",\"indices\":" + indicesJson + L"}";
+	std::wstring jsonMessage = L"{\"action\":\"setDeletionMarks\",\"indices\":" + indicesJson +
+		L",\"contentVersion\":" + std::to_wstring(contentVersion) + L"}";
 	_PostWebMessageAsJson(jsonMessage);
 }
 
@@ -1031,14 +1037,15 @@ void CChatInput::ClearDeletionMarks()
 }
 
 // 显示 ghost text 提示
-void CChatInput::ShowGhostSuggestion(const std::wstring& text, int tokenIndex)
+void CChatInput::ShowGhostSuggestion(const std::wstring& text, int tokenIndex, int contentVersion)
 {
 	if (!_IsReady())
 		return;
 
 	std::wstring safeText = EscapeJsonString(text);
 	std::wstring jsonMessage = L"{\"action\":\"showGhostSuggestion\",\"text\":\"" + safeText +
-		L"\",\"tokenIndex\":" + std::to_wstring(tokenIndex) + L"}";
+		L"\",\"tokenIndex\":" + std::to_wstring(tokenIndex) +
+		L",\"contentVersion\":" + std::to_wstring(contentVersion) + L"}";
 	_PostWebMessageAsJson(jsonMessage);
 }
 

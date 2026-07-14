@@ -5,7 +5,7 @@
 class CChatTask_InputHint : public CChatTask
 {
 public:
-    CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect);
+    CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion);
 
     const char* GetType() override { return "InputHint"; }
     void Start() override;
@@ -49,6 +49,7 @@ private:
     Utils::DiffedInputContent _pendingNewDiff;
     Utils::DiffedInputContent _pendingOldDiff;
     Utils::GhostContent       _pendingGhost;
+    int                       _contentVersion;
 
     CRect                    _anchorRect;
 };

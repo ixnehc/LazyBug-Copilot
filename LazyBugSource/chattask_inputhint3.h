@@ -5,7 +5,7 @@
 class CChatTask_InputHint3 : public CChatTask
 {
 public:
-    CChatTask_InputHint3(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect);
+    CChatTask_InputHint3(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion);
 
     const char* GetType() override { return "InputHint3"; }
     void Start() override;
@@ -25,6 +25,7 @@ private:
     std::string              _resultText;
     bool                     _hasStartedRequest;
     bool                     _requestInterrupt;
+    int                      _contentVersion;
 
     CRect                    _anchorRect;
 };

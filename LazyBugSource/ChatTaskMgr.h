@@ -128,9 +128,9 @@ public:
 	void AddTask_CreateSkill(const LlmToolCall& toolCall);
 	void AddTask_Mcp(const LlmToolCall& toolCall);
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
-	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos);
-	void AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos);
-	void AddTask_InputHint3(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos);
+	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);
+	void AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);
+	void AddTask_InputHint3(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);
 
 	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls);
 

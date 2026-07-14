@@ -80,13 +80,13 @@ function processNativeMessage(data) {
             }
             break;
         case 'setDeletionMarks':
-            if (window.setDeletionMarks) window.setDeletionMarks(data.indices || []);
+            if (window.setDeletionMarks) window.setDeletionMarks(data.indices || [], data.contentVersion);
             break;
         case 'clearDeletionMarks':
             if (window.clearDeletionMarks) window.clearDeletionMarks();
             break;
         case 'showGhostSuggestion':
-            if (window.showGhostSuggestion) window.showGhostSuggestion(data.text || '', data.tokenIndex || 0);
+            if (window.showGhostSuggestion) window.showGhostSuggestion(data.text || '', data.tokenIndex || 0, data.contentVersion);
             break;
         case 'clearGhostSuggestion':
             if (window.clearGhostSuggestion) window.clearGhostSuggestion();

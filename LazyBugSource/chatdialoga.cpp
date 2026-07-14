@@ -1675,7 +1675,7 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 
 	CRect inputRect;
 	_chatInput.GetWindowRect(&inputRect);
-	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos);
+	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, inputRect, caretPos, _chatInput.GetContentVersion());
 	//_chatTaskMgrBg.AddTask_InputHint2(content, autoCompleteApi, inputRect, caretPos);
 	//_chatTaskMgrBg.AddTask_InputHint3(content, autoCompleteApi, inputRect, caretPos);
 }
@@ -1693,11 +1693,11 @@ void CChatDialogA::_UpdateHideHint()
 	}
 }
 
-void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos, const Utils::GhostContent& ghostContent)
+void CChatDialogA::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos, const Utils::GhostContent& ghostContent, int contentVersion)
 {
 	if (!_CanShowHint())
 		return;
-	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff, newFullContent, applyCaretTokenPos, ghostContent);
+	_inputHintWindow.ShowHint(anchorRect, newDiff, oldDiff, newFullContent, applyCaretTokenPos, ghostContent, contentVersion);
 }
 
 void CChatDialogA::HideHint()

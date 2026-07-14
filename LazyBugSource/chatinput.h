@@ -150,16 +150,19 @@ public:
     // ===== 删除标记相关方法 =====
     
     // 设置删除标记 token 索引列表（每个字符算1个token，每个tag算1个token）
-    void SetDeletionMarks(const std::vector<int>& deletionIndices);
+    void SetDeletionMarks(const std::vector<int>& deletionIndices, int contentVersion = 0);
     
     // 清除删除标记
     void ClearDeletionMarks();
     
     // 显示 ghost text 提示（在指定 token 位置后插入灰色幽灵文字）
-    void ShowGhostSuggestion(const std::wstring& text, int tokenIndex);
+    void ShowGhostSuggestion(const std::wstring& text, int tokenIndex, int contentVersion = 0);
     
     // 清除 ghost text 提示
     void ClearGhostSuggestion();
+    
+    // 获取当前内容版本号
+    int GetContentVersion() const { return _contentVersion; }
     
     // 获取可见的标签
 	std::vector<ChatInputTag> GetVisibleFileTags() const;
@@ -307,6 +310,9 @@ private:
     // 状态标志
     bool _isWebViewCreated;
     bool _isInputInitialized;
+
+    // 内容版本号: 每次 contentChanged 时 JS 递增并传递, 用于检测 Hint 操作是否过期
+    int _contentVersion = 0;
 
 	//Focus控制
 	//如果当前为foreground,并且上一次拥有focus的时间和上一次是前台窗口的时间很接近的话,表示自己是因为窗口切到后台丢失的focus,这种情况下要夺回focus

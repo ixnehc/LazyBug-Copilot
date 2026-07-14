@@ -262,7 +262,7 @@ void CInputHintWindow::_DoShowWindow()
 
 //====================== 显示/隐藏 ======================
 
-void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos, const Utils::GhostContent& ghostContent)
+void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos, const Utils::GhostContent& ghostContent, int contentVersion)
 {
     if (newDiff.plainContent.empty() && std::find(oldDiff.diffStates.begin(), oldDiff.diffStates.end(), 2) == oldDiff.diffStates.end())
         return;
@@ -277,7 +277,7 @@ void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInput
 
         if (_pChatInput)
         {
-            _pChatInput->ShowGhostSuggestion(ghostContent.text, ghostContent.tokenIndex);
+            _pChatInput->ShowGhostSuggestion(ghostContent.text, ghostContent.tokenIndex, contentVersion);
             _pChatInput->SetHintVisible(true);
         }
         return;
@@ -378,7 +378,7 @@ void CInputHintWindow::ShowHint(const RECT& anchorRect, const Utils::DiffedInput
             pos++;
         }
 
-        _pChatInput->SetDeletionMarks(deletionIndices);
+        _pChatInput->SetDeletionMarks(deletionIndices, contentVersion);
     }
 
     // 通知 CChatInput JS 层 hint 窗口可见，以启用 Tab 键拦截

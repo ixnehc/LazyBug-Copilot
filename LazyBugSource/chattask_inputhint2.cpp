@@ -6,13 +6,14 @@
 #include "ChatDialogA.h"
 #include <unordered_set>
 
-CChatTask_InputHint2::CChatTask_InputHint2(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect)
+CChatTask_InputHint2::CChatTask_InputHint2(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion)
 {
 	_originalInputContent = Utils::BuildInputContent(content);
 	_apiName = apiName;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 	_anchorRect = anchorRect;
+	_contentVersion = contentVersion;
 
 	// InputHint2 中光标位置仅保留记录，不作为 prompt 中的补全标记
 	_caretPlainPos = -1;
@@ -242,7 +243,7 @@ void CChatTask_InputHint2::Update()
 								_caretPlainPos);
 
 							if (_context && _context->chatDialogA)
-								_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos, ghostContent);
+								_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos, ghostContent, _contentVersion);
 						}
 					}
 

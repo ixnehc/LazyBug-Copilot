@@ -259,6 +259,10 @@ function handleAtButtonClick(event) {
 
 // 处理发送按钮点击
 function handleSendClick() {
+    // 发送前清除 ghost text 和删除标记，确保只发送用户实际输入的内容
+    clearGhostSuggestion();
+    clearDeletionMarks();
+
     const contentJson = getInputContent();
     const plainText = getEditorPlainText();
     

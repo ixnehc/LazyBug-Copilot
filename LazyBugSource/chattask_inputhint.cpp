@@ -14,13 +14,14 @@
 
 extern const char* GetOpenedDBFolderPath_utf8();
 
-CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect)
+CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion)
 {
 	_originalInputContent = Utils::BuildInputContent(content);
 	_apiName = apiName;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 	_anchorRect = anchorRect;
+	_contentVersion = contentVersion;
 
 	_checkCompleteStarted = false;
 	_inputHintFinished = false;
@@ -465,7 +466,7 @@ void CChatTask_InputHint::_TryFinalize()
 				_newInputContent.plainContent,
 				_newInputContent,
 				_caretPlainPos);
-			_context->chatDialogA->ShowHint(_anchorRect, _pendingNewDiff, _pendingOldDiff, _newInputContent, applyCaretTokenPos, _pendingGhost);
+			_context->chatDialogA->ShowHint(_anchorRect, _pendingNewDiff, _pendingOldDiff, _newInputContent, applyCaretTokenPos, _pendingGhost, _contentVersion);
 		}
 		else
 			_context->chatDialogA->HideHint();

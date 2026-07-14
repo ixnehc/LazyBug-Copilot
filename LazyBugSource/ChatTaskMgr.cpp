@@ -685,21 +685,21 @@ void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::stri
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
+void CChatTaskMgr::AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion)
 {
-	CChatTask_InputHint* task = new CChatTask_InputHint(content, apiName, caretTokenPos, anchorRect);
+	CChatTask_InputHint* task = new CChatTask_InputHint(content, apiName, caretTokenPos, anchorRect, contentVersion);
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
+void CChatTaskMgr::AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion)
 {
-	CChatTask_InputHint2* task = new CChatTask_InputHint2(content, apiName, caretTokenPos, anchorRect);
+	CChatTask_InputHint2* task = new CChatTask_InputHint2(content, apiName, caretTokenPos, anchorRect, contentVersion);
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_InputHint3(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos)
+void CChatTaskMgr::AddTask_InputHint3(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion)
 {
-	CChatTask_InputHint3* task = new CChatTask_InputHint3(content, apiName, caretTokenPos, anchorRect);
+	CChatTask_InputHint3* task = new CChatTask_InputHint3(content, apiName, caretTokenPos, anchorRect, contentVersion);
 	_AddTask(task);
 }
 

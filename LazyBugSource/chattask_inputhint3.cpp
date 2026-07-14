@@ -11,13 +11,14 @@
 
 extern const char* GetOpenedDBFolderPath_utf8();
 
-CChatTask_InputHint3::CChatTask_InputHint3(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect)
+CChatTask_InputHint3::CChatTask_InputHint3(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion)
 {
 	_originalInputContent = Utils::BuildInputContent(content);
 	_apiName = apiName;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 	_anchorRect = anchorRect;
+	_contentVersion = contentVersion;
 
 	_caretPlainPos = -1;
 	if (caretTokenPos >= 0)
@@ -259,7 +260,7 @@ void CChatTask_InputHint3::Update()
 							_caretPlainPos);
 
 						if (_context && _context->chatDialogA)
-							_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos, ghostContent);
+							_context->chatDialogA->ShowHint(_anchorRect, newDiff, oldDiff, _newInputContent, applyCaretTokenPos, ghostContent, _contentVersion);
 					}
 
 					// 保存请求与结果到 recent.json

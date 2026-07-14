@@ -162,17 +162,30 @@
 /* 💡图标 */
 .input-hint-toggle-icon {
     flex-shrink: 0;
-    transition: all 0.15s ease;
-    fill: none;
-    stroke: var(--text-color);
-    stroke-width: 1.5;
-    opacity: 0.6;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.15s ease;
 }
 
-/* 启用状态 - 实心灯泡 */
-.input-hint-toggle-button.enabled .input-hint-toggle-icon {
-    fill: #ffd633;
-    stroke: #ffd633;
+/* 禁用状态：显示灰色线框灯泡 */
+.input-hint-toggle-icon-disable {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+}
+.input-hint-toggle-icon-enable {
+    font-size: 18px;
+    line-height: 1;
+    opacity: 0;
+}
+
+/* 启用状态：显示💡emoji */
+.input-hint-toggle-button.enabled .input-hint-toggle-icon-disable {
+    opacity: 0;
+}
+.input-hint-toggle-button.enabled .input-hint-toggle-icon-enable {
     opacity: 1;
 }
 

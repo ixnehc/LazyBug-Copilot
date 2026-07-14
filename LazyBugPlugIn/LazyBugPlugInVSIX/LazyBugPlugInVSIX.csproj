@@ -145,6 +145,9 @@
     <Content Include="ChatInputHtml\input.css">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="ChatInputHtml\input_hint_disable.svg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="ChatInputHtml\main.js">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

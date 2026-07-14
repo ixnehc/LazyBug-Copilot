@@ -1,5 +1,8 @@
 // 内容处理（输入输出、粘贴、光标导航）
 
+// 内容版本号: 每次 input 事件递增, 用于检测 Hint 操作是否过期
+let _contentVersion = 0;
+
 // 设置输入内容
 function setInputContent(content, caretTokenPos) {
     const inputEditor = document.getElementById('inputEditor');
@@ -390,7 +393,8 @@ function notifyContentChanged() {
         action: 'contentChanged',
         content: JSON.parse(contentJson),
         caretPos: getCaretTokenPosition(),
-        isComposing: AppState.isInputComposing
+        isComposing: AppState.isInputComposing,
+        contentVersion: _contentVersion
     });
 }
 
@@ -1532,9 +1536,12 @@ function _restoreEditorCaret(saved) {
 
 // 设置删除标记 token 索引列表
 // 每个 type:'text' 项的每个字符算1个token，每个 type:'tag' 项算1个token
-function setDeletionMarks(indices) {
+function setDeletionMarks(indices, contentVersion) {
     const inputEditor = document.getElementById('inputEditor');
     if (!inputEditor) return;
+
+    // 版本检查: 若内容已变化则跳过
+    if (contentVersion !== undefined && contentVersion !== _contentVersion) return;
 
     // 保存光标，改动 DOM 后恢复，避免光标跳到行首
     _suppressHintHide = true;
@@ -1715,9 +1722,12 @@ function clearGhostSuggestion() {
     inputEditor.normalize();
 }
 
-function showGhostSuggestion(text, tokenIndex) {
+function showGhostSuggestion(text, tokenIndex, contentVersion) {
     const inputEditor = document.getElementById('inputEditor');
     if (!inputEditor) return;
+
+    // 版本检查: 若内容已变化则跳过
+    if (contentVersion !== undefined && contentVersion !== _contentVersion) return;
 
     // 先清除已有的 ghost text
     clearGhostSuggestion();

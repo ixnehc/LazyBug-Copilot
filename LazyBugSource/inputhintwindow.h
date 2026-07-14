@@ -25,7 +25,7 @@ public:
     // oldDiff 用于在 CChatInput 上标记删除的 token（红色背景）
     // newFullContent 是完整的新 InputContent，用于 ApplyHint 重建完整 JSON
     // applyCaretTokenPos 是 Apply 后光标应定位的 token 位置（-1 表示默认末尾）
-    void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos = -1, const Utils::GhostContent& ghostContent = Utils::GhostContent{});
+    void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos = -1, const Utils::GhostContent& ghostContent = Utils::GhostContent{}, int contentVersion = 0);
 
     // 隐藏提示窗口（同时清除删除标记）
     void HideHint();
