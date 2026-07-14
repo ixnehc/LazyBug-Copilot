@@ -555,7 +555,7 @@ void parseLlmResponse(const char* response, CLlmToolCallParser &toolCallParser, 
 			result.choices.clear();
 		}
 
-		// 检查是否是错误响应
+		// 检查是否是错误响应（标准 OpenAI 格式: {"error": {...}}）
 		if (j.contains(u8"error"))
 		{
 			result.error_message = j[u8"error"].value(u8"message", u8"");
@@ -586,6 +586,14 @@ void parseLlmResponse(const char* response, CLlmToolCallParser &toolCallParser, 
 				if (j[u8"error"][u8"metadata"].contains(u8"raw"))
 					result.error_message = j[u8"error"][u8"metadata"].value(u8"raw", u8"");
 			}
+			return;
+		}
+
+		// 检查是否是错误响应（custom provider 包裹格式: {"error_code": "...", "message": "..."}）
+		if (j.contains(u8"error_code") && j[u8"error_code"].is_string() && !j[u8"error_code"].get<std::string>().empty())
+		{
+			result.error_type = j[u8"error_code"].get<std::string>();
+			result.error_message = j.value(u8"message", u8"");
 			return;
 		}
 
