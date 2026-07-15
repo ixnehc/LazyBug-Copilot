@@ -18,7 +18,7 @@
 
 LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程助手扩展。它集成了大语言模型（LLM）能力，为开发者提供智能代码创建、重构和问答体验。该扩展支持多种主流 AI 服务提供商，让开发者能够在熟悉的 IDE 环境中享受 AI 辅助编程。
 
-https://github.com/ixnehc/LazyBug-Copilot/blob/master/media/introduce.mp4
+[![introduce](../media/screenshot3.gif)](https://github.com/ixnehc/LazyBug-Copilot/blob/master/media/introduce.mp4)
 
 ---
 
