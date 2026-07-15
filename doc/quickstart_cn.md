@@ -32,7 +32,7 @@ LazyBug 预置了多个 Provider。要验证或更新已有 Provider 的 API key
 4. 粘贴你的 API key，并按**回车**。
 5. 如果验证成功，Provider 名称前面的红色指示灯会变为绿色。
 
-<video src="../media/verify_existing_provider.mp4" controls="controls" width="100%"></video>
+![验证已有 Provider](../media/verify_existing_provider.gif)
 
 ## 第四步：添加新的 Provider
 
@@ -47,7 +47,7 @@ LazyBug 预置了多个 Provider。要验证或更新已有 Provider 的 API key
    - 至少输入 **API 名称**和**模型标识符**，以确保它可用。
 6. 最后粘贴你的 API key 并按**回车**，开始验证。如果验证成功，Provider 名称前的红色指示灯会变为绿色。
 
-<video src="../media/add_new_provider.mp4" controls="controls" width="100%"></video>
+![添加新 Provider](../media/add_new_provider.gif)
 
 ---
 

@@ -32,7 +32,7 @@ LazyBug comes with several pre-configured providers. To verify or update an API 
 4. Paste your API key and press **Enter**.
 5. If verification succeeds, the red indicator next to the Provider name will turn green.
 
-<video src="../media/verify_existing_provider.mp4" controls="controls" width="100%"></video>
+![Verify Existing Provider](../media/verify_existing_provider.gif)
 
 ## Step 4: Add a New Provider
 
@@ -47,7 +47,7 @@ To add a custom LLM provider:
    - Enter at least the **API Name** and **Model Identifier** to ensure it is usable.
 6. Finally, paste your API key and press **Enter** to start verification. If verification succeeds, the red indicator next to the Provider name will turn green.
 
-<video src="../media/add_new_provider.mp4" controls="controls" width="100%"></video>
+![Add New Provider](../media/add_new_provider.gif)
 
 ---
 
