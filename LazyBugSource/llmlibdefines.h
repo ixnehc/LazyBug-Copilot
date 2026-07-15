@@ -65,3 +65,6 @@ enum class LlmThinkingMode
 
 // Embedding API 特殊选项
 #define EMBEDDING_API_DISABLE "<disable>"
+
+// InputHint API 特殊选项
+#define INPUTHINT_API_DISABLE "<disable>"

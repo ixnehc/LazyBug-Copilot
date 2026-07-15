@@ -826,7 +826,7 @@ void CChatSettingPage::SendCastSheetDataToWebView()
     std::string majorChatApi = g_llmLib.GetMajorChatApi();
     std::string briefApi = g_llmLib.GetBriefApi();
     std::string summarizeApi = g_llmLib.GetSummarizeApi();
-    std::string autoCompleteApi = g_llmLib.GetAutoCompleteApi();
+    std::string inputHintApi = g_llmLib.GetInputHintApi();
     std::string embeddingApi = g_llmLib.GetEmbeddingApi();
 
     // 收集可用的API指针
@@ -856,7 +856,7 @@ void CChatSettingPage::SendCastSheetDataToWebView()
     json jMajorChatApis = json::array();
     json jBriefApis = json::array();
     json jSummarizeApis = json::array();
-    json jAutoCompleteApis = json::array();
+    json jInputHintApis = json::array();
     json jEmbeddingApis = json::array();
     
     // 为 Summarize 列表添加特殊选项
@@ -872,6 +872,15 @@ void CChatSettingPage::SendCastSheetDataToWebView()
         jAuto["provider"] = "";
         jAuto["model"] = "";
         jSummarizeApis.push_back(jAuto);
+    }
+    
+    // 为 InputHint 列表添加特殊选项
+    {
+        json jDisable;
+        jDisable["name"] = INPUTHINT_API_DISABLE;
+        jDisable["provider"] = "";
+        jDisable["model"] = "";
+        jInputHintApis.push_back(jDisable);
     }
     
     // 为 Embedding 列表添加特殊选项
@@ -900,8 +909,8 @@ void CChatSettingPage::SendCastSheetDataToWebView()
         jBriefApis.push_back(jApi);
         jSummarizeApis.push_back(jApi);
         
-        // AutoComplete 可以是 Agent 或 Auxiliary
-        jAutoCompleteApis.push_back(jApi);
+        // InputHint 可以是 Agent 或 Auxiliary
+        jInputHintApis.push_back(jApi);
         
         // Embedding 只包含 Embedding 角色
         if (api->role == LlmApiRole::Embedding)
@@ -912,14 +921,14 @@ void CChatSettingPage::SendCastSheetDataToWebView()
 
     json jCastSheet;
     jCastSheet["majorChatApi"] = majorChatApi;
+    jCastSheet["inputHintApi"] = inputHintApi;
     jCastSheet["briefApi"] = briefApi;
     jCastSheet["summarizeApi"] = summarizeApi;
-    jCastSheet["autoCompleteApi"] = autoCompleteApi;
     jCastSheet["embeddingApi"] = embeddingApi;
     jCastSheet["majorChatApis"] = jMajorChatApis;
     jCastSheet["briefApis"] = jBriefApis;
     jCastSheet["summarizeApis"] = jSummarizeApis;
-    jCastSheet["autoCompleteApis"] = jAutoCompleteApis;
+    jCastSheet["inputHintApis"] = jInputHintApis;
     jCastSheet["embeddingApis"] = jEmbeddingApis;
 
     std::string utf8Json = jCastSheet.dump();
@@ -944,9 +953,9 @@ void CChatSettingPage::UpdateCastSheetApi(const std::wstring& apiTypeW, const st
     {
         g_llmLib.SetSummarizeApi(apiName);
     }
-    else if (apiType == "autoComplete")
+    else if (apiType == "inputHint")
     {
-        g_llmLib.SetAutoCompleteApi(apiName);
+        g_llmLib.SetInputHintApi(apiName);
     }
     else if (apiType == "embedding")
     {

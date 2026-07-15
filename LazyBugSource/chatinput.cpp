@@ -708,6 +708,8 @@ void CChatInput::Update()
 	_UpdateGainFocus();
 
 	_imageTipWindow.Update();
+	
+	UpdateInputHintButton();
 }
 
 
@@ -820,6 +822,30 @@ void CChatInput::SetInputHintToggleButtonState(bool enabled)
 	jsonMessage += (enabled ? L"true" : L"false");
 	jsonMessage += L"}";
 	_PostWebMessageAsJson(jsonMessage);
+}
+
+void CChatInput::UpdateInputHintButton()
+{
+	if (!_IsReady())
+		return;
+
+	std::string apiName = g_llmLib.GetInputHintApi();
+	if (apiName == _inputHintApiName)
+		return;
+
+	_inputHintApiName = apiName;
+
+	bool available = !apiName.empty() && apiName != INPUTHINT_API_DISABLE;
+	std::string tooltip = available
+		? "Toggle Input Hint (" + apiName + ")"
+		: "No input hint API configured";
+
+	nlohmann::json j;
+	j["action"] = "updateInputHintButton";
+	j["available"] = available;
+	j["disabled"] = !available;
+	j["tooltip"] = tooltip;
+	_PostWebMessageAsJson(utf8_to_widechar(j.dump()));
 }
 
 // 调整WebView大小

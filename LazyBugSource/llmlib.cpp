@@ -85,7 +85,7 @@ void CLlmLib::_Save(CCurrentUserRegistry &reg)
 	reg.WriteString(mainSection, "majorChatApi", _majorChatApi.c_str());
 	reg.WriteString(mainSection, "briefApi", _briefApi.c_str());
 	reg.WriteString(mainSection, "summarizeApi", _summarizeApi.c_str());
-	reg.WriteString(mainSection, "autoCompleteApi", _autoCompleteApi.c_str());
+	reg.WriteString(mainSection, "inputHintApi", _inputHintApi.c_str());
 	reg.WriteString(mainSection, "embeddingApi", _embeddingApi.c_str());
 
 	// 保存API提供商的动态数据到注册表
@@ -119,7 +119,7 @@ void CLlmLib::_Load(CCurrentUserRegistry& reg)
 	_majorChatApi = reg.ReadString(mainSection, "majorChatApi", "");
 	_briefApi = reg.ReadString(mainSection, "briefApi", "");
 	_summarizeApi = reg.ReadString(mainSection, "summarizeApi", "");
-	_autoCompleteApi = reg.ReadString(mainSection, "autoCompleteApi", "");
+	_inputHintApi = reg.ReadString(mainSection, "inputHintApi", "");
 	_embeddingApi = reg.ReadString(mainSection, "embeddingApi", "");
 
 	// 从注册表读取API提供商的动态数据
@@ -273,14 +273,11 @@ void CLlmLib::_EnsureDefApis()
 // 		}
 	}
 
-	// 确保 _autoCompleteApi：优先从Auxiliary取，其次从Agent取
-	if (!IsApiValid(_autoCompleteApi, LlmApiRole::Auxiliary) && !IsApiValid(_autoCompleteApi, LlmApiRole::Agent))
+	// 确保 _inputHintApi：优先从Auxiliary取，其次从Agent取
+	if (!IsApiValid(_inputHintApi, LlmApiRole::Auxiliary) && !IsApiValid(_inputHintApi, LlmApiRole::Agent)
+		&& (_inputHintApi != INPUTHINT_API_DISABLE))
 	{
-		_autoCompleteApi = FindFirstValidApi(LlmApiRole::Auxiliary);
-		if (_autoCompleteApi.empty())
-		{
-			_autoCompleteApi = FindFirstValidApi(LlmApiRole::Agent);
-		}
+		_inputHintApi = INPUTHINT_API_DISABLE;
 	}
 
 	// 确保 _embeddingApi：从Embedding角色取
@@ -714,8 +711,17 @@ void CLlmLib::SetSummarizeApi(const std::string& apiName)
 	}
 }
 
-void CLlmLib::SetAutoCompleteApi(const std::string& apiName)
+void CLlmLib::SetInputHintApi(const std::string& apiName)
 {
+	// 特殊值 <disable> 直接接受，无需验证
+	if (apiName == INPUTHINT_API_DISABLE)
+	{
+		_inputHintApi = apiName;
+		_version++;
+		SaveSettings();
+		return;
+	}
+
 	// 验证apiName是否在可用的API列表中
 	bool found = false;
 	for (const auto& api : _apis)
@@ -734,7 +740,7 @@ void CLlmLib::SetAutoCompleteApi(const std::string& apiName)
 
 	if (found)
 	{
-		_autoCompleteApi = apiName;
+		_inputHintApi = apiName;
 		_version++;
 		SaveSettings();
 	}

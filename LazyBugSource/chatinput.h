@@ -91,6 +91,9 @@ public:
     // 设置输入提示开关按钮状态
     void SetInputHintToggleButtonState(bool enabled);
     
+    // 更新输入提示按钮（每帧调用，API名称变化时更新按钮可用性和tooltip）
+    void UpdateInputHintButton();
+    
     // 获取WebView2环境和核心WebView
     ICoreWebView2* GetCoreWebView2() { return _webView; }
     ICoreWebView2Controller* GetController() { return _controller; }
@@ -306,6 +309,9 @@ private:
     InputHintToggleCallback _inputHintToggleCallback;
     InputTabCallback _tabCallback;
     InputContentVersionIncreasedCallback _contentVersionIncreasedCallback;
+    
+    // 缓存的 InputHint API 名称，用于检测变化
+    std::string _inputHintApiName;
     
     // 脚本执行回调映射
     std::map<int, std::function<void(const std::wstring&)>> _scriptCallbacks;

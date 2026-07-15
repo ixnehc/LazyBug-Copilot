@@ -480,6 +480,15 @@ function setInputHintToggleButtonState(enabled) {
     }
 }
 
+// 更新输入提示按钮（C++侧每帧调用，仅在API名称变化时触发）
+function updateInputHintButton(available, disabled, tooltip) {
+    const button = document.getElementById('inputHintToggleButton');
+    if (button) {
+        button.disabled = disabled;
+        button.title = tooltip;
+    }
+}
+
 // 处理输入提示开关按钮点击
 function handleInputHintToggleClick() {
     const button = document.getElementById('inputHintToggleButton');
@@ -519,3 +528,4 @@ window.showCompressSummarizeTip = showCompressSummarizeTip;
 window.hideCompressSummarizeTip = hideCompressSummarizeTip;
 window.setInputHintToggleButtonState = setInputHintToggleButtonState;
 window.handleInputHintToggleClick = handleInputHintToggleClick;
+window.updateInputHintButton = updateInputHintButton;

@@ -96,6 +96,11 @@ function processNativeMessage(data) {
                 window.setInputHintToggleButtonState(data.enabled !== false);
             }
             break;
+        case 'updateInputHintButton':
+            if (window.updateInputHintButton) {
+                window.updateInputHintButton(data.available, data.disabled, data.tooltip);
+            }
+            break;
     }
 }
 

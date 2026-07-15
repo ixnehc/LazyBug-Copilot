@@ -747,9 +747,9 @@ void RunTestCases()
 	// 按文件名排序，保证执行顺序可预测
 	std::sort(jsonFiles.begin(), jsonFiles.end());
 
-	// 获取 auto complete API
-	std::string apiName = g_llmLib.GetAutoCompleteApi();
-	if (apiName.empty())
+	// 获取 input hint API
+	std::string apiName = g_llmLib.GetInputHintApi();
+	if (apiName.empty() || apiName == INPUTHINT_API_DISABLE)
 		return;
 
 	LlmSessionSetting setting;

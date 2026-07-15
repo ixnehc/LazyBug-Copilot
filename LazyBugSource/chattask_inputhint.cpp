@@ -185,6 +185,7 @@ bool CChatTask_InputHint::_StartInputHintSession()
 		return false;
 
 	setting.api.tools.clear();
+	setting.api.thinkingMode = LlmThinkingMode::Disable;
 
 	LlmSessionRequest request;
 

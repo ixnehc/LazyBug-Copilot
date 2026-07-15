@@ -166,14 +166,14 @@ public:
 	std::string GetMajorChatApi() const { return _majorChatApi; }
 	std::string GetBriefApi() const { return _briefApi; }
 	std::string GetSummarizeApi() const { return _summarizeApi; }
-	std::string GetAutoCompleteApi() const { return _autoCompleteApi; }
+	std::string GetInputHintApi() const { return _inputHintApi; }
 	std::string GetEmbeddingApi() const { return _embeddingApi; }
 	
 	// 设置当前的Agent API
 	void SetMajorChatApi(const std::string& apiName);
 	void SetBriefApi(const std::string& apiName);
 	void SetSummarizeApi(const std::string& apiName);
-	void SetAutoCompleteApi(const std::string& apiName);
+	void SetInputHintApi(const std::string& apiName);
 	void SetEmbeddingApi(const std::string& apiName);
 	
 	// 获取API列表
@@ -228,7 +228,7 @@ private:
 	std::string _majorChatApi;//Chat
 	std::string _briefApi;//Title brief
 	std::string _summarizeApi;//for compress summarizing
-	std::string _autoCompleteApi;//for input auto-complete
+	std::string _inputHintApi;//for input hint
 	std::string _embeddingApi;//for embedding
 
 	WorkingCapability _cap;

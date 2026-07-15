@@ -1377,8 +1377,8 @@
                             </button>
                         </div>
                         <div class="cast-sheet-row">
-                            <span class="cast-sheet-label">Input Auto Complete</span>
-                            <select class="cast-sheet-select" id="cast-sheet-autoComplete" data-api-type="autoComplete">
+                            <span class="cast-sheet-label">Input Hint</span>
+                            <select class="cast-sheet-select" id="cast-sheet-inputHint" data-api-type="inputHint">
                                 <option>Loading...</option>
                             </select>
                         </div>
@@ -1495,17 +1495,17 @@
             const majorChatSelect = document.getElementById('cast-sheet-majorChat');
             const briefSelect = document.getElementById('cast-sheet-brief');
             const summarizeSelect = document.getElementById('cast-sheet-summarize');
-            const autoCompleteSelect = document.getElementById('cast-sheet-autoComplete');
+            const inputHintSelect = document.getElementById('cast-sheet-inputHint');
             const embeddingSelect = document.getElementById('cast-sheet-embedding');
             const castSheetPanel = document.getElementById('cast-sheet-panel');
             
-            if (!majorChatSelect || !briefSelect || !summarizeSelect || !autoCompleteSelect || !embeddingSelect || !castSheetPanel) return;
+            if (!majorChatSelect || !briefSelect || !summarizeSelect || !inputHintSelect || !embeddingSelect || !castSheetPanel) return;
             
             // 分别获取不同的API列表
             const majorChatApis = data.majorChatApis || [];
             const briefApis = data.briefApis || [];
             const summarizeApis = data.summarizeApis || [];
-            const autoCompleteApis = data.autoCompleteApis || [];
+            const inputHintApis = data.inputHintApis || [];
             const embeddingApis = data.embeddingApis || [];
             
             function rebuildSelect(select, newValue, apiList) {
@@ -1534,7 +1534,7 @@
             rebuildSelect(majorChatSelect, data.majorChatApi, majorChatApis);
             rebuildSelect(briefSelect, data.briefApi, briefApis);
             rebuildSelect(summarizeSelect, data.summarizeApi, summarizeApis);
-            rebuildSelect(autoCompleteSelect, data.autoCompleteApi, autoCompleteApis);
+            rebuildSelect(inputHintSelect, data.inputHintApi, inputHintApis);
             rebuildSelect(embeddingSelect, data.embeddingApi, embeddingApis);
             
             // 更新Evaluate按钮状态

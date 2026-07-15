@@ -1667,8 +1667,8 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 		return;
 	}
 
-	std::string autoCompleteApi = g_llmLib.GetAutoCompleteApi();
-	if (autoCompleteApi.empty())
+	std::string inputHintApi = g_llmLib.GetInputHintApi();
+	if (inputHintApi.empty() || inputHintApi == INPUTHINT_API_DISABLE)
 		return;
 
 	// 优先使用 JS 上报的光标屏幕坐标; 无效时回退到整个输入框的位置
@@ -1690,9 +1690,9 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 		_chatInput.GetWindowRect(&anchorRect);
 	}
 
-	_chatTaskMgrBg.AddTask_InputHint(content, autoCompleteApi, anchorRect, caretPos, _chatInput.GetContentVersion());
-	//_chatTaskMgrBg.AddTask_InputHint2(content, autoCompleteApi, anchorRect, caretPos);
-	//_chatTaskMgrBg.AddTask_InputHint3(content, autoCompleteApi, anchorRect, caretPos);
+	_chatTaskMgrBg.AddTask_InputHint(content, inputHintApi, anchorRect, caretPos, _chatInput.GetContentVersion());
+	//_chatTaskMgrBg.AddTask_InputHint2(content, inputHintApi, anchorRect, caretPos);
+	//_chatTaskMgrBg.AddTask_InputHint3(content, inputHintApi, anchorRect, caretPos);
 }
 
 bool CChatDialogA::_CanShowHint()
