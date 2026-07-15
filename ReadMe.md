@@ -18,7 +18,7 @@
 
 LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension designed specifically for Visual Studio. It integrates Large Language Model (LLM) capabilities to provide developers with intelligent code creation, refactoring, and Q&A experiences. The extension supports multiple mainstream AI service providers, enabling developers to enjoy AI-assisted programming within their familiar IDE environment.
 
-[![introduce](./media/screenshot3.gif)](https://github.com/ixnehc/LazyBug-Copilot/blob/master/media/introduce.mp4)
+![introduce](./media/introduce.gif)
 
 ---
 
