@@ -5,8 +5,10 @@
 # LazyBug Copilot - Visual Studio AI Coding Assistant Extension
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.20.1-blue)](doc/patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.21-blue)](doc/patchnotes.md)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
+
+[Quick Start](doc/quickstart.md) | [Build Guide](doc/buildnotes.md) | [Patch Notes](doc/patchnotes.md) | [Report an Issue](https://github.com/ixnehc/LazyBug-Copilot/issues)
 
 </div>
 
@@ -16,20 +18,14 @@
 
 LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension designed specifically for Visual Studio. It integrates Large Language Model (LLM) capabilities to provide developers with intelligent code creation, refactoring, and Q&A experiences. The extension supports multiple mainstream AI service providers, enabling developers to enjoy AI-assisted programming within their familiar IDE environment.
 
-![screenshot](./media/screenshot3.gif)
+<video src="./media/introduce.mp4" controls="controls" width="100%"></video>
 
 ---
 
-## Version 0.20.1 Release Notes
+## Version 0.21 Release Notes
 
-- Fixed an issue where the GLM model would sometimes interrupt unexpectedly
-
----
-
-## Version 0.20 Release Notes
-
-- Added copy/paste buttons in the Provider & API settings page
-- Added symbol search support for more languages (`*.html`, `*.css`, `*.js`, `*.java`, `*.py`, `*.ts`)
+- Added input hint feature, showing candidate completions while typing in the chat input
+- Fixed a bug where writing would fail when modifying multiple files simultaneously
 
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
@@ -44,9 +40,9 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 - **Automatic Code Database** — Automatically builds a code database from all files in your solution with incremental updates.
 - **Codebase Search** — Fast text search for ultra-large projects (million-line scale). Significantly faster than ripgrep, especially in large codebases. 
 - **Symbol Search** — Fast symbol search for C/C++/C#/JavaScript/Java/Python/TypeScript codes. Works out of the box — no LSP configuration required.
-- **Smart Input Box** — Tag-based file attachment system with `@` auto-completion, input history (`PageUp`/`PageDown`), quick model switching.
+- **Smart Input Box** — Tag-based file attachment system with `@` auto-completion, input history (`PageUp`/`PageDown`), quick model switching, and input hint completions while typing.
 
-![chatinput](./media/chatinput.jpg)
+![input hint](./media/input_hint.jpg)
 
 - **Image Attachment** — Paste images directly into the chat input to send to vision-capable LLMs.
 
@@ -55,15 +51,11 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 - **Multi-Model Support** — Customizable API endpoints. Supports mainstream LLMs: OpenAI, Anthropic, Google Gemini, OpenRouter, Moonshot (Kimi), z.ai (GLM), DeepSeek and more. Also supports local LLMs (Ollama, LM Studio).
 - **Multi-API Format** — Supports three API formats: OpenAI-compatible, Anthropic, and Gemini.
 
-![provider](./media/provider.jpg)
-
 - **Skill System** — Browse, create, rename, and toggle skills via a management panel. Supports BuiltIn, Global, and Project-level skills. Allow using AI to edit or create new skills.
 
 ![skill](./media/skill.jpg)
 
 - **Custom Prompts** — `global_rules.txt` and `project_rules.txt` for customized prompts; 
-
-![settings](./media/settings2.jpg)
 
 - **CLI Tool Integration** — Execute cmd.exe, bash.exe, python.exe scripts directly from the chat, extending capabilities beyond coding.
 
@@ -100,6 +92,7 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
   - Click the title of a file editing label in the chat panel to display the Diff view in the main editor; press `Space` to hide it.
   - Clicking the title repeatedly allows you to quickly jump between different diff hunks.
 - **Avoid Editing Conflicts**: Please do not manually edit files while AI is working, especially when it is modifying file contents.
+- **Input Hint Model Selection**: The input hint feature requires a model with fast response time, good context understanding, and strong instruction-following capability — while also being affordable. We recommend **DeepSeek 4 Flash** as the go-to model for input hints, as it strikes the best balance between speed and quality for real-time completions.
 - **UI Scaling**: When the mouse focus is inside the LazyBug chat window, hold `Ctrl` and scroll the mouse wheel to freely zoom the interface and text size.
 - **Cost Statistics**: The cost for each chat turn is calculated based on the unit price entered in the LLM api setting. When the LLM provider uses a complex billing model (such as a subscription plan), the statistics are approximate and for reference only.
 - **Task Breakdown Strategy**: LazyBug is not designed to handle extremely large and complex tasks in a single pass. Break your development tasks into smaller, clearly defined sub-tasks for the best AI-assisted experience.
@@ -135,15 +128,3 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
   - Compression is not unlimited — it will always preserve a baseline answer quality. So even if you set a low context level, sometimes context usage may still significantly exceed the upper limit.
   - That said, compression will more or less degrade the model's answer quality.
   - **Overall recommendation**: For expensive models (Anthropic, GPT), set the lowest context level (Level 1, < 30k tokens), unless you notice a significant drop in answer quality.
-
----
-
-## Build
-
-For instructions on setting up the development environment and building from source, see **[Build Notes](doc/buildnotes.md)**.
-
----
-
-## Report an Issue
-
-If you encounter any bugs or have suggestions for improvement, please report [here](https://github.com/ixnehc/LazyBug-Copilot/issues). Your feedback is the driving force behind our continuous improvement!

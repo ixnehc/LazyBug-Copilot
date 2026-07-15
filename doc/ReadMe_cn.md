@@ -5,8 +5,10 @@
 # LazyBug Copilot - Visual Studio AI 编程助手扩展
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.20.1-blue)](patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.21-blue)](patchnotes.md)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
+
+[快速入门](quickstart_cn.md) | [构建指南](buildnotes.md) | [更新日志](patchnotes.md) | [报告问题](https://github.com/ixnehc/LazyBug-Copilot/issues)
 
 </div>
 
@@ -16,20 +18,14 @@
 
 LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程助手扩展。它集成了大语言模型（LLM）能力，为开发者提供智能代码创建、重构和问答体验。该扩展支持多种主流 AI 服务提供商，让开发者能够在熟悉的 IDE 环境中享受 AI 辅助编程。
 
-![screenshot](../media/screenshot3.gif)
+<video src="../media/introduce.mp4" controls="controls" width="100%"></video>
 
 ---
 
-## Version 0.20.1 更新说明
+## Version 0.21 更新说明
 
-- 修正了 GLM 模型有时会意外中断的问题
-
----
-
-## Version 0.20 更新说明
-
-- 在 Provider & API 设置页面添加了复制/粘贴按钮
-- 新增更多语言的符号搜索支持（`*.html`、`*.css`、`*.js`、`*.java`、`*.py`、`*.ts`）
+- 新增输入提示功能，在聊天输入框输入时显示候选补全
+- 修复了同时修改多个文件时会出现写入失败的问题
 
 _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 
@@ -44,9 +40,9 @@ _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 - **自动代码数据库** — 自动从解决方案中的所有文件构建代码数据库，支持增量更新。
 - **代码库搜索** — 对超大型项目（百万行规模）进行快速文本搜索。速度远超 ripgrep，在大代码库中尤为明显。
 - **符号搜索** — 快速符号搜索，支持 C/C++/C#/JavaScript/Java/Python/TypeScript。开箱即用，无需 LSP 配置。
-- **智能输入框** — 基于标签的文件附件系统，支持 `@` 自动补全、输入历史遍历（`PageUp`/`PageDown`）、快速切换模型。
+- **智能输入框** — 基于标签的文件附件系统，支持 `@` 自动补全、输入历史遍历（`PageUp`/`PageDown`）、快速切换模型，以及输入提示补全功能。
 
-![chatinput](../media/chatinput.jpg)
+![input hint](../media/input_hint.jpg)
 
 - **图片附件** — 直接将图片粘贴到聊天输入框中，发送给支持视觉的 LLM。
 
@@ -55,15 +51,11 @@ _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 - **多模型支持** — 可自定义 API 端点。支持主流 LLM：OpenAI、Anthropic、Google Gemini、OpenRouter、Moonshot（Kimi）、z.ai（GLM）、DeepSeek 等。同时支持本地 LLM（Ollama、LM Studio）。
 - **多 API 格式** — 支持三种 API 格式：OpenAI 兼容格式、Anthropic 和 Gemini。
 
-![provider](../media/provider.jpg)
-
 - **技能系统** — 通过管理面板浏览、创建、重命名和开关技能。支持内置、全局和项目级技能。允许使用 AI 编辑或创建新技能。
 
 ![skill](../media/skill.jpg)
 
 - **自定义提示词** — `global_rules.txt` 和 `project_rules.txt` 用于编写自定义提示词。
-
-![settings](../media/settings2.jpg)
 
 - **CLI 工具集成** — 直接在聊天中执行 cmd.exe、bash.exe、python脚本，扩展编程之外的能力。
 
@@ -101,6 +93,7 @@ _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
   - 点击聊天面板中文件编辑标签的标题，可在主编辑器中显示 Diff 视图；按 `Space` 键隐藏。
   - 重复点击标题可在不同的差异块之间快速跳转。
 - **避免编辑冲突**：AI 工作时请勿手动编辑文件，尤其是在 AI 正在修改文件内容时。
+- **输入提示（Input Hint）模型选择**：输入提示功能需要一个具备快速响应、良好的上下文理解能力和较强指令遵循能力的模型，同时还要足够便宜。我们推荐使用 **DeepSeek 4 Flash** 作为输入提示的首选模型——它在速度和质量之间达到了最佳平衡，非常适合实时补全场景。
 - **界面缩放**：当鼠标焦点在 LazyBug 聊天窗口内时，按住 `Ctrl` 并滚动鼠标滚轮，自由缩放界面和文字大小。
 - **费用统计**：每次对话的费用根据 LLM API 设置中输入的单价计算。当 LLM 提供商使用复杂的计费模式（如订阅计划）时，统计数据仅为近似值，仅供参考。
 - **任务拆分策略**：LazyBug 不适合一次性处理超大复杂任务。请将开发任务拆分为更小、定义清晰的子任务，以获得最佳的 AI 辅助体验。
@@ -136,15 +129,3 @@ _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
   - 压缩并非无限制 — 它会始终保留基本的回答质量。因此即使设置了较低的上下文等级，有时上下文使用量仍可能大幅超出上限。
   - 压缩或多或少会降低模型的回答质量。
   - **总体建议**：对于昂贵模型（Anthropic、GPT），建议设置最低的上下文等级（Level 1，< 30k tokens），除非你发现回答质量明显下降。
-
----
-
-## 构建
-
-有关设置开发环境和从源码构建的说明，请参阅 **[构建说明](buildnotes.md)**。
-
----
-
-## 报告问题
-
-如果你遇到任何 Bug 或有改进建议，请在[此处](https://github.com/ixnehc/LazyBug-Copilot/issues)报告。你的反馈是我们持续改进的动力！

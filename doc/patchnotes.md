@@ -1,5 +1,12 @@
 ﻿# LazyBug Version History
 
+## Version 0.21
+
+- Added input hint feature, showing candidate completions while typing in the chat input
+- Fixed a bug where writing would fail when modifying multiple files simultaneously
+
+---
+
 ## Version 0.20.1
 
 - Fixed an issue where the GLM model would sometimes disconnect unexpectedly
