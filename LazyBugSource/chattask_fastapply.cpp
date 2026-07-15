@@ -164,7 +164,8 @@ void CChatTask_FastApply::_SaveResult()
 		return;
 	}
 
-	if (_SaveFileEditResult(_filePath, _originalFileContent, _collectedResult,_originalFileCodingFmt, _fileEditId))
+	std::string errorMsg;
+	if (_SaveFileEditResult(_filePath, _originalFileContent, _collectedResult,_originalFileCodingFmt, _fileEditId, errorMsg))
 	{
 		_status = TaskStatus::Success;
 		return;

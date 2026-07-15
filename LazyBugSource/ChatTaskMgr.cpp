@@ -32,13 +32,19 @@ const char* FILE_EDIT_RESULT_ERROR_PREFIX = "~Error~ :";
 extern CCheckpoints* GetCheckpoints();
 extern CBackupDepot* GetBackupDepot();
 
-bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::string oldContent, const std::string newContent, Utils::FileContentCodingFormat codingFmt,const std::wstring& fileEditId)
+bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::string oldContent, const std::string newContent, Utils::FileContentCodingFormat codingFmt,const std::wstring& fileEditId, std::string& errorMsg)
 {
+	errorMsg.clear();
+
 	if (!_context)
+	{
+		errorMsg = "Context is null";
 		return false;
+	}
 
 	if (newContent.empty())
 	{
+		errorMsg = "New content is empty";
 		return false;
 	}
 
@@ -116,9 +122,14 @@ bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::stri
 					return true;
 				}
 			}
+			else
+			{
+				errorMsg = "Failed to write file: " + filePath;
+			}
 		}
 		else
 		{
+			errorMsg = newContent; // newContent starts with FILE_EDIT_RESULT_ERROR_PREFIX
 			FilesCheckpointUID newCheckpointId = checkpoints->AddCheckpoint(filePath.c_str());
 			always_assert(newCheckpointId != FilesCheckpointUID_Invalid);
 
@@ -139,6 +150,10 @@ bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::stri
 				return false;
 			}
 		}
+	}
+	else
+	{
+		errorMsg = "Failed to create checkpoint for file: " + filePath;
 	}
 	return false;
 }

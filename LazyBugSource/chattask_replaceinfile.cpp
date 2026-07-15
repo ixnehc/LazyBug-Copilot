@@ -968,7 +968,7 @@ void CChatTask_ReplaceInFile::Update()
 			}
 
 			Utils::EnsureFileFolder(_filePath.c_str());
-			if (_SaveFileEditResult(_filePath, oldContent, newContent, codingFmt,_fileEditId))
+			if (_SaveFileEditResult(_filePath, oldContent, newContent, codingFmt,_fileEditId, errorMessage))
 			{
 				_status = TaskStatus::Success;
 				if (true)
