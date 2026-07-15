@@ -34,17 +34,15 @@ extern CBackupDepot* GetBackupDepot();
 
 bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::string oldContent, const std::string newContent, Utils::FileContentCodingFormat codingFmt,const std::wstring& fileEditId, std::string& errorMsg)
 {
-	errorMsg.clear();
+	errorMsg = "Unknown system issue";
 
 	if (!_context)
 	{
-		errorMsg = "Context is null";
 		return false;
 	}
 
 	if (newContent.empty())
 	{
-		errorMsg = "New content is empty";
 		return false;
 	}
 
@@ -150,10 +148,6 @@ bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::stri
 				return false;
 			}
 		}
-	}
-	else
-	{
-		errorMsg = "Failed to create checkpoint for file: " + filePath;
 	}
 	return false;
 }
