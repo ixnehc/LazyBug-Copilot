@@ -18,12 +18,10 @@ static int _Priority(CLlmMcps::Mcp::Type tp)
 {
 	switch (tp)
 	{
-	case CLlmMcps::Mcp::Type::Project:
-		return 2;
-	case CLlmMcps::Mcp::Type::Global:
-		return 1;
-	default:
-		return 0;
+	case CLlmMcps::Mcp::Type::Dynamic:  return 3;
+	case CLlmMcps::Mcp::Type::Project:  return 2;
+	case CLlmMcps::Mcp::Type::Global:   return 1;
+	default:                            return 0;
 	}
 }
 
@@ -370,6 +368,15 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 	// 命令行转为宽字符
 	std::wstring wCmdLine = utf8_to_widechar(cmdLine);
 
+	// 工作目录 (如果配置了)
+	std::wstring wWorkingDir;
+	LPCWSTR lpCurrentDirectory = NULL;
+	if (!server.connect.workingDir.empty())
+	{
+		wWorkingDir = utf8_to_widechar(server.connect.workingDir);
+		lpCurrentDirectory = wWorkingDir.c_str();
+	}
+
 	// 5. 创建进程
 	if (!CreateProcessW(
 		NULL,                           // 应用程序名称
@@ -379,15 +386,16 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 		TRUE,                           // 继承句柄
 		CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,  // 创建标志（宽字符环境块需要此标志）
 		lpEnv,                          // 环境块（NULL 表示继承父进程环境）
-		NULL,                           // 当前目录
+		lpCurrentDirectory,             // 当前目录（NULL 表示继承父进程目录）
 		&si,                            // 启动信息
 		&pi))                           // 进程信息
 	{
+		DWORD err = GetLastError();
 		CloseHandle(hChildStdInRead);
 		CloseHandle(hChildStdInWrite);
 		CloseHandle(hChildStdOutRead);
 		CloseHandle(hChildStdOutWrite);
-		server.AppendOutput("Failed to create process: " + cmdLine);
+		server.AppendOutput("Failed to create process: " + cmdLine + " (Error " + std::to_string(err) + ")");
 		return false;
 	}
 
@@ -1020,6 +1028,20 @@ void CLlmMcpServers::LoadToolsToMcps()
 			}
 		}
 	}
+}
+
+bool CLlmMcpServers::GetServerStateByUid(WUID uid, State& outState, std::string& outOutput, std::vector<CLlmMcps::Mcp::Tool>* outTools) const
+{
+	auto it = _servers.find(uid);
+	if (it == _servers.end())
+		return false;
+
+	const Server& server = *it->second;
+	outState = server.state.load();
+	outOutput = server.output;
+	if (outTools)
+		*outTools = server.tools;
+	return true;
 }
 
 void CLlmMcpServers::_CollectTargetServers(std::vector<Target>& outTargets)

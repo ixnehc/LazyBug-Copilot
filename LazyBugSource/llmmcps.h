@@ -17,6 +17,7 @@ public:
 		std::string command;          // 启动mcp server的命令 (stdio模式)
 		std::vector<std::string> args;  // 启动参数列表 (stdio模式)
 		std::unordered_map<std::string, std::string> env;  // 自定义环境变量 (stdio模式)
+		std::string workingDir;      // 工作目录 (stdio模式, 动态添加时使用)
 
 		// 判断是否为 HTTP 模式
 		bool IsHttpMode() const { return !url.empty(); }
@@ -31,6 +32,7 @@ public:
 			None,
 			Global,
 			Project,
+			Dynamic,
 		};
 		Type tp;
 		WUID uid = 0;                // 唯一标识
@@ -74,6 +76,17 @@ public:
 
 	//先清除所有指定tp的Mcp, 再在指定目录下搜集所有的mcp信息,作为 tp 载入
 	bool ReLoad(const char* rootPath, Mcp::Type tp);
+
+	//动态添加一个MCP (Type::Dynamic), 返回生成的uid, 0表示失败
+	WUID AddDynamicMcp(const char* name, const McpConnectSetting& connect, const char* description);
+
+	//按名称查找MCP (返回nullptr表示未找到)
+	const Mcp* FindMcpByName(const std::string& name) const;
+
+	//比较两个连接配置是否相同
+	static bool IsSameConnect(const McpConnectSetting& a, const McpConnectSetting& b);
+
+
 
 	//从setting文件读取mcp及tool的enable状态
 	//setting文件格式: [{"uid":"123456","enable":true,"disabledTools":["tool1","tool2"]}, ...]

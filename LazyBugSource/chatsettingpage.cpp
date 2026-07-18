@@ -995,7 +995,9 @@ void CChatSettingPage::SendProviderDataToWebView()
         case LlmToolType::QueryFinish:      return "QueryFinish";
         case LlmToolType::CreateSkill:      return "CreateSkill";
         case LlmToolType::Mcp:              return "Mcp";
-        default:                            return "None";
+		case LlmToolType::AddMcpServer:      return "AddMcpServer";
+		//XXXXX: more tool type  
+		default:                            return "None";
         }
     };
     auto thinkingToStr = [](LlmThinkingMode m) -> std::string {
@@ -1288,7 +1290,10 @@ void CChatSettingPage::UpdateApiField(const std::wstring& apiNameW, const std::w
         if (s == "Question")         return LlmToolType::Question;
         if (s == "QueryFinish")      return LlmToolType::QueryFinish;
         if (s == "CreateSkill")      return LlmToolType::CreateSkill;
-        return LlmToolType::None;
+		if (s == "AddMcpServer")      return LlmToolType::AddMcpServer;
+		//XXXXX: more tool type  
+
+		return LlmToolType::None;
     };
 
     LlmApi* api = g_llmLib.GetApiMutable(apiName);

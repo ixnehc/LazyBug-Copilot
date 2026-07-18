@@ -443,6 +443,16 @@ void CLlmTools::Init()
 	AddToolPara_String("content", "The content of the skill (optional). This typically includes instructions or templates.", false);
 	EndTool();
 
+	// 定义 AddMcpServer 工具
+	BeginTool(LlmToolType::AddMcpServer, "AddMcpServer");
+	AppendToolDesc("Dynamically add an MCP (Model Context Protocol) server at runtime. This allows connecting to new MCP servers without static configuration files.");
+	AppendToolDesc(" The server will be started immediately and its tools will become available for subsequent calls.");
+	AppendToolDesc(" Returns the startup result including success/failure status and available tools list.");
+	AddToolPara_String("name", "The name of the MCP server. Must be unique - if a server with this name already exists, an error will be returned.", true);
+	AddToolPara_String("config", "A JSON configuration string or a file path to a JSON config file. The JSON should contain connection settings: for example {\"url\":\"http://...\",\"description\":\"...\"}, {\"command\":\"npx\",\"args\":[\"-y\",\"@some/mcp-server\"],\"env\":{\"KEY\":\"value\"},\"description\":\"...\"}.", true);
+	AddToolPara_String("workingDir", "Working directory for the command process (stdio mode only). Optional.", false);
+	EndTool();
+
 }
 
 void CLlmTools::Clear()

@@ -506,6 +506,7 @@ const std::vector<LlmToolType>& CChatOpsCompress::GetSessionSummarizeToolTypes()
 		LlmToolType::CLI_RunScript,
 		LlmToolType::Question,
 		LlmToolType::Mcp,
+		LlmToolType::AddMcpServer,
 		//XXXXX: more tool type
 	};
 	return toolTypes;

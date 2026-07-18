@@ -185,85 +185,7 @@ static std::string _RemoveBOMAndUnreadable(const std::string& str)
 	return str.substr(start);
 }
 
-// 递归查找并列的 cmd/command+args 或 url
-static bool _FindCmdAndArgs(const json& j, std::string& outDescription,
-	std::string& outCommand, std::vector<std::string>& outArgs,
-	std::unordered_map<std::string, std::string>& outEnv,
-	std::string& outUrl)
-{
-	if (!j.is_object())
-		return false;
-
-	// 检查当前对象是否有 url (HTTP 模式)
-	if (j.contains("url") && j["url"].is_string())
-	{
-		outUrl = j["url"].get<std::string>();
-		outCommand.clear();
-		outArgs.clear();
-		outEnv.clear();
-
-		// 同时提取 description（如果存在）
-		outDescription.clear();
-		if (j.contains("description") && j["description"].is_string())
-			outDescription = j["description"].get<std::string>();
-
-		return true;
-	}
-
-	// 检查当前对象是否有 command/cmd 和 args (stdio 模式)
-	std::string cmd;
-	bool hasCmd = false;
-	if (j.contains("command") && j["command"].is_string())
-	{
-		cmd = j["command"].get<std::string>();
-		hasCmd = true;
-	}
-	else if (j.contains("cmd") && j["cmd"].is_string())
-	{
-		cmd = j["cmd"].get<std::string>();
-		hasCmd = true;
-	}
-
-	if (hasCmd && j.contains("args") && j["args"].is_array())
-	{
-		// 找到有效的 cmd + args 组合
-		outCommand = cmd;
-		outUrl.clear();
-		outArgs.clear();
-		for (const auto& arg : j["args"])
-		{
-			if (arg.is_string())
-				outArgs.push_back(arg.get<std::string>());
-		}
-
-		// 同时提取 description（如果存在）
-		outDescription.clear();
-		if (j.contains("description") && j["description"].is_string())
-			outDescription = j["description"].get<std::string>();
-
-		// 提取 env（如果存在）
-		outEnv.clear();
-		if (j.contains("env") && j["env"].is_object())
-		{
-			for (json::const_iterator it = j["env"].begin(); it != j["env"].end(); ++it)
-			{
-				if (it.value().is_string())
-					outEnv[it.key()] = it.value().get<std::string>();
-			}
-		}
-
-		return true;
-	}
-
-	// 递归检查所有子对象
-	for (json::const_iterator it = j.begin(); it != j.end(); ++it)
-	{
-		if (_FindCmdAndArgs(it.value(), outDescription, outCommand, outArgs, outEnv, outUrl))
-			return true;
-	}
-
-	return false;
-}
+// 递归查找并列的 cmd/command+args 或 url (已移至 Utils::FindCmdAndArgs)
 
 bool ParseMcpJson(const wchar_t* filePath, std::string& outDescription,
 	std::string& outCommand, std::vector<std::string>& outArgs,
@@ -293,7 +215,7 @@ bool ParseMcpJson(const wchar_t* filePath, std::string& outDescription,
 	}
 
 	// 递归查找 cmd/command+args 或 url
-	return _FindCmdAndArgs(j, outDescription, outCommand, outArgs, outEnv, outUrl);
+	return Utils::FindCmdAndArgs(j, outDescription, outCommand, outArgs, outEnv, outUrl);
 }
 
 // 递归扫描目录，收集所有包含 MCP.json 的子目录
@@ -391,7 +313,7 @@ bool CLlmMcps::ReLoad(const char* rootPath, Mcp::Type tp)
 	// 转换为宽字符
 	std::wstring wRootPath = utf8_to_widechar(rootPath);
 
-	// 1. 清除所有指定 tp 的 mcp
+	// 1. 清除所有指定 tp 的 mcp (保留 Dynamic)
 	_mcps.erase(
 		std::remove_if(_mcps.begin(), _mcps.end(),
 			[tp](const Mcp& m) { return m.tp == tp; }),
@@ -425,6 +347,10 @@ void CLlmMcps::UpdateReLoadOutdated()
 	{
 		// 跳过空 name 的 mcp
 		if (mcp.name.empty())
+			continue;
+
+		// 动态添加的 mcp 无文件, 跳过
+		if (mcp.tp == Mcp::Type::Dynamic)
 			continue;
 
 		// 构造 MCP.json 路径
@@ -472,6 +398,7 @@ static std::string _TypeToString(CLlmMcps::Mcp::Type tp)
 	{
 	case CLlmMcps::Mcp::Type::Global:   return "Global";
 	case CLlmMcps::Mcp::Type::Project:  return "Project";
+	case CLlmMcps::Mcp::Type::Dynamic:  return "Dynamic";
 	default:                            return "";
 	}
 }
@@ -568,6 +495,7 @@ void CLlmMcps::FillToolsJson(json& requestJson)
 	auto priority = [](Mcp::Type tp) -> int {
 		switch (tp)
 		{
+		case Mcp::Type::Dynamic:  return 3;
 		case Mcp::Type::Project:  return 2;
 		case Mcp::Type::Global:   return 1;
 		default:                  return 0;
@@ -695,4 +623,55 @@ const CLlmMcps::ToolAliasInfo* CLlmMcps::FindToolByAlias(const std::string& alia
 	if (it != _toolsAlias.end())
 		return &it->second;
 	return nullptr;
+}
+
+WUID CLlmMcps::AddDynamicMcp(const char* name, const McpConnectSetting& connect, const char* description)
+{
+	if (!name || name[0] == '\0')
+		return 0;
+
+	Mcp mcp;
+	mcp.tp = Mcp::Type::Dynamic;
+	mcp.uid = GenWUID();
+	mcp.name = name;
+	mcp.GenerateLegalName();
+	mcp.description = description ? description : "";
+	mcp.connect = connect;
+	mcp.enable = true;  // 动态添加的 mcp 默认启用
+
+	_mcps.push_back(std::move(mcp));
+	_ver++;
+	return _mcps.back().uid;
+}
+
+const CLlmMcps::Mcp* CLlmMcps::FindMcpByName(const std::string& name) const
+{
+	for (const auto& mcp : _mcps)
+	{
+		if (mcp.name == name)
+			return &mcp;
+	}
+	return nullptr;
+}
+
+bool CLlmMcps::IsSameConnect(const McpConnectSetting& a, const McpConnectSetting& b)
+{
+	if (a.IsHttpMode() || b.IsHttpMode())
+	{
+		// HTTP 模式: 比较 url
+		return a.url == b.url;
+	}
+	else
+	{
+		// stdio 模式: 比较 command + args + env + workingDir
+		if (a.command != b.command)
+			return false;
+		if (a.args != b.args)
+			return false;
+		if (a.env != b.env)
+			return false;
+		if (a.workingDir != b.workingDir)
+			return false;
+		return true;
+	}
 }

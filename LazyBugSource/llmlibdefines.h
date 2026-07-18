@@ -46,9 +46,8 @@ enum class LlmToolType
 	QueryFinish,
 	CreateSkill,
 	Mcp,
-	//XXXXX: more tool type
-
-
+	AddMcpServer,
+	//XXXXX: more tool type  
 	Max,
 };
 

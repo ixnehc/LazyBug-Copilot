@@ -215,7 +215,7 @@ private:
 	//在Registry里保存/读取各个providers的动态数据
 	void _Save(CCurrentUserRegistry &reg);
 	void _Load(CCurrentUserRegistry& reg);
-
+	 
 	void _EnsureDefApis();
 
 	void _LoadLlmSessionSetting(LlmSessionSetting& setting, const LlmApi &api, const char* ruleName);

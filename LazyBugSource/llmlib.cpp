@@ -245,7 +245,7 @@ void CLlmLib::_EnsureDefApis()
 		}
 		return "";
 	};
-
+	 
 	// 确保 _majorChatApi：从Agent里取，如果原值无效则重新查找
 	if (!IsApiValid(_majorChatApi, LlmApiRole::Agent))
 	{

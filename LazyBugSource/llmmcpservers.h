@@ -54,6 +54,12 @@ public:
 	// 将tools回填到g_llmMcps
 	void LoadToolsToMcps();
 
+	// 按uid查询server状态, 返回false表示未找到该server
+	// outState: 输出状态; outOutput: 输出错误信息; outTools: 可选, 输出tools列表
+	bool GetServerStateByUid(WUID uid, State& outState, std::string& outOutput, std::vector<CLlmMcps::Mcp::Tool>* outTools = nullptr) const;
+
+
+
 	// 析构时清理所有server
 	~CLlmMcpServers();
 

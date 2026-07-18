@@ -52,6 +52,7 @@ static std::string _TypeToString(CLlmMcps::Mcp::Type tp)
 	{
 	case CLlmMcps::Mcp::Type::Global:  return "Global";
 	case CLlmMcps::Mcp::Type::Project: return "Project";
+	case CLlmMcps::Mcp::Type::Dynamic: return "Dynamic";
 	default: return "";
 	}
 }
@@ -227,6 +228,106 @@ WUID EnsureMcpUid(const std::string& mcpFolderPath)
 	std::string uidStr = std::to_string(uid);
 	Utils::SaveFileContent(uidFilePath.c_str(), uidStr);
 	return uid;
+}
+
+// 递归查找 json 中的 cmd/command+args 或 url
+bool FindCmdAndArgs(const json& j, std::string& outDescription,
+	std::string& outCommand, std::vector<std::string>& outArgs,
+	std::unordered_map<std::string, std::string>& outEnv,
+	std::string& outUrl)
+{
+	if (!j.is_object())
+		return false;
+
+	// 检查当前对象是否有 url (HTTP 模式)
+	if (j.contains("url") && j["url"].is_string())
+	{
+		outUrl = j["url"].get<std::string>();
+		outCommand.clear();
+		outArgs.clear();
+		outEnv.clear();
+
+		// 同时提取 description（如果存在）
+		outDescription.clear();
+		if (j.contains("description") && j["description"].is_string())
+			outDescription = j["description"].get<std::string>();
+
+		return true;
+	}
+
+	// 检查当前对象是否有 command/cmd 和 args (stdio 模式)
+	std::string cmd;
+	bool hasCmd = false;
+	if (j.contains("command") && j["command"].is_string())
+	{
+		cmd = j["command"].get<std::string>();
+		hasCmd = true;
+	}
+	else if (j.contains("cmd") && j["cmd"].is_string())
+	{
+		cmd = j["cmd"].get<std::string>();
+		hasCmd = true;
+	}
+
+	if (hasCmd && j.contains("args") && j["args"].is_array())
+	{
+		// 找到有效的 cmd + args 组合
+		outCommand = cmd;
+		outUrl.clear();
+		outArgs.clear();
+		for (const auto& arg : j["args"])
+		{
+			if (arg.is_string())
+				outArgs.push_back(arg.get<std::string>());
+		}
+
+		// 同时提取 description（如果存在）
+		outDescription.clear();
+		if (j.contains("description") && j["description"].is_string())
+			outDescription = j["description"].get<std::string>();
+
+		// 提取 env（如果存在）
+		outEnv.clear();
+		if (j.contains("env") && j["env"].is_object())
+		{
+			for (json::const_iterator it = j["env"].begin(); it != j["env"].end(); ++it)
+			{
+				if (it.value().is_string())
+					outEnv[it.key()] = it.value().get<std::string>();
+			}
+		}
+
+		return true;
+	}
+
+	// 递归检查所有子对象
+	for (json::const_iterator it = j.begin(); it != j.end(); ++it)
+	{
+		if (FindCmdAndArgs(it.value(), outDescription, outCommand, outArgs, outEnv, outUrl))
+			return true;
+	}
+
+	return false;
+}
+
+// 从 JSON 字符串解析 MCP 配置
+bool ParseMcpConfigFromString(const std::string& jsonStr,
+	std::string& outDescription, std::string& outCommand,
+	std::vector<std::string>& outArgs,
+	std::unordered_map<std::string, std::string>& outEnv,
+	std::string& outUrl)
+{
+	json j;
+	try
+	{
+		j = json::parse(jsonStr);
+	}
+	catch (const json::exception&)
+	{
+		return false;
+	}
+
+	return FindCmdAndArgs(j, outDescription, outCommand, outArgs, outEnv, outUrl);
 }
 
 static std::string _EscapeMdTableCell(const std::string& s)

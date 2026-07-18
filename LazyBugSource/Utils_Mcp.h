@@ -33,4 +33,18 @@ WUID EnsureMcpUid(const std::string& mcpFolderPath);
 
 void MakeMcpToolDescription(const CLlmMcps::Mcp::Tool& tool, std::string& desc);
 
+// 递归查找 json 中的 cmd/command+args 或 url
+// 从 json 对象中提取 description, command/args/env (stdio模式) 或 url (http模式)
+bool FindCmdAndArgs(const json& j, std::string& outDescription,
+	std::string& outCommand, std::vector<std::string>& outArgs,
+	std::unordered_map<std::string, std::string>& outEnv,
+	std::string& outUrl);
+
+// 从 JSON 字符串解析 MCP 配置 (与 ParseMcpJson 相同的提取逻辑, 但输入是字符串而非文件)
+bool ParseMcpConfigFromString(const std::string& jsonStr,
+	std::string& outDescription, std::string& outCommand,
+	std::vector<std::string>& outArgs,
+	std::unordered_map<std::string, std::string>& outEnv,
+	std::string& outUrl);
+
 }

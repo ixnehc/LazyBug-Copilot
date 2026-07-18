@@ -12,6 +12,7 @@
 #include "ChatTask_QueryFinish.h"
 #include "ChatTask_ResolveSymbolLinks.h"
 #include "ChatTask_CreateSkill.h"
+#include "ChatTask_AddMcpServer.h"
 #include "ChatTask_Mcp.h"
 #include "ChatTask_CompressSummarize.h"
 #include "ChatTask_InputHint.h"
@@ -681,6 +682,13 @@ void CChatTaskMgr::AddTask_CreateSkill(const LlmToolCall& toolCall)
 	_AddTask(task);
 }
 
+void CChatTaskMgr::AddTask_AddMcpServer(const LlmToolCall& toolCall)
+{
+	CChatTask_AddMcpServer* task = new CChatTask_AddMcpServer;
+	task->SetToolCall(toolCall);
+	_AddTask(task);
+}
+
 void CChatTaskMgr::AddTask_Mcp(const LlmToolCall& toolCall)
 {
 	CChatTask_Mcp* task = new CChatTask_Mcp;
@@ -833,6 +841,12 @@ void CChatTaskMgr::UpdateToolCalls(std::vector<LlmToolCall>& toolCalls)
 		{
 			if (toolCall.IsComplete())
 				AddTask_CreateSkill(toolCall);
+			break;
+		}
+		case LlmToolType::AddMcpServer:
+		{
+			if (toolCall.IsComplete())
+				AddTask_AddMcpServer(toolCall);
 			break;
 		}
 		case LlmToolType::Mcp:
