@@ -490,6 +490,7 @@ static std::string _McpTypeToString(CLlmMcps::Mcp::Type tp)
 {
 	switch (tp)
 	{
+	case CLlmMcps::Mcp::Type::Dynamic:  return "Dynamic";
 	case CLlmMcps::Mcp::Type::Global:   return "Global";
 	case CLlmMcps::Mcp::Type::Project:  return "Project";
 	default: return "Unknown";
@@ -509,7 +510,8 @@ struct McpTreeNode
 	std::string description;    // MCP描述（仅叶子有效）
 	bool toolsLoaded;           // tools是否已加载（仅叶子有效）
 	std::string lastError;      // 最后错误（仅叶子有效）
-	std::string type;           // "Global"/"Project"（仅叶子有效）
+	std::string type;           // "Global"/"Project"/"Dynamic"（仅叶子有效）
+	bool isDynamic = false;     // 是否为动态MCP（不可编辑和开关）
 	WUID uid = 0;              // 唯一标识（仅叶子有效）
 	std::map<std::string, McpTreeNode> children;
 	// tools单独存储，在叶子节点转JSON时使用
@@ -539,6 +541,8 @@ static nlohmann::json _McpNodeToJson(const McpTreeNode& node, const std::string&
 		j["lastError"] = node.lastError;
 		j["type"] = node.type;
 		j["uid"] = std::to_string(node.uid);
+		if (node.isDynamic)
+			j["isDynamic"] = true;
 
 		// 添加tools子节点
 		j["children"] = nlohmann::json::array();
@@ -553,6 +557,8 @@ static nlohmann::json _McpNodeToJson(const McpTreeNode& node, const std::string&
 			toolNode["mcpName"] = node.name;
 			toolNode["mcpType"] = node.type;
 			toolNode["uid"] = std::to_string(node.uid);
+			if (node.isDynamic)
+				toolNode["isDynamic"] = true;
 			j["children"].push_back(toolNode);
 		}
 	}
@@ -599,7 +605,12 @@ std::wstring CChatMcpsTree::_BuildMcpTreeJson()
 	typeToRootPath["Global"] = Utils::GetGlobalMcpsFolder();
 	typeToRootPath["Project"] = Utils::GetProjectMcpsFolder();
 
-	// 两个根节点
+	// 三个根节点（Dynamic在最上面）
+	McpTreeNode rootDynamic;
+	rootDynamic.name = "Dynamic";
+	rootDynamic.isLeaf = false;
+	rootDynamic.fullPath = ""; // Dynamic MCP 无磁盘路径
+
 	McpTreeNode rootGlobal;
 	rootGlobal.name = "Global";
 	rootGlobal.isLeaf = false;
@@ -611,6 +622,7 @@ std::wstring CChatMcpsTree::_BuildMcpTreeJson()
 	rootProject.fullPath = typeToRootPath["Project"];
 
 	std::map<std::string, McpTreeNode*> typeToRoot;
+	typeToRoot["Dynamic"] = &rootDynamic;
 	typeToRoot["Global"] = &rootGlobal;
 	typeToRoot["Project"] = &rootProject;
 
@@ -622,6 +634,48 @@ std::wstring CChatMcpsTree::_BuildMcpTreeJson()
 		auto rootIt = typeToRoot.find(typeStr);
 		if (rootIt == typeToRoot.end())
 			continue;
+
+		if (mcp.tp == CLlmMcps::Mcp::Type::Dynamic)
+		{
+			// Dynamic MCP：直接作为根节点的子节点，无目录层级
+			if (mcp.name.empty())
+				continue;
+
+			McpTreeNode& root = *rootIt->second;
+			auto childIt = root.children.find(mcp.name);
+			if (childIt == root.children.end())
+			{
+				McpTreeNode newNode;
+				newNode.name = mcp.name;
+				newNode.isLeaf = true;
+				newNode.fullPath = "";
+				newNode.enable = mcp.enable;
+				newNode.description = mcp.description;
+				newNode.toolsLoaded = mcp.toolsLoaded;
+				newNode.lastError = mcp.lastError;
+				newNode.type = typeStr;
+				newNode.isDynamic = true;
+				newNode.uid = mcp.uid;
+				newNode.tools = mcp.tools;
+				newNode.disabledTools = mcp.disabledTools;
+				root.children[mcp.name] = newNode;
+			}
+			else
+			{
+				// 更新已有的Dynamic MCP
+				childIt->second.isLeaf = true;
+				childIt->second.enable = mcp.enable;
+				childIt->second.description = mcp.description;
+				childIt->second.toolsLoaded = mcp.toolsLoaded;
+				childIt->second.lastError = mcp.lastError;
+				childIt->second.type = typeStr;
+				childIt->second.isDynamic = true;
+				childIt->second.uid = mcp.uid;
+				childIt->second.tools = mcp.tools;
+				childIt->second.disabledTools = mcp.disabledTools;
+			}
+			continue;
+		}
 
 		auto pathIt = typeToRootPath.find(typeStr);
 		if (pathIt == typeToRootPath.end() || pathIt->second.empty())
@@ -716,8 +770,10 @@ std::wstring CChatMcpsTree::_BuildMcpTreeJson()
 		}
 	}
 
-	// 构建顶层JSON数组
+	// 构建顶层JSON数组（Dynamic在最上面，无子节点则不显示）
 	nlohmann::json jsonArr = nlohmann::json::array();
+	if (!rootDynamic.children.empty())
+		jsonArr.push_back(_McpNodeToJson(rootDynamic, "Dynamic"));
 	jsonArr.push_back(_McpNodeToJson(rootGlobal, "Global"));
 	jsonArr.push_back(_McpNodeToJson(rootProject, "Project"));
 

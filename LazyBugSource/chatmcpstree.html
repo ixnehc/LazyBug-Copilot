@@ -123,6 +123,7 @@
 
         .tree-icon.root-global { color: var(--root-icon-color); }
         .tree-icon.root-project { color: var(--root-icon-color); }
+        .tree-icon.root-dynamic { color: #ce93d8; }
         .tree-icon.folder { color: var(--folder-color); }
         .tree-icon.mcp { color: var(--mcp-color); font-size: 13px; }
         .tree-icon.tool { color: var(--leaf-color); font-size: 11px; }
@@ -142,6 +143,12 @@
 
         .tree-checkbox:hover {
             border-color: var(--mcp-color);
+        }
+
+        .tree-checkbox.disabled {
+            opacity: 0.35;
+            cursor: default;
+            pointer-events: none;
         }
 
         .tree-checkbox.checked {
@@ -593,6 +600,7 @@
 
         function getRootIconClass(name) {
             switch (name) {
+                case 'Dynamic': return 'root-dynamic';
                 case 'Global':  return 'root-global';
                 case 'Project': return 'root-project';
                 default: return 'root-global';
@@ -634,29 +642,33 @@
             }
             row.appendChild(arrow);
 
-            // checkbox - 所有节点都有
-            const checkbox = document.createElement('span');
-            checkbox.className = 'tree-checkbox';
-            if (_isTool) {
-                checkbox.classList.add('tool-checkbox');
-            }
-            if (_isRoot || _isFolder) {
-                // 根/目录节点：根据子MCP的enable状态计算
-                const mcpNodes = getAllMcpNodes(node);
-                const enabledCount = mcpNodes.filter(n => n.enable).length;
-                if (mcpNodes.length > 0 && enabledCount === mcpNodes.length) {
-                    checkbox.classList.add('checked');
-                } else if (enabledCount > 0) {
-                    checkbox.classList.add('indeterminate');
+            // checkbox - Dynamic节点不显示，其余节点都有
+            const isDynamicRootOrNode = node.isDynamic || (_isRoot && node.name === 'Dynamic');
+            let checkbox = null;
+            if (!isDynamicRootOrNode) {
+                checkbox = document.createElement('span');
+                checkbox.className = 'tree-checkbox';
+                if (_isTool) {
+                    checkbox.classList.add('tool-checkbox');
                 }
-            } else if (node.enable) {
-                checkbox.classList.add('checked');
+                if (_isRoot || _isFolder) {
+                    // 根/目录节点：根据子MCP的enable状态计算
+                    const mcpNodes = getAllMcpNodes(node);
+                    const enabledCount = mcpNodes.filter(n => n.enable).length;
+                    if (mcpNodes.length > 0 && enabledCount === mcpNodes.length) {
+                        checkbox.classList.add('checked');
+                    } else if (enabledCount > 0) {
+                        checkbox.classList.add('indeterminate');
+                    }
+                } else if (node.enable) {
+                    checkbox.classList.add('checked');
+                }
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handleCheckboxClick(node, checkbox);
+                });
+                row.appendChild(checkbox);
             }
-            checkbox.addEventListener('click', (e) => {
-                e.stopPropagation();
-                handleCheckboxClick(node, checkbox);
-            });
-            row.appendChild(checkbox);
 
             // 图标
             const icon = document.createElement('span');
@@ -807,10 +819,11 @@
                 }
             });
 
-            // 标签单击 - 进入编辑模式(根节点除外)
+            // 标签单击 - 进入编辑模式(根节点和Dynamic节点除外)
             label.addEventListener('click', (e) => {
                 e.stopPropagation();
                 if (_isRoot) return;
+                if (node.isDynamic) return;
                 if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
                 clickTimer = setTimeout(() => {
                     clickTimer = null;
@@ -844,8 +857,8 @@
                 const childrenDiv = document.createElement('div');
                 childrenDiv.className = 'tree-children';
 
-                // MCP节点：第一个子节点是"Select All"
-                if (_isMcp) {
+                // MCP节点：第一个子节点是"Select All"（Dynamic除外）
+                if (_isMcp && !node.isDynamic) {
                     const selectAllNode = {
                         name: '(Select All)',
                         isSelectAll: true,
@@ -941,6 +954,11 @@
         function handleSelectAllClick(parentMcp, checkbox) {
             // 只读模式下，不处理Select All点击
             if (!enableModify) {
+                return;
+            }
+
+            // Dynamic MCP不可操作tool
+            if (parentMcp.isDynamic) {
                 return;
             }
 
@@ -1050,6 +1068,8 @@
         function handleLabelClick(node, label, row) {
             // 只读模式下，禁止重命名
             if (!enableModify) return;
+            // Dynamic节点禁止重命名
+            if (node.isDynamic) return;
             if (row._isEditing) return;
             row._isEditing = true;
 
@@ -1348,6 +1368,8 @@
         function handleNewFolder(node) {
             // 只读模式下，禁止新建目录
             if (!enableModify) return;
+            // Dynamic节点禁止新建
+            if (node.isDynamic || node.name === 'Dynamic') return;
 
             const newFolderName = generateUniqueFolderName(node);
             const newFullPath = node.fullPath ? node.fullPath + '\\' + newFolderName : newFolderName;
@@ -1384,6 +1406,8 @@
         function handleNewMcp(node) {
             // 只读模式下，禁止新建MCP
             if (!enableModify) return;
+            // Dynamic节点禁止新建
+            if (node.isDynamic || node.name === 'Dynamic') return;
 
             const newMcpName = generateUniqueMcpName(node);
             const newFullPath = node.fullPath ? node.fullPath + '\\' + newMcpName : newMcpName;
