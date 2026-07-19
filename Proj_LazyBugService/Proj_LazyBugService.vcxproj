@@ -203,7 +203,7 @@
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\lucene\include;..\extlib\lucene\include\config_h;..\extlib\boost_1_90;..\extlib\nlohmann_jason;..\extlib\treesitter\include;..\extlib\curl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>

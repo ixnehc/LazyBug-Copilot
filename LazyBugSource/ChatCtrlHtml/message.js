@@ -309,6 +309,144 @@ function addToolCallMessageToAIMessage_Exploring(id, textContent) {
 }
 
 /**
+ * 添加 AddMcpServer Tool Call 消息到 AI 消息（独立展示，不与 Exploring 合并）
+ * content 为 JSON 字符串: {"name":"xxx","success":true/false,"message":"...","toolCount":n}
+ * @param {string} id - 消息 ID
+ * @param {string} content - JSON 格式的消息内容
+ */
+function addToolCallMessageToAIMessage_AddMcpServer(id, content) {
+    const messageElem = document.getElementById(id);
+    if (!messageElem) {
+        console.error('AI Message element not found for AddMcpServer:', id);
+        return;
+    }
+
+    const messageContentElem = messageElem.querySelector('.message-content');
+    if (!messageContentElem) {
+        console.error('AI Message content element not found for AddMcpServer:', id);
+        return;
+    }
+
+    // 解析 JSON
+    let name = 'Unknown';
+    let success = false;
+    let message = '';
+    let toolCount = 0;
+    let starting = false;
+    try {
+        const data = JSON.parse(content);
+        name = data.name || 'Unknown';
+        success = data.success === true;
+        message = data.message || '';
+        toolCount = data.toolCount || 0;
+        starting = data.starting === true;
+    } catch (e) {
+        message = content;
+    }
+
+    // 创建 mcp-server-result 容器（独立于 exploring-group）
+    const resultElem = document.createElement('div');
+    resultElem.className = 'mcp-server-result';
+
+    // 移除同一名称的旧元素（用于从 Starting 过渡到最终结果）
+    const oldElem = messageContentElem.querySelector('.mcp-server-result[data-mcp-name="' + escapeHtml(name) + '"]');
+    if (oldElem) {
+        oldElem.remove();
+    }
+    resultElem.setAttribute('data-mcp-name', name);
+
+    // 创建 label 栏
+    const label = document.createElement('div');
+    label.className = 'mcp-server-result-label';
+
+    if (starting) {
+        // "Starting MCP Server..." + 旋转动画
+        const spinner = document.createElement('span');
+        spinner.className = 'mcp-server-result-spinner';
+        label.appendChild(spinner);
+        label.appendChild(document.createTextNode(' Starting MCP Server...'));
+    } else {
+        // "Start MCP Server: " 文字
+        label.appendChild(document.createTextNode('Start MCP Server: '));
+
+        // MCP Server Name（带框 + icon）
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'mcp-server-result-name';
+        nameSpan.textContent = '\uD83D\uDEE0\uFE0F ' + name;
+        label.appendChild(nameSpan);
+
+        // 状态文字（靠右）
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'mcp-server-result-status-wrap';
+        if (success) {
+            statusSpan.className += ' mcp-server-result-status mcp-server-result-status-success';
+            statusSpan.textContent = 'Success';
+            if (toolCount > 0) {
+                statusSpan.textContent += ' (' + toolCount + ' tool' + (toolCount > 1 ? 's' : '') + ')';
+            }
+        } else {
+            statusSpan.className += ' mcp-server-result-status mcp-server-result-status-failure';
+            statusSpan.textContent = 'Failed';
+        }
+        label.appendChild(statusSpan);
+    }
+
+    resultElem.appendChild(label);
+
+    // 详情消息（默认折叠）
+    if (message) {
+        label.style.cursor = 'pointer';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'mcp-server-result-content';
+        contentDiv.style.display = 'none';
+
+        const msgDiv = document.createElement('div');
+        msgDiv.className = success ? 'mcp-server-result-message-success' : 'mcp-server-result-message-failure';
+        msgDiv.textContent = message;
+        contentDiv.appendChild(msgDiv);
+
+        // 点击 label 切换展开/折叠
+        label.onclick = function() {
+            const isCollapsed = contentDiv.style.display === 'none';
+            contentDiv.style.display = isCollapsed ? 'block' : 'none';
+        };
+
+        resultElem.appendChild(contentDiv);
+    }
+
+    messageContentElem.appendChild(resultElem);
+
+    // 如果聊天窗口在底部附近，滚动到底部
+    if (isNearBottom()) {
+        scrollToBottom();
+    }
+}
+
+/**
+ * 移除 AddMcpServer 的最后一个 Starting 标签（Interrupt 时清理）
+ * @param {string} id - AI 消息 ID
+ */
+function removeToolCallMessageToAIMessage_AddMcpServer(id) {
+    const messageElem = document.getElementById(id);
+    if (!messageElem) {
+        return;
+    }
+
+    const messageContentElem = messageElem.querySelector('.message-content');
+    if (!messageContentElem) {
+        return;
+    }
+
+    // 找到最后一个 Starting 标签（含 spinner 的 mcp-server-result），移除它
+    const startingElems = messageContentElem.querySelectorAll('.mcp-server-result .mcp-server-result-spinner');
+    if (startingElems.length > 0) {
+        const lastSpinner = startingElems[startingElems.length - 1];
+        lastSpinner.closest('.mcp-server-result').remove();
+    }
+}
+
+/**
  * 在 AI 消息中添加用户插话
  * @param {string} messageId - AI 消息 ID
  * @param {string} content - 用户插话内容

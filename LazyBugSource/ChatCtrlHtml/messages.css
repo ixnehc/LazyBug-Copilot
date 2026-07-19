@@ -228,6 +228,98 @@
     margin-top: 2px;
 }
 
+/* ====== AddMcpServer 结果样式 ====== */
+.mcp-server-result {
+    margin: 4px 0;
+    width: 100%;
+}
+
+.mcp-server-result-label {
+    display: flex;
+    align-items: center;
+    background-color: #1a1a1a;
+    border: 1px solid #1a3355;
+    border-radius: 6px;
+    padding: 4px 12px;
+    color: #cccccc;
+    font-size: 0.85em;
+    user-select: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.mcp-server-result-label:hover {
+    background-color: #2a2a2a;
+}
+
+@keyframes mcp-spinner-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.mcp-server-result-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #444444;
+    border-top-color: #6699ff;
+    border-radius: 50%;
+    animation: mcp-spinner-rotate 0.8s linear infinite;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.mcp-server-result-content {
+    padding-left: 8px;
+    border-left: 3px solid #3366aa;
+    margin-left: 8px;
+    margin-top: 2px;
+    background-color: #1a1a1a;
+    border-radius: 0 4px 4px 0;
+    padding: 6px 12px;
+}
+
+.mcp-server-result-name {
+    border: 1px solid #555555;
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: #6699ff;
+    font-weight: bold;
+    margin: 0 4px;
+    background-color: #2d3a5a;
+}
+
+.mcp-server-result-status-wrap {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.mcp-server-result-status {
+    font-weight: bold;
+}
+
+.mcp-server-result-status-success {
+    color: #4caf50; /* 绿色 */
+}
+
+.mcp-server-result-status-failure {
+    color: #f44336; /* 红色 */
+}
+
+.mcp-server-result-message-success {
+    color: #4caf50;
+    font-size: 0.82em;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.mcp-server-result-message-failure {
+    color: #f44336;
+    font-size: 0.82em;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
 .exploring-group-content .tool-call-message {
     margin: 3px 0;
     background-color: #1e1820; /* 更暗的背景 */

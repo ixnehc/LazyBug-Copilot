@@ -28,7 +28,8 @@ void EnableMcps(bool enable, const std::vector<WUID>& uids);
 // enable = false: 将该tool添加到disabledTools（禁用该工具）
 void EnableMcpTools(bool enable, WUID mcpUid, const std::vector<std::string>& toolNames);
 
-// 确保mcp目录下存在.uid文件，返回uid
+// 修改setting文件，启用指定mcp并启用其所有tools，然后ReloadSettings
+void EnableMcpFullyAndReload(WUID mcpUid);
 WUID EnsureMcpUid(const std::string& mcpFolderPath);
 
 void MakeMcpToolDescription(const CLlmMcps::Mcp::Tool& tool, std::string& desc);

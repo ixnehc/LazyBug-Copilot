@@ -129,6 +129,12 @@ function setupWebViewMessageListener() {
                 case 'addToolCallMessageToAIMessage_Exploring':
                     addToolCallMessageToAIMessage_Exploring(message.id, message.content);
                     break;
+                case 'addToolCallMessageToAIMessage_AddMcpServer':
+                    addToolCallMessageToAIMessage_AddMcpServer(message.id, message.content);
+                    break;
+                case 'removeToolCallMessageToAIMessage_AddMcpServer':
+                    removeToolCallMessageToAIMessage_AddMcpServer(message.id);
+                    break;
                 case 'clearChat': 
                     clearChat(); 
                     break;

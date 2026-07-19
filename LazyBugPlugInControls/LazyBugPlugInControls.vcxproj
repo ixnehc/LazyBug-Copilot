@@ -364,6 +364,7 @@
     <ClCompile Include="..\LazyBugSource\ChatSkillsTree.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatSkillTip.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTaskMgr.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_AddMcpServer.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_CLI.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_CompressSummarize.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_CreateSkill.cpp" />
@@ -564,6 +565,7 @@
     <ClInclude Include="..\Common\timer\timer.h" />
     <ClInclude Include="..\Common\xml\tinyxml.h" />
     <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_InputHint2.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint3.h" />

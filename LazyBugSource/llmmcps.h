@@ -80,6 +80,9 @@ public:
 	//动态添加一个MCP (Type::Dynamic), 返回生成的uid, 0表示失败
 	WUID AddDynamicMcp(const char* name, const McpConnectSetting& connect, const char* description);
 
+	//按uid删除一个Dynamic类型的MCP
+	void RemoveDynamicMcp(WUID uid);
+
 	//按名称查找MCP (返回nullptr表示未找到)
 	const Mcp* FindMcpByName(const std::string& name) const;
 

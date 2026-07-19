@@ -12,7 +12,8 @@ public:
 	void Reset();
 
 	// 每帧调用，检测变化并更新
-	bool Update();
+	// isDynOnly=true 时仅同步 Dynamic 类型 MCP，跳过目录监控和 .setting 文件检测
+	bool Update(bool isDynOnly = false);
 
 private:
 	// 启动/停止监控

@@ -1306,6 +1306,12 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 		break;
 	}
 
+	case ChatOp::Op_AddToolCallMessage_AddMcpServer:
+	{
+		AddToolCallMessage_AddMcpServer(op.messageId, op.contentUtf8);
+		break;
+	}
+
 	case ChatOp::Op_AddFileSummarizeToAIMessage:
 	{
 		AddFileSummarizeToAIMessage(op.messageId, op.fullPath);
@@ -2373,6 +2379,36 @@ void CChatOpsCtrl::AddToolCallMessage_Exploring(const std::wstring& messageId, c
 	op.contentUtf8 = message;
 	op.messageId = messageId;
 	_AddOp(op);
+}
+
+void CChatOpsCtrl::AddToolCallMessage_AddMcpServer(const std::wstring& messageId, const std::string& message)
+{
+	if (_ui)
+	{
+		// 转义消息内容以防XSS
+		std::wstring safeMessage = EscapeJsonString(utf8_to_widechar(message));
+
+		// 使用独立的 action，不与 Exploring 折叠组合并
+		std::wstring jsonMessage = L"{\"action\":\"addToolCallMessageToAIMessage_AddMcpServer\",\"content\":\"" + safeMessage + L"\",\"id\":\"" + messageId + L"\"}";
+
+		// 发送消息到WebView
+		_ui->PostJsonMessage(jsonMessage);
+	}
+
+	// 记录操作
+	ChatOp op(ChatOp::Op_AddToolCallMessage_AddMcpServer);
+	op.contentUtf8 = message;
+	op.messageId = messageId;
+	_AddOp(op);
+}
+
+void CChatOpsCtrl::RemoveToolCallMessage_AddMcpServer(const std::wstring& messageId)
+{
+	if (_ui)
+	{
+		std::wstring jsonMessage = L"{\"action\":\"removeToolCallMessageToAIMessage_AddMcpServer\",\"id\":\"" + messageId + L"\"}";
+		_ui->PostJsonMessage(jsonMessage);
+	}
 }
 
 void CChatOpsCtrl::AddUserInterject(const std::wstring& messageId, const std::string& interject)

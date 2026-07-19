@@ -233,6 +233,45 @@ void CChatTask::_SendToolCallMessage_Exploring(const char* result)
 	}
 }
 
+void CChatTask::_SendToolCallMessage_AddMcpServer(const char* result)
+{
+	if (!_context || !result)
+		return;
+
+	// 优先使用 chatOpsCtrl
+	if (_context->chatOpsCtrl)
+	{
+		if (_context->chatAgent)
+		{
+			const std::wstring& aiMessageId = _context->chatAgent->GetCurrentAIMessageId();
+			_context->chatOpsCtrl->AddToolCallMessage_AddMcpServer(aiMessageId, std::string(result));
+		}
+		else
+		{
+			_context->chatOpsCtrl->AddToolCallMessage_AddMcpServer(L"", std::string(result));
+		}
+	}
+}
+
+void CChatTask::_RemoveToolCallMessage_AddMcpServer()
+{
+	if (!_context)
+		return;
+
+	if (_context->chatOpsCtrl)
+	{
+		if (_context->chatAgent)
+		{
+			const std::wstring& aiMessageId = _context->chatAgent->GetCurrentAIMessageId();
+			_context->chatOpsCtrl->RemoveToolCallMessage_AddMcpServer(aiMessageId);
+		}
+		else
+		{
+			_context->chatOpsCtrl->RemoveToolCallMessage_AddMcpServer(L"");
+		}
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //

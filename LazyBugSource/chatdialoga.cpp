@@ -520,16 +520,18 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 	extern CCliWhitelist g_cliWhitelist;
 	g_cliWhitelist.UpdateReload();
-
+	 
 	_chatInput.Update();
 
 	_chatSkillsTree.Update();
 
 	if (stopWorking)
 		_chatMcpsTree.EnableModify(true);
-	if (!_agent.IsWorking())
+
+	//Mcp update
 	{
-		if (_mcpUpdater.Update())
+		bool isDynOnly = _agent.IsWorking();
+		if (_mcpUpdater.Update(isDynOnly))
 			_chatMcpsTree.SendMcpTreeData();
 	}
 	_chatMcpsTree.Update();

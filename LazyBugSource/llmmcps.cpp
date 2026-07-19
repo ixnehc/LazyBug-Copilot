@@ -623,13 +623,13 @@ const CLlmMcps::ToolAliasInfo* CLlmMcps::FindToolByAlias(const std::string& alia
 	if (it != _toolsAlias.end())
 		return &it->second;
 	return nullptr;
-}
+} 
 
 WUID CLlmMcps::AddDynamicMcp(const char* name, const McpConnectSetting& connect, const char* description)
 {
-	if (!name || name[0] == '\0')
+	if (!name || name[0] == '\0')   
 		return 0;
-
+	 
 	Mcp mcp;
 	mcp.tp = Mcp::Type::Dynamic;
 	mcp.uid = GenWUID();
@@ -643,17 +643,41 @@ WUID CLlmMcps::AddDynamicMcp(const char* name, const McpConnectSetting& connect,
 	_ver++;
 	return _mcps.back().uid;
 }
+ 
+void CLlmMcps::RemoveDynamicMcp(WUID uid)
+{
+	for (auto it = _mcps.begin(); it != _mcps.end(); ++it)
+	{
+		if (it->uid == uid && it->tp == Mcp::Type::Dynamic)
+		{
+			_mcps.erase(it);
+			_ver++;
+			return;
+		}
+	}
+}
 
 const CLlmMcps::Mcp* CLlmMcps::FindMcpByName(const std::string& name) const
 {
+	// 按优先级查找: Dynamic > Project > Global
 	for (const auto& mcp : _mcps)
 	{
-		if (mcp.name == name)
+		if (mcp.tp == Mcp::Type::Dynamic && mcp.name == name)
+			return &mcp;
+	}
+	for (const auto& mcp : _mcps)
+	{
+		if (mcp.tp == Mcp::Type::Project && mcp.name == name)
+			return &mcp;
+	}
+	for (const auto& mcp : _mcps)
+	{
+		if (mcp.tp == Mcp::Type::Global && mcp.name == name)
 			return &mcp;
 	}
 	return nullptr;
 }
-
+ 
 bool CLlmMcps::IsSameConnect(const McpConnectSetting& a, const McpConnectSetting& b)
 {
 	if (a.IsHttpMode() || b.IsHttpMode())

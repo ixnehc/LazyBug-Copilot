@@ -204,6 +204,63 @@ void EnableMcpTools(bool enable, WUID mcpUid, const std::vector<std::string>& to
 	Utils::SaveFileContent(settingPath.c_str(), newContent);
 }
 
+void EnableMcpFullyAndReload(WUID mcpUid)
+{
+	if (mcpUid == 0)
+		return;
+
+	std::string settingPath = GetMcpSettingFilePath();
+	if (settingPath.empty())
+		return;
+
+	// 读取现有setting文件
+	json j;
+	std::string content;
+	if (Utils::LoadFileContent(settingPath.c_str(), content))
+	{
+		try { j = json::parse(content); } catch (...) { j = json::array(); }
+	}
+	else
+	{
+		j = json::array();
+	}
+
+	if (!j.is_array())
+		j = json::array();
+
+	std::string uidStr = std::to_string(mcpUid);
+	bool found = false;
+
+	for (auto& item : j)
+	{
+		if (!item.is_object() || !item.contains("uid") || !item["uid"].is_string())
+			continue;
+		if (item["uid"].get<std::string>() == uidStr)
+		{
+			item["enable"] = true;
+			item["disabledTools"] = json::array();
+			found = true;
+			break;
+		}
+	}
+
+	if (!found)
+	{
+		json item;
+		item["uid"] = uidStr;
+		item["enable"] = true;
+		item["disabledTools"] = json::array();
+		j.push_back(item);
+	}
+
+	// 写回文件
+	std::string newContent = j.dump(2);
+	Utils::SaveFileContent(settingPath.c_str(), newContent);
+
+	// ReloadSettings
+	::g_llmMcps.ReLoadSettings(settingPath.c_str());
+}
+
 WUID EnsureMcpUid(const std::string& mcpFolderPath)
 {
 	// 构造 .uid 文件路径

@@ -593,6 +593,9 @@
     <ClCompile Include="..\LazyBugSource\PinyinLib.cpp">
       <Filter>Core\PinyinLib</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatTask_AddMcpServer.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -1174,6 +1177,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\PinyinLib.h">
       <Filter>Core\PinyinLib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

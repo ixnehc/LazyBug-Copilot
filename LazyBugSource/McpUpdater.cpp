@@ -26,78 +26,81 @@ void CMcpUpdater::Reset()
 }
 
 //返回有没有发生重新载入
-bool CMcpUpdater::Update()
+bool CMcpUpdater::Update(bool isDynOnly)
 {
 	bool needReloadSetting = false;
 	bool needReloadOutdated = false;
 	bool needReloadTool = false;
 
-	// 检查Global目录变化
-	if (_globalWatcher.IsStarted())
+	if (!isDynOnly)
 	{
-		const ChangedFileInformation* files = nullptr;
-		int count = _globalWatcher.FetchChangedFiles(files);
-		if (count > 0)
+		// 检查Global目录变化
+		if (_globalWatcher.IsStarted())
 		{
-			if (!_globalFolderPath.empty())
+			const ChangedFileInformation* files = nullptr;
+			int count = _globalWatcher.FetchChangedFiles(files);
+			if (count > 0)
 			{
-				g_llmMcps.ReLoad(_globalFolderPath.c_str(), CLlmMcps::Mcp::Type::Global);
+				if (!_globalFolderPath.empty())
+				{
+					g_llmMcps.ReLoad(_globalFolderPath.c_str(), CLlmMcps::Mcp::Type::Global);
+					needReloadSetting = true;
+					needReloadOutdated = true;
+					needReloadTool = true;
+				}
+			}
+		}
+
+		// 检查Project目录变化
+		if (_projectWatcher.IsStarted())
+		{
+			const ChangedFileInformation* files = nullptr;
+			int count = _projectWatcher.FetchChangedFiles(files);
+			if (count > 0)
+			{
+				if (!_projectFolderPath.empty())
+				{
+					g_llmMcps.ReLoad(_projectFolderPath.c_str(), CLlmMcps::Mcp::Type::Project);
+					needReloadSetting = true;
+					needReloadOutdated = true;
+					needReloadTool = true;
+				}
+			}
+		}
+
+		// 检查.setting文件变化
+		if (!_settingPath.empty())
+		{
+			FILETIME fileTime = Utils::GetFileTime(_settingPath.c_str());
+			if (CompareFileTime(&fileTime, &_settingFileTime) != 0)
+			{
 				needReloadSetting = true;
-				needReloadOutdated = true;
 				needReloadTool = true;
 			}
 		}
-	}
 
-	// 检查Project目录变化
-	if (_projectWatcher.IsStarted())
-	{
-		const ChangedFileInformation* files = nullptr;
-		int count = _projectWatcher.FetchChangedFiles(files);
-		if (count > 0)
+		if (needReloadSetting)
 		{
-			if (!_projectFolderPath.empty())
-			{
-				g_llmMcps.ReLoad(_projectFolderPath.c_str(), CLlmMcps::Mcp::Type::Project);
-				needReloadSetting = true;
-				needReloadOutdated = true;
-				needReloadTool = true;
-			}
+			FILETIME fileTime = Utils::GetFileTime(_settingPath.c_str());
+			g_llmMcps.ReLoadSettings(_settingPath.c_str());
+			_settingFileTime = fileTime;
+		}
+
+		// 目录下文件发生变化时，检查文件是否过期并更新
+		if (needReloadOutdated)
+		{
+			g_llmMcps.UpdateReLoadOutdated();
 		}
 	}
 
-	// 检查.setting文件变化
-	if (!_settingPath.empty())
-	{
-		FILETIME fileTime = Utils::GetFileTime(_settingPath.c_str());
-		if (CompareFileTime(&fileTime, &_settingFileTime) != 0)
-		{
-			needReloadSetting = true;
-			needReloadTool = true;
-		}
-	}
-
-	if (needReloadSetting)
-	{
-		FILETIME fileTime = Utils::GetFileTime(_settingPath.c_str());
-		g_llmMcps.ReLoadSettings(_settingPath.c_str());
-		_settingFileTime = fileTime;
-	}
-
-	// 目录下文件发生变化时，检查文件是否过期并更新
-	if (needReloadOutdated)
-	{
-		g_llmMcps.UpdateReLoadOutdated();
-	}
-
-	// 同步更新g_llmMcpServers
+	// 同步更新g_llmMcpServers（Dynamic MCP 版本变更也会在此响应）
 	if (g_llmMcpServers.UpdateSync())
 		needReloadTool = true;
 
 	if (needReloadTool)
 		g_llmMcpServers.LoadToolsToMcps();
 
-	return needReloadSetting||needReloadOutdated||needReloadTool;
+	return needReloadSetting || needReloadOutdated || needReloadTool;
 }
 
 void CMcpUpdater::_StartWatchers()

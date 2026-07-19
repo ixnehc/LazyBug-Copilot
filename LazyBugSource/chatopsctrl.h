@@ -54,13 +54,14 @@ struct ChatOp
         Op_AddToolCallResult,
         Op_AddStreamingAIMessage_Thinking,
         Op_AddReplaceInFileResult_Obsolete,
-        Op_AddToolCallMessage_Exploring,
-        Op_AddFileSummarizeToAIMessage,
+		Op_AddToolCallMessage_Exploring,
+		Op_AddFileSummarizeToAIMessage,
 		Op_AddUserInterject,
 		Op_CliDisplay,
 		Op_QuestionDisplay,
 		Op_McpDisplay,
-        // 重要：后添加的 Op 一定要加在末尾
+		Op_AddToolCallMessage_AddMcpServer,
+		// 重要：后添加的 Op 一定要加在末尾
     };
 
     void Save(CDataPacket& dp);
@@ -165,6 +166,13 @@ public:
     // 追加 ToolCall 消息（记录 Tool 调用信息）
     void AddToolCallMessage_Exploring(const std::wstring& messageId,
                             const std::string& message);
+
+    // 追加 AddMcpServer ToolCall 消息（UI 复用 Exploring 折叠样式）
+    void AddToolCallMessage_AddMcpServer(const std::wstring& messageId,
+                            const std::string& message);
+
+    // 移除 AddMcpServer ToolCall 消息（Interrupt 时清理最后一个 Starting 标签）
+    void RemoveToolCallMessage_AddMcpServer(const std::wstring& messageId);
 
     // 完成流式 AI 消息
     void CompleteStreamingAIMessage(const std::wstring& messageId);

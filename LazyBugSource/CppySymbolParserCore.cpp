@@ -736,7 +736,8 @@ void ProcessRequest(const ParseRequest& request, ParseResult& result)
 	if (request.collectRefParam.IsValid())
 		return;
 
-//	MessageBoxA(NULL, request.parseFilePath.c_str(), "Current Parsing:", MB_OK);
+//	__M(request.lowerCasedParseFilePath.c_str());
+// 	MessageBoxA(NULL, request.parseFilePath.c_str(), "Current Parsing:", MB_OK);
 
 	result.parseFilePath = request.lowerCasedParseFilePath;
 	result.success = false;
