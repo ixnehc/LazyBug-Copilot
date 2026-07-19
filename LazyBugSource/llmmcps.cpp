@@ -215,7 +215,36 @@ bool ParseMcpJson(const wchar_t* filePath, std::string& outDescription,
 	}
 
 	// 递归查找 cmd/command+args 或 url
-	return Utils::FindCmdAndArgs(j, outDescription, outCommand, outArgs, outEnv, outUrl);
+	if (!Utils::FindCmdAndArgs(j, outDescription, outCommand, outArgs, outEnv, outUrl))
+		return false;
+
+	// 如果 command 是以 . 或 .. 开头的相对路径，拼接文件所在目录为完整路径
+	if (!outCommand.empty())
+	{
+		std::string cmd = outCommand;
+		// 去除可能存在的引号
+		if (cmd.size() >= 2 && cmd.front() == '"' && cmd.back() == '"')
+			cmd = cmd.substr(1, cmd.size() - 2);
+		// 判断是否为相对路径（以 . 或 .. 开头）
+		bool isRelative = (cmd.size() >= 1 && cmd[0] == '.');
+		if (isRelative)
+		{
+			// 获取文件所在目录
+			std::wstring wFilePath(filePath);
+			size_t lastSlash = wFilePath.rfind(L'\\');
+			if (lastSlash == std::wstring::npos)
+				lastSlash = wFilePath.rfind(L'/');
+			if (lastSlash != std::wstring::npos)
+			{
+				std::wstring wDir = wFilePath.substr(0, lastSlash);
+				std::string dirUtf8 = widechar_to_utf8(wDir.c_str());
+				// 拼接: dir + "\\" + cmd
+				outCommand = dirUtf8 + "\\" + cmd;
+			}
+		}
+	}
+
+	return true;
 }
 
 // 递归扫描目录，收集所有包含 MCP.json 的子目录
