@@ -3097,6 +3097,13 @@ int CChatOpsCtrl::EstimateUncompressedSessionAIContentToken(int targetSrcIndex, 
 	return totalTokens;
 }
 
+void CChatOpsCtrl::SetOpCompressedContent(int index, int level, const std::string& content)
+{
+	if (index < 0 || index >= static_cast<int>(_ops.size()))
+		return;
+	_ops[index].compressedContents.insert_or_assign(level, content);
+}
+
 void CChatOpsCtrl::_IterateSessionAIContent(int targetSrcIndex, 
                                                const std::vector<LlmToolType>& toolTypes,
                                                std::function<bool(const std::string&, LlmToolType)> callback) const

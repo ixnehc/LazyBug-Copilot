@@ -286,6 +286,9 @@ public:
 	void CollectUncompressedSessionAIContent(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes, std::string& content);
 	int  EstimateUncompressedSessionAIContentToken(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes);
 
+	// 直接写入压缩内容到指定 op（供 Immediate 模式使用）
+	void SetOpCompressedContent(int index, int level, const std::string& content);
+
     // ── Title ────────────────────────────────────────────────────────────
 
     void SetTitle(const std::wstring& title);

@@ -8,7 +8,6 @@
 
 #include "Utils.h"
 
-
 // 前置声明
 class CLlmChat;
 class CChatTask_FastApply;
@@ -62,6 +61,13 @@ enum class TaskStatus
 	Running,
 	Success,
 	Failure
+};
+
+enum class CompressSummarizeMode
+{
+	Normal,      // workingOpIndex 对应 CChatOpsCompress::_workingOps
+	Evaluation,  // 评估模式：只写日志，不写回结果
+	Immediate,   // 立即模式：workingOpIndex 直接对应 CChatOpsCtrl::GetOps() 的索引，完成后写回对应 op
 };
 
 class CChatTask
@@ -131,7 +137,7 @@ public:
 	void AddTask_CreateSkill(const LlmToolCall& toolCall);
 	void AddTask_AddMcpServer(const LlmToolCall& toolCall);
 	void AddTask_Mcp(const LlmToolCall& toolCall);
-	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
+	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, CompressSummarizeMode mode = CompressSummarizeMode::Normal);
 	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);
 	void AddTask_InputHint2(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);
 	void AddTask_InputHint3(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);

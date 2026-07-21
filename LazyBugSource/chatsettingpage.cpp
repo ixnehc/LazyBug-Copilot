@@ -1478,7 +1478,7 @@ void CChatSettingPage::EvaluateCompressSummarize(const std::wstring& summarizeAp
 
 		// 添加 evaluation task
 		std::string apiNameUtf8 = widechar_to_utf8(summarizeApiName.c_str());
-		_taskMgr.AddTask_CompressSummarize(sessionEndIndex, apiNameUtf8, originalTokenCount, true);
+		_taskMgr.AddTask_CompressSummarize(sessionEndIndex, apiNameUtf8, originalTokenCount, CompressSummarizeMode::Evaluation);
 	}
 }
 

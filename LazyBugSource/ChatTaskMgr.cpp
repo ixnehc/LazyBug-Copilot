@@ -735,9 +735,9 @@ void CChatTaskMgr::AddTask_Mcp(const LlmToolCall& toolCall)
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode)
+void CChatTaskMgr::AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, CompressSummarizeMode mode)
 {
-	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, originalTokenCount, evaluationMode);
+	CChatTask_CompressSummarize* task = new CChatTask_CompressSummarize(workingOpIndex, summarizeApiName, originalTokenCount, mode);
 	_AddTask(task);
 }
 

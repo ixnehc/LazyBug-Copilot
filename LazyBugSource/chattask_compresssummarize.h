@@ -6,18 +6,18 @@
 class CChatTask_CompressSummarize : public CChatTask
 {
 public:
-	// workingOpIndex: CChatOpsCompress::_workingOps 的索引（正常模式）或 ops 的索引（评估模式）
+	// workingOpIndex: CChatOpsCompress::_workingOps 的索引（Normal模式）或 CChatOpsCtrl::GetOps() 的索引（Evaluation/Immediate模式）
 	// summarizeApiName: 用于 summarize 的 API 名称
 	// originalTokenCount: 原始内容的 token 数量（已校准）
-	// evaluationMode: 评估模式，不写回压缩结果，只生成日志
-	CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode = false);
+	// mode: 模式
+	CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, CompressSummarizeMode mode = CompressSummarizeMode::Normal);
 
 	const char* GetType() override { return "CompressSummarize"; }
 	void Start() override;
 	void Update() override;
 	void Interrupt() override;
 	int GetLlmSessionCount() override { return 1; }
-	bool IsEvaluationMode() const { return _evaluationMode; }
+	bool IsEvaluationMode() const { return _mode == CompressSummarizeMode::Evaluation; }
 
 private:
 	void _Fail(const std::string& reason = "");
@@ -40,5 +40,5 @@ private:
 	bool _requestInterrupt;
 	int _workingOpIndex;
 	std::string _summarizeApiName;
-	bool _evaluationMode;
+	CompressSummarizeMode _mode;
 };

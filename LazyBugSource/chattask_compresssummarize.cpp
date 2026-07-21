@@ -45,12 +45,12 @@ void ClearCompressSummarize()
 	}
 }
 
-CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, bool evaluationMode)
+CChatTask_CompressSummarize::CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, CompressSummarizeMode mode)
 {
 	_workingOpIndex = workingOpIndex;
 	_summarizeApiName = summarizeApiName;
 	_originalTokenCount = originalTokenCount;
-	_evaluationMode = evaluationMode;
+	_mode = mode;
 	_hasStartedRequest = false;
 	_requestInterrupt = false;
 }
@@ -59,8 +59,8 @@ void CChatTask_CompressSummarize::_Fail(const std::string& reason)
 {
 	_resultMessage = _MakeShortResultString(false, reason);
 	
-	// 设置提示消息到 CChatOpsCompress
-	if (_context && _context->chatAgent)
+	// Immediate 模式不通知 compressor（通过 chatDialogA 直接操作 ops）
+	if (_mode != CompressSummarizeMode::Immediate && _context && _context->chatAgent)
 	{
 		CChatOpsCompress& compressor = _context->chatAgent->GetCompressor();
 		compressor._SetCompressSummarizeTip(false, _resultMessage, GetCompressSummarizeLogPath());
@@ -79,37 +79,41 @@ void CChatTask_CompressSummarize::_Succeed(const std::string& result, const LlmS
 		AppendCompressSummarize(logStr);
 	}
 	
-	if (_evaluationMode)
+	// 决定实际存储的内容（压缩量不够则跳过）
+	const std::string* pContentToStore = &result;
+	if (!(resultTokenCount + 50 <= _originalTokenCount))
 	{
-		// 评估模式：只写日志，不写回结果
+		static std::string skip_compress = "<skip_compress>";
+		pContentToStore = &skip_compress;
+		resultTokenCount = _originalTokenCount;
+	}
+
+	if (_mode == CompressSummarizeMode::Evaluation)
+	{
 		_resultMessage = _MakeShortResultString(true, "", _originalTokenCount, resultTokenCount);
 	}
-	else
+	else if (_mode == CompressSummarizeMode::Immediate)
 	{
-		// 正常模式：将压缩结果存入 workingOp.newCompressedContents
+		// 直接写入 CChatOpsCtrl::_ops 中对应的 op
+		if (_context && _context->chatDialogA)
+		{
+			CChatOpsCtrl& opsCtrl = _context->chatDialogA->GetOpsCtrl();
+			opsCtrl.SetOpCompressedContent(_workingOpIndex, CChatOpsCompress::Level_Partial, *pContentToStore);
+		}
+		_resultMessage = _MakeShortResultString(true, "", _originalTokenCount, resultTokenCount);
+	}
+	else  // Normal
+	{
+		// 将压缩结果存入 workingOp.newCompressedContents
 		if (_context && _context->chatAgent)
 		{
 			CChatOpsCompress& compressor = _context->chatAgent->GetCompressor();
 			if (_workingOpIndex >= 0 && _workingOpIndex < (int)compressor._workingOps.size())
 			{
 				CChatOpsCompress::Op& workingOp = compressor._workingOps[_workingOpIndex];
-
-				// 使用 Level_Partial 作为压缩等级
-				const std::string* pContentToStore = &result;
+				workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = *pContentToStore;
 				
-				// 如果压缩掉的token数太少,标记为无法压缩
-				if (!(resultTokenCount + 50 <= _originalTokenCount))
-				{
-					static std::string skip_compress = "<skip_compress>";
-					pContentToStore = &skip_compress;//标记这个session不适合压缩(通常因为过短),以后也不会再尝试压缩它
-					resultTokenCount = _originalTokenCount;
-				}
-				workingOp.newCompressedContents[CChatOpsCompress::Level_Partial] = *pContentToStore;//XXXXXXXXXXXXXXXXXXXXSummarize
-				
-				// 准备简短结果信息
 				_resultMessage = _MakeShortResultString(true, "", _originalTokenCount, resultTokenCount);
-				
-				// 设置提示消息到 CChatOpsCompress
 				compressor._SetCompressSummarizeTip(true, _resultMessage, GetCompressSummarizeLogPath());
 			}
 		}
@@ -211,9 +215,9 @@ void CChatTask_CompressSummarize::Start()
 		return;
 	}
 
-	if (_evaluationMode)
+	if (_mode == CompressSummarizeMode::Evaluation || _mode == CompressSummarizeMode::Immediate)
 	{
-		// 评估模式：通过 chatDialogA 获取 chatOpsCtrl
+		// Evaluation/Immediate 模式：通过 chatDialogA 获取 chatOpsCtrl
 		if (!_context->chatDialogA)
 		{
 			_Fail("No chatDialogA in context");
