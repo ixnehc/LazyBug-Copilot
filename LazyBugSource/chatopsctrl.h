@@ -168,8 +168,9 @@ public:
                             const std::string& message);
 
     // 追加 AddMcpServer ToolCall 消息（UI 复用 Exploring 折叠样式）
+    // addOp: 是否记录 ChatOp（Starting 标签等临时消息传 false）
     void AddToolCallMessage_AddMcpServer(const std::wstring& messageId,
-                            const std::string& message);
+                            const std::string& message, bool addOp = true);
 
     // 移除 AddMcpServer ToolCall 消息（Interrupt 时清理最后一个 Starting 标签）
     void RemoveToolCallMessage_AddMcpServer(const std::wstring& messageId);

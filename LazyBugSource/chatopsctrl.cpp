@@ -2381,7 +2381,7 @@ void CChatOpsCtrl::AddToolCallMessage_Exploring(const std::wstring& messageId, c
 	_AddOp(op);
 }
 
-void CChatOpsCtrl::AddToolCallMessage_AddMcpServer(const std::wstring& messageId, const std::string& message)
+void CChatOpsCtrl::AddToolCallMessage_AddMcpServer(const std::wstring& messageId, const std::string& message, bool addOp)
 {
 	if (_ui)
 	{
@@ -2395,11 +2395,14 @@ void CChatOpsCtrl::AddToolCallMessage_AddMcpServer(const std::wstring& messageId
 		_ui->PostJsonMessage(jsonMessage);
 	}
 
-	// 记录操作
-	ChatOp op(ChatOp::Op_AddToolCallMessage_AddMcpServer);
-	op.contentUtf8 = message;
-	op.messageId = messageId;
-	_AddOp(op);
+	// 记录操作（Starting 标签等临时消息不记录）
+	if (addOp)
+	{
+		ChatOp op(ChatOp::Op_AddToolCallMessage_AddMcpServer);
+		op.contentUtf8 = message;
+		op.messageId = messageId;
+		_AddOp(op);
+	}
 }
 
 void CChatOpsCtrl::RemoveToolCallMessage_AddMcpServer(const std::wstring& messageId)

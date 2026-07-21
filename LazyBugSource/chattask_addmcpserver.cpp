@@ -44,11 +44,11 @@ bool CChatTask_AddMcpServer::_HandleExistingMcp(WUID existingUid, const CLlmMcps
 
 	_uid = existingUid;
 
-	// 发送 "Starting" 标签
+	// 发送 "Starting" 标签（临时消息，不记录 ChatOp）
 	json startingJson;
 	startingJson["name"] = _name;
 	startingJson["starting"] = true;
-	_SendToolCallMessage_AddMcpServer(startingJson.dump().c_str());
+	_SendToolCallMessage_AddMcpServer(startingJson.dump().c_str(), false);
 
 	// 由 Update() 等待 server Ready/Failed 后统一处理
 	return false;
@@ -159,11 +159,11 @@ void CChatTask_AddMcpServer::Start()
 
 	_isNewMcp = true;
 
-	// 发送 "Starting" 标签
+	// 发送 "Starting" 标签（临时消息，不记录 ChatOp）
 	json startingJson;
 	startingJson["name"] = _name;
 	startingJson["starting"] = true;
-	_SendToolCallMessage_AddMcpServer(startingJson.dump().c_str());
+	_SendToolCallMessage_AddMcpServer(startingJson.dump().c_str(), false);
 
 	// 等待 server 启动, 由 Update() 轮询
 }

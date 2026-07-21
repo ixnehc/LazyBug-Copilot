@@ -233,7 +233,7 @@ void CChatTask::_SendToolCallMessage_Exploring(const char* result)
 	}
 }
 
-void CChatTask::_SendToolCallMessage_AddMcpServer(const char* result)
+void CChatTask::_SendToolCallMessage_AddMcpServer(const char* result, bool addOp)
 {
 	if (!_context || !result)
 		return;
@@ -244,11 +244,11 @@ void CChatTask::_SendToolCallMessage_AddMcpServer(const char* result)
 		if (_context->chatAgent)
 		{
 			const std::wstring& aiMessageId = _context->chatAgent->GetCurrentAIMessageId();
-			_context->chatOpsCtrl->AddToolCallMessage_AddMcpServer(aiMessageId, std::string(result));
+			_context->chatOpsCtrl->AddToolCallMessage_AddMcpServer(aiMessageId, std::string(result), addOp);
 		}
 		else
 		{
-			_context->chatOpsCtrl->AddToolCallMessage_AddMcpServer(L"", std::string(result));
+			_context->chatOpsCtrl->AddToolCallMessage_AddMcpServer(L"", std::string(result), addOp);
 		}
 	}
 }
