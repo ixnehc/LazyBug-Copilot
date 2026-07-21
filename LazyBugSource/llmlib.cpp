@@ -178,7 +178,12 @@ void CLlmLib::_LoadLlmSessionSetting(LlmSessionSetting& setting, const LlmApi &a
 	if (ruleName && strlen(ruleName) > 0)
 		setting.rulesFiles[0] += ruleName;
 	else
-		setting.rulesFiles[0] += api.rule;
+	{
+		if (api.rule.empty())
+			setting.rulesFiles[0] += "chatrules_usingtools";
+		else
+			setting.rulesFiles[0] += api.rule;
+	}
 	setting.rulesFiles[0] += ".txt";
 
 	// 设置默认超时时间
