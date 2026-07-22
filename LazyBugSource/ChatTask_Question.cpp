@@ -9,6 +9,7 @@
 CChatTask_Question::CChatTask_Question()
 {
 	_waitingForUser = false;
+	_multiSelect = false;
 	_questionId = 0;
 }
 
@@ -83,6 +84,11 @@ void CChatTask_Question::Start()
 		}
 	}
 
+	// 解析 multiSelect 参数
+	bool multiSelect = false;
+	_toolCall.GetBoolParam("multiSelect", multiSelect);
+	_multiSelect = multiSelect;
+
 	// 调用 UI 接口显示问题
 	if (_context && _context->chatUi && _context->chatAgent)
 	{
@@ -98,7 +104,7 @@ void CChatTask_Question::Start()
 		}
 		
 		// 调用 UI 接口添加问题窗口
-		_questionId = _context->chatUi->AddQuestion(messageId, wQuestion, wOptions);
+		_questionId = _context->chatUi->AddQuestion(messageId, wQuestion, wOptions, multiSelect);
 	}
 	else
 	{

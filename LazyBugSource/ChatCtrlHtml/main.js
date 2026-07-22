@@ -254,7 +254,7 @@ function setupWebViewMessageListener() {
                 
                 // ====== Question 相关 ======
                 case 'addQuestion':
-                    addQuestion(message.messageId, message.questionId, message.question, message.options);
+                    addQuestion(message.messageId, message.questionId, message.question, message.options, message.multiSelect);
                     break;
                 case 'addQuestionDisplay':
                     addQuestionDisplay(message.messageId, message.question, message.answer);

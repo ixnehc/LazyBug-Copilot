@@ -19,6 +19,7 @@ void ExtractPartialArguments(const std::string& raw_args, const CLlmTools::ToolD
 {
 	toolCall.params_string.clear();
 	toolCall.params_int.clear();
+	toolCall.params_bool.clear();
 
 	for (const auto& paramDef : toolDef.params)
 	{
@@ -82,6 +83,13 @@ void ExtractPartialArguments(const std::string& raw_args, const CLlmTools::ToolD
 					catch (const std::exception&) {}
 				}
 			}
+		}
+		else if (paramDef.type == "boolean")
+		{
+			if (raw_args.compare(value_start_pos, 4, "true") == 0)
+				toolCall.params_bool[paramName] = true;
+			else if (raw_args.compare(value_start_pos, 5, "false") == 0)
+				toolCall.params_bool[paramName] = false;
 		}
 	}
 }
@@ -252,6 +260,7 @@ void CLlmToolCallParser::Update(json& deltaResponseJson)
 					{
 						final_tool_call.params_string.clear();
 						final_tool_call.params_int.clear();
+						final_tool_call.params_bool.clear();
 						for (const auto& el : args_json.items())
 						{
 							auto para_it = std::find_if(toolDef->params.begin(), toolDef->params.end(),
@@ -265,6 +274,10 @@ void CLlmToolCallParser::Update(json& deltaResponseJson)
 								else if (para_it->type == "integer" && el.value().is_number_integer())
 								{
 									final_tool_call.params_int[el.key()] = el.value().get<int>();
+								}
+								else if (para_it->type == "boolean" && el.value().is_boolean())
+								{
+									final_tool_call.params_bool[el.key()] = el.value().get<bool>();
 								}
 							}
 						}
@@ -317,6 +330,8 @@ bool LlmToolCall::ExistParam(const char* param)
         return true;
     if (params_int.find(param) != params_int.end())
         return true;
+    if (params_bool.find(param) != params_bool.end())
+        return true;
     return false;
 }
 
@@ -339,6 +354,32 @@ bool LlmToolCall::GetIntParam(const char* param, int& value)
 	{
 		value = it->second;
 		return true;
+	}
+	return false;
+}
+
+bool LlmToolCall::GetBoolParam(const char* param, bool& value)
+{
+	auto it = params_bool.find(param);
+	if (it != params_bool.end())
+	{
+		value = it->second;
+		return true;
+	}
+	// fallback: 也尝试从 string params 读取 ("true"/"false")
+	auto sit = params_string.find(param);
+	if (sit != params_string.end())
+	{
+		if (sit->second == "true")
+		{
+			value = true;
+			return true;
+		}
+		else if (sit->second == "false")
+		{
+			value = false;
+			return true;
+		}
 	}
 	return false;
 }
@@ -426,6 +467,7 @@ void CLlmTools::Init()
 	AppendToolDesc("Note: If 'options' is empty, the user will manually input a free-text answer.");
 	AddToolPara_String("question", "The question to ask the user.", true);
 	AddToolPara_String("options", "Comma-separated list of options for the user to choose from. If empty, the user will manually input a free-text answer.", false);
+	AddToolPara_Boolean("multiSelect", "If true, the user can select multiple options (checkbox mode). Default is false (single selection, radio-like).", false);
 	EndTool();
 
 	// 定义 QueryFinish 工具
@@ -518,6 +560,24 @@ void CLlmTools::AddToolPara_Integer(const char* name, const char* description, b
 	param.name = name;
 	param.description = description;
 	param.type = "integer";
+	_pCurrentToolDef->params.push_back(param);
+
+	if (isRequired)
+	{
+		_pCurrentToolDef->required_params.push_back(name);
+	}
+}
+
+void CLlmTools::AddToolPara_Boolean(const char* name, const char* description, bool isRequired)
+{
+	if (!_pCurrentToolDef)
+	{
+		throw std::runtime_error("Must call BeginTool() first.");
+	}
+	ToolParam param;
+	param.name = name;
+	param.description = description;
+	param.type = "boolean";
 	_pCurrentToolDef->params.push_back(param);
 
 	if (isRequired)

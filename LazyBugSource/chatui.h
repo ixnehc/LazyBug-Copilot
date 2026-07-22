@@ -70,7 +70,7 @@ public:
 	void ClearCliInput();
 
 	// Question/Answer 相关方法
-	__int64 AddQuestion(const std::wstring& messageId, const std::wstring& question, const std::vector<std::wstring>& options) override;
+	__int64 AddQuestion(const std::wstring& messageId, const std::wstring& question, const std::vector<std::wstring>& options, bool multiSelect = false) override;
 	bool GetQuestionAnswer(__int64 questionId, std::wstring& answer) override;
 	bool HasQuestionAnswer(__int64 questionId) override;
 	void ClearQuestion() override;
@@ -213,6 +213,7 @@ private:
 		std::vector<std::wstring> options;
 		std::wstring answer;
 		bool hasAnswer;
+		bool multiSelect;
 	};
 	QuestionData _currentQuestion;
 	std::mutex _questionMutex;

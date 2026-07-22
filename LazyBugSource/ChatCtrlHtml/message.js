@@ -1177,7 +1177,7 @@ function completeCliDisplay(cliId, exitCode) {
     }
 }
 
-function addQuestion(messageId, questionId, question, options) {
+function addQuestion(messageId, questionId, question, options, multiSelect) {
     const shouldScroll = isNearBottom();
     
     // 查找对应的 AI 消息元素
@@ -1203,51 +1203,24 @@ function addQuestion(messageId, questionId, question, options) {
     questionText.className = 'question-text';
     questionText.textContent = question;
     questionContainer.appendChild(questionText);
-    
-    // 判断是否有选项
-    if (options && options.length > 0) {
-        // 有选项 - 创建选择窗口
-        const optionsContainer = document.createElement('div');
-        optionsContainer.className = 'question-options';
-        
-        // 添加选项按钮
-        options.forEach(function(option) {
-            const optionBtn = document.createElement('button');
-            optionBtn.className = 'question-option-btn';
-            optionBtn.textContent = option;
-            optionBtn.onclick = function() {
-                submitQuestionAnswer(questionId, option);
-            };
-            optionsContainer.appendChild(optionBtn);
-        });
-        
-        // 添加取消按钮
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'question-cancel-btn';
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.onclick = function() {
-            submitQuestionAnswer(questionId, 'Cancel');
-        };
-        optionsContainer.appendChild(cancelBtn);
-        
-        questionContainer.appendChild(optionsContainer);
-    } else {
-        // 没有选项 - 创建输入窗口
-        const inputContainer = document.createElement('div');
-        inputContainer.className = 'question-input-container';
+
+    // ----- 辅助函数：创建手工输入区域 -----
+    function createManualInputArea(restoreCallback) {
+        const container = document.createElement('div');
+        container.className = 'question-manual-input-area';
         
         const inputField = document.createElement('input');
         inputField.type = 'text';
         inputField.className = 'question-input-field';
         inputField.placeholder = 'Please enter your answer...';
         
-        const btnContainer = document.createElement('div');
-        btnContainer.className = 'question-btn-container';
+        const btnRow = document.createElement('div');
+        btnRow.className = 'question-btn-container';
         
-        const submitBtn = document.createElement('button');
-        submitBtn.className = 'question-submit-btn';
-        submitBtn.textContent = 'OK';
-        submitBtn.onclick = function() {
+        const okBtn = document.createElement('button');
+        okBtn.className = 'question-submit-btn';
+        okBtn.textContent = 'OK';
+        okBtn.onclick = function() {
             const answer = inputField.value.trim();
             if (answer) {
                 submitQuestionAnswer(questionId, answer);
@@ -1258,25 +1231,130 @@ function addQuestion(messageId, questionId, question, options) {
         cancelBtn.className = 'question-cancel-btn';
         cancelBtn.textContent = 'Cancel';
         cancelBtn.onclick = function() {
-            submitQuestionAnswer(questionId, 'Cancel');
+            restoreCallback();
         };
         
-        // 支持回车提交
-        inputField.onkeypress = function(e) {
+        btnRow.appendChild(okBtn);
+        btnRow.appendChild(cancelBtn);
+        container.appendChild(inputField);
+        container.appendChild(btnRow);
+        
+        // 回车提交
+        inputField.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 const answer = inputField.value.trim();
                 if (answer) {
                     submitQuestionAnswer(questionId, answer);
                 }
             }
-        };
+        });
         
-        btnContainer.appendChild(submitBtn);
-        btnContainer.appendChild(cancelBtn);
-        inputContainer.appendChild(inputField);
-        inputContainer.appendChild(btnContainer);
-        questionContainer.appendChild(inputContainer);
+        return container;
     }
+
+    // ----- 辅助函数：创建手工输入按钮 -----
+    function createManualInputButton() {
+        const btn = document.createElement('button');
+        btn.className = 'question-manual-btn';
+        btn.textContent = '\u270E Manual Input...';
+        btn.onclick = function() {
+            // 按钮消失，替换为输入区域
+            const newInputArea = createManualInputArea(function() {
+                // 恢复按钮
+                const newBtn = createManualInputButton();
+                newInputArea.replaceWith(newBtn);
+            });
+            btn.replaceWith(newInputArea);
+            // 自动聚焦输入框
+            const inputField = newInputArea.querySelector('.question-input-field');
+            if (inputField) {
+                setTimeout(function() { inputField.focus(); }, 50);
+            }
+        };
+        return btn;
+    }
+    
+    // 判断是否有选项
+    if (options && options.length > 0) {
+        if (multiSelect) {
+            // ----- 多选模式：checkbox + Confirm -----
+            const checkboxContainer = document.createElement('div');
+            checkboxContainer.className = 'question-checkbox-container';
+            
+            options.forEach(function(option) {
+                const label = document.createElement('label');
+                label.className = 'question-checkbox-label';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'question-checkbox';
+                checkbox.value = option;
+                
+                const span = document.createElement('span');
+                span.textContent = option;
+                
+                label.appendChild(checkbox);
+                label.appendChild(span);
+                checkboxContainer.appendChild(label);
+            });
+            
+            // 按钮行: Confirm + Cancel
+            const btnRow = document.createElement('div');
+            btnRow.className = 'question-btn-container';
+            
+            const confirmBtn = document.createElement('button');
+            confirmBtn.className = 'question-submit-btn';
+            confirmBtn.textContent = 'Confirm';
+            confirmBtn.onclick = function() {
+                const checked = checkboxContainer.querySelectorAll('.question-checkbox:checked');
+                const selected = [];
+                checked.forEach(function(cb) { selected.push(cb.value); });
+                if (selected.length > 0) {
+                    submitQuestionAnswer(questionId, selected.join(', '));
+                }
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'question-cancel-btn';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = function() {
+                submitQuestionAnswer(questionId, 'Cancel');
+            };
+            
+            btnRow.appendChild(confirmBtn);
+            btnRow.appendChild(cancelBtn);
+            checkboxContainer.appendChild(btnRow);
+            questionContainer.appendChild(checkboxContainer);
+        } else {
+            // ----- 单选模式：每个选项一个按钮，纵向排列 -----
+            const optionsContainer = document.createElement('div');
+            optionsContainer.className = 'question-options question-options-single';
+            
+            options.forEach(function(option) {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'question-option-btn';
+                optionBtn.textContent = option;
+                optionBtn.onclick = function() {
+                    submitQuestionAnswer(questionId, option);
+                };
+                optionsContainer.appendChild(optionBtn);
+            });
+            
+            // Cancel 按钮
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'question-cancel-btn';
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.onclick = function() {
+                submitQuestionAnswer(questionId, 'Cancel');
+            };
+            optionsContainer.appendChild(cancelBtn);
+            
+            questionContainer.appendChild(optionsContainer);
+        }
+    }
+    
+    // ----- 所有模式：手工输入按钮 -----
+    questionContainer.appendChild(createManualInputButton());
     
     messageContentElem.appendChild(questionContainer);
     

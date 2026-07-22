@@ -30,5 +30,6 @@ private:
 	std::vector<std::string> _options;
 	std::string _userAnswer;
 	bool _waitingForUser;
+	bool _multiSelect;
 	__int64 _questionId;
 };

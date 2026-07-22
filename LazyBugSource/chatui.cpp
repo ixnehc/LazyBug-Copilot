@@ -902,7 +902,7 @@ void CChatUi::ClearCliInput()
 	_currentCliInput.hasInput = false;
 }
 
-__int64 CChatUi::AddQuestion(const std::wstring& messageId, const std::wstring& question, const std::vector<std::wstring>& options)
+__int64 CChatUi::AddQuestion(const std::wstring& messageId, const std::wstring& question, const std::vector<std::wstring>& options, bool multiSelect)
 {
 	if (!_IsReady())
 		return 0;
@@ -918,6 +918,7 @@ __int64 CChatUi::AddQuestion(const std::wstring& messageId, const std::wstring& 
 		_currentQuestion.options = options;
 		_currentQuestion.hasAnswer = false;
 		_currentQuestion.answer.clear();
+		_currentQuestion.multiSelect = multiSelect;
 	}
 
 	// 构造 JSON 消息
@@ -933,7 +934,8 @@ __int64 CChatUi::AddQuestion(const std::wstring& messageId, const std::wstring& 
 	std::wstring jsonMessage = L"{\"action\":\"addQuestion\",\"messageId\":\"" + EscapeJsonString(messageId) + 
 		L"\",\"questionId\":\"" + std::to_wstring(questionId) + 
 		L"\",\"question\":\"" + EscapeJsonString(question) + 
-		L"\",\"options\":" + optionsJson + L"}";
+		L"\",\"options\":" + optionsJson +
+		L",\"multiSelect\":" + (multiSelect ? L"true" : L"false") + L"}";
 
 	// 发送到 WebView
 	PostJsonMessage(jsonMessage);
@@ -971,6 +973,7 @@ void CChatUi::ClearQuestion()
 		_currentQuestion.options.clear();
 		_currentQuestion.answer.clear();
 		_currentQuestion.hasAnswer = false;
+		_currentQuestion.multiSelect = false;
 	}
 
 	// 构造 JSON 消息

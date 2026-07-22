@@ -46,7 +46,7 @@ public:
 	virtual void StopPauseFlow(bool stop)	{	}
 
 	// Question/Answer 相关方法
-	virtual __int64 AddQuestion(const std::wstring& messageId, const std::wstring& question, const std::vector<std::wstring>& options) { return 0; }
+	virtual __int64 AddQuestion(const std::wstring& messageId, const std::wstring& question, const std::vector<std::wstring>& options, bool multiSelect = false) { return 0; }
 	virtual bool GetQuestionAnswer(__int64 questionId, std::wstring& answer) { return false; }
 	virtual bool HasQuestionAnswer(__int64 questionId) { return false; }
 	virtual void ClearQuestion() { }

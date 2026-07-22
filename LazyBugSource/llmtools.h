@@ -34,6 +34,8 @@ struct LlmToolCall
 					return true;
 				if (!params_string.empty())
 					return true;
+				if (!params_bool.empty())
+					return true;
 				if (IsComplete())
 					return true;
 			}
@@ -47,12 +49,14 @@ struct LlmToolCall
 	bool ExistParam(const char* param);
 	bool GetStringParam(const char* param, std::string& value);
 	bool GetIntParam(const char* param, int& value);
+	bool GetBoolParam(const char* param, bool& value);
 
 	LlmToolType tp;
 	std::string id;
 	std::string mcpName;  // MCP工具名称(仅当tp==Mcp时有效)
 	std::unordered_map<std::string, std::string> params_string;
 	std::unordered_map<std::string, int> params_int;
+	std::unordered_map<std::string, bool> params_bool;
 	std::string raw_arguments;
 	std::string thoughtSignature;
 	bool isComplete;
@@ -121,6 +125,7 @@ public:
 	void AppendToolDesc(const char* desc);//添加一段字串到tool的描述信息
 	void AddToolPara_String(const char* name, const char* description, bool isRequired);//添加字符串参数
 	void AddToolPara_Integer(const char* name, const char* description, bool isRequired);//添加整数参数
+	void AddToolPara_Boolean(const char* name, const char* description, bool isRequired);//添加布尔参数
 	void EndTool();//结束tool的定义
 
 	//填充tool数据到Json对象
