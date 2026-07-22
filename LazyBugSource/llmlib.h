@@ -68,6 +68,7 @@ struct LlmApi
 		, providerTypeName("")
 		, cacheControlType(LlmApiCacheControlType::Auto)
 		, enable(true)
+		, temperature(0.0f)
 	{
 
 	}
@@ -91,6 +92,7 @@ struct LlmApi
 		, cacheControlType(_cacheControlType)
 		, tools(_tools)
 		, enable(true)
+		, temperature(0.0f)
 	{
 
 	}
@@ -104,6 +106,7 @@ struct LlmApi
 	float priceOutputToken;
 	float priceCacheRead;
 	float priceCacheWrite;
+	float temperature;
 	LlmThinkingMode thinkingMode;
 	LlmApiRole role;
 	LlmApiProviderTypeName providerTypeName;

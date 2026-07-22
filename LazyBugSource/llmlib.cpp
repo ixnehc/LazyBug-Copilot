@@ -866,6 +866,7 @@ LlmApi* CLlmLib::AddApi(const LlmApiProviderTypeName& providerName, const std::s
 	newApi.priceCacheRead = 0;
 	newApi.priceCacheWrite = 0;
 	newApi.thinkingMode = LlmThinkingMode::Auto;
+	newApi.temperature = 0.0f;
 	newApi.role = LlmApiRole::Agent;
 	_apis.push_back(newApi);
 	return &_apis.back();

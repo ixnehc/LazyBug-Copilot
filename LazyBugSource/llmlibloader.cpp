@@ -513,6 +513,13 @@ void CLlmLibLoader::LoadInto(std::vector<LlmApiProvider>& providers, std::vector
 		else
 			api.priceCacheWrite = api.priceOutputToken;
 
+		// 读取temperature
+		it = section.keyValues.find("temperature");
+		if (it != section.keyValues.end())
+			api.temperature = (float)atof(it->second.c_str());
+		else
+			api.temperature = 0.0f;
+
 		// 读取thinkingMode
 		it = section.keyValues.find("thinkingMode");
 		if (it != section.keyValues.end())
@@ -643,6 +650,7 @@ void CLlmLibLoader::SaveJsonFile(CLlmLib& lib, const char* jsonFilePath)
 		jApi["priceOutputToken"] = api.priceOutputToken;
 		jApi["priceCacheRead"] = api.priceCacheRead;
 		jApi["priceCacheWrite"] = api.priceCacheWrite;
+		jApi["temperature"] = api.temperature;
 		jApi["thinkingMode"] = ThinkingModeToString(api.thinkingMode);
 		jApi["role"] = RoleToString(api.role);
 		jApi["providerTypeName"] = api.providerTypeName;
@@ -726,6 +734,7 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 				api.priceOutputToken = jApi.value("priceOutputToken", 0.0f);
 				api.priceCacheRead = jApi.value("priceCacheRead", api.priceInputToken);
 				api.priceCacheWrite = jApi.value("priceCacheWrite", api.priceOutputToken);
+				api.temperature = jApi.value("temperature", 0.0f);
 				api.thinkingMode = ParseThinkingMode(jApi.value("thinkingMode", "").c_str());
 				api.cacheControlType = ParseCacheControlType(jApi.value("cacheControl", "").c_str());
 				api.enable = jApi.value("enable", true);  // 默认为true

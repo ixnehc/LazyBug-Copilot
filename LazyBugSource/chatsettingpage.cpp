@@ -689,6 +689,7 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
                     if (jsonMsg.contains("priceOutputToken")) UpdateApiField(utf8_to_widechar(apiName), L"priceOutputToken", jsonMsg["priceOutputToken"]);
                     if (jsonMsg.contains("priceCacheRead")) UpdateApiField(utf8_to_widechar(apiName), L"priceCacheRead", jsonMsg["priceCacheRead"]);
                     if (jsonMsg.contains("priceCacheWrite")) UpdateApiField(utf8_to_widechar(apiName), L"priceCacheWrite", jsonMsg["priceCacheWrite"]);
+                    if (jsonMsg.contains("temperature")) UpdateApiField(utf8_to_widechar(apiName), L"temperature", jsonMsg["temperature"]);
                     if (jsonMsg.contains("thinkingMode")) UpdateApiField(utf8_to_widechar(apiName), L"thinkingMode", jsonMsg["thinkingMode"]);
                     if (jsonMsg.contains("cacheControl")) UpdateApiField(utf8_to_widechar(apiName), L"cacheControl", jsonMsg["cacheControl"]);
                     if (jsonMsg.contains("role")) UpdateApiField(utf8_to_widechar(apiName), L"role", jsonMsg["role"]);
@@ -1063,6 +1064,7 @@ void CChatSettingPage::SendProviderDataToWebView()
             jApi["priceOutputToken"] = api.priceOutputToken;
             jApi["priceCacheRead"]   = api.priceCacheRead;
             jApi["priceCacheWrite"]  = api.priceCacheWrite;
+            jApi["temperature"]      = api.temperature;
             jApi["thinkingMode"]     = thinkingToStr(api.thinkingMode);
             jApi["cacheControl"]     = cacheToStr(api.cacheControlType);
             jApi["providerTypeName"] = api.providerTypeName;
@@ -1316,6 +1318,8 @@ void CChatSettingPage::UpdateApiField(const std::wstring& apiNameW, const std::w
         api->priceCacheRead = value.get<float>();
     else if (field == "priceCacheWrite" && value.is_number())
         api->priceCacheWrite = value.get<float>();
+    else if (field == "temperature" && value.is_number())
+        api->temperature = value.get<float>();
     else if (field == "thinkingMode" && value.is_string())
     {
         std::string v = value.get<std::string>();
