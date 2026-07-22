@@ -208,6 +208,18 @@ HRESULT Util_OpenFileInEditor(const wchar_t* filePath, int line)
 				ts.iEndLine = line;
 				ts.iEndIndex = 0;
 				pTextView->EnsureSpanVisible(ts);
+
+				// 尝试将目标行滚动到可视区域中间
+				long iMinUnit = 0, iMaxUnit = 0, iVisibleUnits = 0, iFirstVisibleUnit = 0;
+				if (SUCCEEDED(pTextView->GetScrollInfo(1 /*SB_VERT*/, &iMinUnit, &iMaxUnit, &iVisibleUnits, &iFirstVisibleUnit))
+					&& iVisibleUnits > 0)
+				{
+					int desiredFirstLine = line - static_cast<int>(iVisibleUnits) / 2;
+					if (desiredFirstLine >= 0)
+					{
+						pTextView->SetTopLine(desiredFirstLine);
+					}
+				}
 			}
 		}
 	}
