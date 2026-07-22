@@ -1,5 +1,13 @@
 ﻿# LazyBug Version History
 
+## Version 0.22
+
+- Support background context compression, no more wait when starting a chat
+- Add a new AddMcpServer tool to allow LLM to set up MCP servers dynamically
+- Clicking symbol link now shows the symbol centered in the editor
+
+---
+
 ## Version 0.21
 
 - Added input hint feature, showing candidate completions while typing in the chat input

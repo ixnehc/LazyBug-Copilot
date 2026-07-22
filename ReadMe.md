@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI Coding Assistant Extension
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.21-blue)](doc/patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.22-blue)](doc/patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -27,10 +27,11 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 ---
 
-## Version 0.21 Release Notes
+## Version 0.22 Release Notes
 
-- Added input hint feature, showing candidate completions while typing in the chat input
-- Fixed a bug where writing would fail when modifying multiple files simultaneously
+- Support background context compression, no more wait when starting a chat
+- Add a new AddMcpServer tool to allow LLM to set up MCP servers dynamically
+- Clicking symbol link now shows the symbol centered in the editor
 
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 

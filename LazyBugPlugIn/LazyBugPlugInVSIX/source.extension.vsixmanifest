@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="EFCC5845-2A1D-42A8-A2A3-AF76E5FF3C01" Version="0.21" Language="en-US" Publisher="Ix Software" />
+        <Identity Id="EFCC5845-2A1D-42A8-A2A3-AF76E5FF3C01" Version="0.22" Language="en-US" Publisher="Ix Software" />
         <DisplayName>LazyBug Copilot</DisplayName>
         <Description xml:space="preserve">LazyBug is a "cursor-like" intelligent code assistant extension designed specifically for Visual Studio, integrating Large Language Model (LLM) capabilities to provide developers with intelligent code creation, refactoring, and Q&amp;A experiences. The extension supports multiple mainstream AI service providers, allowing developers to enjoy the convenience of AI-assisted programming within their familiar IDE environment.
 </Description>

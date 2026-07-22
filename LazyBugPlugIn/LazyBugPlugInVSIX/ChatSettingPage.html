@@ -1639,7 +1639,7 @@
                 pendingFocusApiName = newName;
                 // 构建消息（只传非空字段）
                 const msg = { action: 'addApiFromClipboard', providerName: provider.name, apiName: newName };
-                ['model','rule','maxToken','contextCapacity','priceInputToken','priceOutputToken','priceCacheRead','priceCacheWrite','thinkingMode','cacheControl','role','enable','tools','openRouterOptions'].forEach(f => {
+                ['model','rule','maxToken','contextCapacity','priceInputToken','priceOutputToken','priceCacheRead','priceCacheWrite','temperature','thinkingMode','cacheControl','role','enable','tools','openRouterOptions'].forEach(f => {
                     if (setting[f] !== undefined && setting[f] !== null) msg[f] = setting[f];
                 });
                 postMsg(msg);
@@ -1688,7 +1688,7 @@
                     if (typeof setting[f] === 'number' && setting[f] !== (api[f] || 0))
                         postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: setting[f] });
                 });
-                const floatFields = ['priceInputToken', 'priceOutputToken', 'priceCacheRead', 'priceCacheWrite'];
+                const floatFields = ['priceInputToken', 'priceOutputToken', 'priceCacheRead', 'priceCacheWrite', 'temperature'];
                 floatFields.forEach(f => {
                     if (typeof setting[f] === 'number' && setting[f] !== (api[f] || 0))
                         postMsg({ action: 'updateApiField', apiName: effectiveName, field: f, value: setting[f] });
@@ -1780,7 +1780,8 @@
         }
 
         // 辅助：绑定浮点数输入框（显示两位小数，无上下箭头）
-        function bindFloatInput(input, apiName, field) {
+        // min/max 可选，超出范围自动 clamp
+        function bindFloatInput(input, apiName, field, min, max) {
             let lastValue = input.value;
             input.addEventListener('focus', function() { 
                 lastValue = this.value; 
@@ -1791,6 +1792,8 @@
                 // 格式化为两位小数显示
                 let numVal = parseFloat(val);
                 if (isNaN(numVal)) numVal = 0;
+                if (typeof min === 'number') numVal = Math.max(min, numVal);
+                if (typeof max === 'number') numVal = Math.min(max, numVal);
                 this.value = numVal.toFixed(2);
                 if (val !== lastValue) {
                     postMsg({ action: 'updateApiField', apiName, field, value: numVal });
@@ -1866,6 +1869,14 @@
             priceCWInput.value = (api.priceCacheWrite || 0).toFixed(2);
             bindFloatInput(priceCWInput, api.name, 'priceCacheWrite');
             panel.appendChild(makeRow('Price/Cache Write', priceCWInput));
+
+            // temperature（浮点数，显示两位小数）
+            const tempInput = document.createElement('input');
+            tempInput.className = 'param-input';
+            tempInput.type = 'text';
+            tempInput.value = (api.temperature || 0).toFixed(2);
+            bindFloatInput(tempInput, api.name, 'temperature', 0, 1);
+            panel.appendChild(makeRow('Temperature', tempInput));
 
             // thinkingMode
             const thinkSel = document.createElement('select');
@@ -2363,6 +2374,7 @@
                                     priceOutputToken: api.priceOutputToken,
                                     priceCacheRead: api.priceCacheRead,
                                     priceCacheWrite: api.priceCacheWrite,
+                                    temperature: api.temperature,
                                     thinkingMode: api.thinkingMode,
                                     cacheControl: api.cacheControl,
                                     role: api.role,
