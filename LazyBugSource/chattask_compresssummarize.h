@@ -8,9 +8,8 @@ class CChatTask_CompressSummarize : public CChatTask
 public:
 	// workingOpIndex: CChatOpsCompress::_workingOps 的索引（Normal模式）或 CChatOpsCtrl::GetOps() 的索引（Evaluation/Immediate模式）
 	// summarizeApiName: 用于 summarize 的 API 名称
-	// originalTokenCount: 原始内容的 token 数量（已校准）
 	// mode: 模式
-	CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, int originalTokenCount, CompressSummarizeMode mode = CompressSummarizeMode::Normal);
+	CChatTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, CompressSummarizeMode mode = CompressSummarizeMode::Normal);
 
 	const char* GetType() override { return "CompressSummarize"; }
 	void Start() override;
@@ -33,7 +32,6 @@ private:
 	std::string _MakeShortResultString(bool success, const std::string& reason, int originalTokens = 0, int compressedTokens = 0);
 
 	std::string _textToCompress;
-	int _originalTokenCount;
 	std::string _resultMessage;  // 用于 UI 显示的简短结果信息
 
 	bool _hasStartedRequest;

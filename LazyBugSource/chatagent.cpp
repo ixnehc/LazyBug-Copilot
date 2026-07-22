@@ -17,6 +17,7 @@ void CChatAgent::Init(const char* chatFileName, ChatAgentContext& ctx, IChatUi *
 
 	_opsCtrl.Init(ctx);
 	_compressor.Init(&_opsCtrl, this);
+	_summarizer.Init(&_opsCtrl, this);
 
 	_ui = ui;
 	if (ui)
@@ -49,6 +50,7 @@ void CChatAgent::Shutdown()
 	_llmChat.Clear();
 
 	_compressor.Clear();
+	_summarizer.Clear();
 	_opsCtrl.Clear();
 
 	_aiMessageId.clear();
@@ -91,6 +93,8 @@ void CChatAgent::Update()
 	_compressor.UpdateCompress();
 	if (!IsWorking())
 		_compressor.UpdateCompressTriggering();
+
+	_summarizer.Update();
 
 	// 处理挂起的请求（等待 context 压缩完成）
 	if (_pendingRequest.valid)

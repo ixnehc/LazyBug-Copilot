@@ -2,6 +2,7 @@
 
 #include "ChatOpsCompress.h"
 #include "ChatOpsCtrl.h"
+#include "ChatAgent.h"
 #include "Utils.h"
 #include "Utils_Context.h"
 #include "ChatInputTag.h"
@@ -128,6 +129,7 @@ CChatOpsCompress::~CChatOpsCompress()
 void CChatOpsCompress::Init(CChatOpsCtrl* opsCtrl, CChatAgent* chatAgent)
 {
 	_opsCtrl = opsCtrl;
+	_agent = chatAgent;
 
 	ChatTaskContext ctx;
 	ctx.chatOpsCtrl = opsCtrl;
@@ -1117,11 +1119,6 @@ void CChatOpsCompress::_Pass_SummarizeSession(int startSessionAge, int endSessio
 			continue;
 		_summarized.insert(static_cast<int>(i));
 
-		float calibration = CTokenCalibrate::GetCalibrationFactor();
-		int nTokens = _EstimateSessionAIContentTokens(op);
-		if (nTokens < 300)
-			continue;
-
 		//
 		if (_summarizeApiName.empty())
 		{
@@ -1129,9 +1126,16 @@ void CChatOpsCompress::_Pass_SummarizeSession(int startSessionAge, int endSessio
 			continue;
 		}
 
+		// 如果 summarizer 正在工作，等它结束
+		if (_agent && _agent->GetSummarizer().IsSummarizing())
+			return;
+
+		int nTokens = _EstimateSessionAIContentTokens(op);
+		if (nTokens < 300)
+			continue;
+
 		// 启动异步压缩 task（结果会写回 op.newCompressedContents，下次 pass 时应用）
-		int originalTokenCount = static_cast<int>(nTokens * calibration);
-		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName, originalTokenCount);
+		_taskMgr.AddTask_CompressSummarize(static_cast<int>(i), _summarizeApiName);
 
 		return;
 	}

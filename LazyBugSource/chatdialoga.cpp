@@ -1514,7 +1514,7 @@ void CChatDialogA::_UpdateContextUsage()
 
 	if (true)
 	{
-		if (_agent.GetCompressor().IsSummarizing())
+		if (_agent.GetCompressor().IsSummarizing()||_agent.GetSummarizer().IsSummarizing())
 			_chatInput.StartContextLevelFlowing();
 		else
 			_chatInput.StopContextLevelFlowing();

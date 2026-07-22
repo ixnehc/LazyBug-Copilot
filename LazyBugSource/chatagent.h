@@ -8,6 +8,7 @@
 #include "ChatOpsCtrl.h"
 #include "ChatFileWriter.h"
 #include "ChatOpsCompress.h"
+#include "ChatOpsSummarizer.h"
 
 class CChatAgent
 {
@@ -203,6 +204,7 @@ public:
 	const std::vector<ChatOp>& GetOps() const { return _opsCtrl.GetOps(); }
 
 	CChatOpsCompress& GetCompressor()	{		return _compressor;	}
+	CChatOpsSummarizer& GetSummarizer()	{		return _summarizer;	}
 
 private:
     // ─────────────────────────────────────────────────────────────────────
@@ -250,6 +252,7 @@ private:
     CChatTaskMgr    _taskMgr;        // ToolCall 任务调度器
 	CChatFileWriter _chatFileWriter;
 	CChatOpsCompress _compressor;  // 压缩器
+	CChatOpsSummarizer _summarizer; // 后台总结器
 
     LlmSessionContext _lastCtx;     // 上一次/当前会话上下文
     LlmSessionUsage   _chatUsage;   // 本轮对话累积的 Token 用量

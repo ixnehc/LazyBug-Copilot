@@ -596,6 +596,9 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_AddMcpServer.cpp">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatOpsSummarizer.cpp">
+      <Filter>Core\ChatAgent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -1180,6 +1183,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatOpsSummarizer.h">
+      <Filter>Core\ChatAgent</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

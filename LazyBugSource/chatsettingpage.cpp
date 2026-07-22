@@ -1472,13 +1472,9 @@ void CChatSettingPage::EvaluateCompressSummarize(const std::wstring& summarizeAp
 	// 为每个 session 创建 evaluation task
 	for (int sessionEndIndex : sessionEnds)
 	{
-		// 估算 token 数
-		int nTokens = pOpsCtrl->EstimateUncompressedSessionAIContentToken(sessionEndIndex, CChatOpsCompress::GetSessionSummarizeToolTypes());
-		int originalTokenCount = static_cast<int>(nTokens * CTokenCalibrate::GetCalibrationFactor());
-
 		// 添加 evaluation task
 		std::string apiNameUtf8 = widechar_to_utf8(summarizeApiName.c_str());
-		_taskMgr.AddTask_CompressSummarize(sessionEndIndex, apiNameUtf8, originalTokenCount, CompressSummarizeMode::Evaluation);
+		_taskMgr.AddTask_CompressSummarize(sessionEndIndex, apiNameUtf8, CompressSummarizeMode::Evaluation);
 	}
 }
 

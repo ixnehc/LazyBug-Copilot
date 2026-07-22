@@ -3104,7 +3104,14 @@ void CChatOpsCtrl::SetOpCompressedContent(int index, int level, const std::strin
 {
 	if (index < 0 || index >= static_cast<int>(_ops.size()))
 		return;
+
+	// 不能写入已被 disable 的 op
+	int disableAfter = _GetDisableAfterIndex();
+	if (index >= disableAfter)
+		return;
+
 	_ops[index].compressedContents.insert_or_assign(level, content);
+	_ver++;
 }
 
 void CChatOpsCtrl::_IterateSessionAIContent(int targetSrcIndex, 

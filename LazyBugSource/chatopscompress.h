@@ -208,6 +208,7 @@ private:
 
 private:
 	CChatOpsCtrl* _opsCtrl = nullptr;
+	CChatAgent* _agent = nullptr;
 	Env _env;
 
 	static constexpr int _compressTimeLimitMs = 20;  // 每次压缩时间限制（毫秒）
