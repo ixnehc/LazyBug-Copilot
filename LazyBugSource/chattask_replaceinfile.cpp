@@ -954,16 +954,46 @@ void CChatTask_ReplaceInFile::Update()
 			}
 			else
 			{
-				if (!ReplaceInFileAccurately(oldContent, _oldLines.c_str(), _newLines.c_str(), newContent, errorMessage, oldLineRange, newLineRange))
+			if (!ReplaceInFileAccurately(oldContent, _oldLines.c_str(), _newLines.c_str(), newContent, errorMessage, oldLineRange, newLineRange))
 				{
-					newContent = "";
-					newContent = newContent + FILE_EDIT_RESULT_ERROR_PREFIX + "Code replacing failure: " + errorMessage + " !";
-					newContent += "\n";
-					newContent += "***old lines***\n";
-					newContent += _oldLines;
-					newContent += "\n";
-					newContent += "***new lines***\n";
-					newContent += _newLines;
+					bool fallbackSuccess = false;
+					// Fallback: if both oldLines and newLines are single-line, try simple string replacement
+					if (_oldLines.find('\n') == std::string::npos && _newLines.find('\n') == std::string::npos)
+					{
+						size_t pos = oldContent.find(_oldLines);
+						if (pos != std::string::npos)
+						{
+							// Ensure only one match in the entire file
+							if (oldContent.find(_oldLines, pos + _oldLines.length()) == std::string::npos)
+							{
+								newContent = oldContent.substr(0, pos) + _newLines + oldContent.substr(pos + _oldLines.length());
+								int lineNo = 0;
+								for (size_t i = 0; i < pos && i < oldContent.length(); i++)
+								{
+									if (oldContent[i] == '\n') lineNo++;
+								}
+								oldLineRange.start = oldLineRange.end = static_cast<UINT16>(lineNo);
+								newLineRange.start = newLineRange.end = static_cast<UINT16>(lineNo);
+								fallbackSuccess = true;
+							}
+							else
+							{
+								errorMessage = "Multiple matches found in the file";
+							}
+						}
+					}
+
+					if (!fallbackSuccess)
+					{
+						newContent = "";
+						newContent = newContent + FILE_EDIT_RESULT_ERROR_PREFIX + "Code replacing failure: " + errorMessage + " !";
+						newContent += "\n";
+						newContent += "***old lines***\n";
+						newContent += _oldLines;
+						newContent += "\n";
+						newContent += "***new lines***\n";
+						newContent += _newLines;
+					}
 				}
 			}
 
