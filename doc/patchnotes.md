@@ -1,5 +1,11 @@
 ﻿# LazyBug Version History
 
+## Version 0.22.1
+
+- Enhanced the Question tool with multi-select support and manual answer input
+
+---
+
 ## Version 0.22
 
 - Support background context compression, no more wait when starting a chat
