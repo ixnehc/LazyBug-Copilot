@@ -23,6 +23,8 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 ![introduce](./media/introduce_new.gif)
 
+▶️ [Watch the Introduction Video](https://www.youtube.com/watch?v=5fkBt-1-Q6g)
+
 </div>
 
 ---
