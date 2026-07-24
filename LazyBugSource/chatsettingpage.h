@@ -10,6 +10,7 @@
 #include "LlmLib.h"
 
 #include "ChatTaskMgr.h"
+#include "ChatSettingProviderTab.h"
 
 // 回调函数类型定义
 using SettingPageNavigationCompletedCallback = std::function<void(bool)>;
@@ -65,24 +66,7 @@ public:
     void SetActiveTab(const std::wstring& tabId);
     void ClearTabs();
 
-    // Provider数据处理方法
-    void LoadProviderData();
-    void SendProviderDataToWebView();
-    void SendCapabilityStatusToWebView();
-    void SendCastSheetDataToWebView();
-    void UpdateCastSheetApi(const std::wstring& apiType, const std::wstring& apiName);
-    void UpdateProviderKey(const std::wstring& providerTypeName, const std::wstring& key);
-    void UpdateProviderName(const std::wstring& oldName, const std::wstring& newName);
-    void UpdateProviderEndpoint(const std::wstring& providerName, const std::wstring& endpoint);
-    void UpdateProviderFormat(const std::wstring& providerName, const std::wstring& format);
-    void UpdateApiName(const std::wstring& oldName, const std::wstring& newName);
-    void UpdateApiField(const std::wstring& apiName, const std::wstring& field, const nlohmann::json& value);
-    void AddProvider(const std::wstring& name);
-    void DeleteProvider(const std::wstring& name);
-    void AddApi(const std::wstring& providerName, const std::wstring& apiName);
-    void DeleteApi(const std::wstring& name);
-    
-    // Provider验证方法
+    // Provider验证方法（外部调用，转发到 _providerTab）
     void StartValidatingProvider(const LlmApiProviderTypeName& providerTypeName);
     void EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available);
 	bool IsValidatingProvider();
@@ -133,6 +117,9 @@ private:
     std::vector<SettingTab> _tabs;
     std::wstring _activeTabId;
     
+    // Provider Tab 逻辑控制器
+    CChatSettingProviderTab _providerTab;
+    
     // 检查WebView和Setting是否已初始化
     bool _IsReady() const;
     
@@ -147,9 +134,6 @@ private:
     std::wstring _EscapeJsonString(const std::wstring& str);
     std::wstring _BuildTabsJson();
     
-    // 保存g_llmLib到llm.json
-    void _SaveLlmJson();
-    
     // 查找Tab
     SettingTab* _FindTab(const std::wstring& tabId);
     
@@ -161,11 +145,4 @@ private:
     void _HandleWebMessage(const std::wstring& message);
 
 	CChatTaskMgr _taskMgr;
-
-	// 压缩评估相关
-	bool _isEvaluatingSummarize;  // 是否正在进行压缩评估
-	void EvaluateCompressSummarize(const std::wstring& summarizeApiName);
-
-	// 延迟显示的消息（因为webview回调中不能直接弹出MessageBox）
-	bool _needShowNoApiForValidation;
 };

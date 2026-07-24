@@ -1,0 +1,990 @@
+/* ===== Provider & API Tab - CSS ===== */
+
+/* Provider列表样式 */
+.providers-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 0;
+}
+
+/* Cast Sheet面板样式 */
+.cast-sheet-panel {
+    width: 100%;
+    padding: 14px 16px 12px 16px;
+    margin: 10px 0 8px 0;
+    border-radius: 8px;
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 1px solid #505050;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.cast-sheet-panel.has-value {
+    border-color: rgba(76, 175, 80, 0.5);
+    background-color: rgba(76, 175, 80, 0.08);
+    box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.1), inset 0 1px 0 rgba(76, 175, 80, 0.05);
+}
+
+.cast-sheet-panel.has-value .cast-sheet-title {
+    color: #4caf50;
+}
+
+.cast-sheet-panel.no-value {
+    border-color: rgba(244, 67, 54, 0.5);
+    background-color: rgba(244, 67, 54, 0.08);
+    box-shadow: 0 0 0 1px rgba(244, 67, 54, 0.1), inset 0 1px 0 rgba(244, 67, 54, 0.05);
+}
+
+.cast-sheet-panel.no-value .cast-sheet-title {
+    color: #f44336;
+}
+
+.cast-sheet-title {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #888;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 12px;
+    background-color: #1a1a1a;
+    white-space: nowrap;
+}
+
+.cast-sheet-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    height: 28px;
+}
+
+.cast-sheet-row:last-child {
+    margin-bottom: 0;
+}
+
+.cast-sheet-label {
+    font-size: 0.8em;
+    color: #aaa;
+    flex-shrink: 0;
+    width: 150px;
+    text-align: right;
+    padding-right: 12px;
+}
+
+.cast-sheet-select {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 0.8em;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 12px;
+    padding-right: 22px;
+}
+
+.cast-sheet-select:focus {
+    outline: none;
+    border-color: var(--primary-color-hover);
+    background-color: #252525;
+}
+
+.cast-sheet-select option {
+    background: #1a1a1a;
+    color: var(--text-color);
+}
+
+.cast-sheet-btn {
+    flex-shrink: 0;
+    margin-left: 8px;
+    padding: 4px 12px;
+    background: var(--button-bg);
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 0.8em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    height: 26px;
+}
+
+.cast-sheet-btn:hover {
+    background: var(--button-hover);
+    border-color: var(--primary-color);
+}
+
+.cast-sheet-btn-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid transparent;
+    border-top-color: var(--primary-color);
+    border-right-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: none;
+}
+
+.cast-sheet-btn.loading .cast-sheet-btn-spinner {
+    display: block;
+}
+
+.cast-sheet-btn.loading .cast-sheet-btn-text {
+    display: none;
+}
+
+.cast-sheet-btn.loading {
+    pointer-events: none;
+}
+
+.cast-sheet-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Provider列表区域 */
+.providers-list-area {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+    padding: 5px;
+}
+
+.provider-item {
+    background: #020a06;
+    border: 1px solid #0a301d;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    padding: 8px 12px;
+    transition: box-shadow 0.2s ease;
+}
+
+.provider-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.provider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    margin: -8px -12px 8px -12px;
+    background: #0a1f12;
+    border-radius: 8px 8px 0 0;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.3);
+    position: relative;
+}
+.provider-header:hover {
+    background: #0c2818;
+}
+
+.provider-header:hover .delete-provider-btn,
+.provider-header:hover .copy-provider-btn,
+.provider-header:hover .paste-provider-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Provider/API 删除按钮 */
+.delete-provider-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 1px solid #999;
+    color: #aaa;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, border-color 0.15s ease, color 0.15s ease;
+    position: relative;
+    flex-shrink: 0;
+    margin-left: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+}
+
+.delete-provider-btn::before {
+    content: '×';
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    margin-top: -1px;
+}
+
+.delete-provider-btn:hover {
+    border-color: #ccc;
+    color: #ccc;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.delete-provider-btn:active {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 长按进度环 */
+.delete-provider-btn .progress-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    transform: translate(-50%, -50%) rotate(-90deg);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.delete-provider-btn.deleting .progress-ring {
+    opacity: 1;
+}
+
+.delete-provider-btn .progress-ring circle {
+    fill: none;
+    stroke-width: 2;
+}
+
+.delete-provider-btn .progress-ring .progress-bg {
+    stroke: rgba(255, 255, 255, 0.1);
+}
+
+.delete-provider-btn .progress-ring .progress-fill {
+    stroke: #aaa;
+    stroke-dasharray: 72.26;
+    stroke-dashoffset: 72.26;
+    transition: stroke-dashoffset 0.1s linear;
+}
+
+.delete-provider-btn.deleting .progress-fill {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 3s linear;
+}
+
+/* API 标题栏 hover 显示删除/复制/粘贴按钮 */
+.api-header-bar:hover .delete-provider-btn,
+.api-header-bar:hover .copy-provider-btn,
+.api-header-bar:hover .paste-provider-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* API 行内的复制/粘贴按钮 */
+.api-header-bar .copy-provider-btn,
+.api-header-bar .paste-provider-btn {
+    width: 24px;
+    height: 24px;
+}
+.api-header-bar .copy-provider-btn svg,
+.api-header-bar .paste-provider-btn svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* Provider/API Copy & Paste 按钮 */
+.copy-provider-btn, .paste-provider-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, border-color 0.15s ease, background-color 0.15s ease;
+    position: relative;
+    flex-shrink: 0;
+    margin-left: 8px;
+    user-select: none;
+    -webkit-user-select: none;
+    box-sizing: border-box;
+}
+
+.copy-provider-btn:hover, .paste-provider-btn:hover, .add-paste-provider-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.copy-provider-btn:active, .paste-provider-btn:active, .add-paste-provider-btn:active {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.add-paste-provider-btn {
+    width: 26px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.add-paste-provider-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: #666;
+    stroke-width: 1.5;
+    pointer-events: none;
+}
+
+.add-paste-provider-btn.pasted svg {
+    stroke: #4caf50;
+}
+
+.copy-provider-btn svg, .paste-provider-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: #aaa;
+    stroke-width: 1.5;
+    pointer-events: none;
+}
+
+.copy-provider-btn.copied svg, .paste-provider-btn.pasted svg {
+    stroke: #4caf50;
+}
+
+.copy-provider-btn.copied, .paste-provider-btn.pasted {
+    border-color: #4caf50;
+}
+
+.provider-name-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.provider-name {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.provider-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.provider-status-dot.available {
+    background: radial-gradient(circle at 25% 25%, 
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.5) 10%,
+        rgba(200, 230, 201, 0.8) 15%,
+        rgba(76, 175, 80, 0.7) 30%,
+        rgba(56, 142, 60, 0.8) 60%,
+        rgba(46, 125, 50, 0.9) 85%,
+        rgba(27, 94, 32, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(0.5px);
+    box-shadow: 
+        0 3px 6px rgba(46, 125, 50, 0.4),
+        0 1px 12px rgba(76, 175, 80, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 20px rgba(76, 175, 80, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.9),
+        inset 1px 0 1px rgba(255, 255, 255, 0.7),
+        inset 0.5px 0.5px 1px rgba(255, 255, 255, 0.5),
+        inset 0 -1px 1px rgba(27, 94, 32, 0.5),
+        inset -1px 0 1px rgba(27, 94, 32, 0.4),
+        inset -0.5px -0.5px 0.5px rgba(27, 94, 32, 0.3);
+    position: relative;
+    opacity: 0.95;
+}
+
+.provider-status-dot.available::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 2px;
+    width: 2.5px;
+    height: 2.5px;
+    background: radial-gradient(ellipse at 40% 40%, 
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 255, 255, 0.8) 30%,
+        rgba(255, 255, 255, 0.4) 60%,
+        transparent 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.95;
+}
+
+.provider-status-dot.available::after {
+    content: '';
+    position: absolute;
+    top: 6.5px;
+    left: 6.5px;
+    width: 1.5px;
+    height: 1.5px;
+    background: radial-gradient(circle, 
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.provider-status-dot.unavailable {
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle at 25% 25%, 
+        rgba(255, 255, 255, 0.9) 0%,
+        rgba(255, 255, 255, 0.5) 10%,
+        rgba(255, 182, 193, 0.8) 15%,
+        rgba(244, 67, 54, 0.7) 30%,
+        rgba(211, 47, 47, 0.8) 60%,
+        rgba(183, 28, 28, 0.9) 85%,
+        rgba(136, 14, 79, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(0.5px);
+    box-shadow: 
+        0 3px 6px rgba(183, 28, 28, 0.4),
+        0 1px 12px rgba(244, 67, 54, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.2),
+        0 0 20px rgba(244, 67, 54, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.9),
+        inset 1px 0 1px rgba(255, 255, 255, 0.7),
+        inset 0.5px 0.5px 1px rgba(255, 255, 255, 0.5),
+        inset 0 -1px 1px rgba(136, 14, 79, 0.5),
+        inset -1px 0 1px rgba(136, 14, 79, 0.4),
+        inset -0.5px -0.5px 0.5px rgba(136, 14, 79, 0.3);
+    position: relative;
+    opacity: 0.95;
+}
+
+.provider-status-dot.validating {
+    width: 12px;
+    height: 12px;
+    background: transparent;
+    border: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    position: relative;
+    opacity: 1;
+}
+
+.provider-status-dot.validating::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border: 3px solid rgba(244, 67, 54, 0.8);
+    border-radius: 50%;
+    border-top: 3px solid transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.provider-item:hover .provider-key-input:focus {
+    border-color: var(--primary-color);
+}
+
+.provider-key-section {
+    margin-top: 8px;
+    cursor: text;
+}
+
+.provider-key-input {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: #1a1a1a;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 0.9em;
+    font-family: monospace;
+    transition: border-color 0.2s ease;
+}
+
+.provider-key-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 77, 64, 0.2);
+    background-color: #252525;
+}
+
+.provider-key-input::placeholder {
+    color: #666;
+}
+
+.provider-separator {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-color), transparent);
+    margin: 24px 0;
+}
+
+.providers-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+}
+
+/* ===== Provider / API 树形编辑样式 ===== */
+
+.provider-expanded-area {
+    background-color: #141414;
+    margin: 8px -10px -10px -10px;
+    padding: 10px;
+    border-radius: 0 0 6px 6px;
+}
+
+.api-expanded-area {
+    background-color: #141414;
+    margin: 6px -8px -8px -8px;
+    padding: 8px;
+    border-radius: 0 0 4px 4px;
+}
+
+.add-provider-button {
+    width: 36px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+    padding-bottom: 2px;
+}
+
+.add-provider-button:hover {
+    border-color: #888;
+    color: #888;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.add-provider-button:active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.api-header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    margin: -4px -8px 8px -8px;
+    height: 28px;
+}
+.api-header-bar:hover {
+    background-color: #252525;
+}
+.api-header-bar span {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+    padding: 0 16px 0 10px;
+    height: 100%;
+    line-height: 28px;
+    border-radius: 3px 0 0 3px;
+    display: inline-block;
+}
+.api-header-bar:hover span {
+    background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+}
+.api-header-bar .api-name-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    background: linear-gradient(90deg, #073820 0%, #082d18 60%, #1a1a1a 100%);
+    border-radius: 3px 0 0 3px;
+    padding-right: 16px;
+}
+.api-header-bar:hover .api-name-container {
+    background: linear-gradient(90deg, #0a5230 0%, #0a4d28 60%, #252525 100%);
+}
+.api-header-bar .delete-provider-btn {
+    width: 16px;
+    height: 16px;
+    font-size: 14px;
+    margin-right: 12px;
+}
+
+.api-enable-checkbox {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-left: 11px;
+    margin-right: 6px;
+    margin-top: 2px;
+    background-color: #1a1a1a;
+    border: 1px solid #666;
+    border-radius: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+}
+.api-enable-checkbox:hover {
+    border-color: #888;
+}
+.api-enable-checkbox:checked {
+    background-color: #333;
+    border-color: #888;
+}
+.api-enable-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 4px;
+    height: 8px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.provider-edit-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    margin-bottom: 4px;
+}
+.provider-edit-row:last-child {
+    margin-bottom: 0;
+}
+.provider-edit-label {
+    font-size: 0.78em;
+    color: #888;
+    flex-shrink: 0;
+    min-width: 65px;
+    text-align: right;
+}
+.provider-edit-input {
+    flex: 1;
+    padding: 4px 8px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 3px;
+    color: var(--text-color);
+    font-size: 0.85em;
+    font-family: inherit;
+    height: 24px;
+    box-sizing: border-box;
+}
+.provider-edit-input:focus {
+    outline: none;
+    border-color: var(--primary-color-hover);
+    background: #252525;
+}
+
+select.provider-edit-input {
+    height: 26px;
+    padding: 2px 6px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 14px;
+    padding-right: 24px;
+}
+
+.inline-input {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: var(--text-color);
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    padding: 1px 4px;
+    min-width: 60px;
+    max-width: 100%;
+    transition: border-color 0.15s, background 0.15s;
+}
+.inline-input:hover {
+    border-color: var(--border-color);
+    background: #252525;
+}
+.inline-input:focus {
+    outline: none;
+    border-color: var(--primary-color-hover);
+    background: #252525;
+}
+
+.expand-btn {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 0 4px;
+    font-size: 0.85em;
+    line-height: 1;
+    transition: color 0.15s;
+    flex-shrink: 0;
+}
+.expand-btn:hover { color: var(--text-color); }
+
+.provider-endpoint-section {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.provider-endpoint-label {
+    font-size: 0.78em;
+    color: #888;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+.provider-endpoint-input {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    background: #1a1a1a;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    color: var(--text-color);
+    font-size: 0.82em;
+    font-family: monospace;
+}
+.provider-endpoint-input:focus {
+    outline: none;
+    border-color: var(--primary-color-hover);
+    background: #252525;
+}
+
+.provider-apis-section {
+    margin-top: 10px;
+    border-top: 1px solid #2e2e2e;
+    padding-top: 8px;
+}
+.provider-apis-label {
+    font-size: 0.75em;
+    color: #666;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+    line-height: 1;
+}
+
+.apis-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.add-api-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s ease, color 0.15s ease;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    margin-top: -2px;
+}
+
+.add-api-btn::before {
+    content: '+';
+    line-height: 1;
+}
+
+.add-api-btn:hover {
+    border-color: #888;
+    color: #888;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.add-api-btn:active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.add-api-paste-btn {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+.add-api-paste-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: #666;
+    stroke-width: 1.5;
+    pointer-events: none;
+}
+.add-api-paste-btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+.add-api-paste-btn.pasted svg {
+    stroke: #4caf50;
+}
+
+.apis-none {
+    font-size: 0.85em;
+    color: #555;
+    font-style: italic;
+    padding: 8px 0;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    margin-top: 4px;
+}
+
+.api-item {
+    margin: 2px 0;
+    border-radius: 4px;
+    background: #181818;
+    border: 1px solid #2a2a2a;
+    overflow: hidden;
+}
+.api-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+}
+.api-name-input {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.88em;
+    font-weight: 500;
+}
+
+.api-params {
+    padding: 8px 10px 10px 10px;
+    border-top: 1px solid #242424;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+}
+.param-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.param-row.full-width {
+    grid-column: 1 / -1;
+}
+.param-label {
+    font-size: 0.72em;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.param-input {
+    padding: 3px 7px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 3px;
+    color: var(--text-color);
+    font-size: 0.88em;
+    font-weight: 500;
+    width: 100%;
+}
+.param-input:focus {
+    outline: none;
+    border-color: var(--primary-color-hover);
+    background: #252525;
+}
+
+.param-input[type="number"]::-webkit-outer-spin-button,
+.param-input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.param-input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.param-select {
+    padding: 3px 7px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 3px;
+    color: var(--text-color);
+    font-size: 0.88em;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+}
+.param-select:focus {
+    outline: none;
+    border-color: var(--primary-color-hover);
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+}
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8em;
+    color: #aaa;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.checkbox-label input[type=checkbox] {
+    accent-color: var(--primary-color-hover);
+    cursor: pointer;
+}

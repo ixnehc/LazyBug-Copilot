@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="chatsettingpage_providers.css">
+    <style>
+        :root {
+            --body-bg: #121212; /* 黑色背景 */
+            --text-color: #e0e0e0; /* 浅灰色文字 */
+            --primary-color: #004d40; /* 深青色主色调 */
+            --primary-color-hover: #00796b; /* 青色悬停 */
+            --secondary-bg: #1e1e1e; /* 深灰色次要背景 */
+            --border-color: #404040; /* 边框颜色 */
+            --tab-active-bg: #004d40; /* 激活Tab背景 */
+            --tab-inactive-bg: #303030; /* 非激活Tab背景 */
+            --hover-bg: #3a3a3a; /* 悬停背景 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 设置容器 */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* 标题栏 */
+        .settings-header {
+            background-color: var(--secondary-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 20px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* 标题栏右侧按钮区域 */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 退出按钮样式 */
+        .exit-button {
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .exit-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .exit-button:active {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: scale(0.95);
+        }
+
+        /* 退出按钮图标 */
+        .exit-button::before {
+            content: "✕";
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Tab导航区 */
+        .tab-navigation {
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-x: auto;
+        }
+
+        .tab-list {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            min-width: 100%;
+        }
+
+        .tab-item {
+            flex-shrink: 0;
+        }
+
+        .tab-button {
+            display: block;
+            padding: 12px 20px;
+            background-color: var(--tab-inactive-bg);
+            color: var(--text-color);
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            font-size: 0.9em;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tab-button:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .tab-button.active {
+            background-color: var(--tab-active-bg);
+            border-bottom-color: var(--primary-color-hover);
+            color: #e0f2f1;
+        }
+
+        /* 内容区域 */
+        .content-area {
+            flex: 1;
+            overflow: hidden; /* 改为hidden，不让content-area本身滚动 */
+            padding: 0; /* 移除padding，让子容器自己处理 */
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none;
+            height: 100%; /* 占满父容器高度 */
+            overflow: hidden; /* 不让tab-content本身滚动 */
+        }
+
+        .tab-content.active {
+            display: flex; /* 改为flex布局 */
+            flex-direction: column; /* 垂直布局 */
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            flex: 1; /* 占满剩余空间 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state-text {
+            font-size: 1.2em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .empty-state-subtext {
+            font-size: 0.95em;
+            opacity: 0.6;
+            line-height: 1.5;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content-area {
+                padding: 5px;
+            }
+
+            .settings-header {
+                padding: 12px 15px;
+            }
+
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.85em;
+            }
+
+            .empty-state {
+                padding: 40px 15px;
+            }
+
+            .empty-state-icon {
+                font-size: 3em;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #202020;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+
+        /* Tab内容容器 */
+        #tab-contents {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Provider相关样式已移至 chatsettingpage_providers.css */
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <!-- 标题栏 -->
+        <div class="settings-header">
+            <h1 class="settings-title">Settings</h1>
+            <div class="header-actions">
+                <button class="exit-button" onclick="handleExitButtonClick()"></button>
+            </div>
+        </div>
+
+        <!-- Tab导航 -->
+        <nav class="tab-navigation">
+            <ul class="tab-list" id="tab-list">
+                <!-- Tab项将通过JavaScript动态添加 -->
+            </ul>
+        </nav>
+
+        <!-- 内容区域 -->
+        <div class="content-area">
+            <div id="tab-contents">
+                <!-- Tab内容将通过JavaScript动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="chatsettingpage_providers.js"></script>
+    <script>
+        // 全局状态
+        let currentTabs = [];
+        let activeTabId = 'providers';
+
+        // DOM元素
+        const tabList = document.getElementById('tab-list');
+        const tabContents = document.getElementById('tab-contents');
+
+        // 设置Tab数据
+        function setTabs(tabs) {
+            currentTabs = tabs;
+            renderTabs();
+            renderTabContents();
+        }
+
+        // 渲染Tab导航
+        function renderTabs() {
+            tabList.innerHTML = '';
+            
+            currentTabs.forEach(tab => {
+                const li = document.createElement('li');
+                li.className = 'tab-item';
+                
+                const button = document.createElement('button');
+                button.className = 'tab-button' + (tab.id === activeTabId ? ' active' : '');
+                button.textContent = tab.title;
+                button.onclick = () => switchTab(tab.id);
+                
+                li.appendChild(button);
+                tabList.appendChild(li);
+            });
+        }
+
+        // 渲染Tab内容
+        function renderTabContents() {
+            tabContents.innerHTML = '';
+            
+            currentTabs.forEach(tab => {
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'tab-content' + (tab.id === activeTabId ? ' active' : '');
+                contentDiv.id = `tab-content-${tab.id}`;
+                
+                if (tab.id === 'providers') {
+                    createProvidersTabContent(contentDiv);
+                } else {
+                    // 其他tab显示空状态
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    
+                    let icon = '⚙️';
+                    let title = 'Settings Coming Soon';
+                    let subtitle = 'This section will contain configuration options in the future.';
+                    
+                    if (tab.id === 'general') {
+                        icon = '🔧';
+                        title = 'General Settings';
+                        subtitle = 'Basic application preferences and interface options will be available here.';
+                    }
+                    
+                    emptyState.innerHTML = `
+                        <div class="empty-state-icon">${icon}</div>
+                        <div class="empty-state-text">${title}</div>
+                        <div class="empty-state-subtext">${subtitle}</div>
+                    `;
+                    
+                    contentDiv.appendChild(emptyState);
+                }
+                
+                tabContents.appendChild(contentDiv);
+            });
+        }
+
+        // 处理退出按钮点击
+        function handleExitButtonClick() {
+            if (window.chrome && window.chrome.webview) {
+                window.chrome.webview.postMessage({
+                    action: 'exitSettings'
+                });
+            }
+        }
+
+        // (Provider state variables, postMsg, onClipboardData, bindInlineInput, bindParamInput,
+        //  bindFloatInput, buildApiParams, setProviderData, startValidatingProvider,
+        //  endValidatingProvider, startEvaluateSummarize, endEvaluateSummarize,
+        //  updateEvaluateBtnState, requestProviderData, requestCapabilityStatus,
+        //  requestCastSheetData, setCastSheetData, createProvidersTabContent)
+        // have been moved to chatsettingpage_providers.js
+
+        // 切换Tab
+        function switchTab(tabId) {
+            if (tabId === activeTabId) return;
+            
+            activeTabId = tabId;
+            
+            // 更新Tab按钮状态
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 找到对应的按钮并添加active类
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => {
+                if (btn.textContent === currentTabs.find(t => t.id === tabId)?.title) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 更新Tab内容显示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-content-${tabId}`).classList.add('active');
+            
+            // 如果切换到providers tab，重新请求数据
+            if (tabId === 'providers') {
+                requestProviderData();
+                requestCastSheetData();
+            }
+            
+            // 发送Tab变更消息到C++
+            window.chrome.webview.postMessage({
+                action: 'tabChanged',
+                tabId: tabId
+            });
+        }
+
+        // 设置激活Tab
+        function setActiveTab(tabId) {
+            switchTab(tabId);
+        }
+
+        // 清空Tab
+        function clearTabs() {
+            currentTabs = [];
+            tabList.innerHTML = '';
+            tabContents.innerHTML = '';
+        }
+
+        // 监听键盘事件，ESC键关闭页面
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                postMsg({ action: 'exitSettings' });
+            }
+        });
+
+        // 监听来自C++的消息
+        window.chrome.webview.addEventListener('message', event => {
+            try {
+                const message = event.data;
+                
+                if (typeof message !== 'object' || message === null) {
+                    console.error('Received non-object message:', event.data);
+                    return;
+                }
+
+                switch (message.action) {
+                    case 'initializeComplete':
+                        console.log('Setting UI initialized');
+                        break;
+                        
+                    case 'setTabs':
+                        setTabs(message.data);
+                        break;
+                        
+                    case 'setActiveTab':
+                        setActiveTab(message.data);
+                        break;
+                        
+                    case 'clearTabs':
+                        clearTabs();
+                        break;
+                        
+                    case 'setProviderData':
+                        setProviderData(message.data);
+                        break;
+                        
+                    case 'setCapabilityStatus':
+                        // Capability状态已废弃，保留兼容性
+                        break;
+                        
+                    case 'setCastSheetData':
+                        setCastSheetData(message.data);
+                        break;
+                        
+                    case 'startValidatingProvider':
+                        startValidatingProvider(message.providerType);
+                        break;
+                        
+                    case 'endValidatingProvider':
+                        endValidatingProvider(message.providerType, message.available);
+                        break;
+                        
+                    case 'startEvaluateSummarize':
+                        startEvaluateSummarize();
+                        break;
+                        
+                    case 'endEvaluateSummarize':
+                        endEvaluateSummarize();
+                        break;
+                        
+                    default:
+                        console.warn('Unknown message action:', message.action);
+                        break;
+                }
+            } catch (e) {
+                console.error('Error processing message from C++:', e, 'Raw data:', event.data);
+            }
+        });
+
+        // 初始化完成通知
+        if (window.chrome && window.chrome.webview) {
+            window.chrome.webview.postMessage({ action: 'jsInitialized' });
+        } else {
+            console.error('window.chrome.webview not available for initialization message.');
+        }
+    </script>
+</body>
+</html>
