@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="chatsettingpage_providers.css">
+    <link rel="stylesheet" href="chatsettingpage_dirwatch.css">
     <style>
         :root {
             --body-bg: #121212; /* 黑色背景 */
@@ -270,6 +271,7 @@
     </div>
 
     <script src="chatsettingpage_providers.js"></script>
+    <script src="chatsettingpage_dirwatch.js"></script>
     <script>
         // 全局状态
         let currentTabs = [];
@@ -315,6 +317,8 @@
                 
                 if (tab.id === 'providers') {
                     createProvidersTabContent(contentDiv);
+                } else if (tab.id === 'dirwatch') {
+                    createDirWatchTabContent(contentDiv);
                 } else {
                     // 其他tab显示空状态
                     const emptyState = document.createElement('div');
@@ -390,6 +394,12 @@
                 requestCastSheetData();
             }
             
+            // 如果切换到dirwatch tab，重新请求数据
+            if (tabId === 'dirwatch') {
+                requestDirWatchData();
+            }
+            
+            
             // 发送Tab变更消息到C++
             window.chrome.webview.postMessage({
                 action: 'tabChanged',
@@ -454,6 +464,11 @@
                     case 'setCastSheetData':
                         setCastSheetData(message.data);
                         break;
+
+                    case 'setDirWatchData':
+                        setDirWatchData(message.data);
+                        break;
+                        
                         
                     case 'startValidatingProvider':
                         startValidatingProvider(message.providerType);

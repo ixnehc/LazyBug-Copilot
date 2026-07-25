@@ -19,6 +19,7 @@ BEGIN_MESSAGE_MAP(CChatSettingPage, CWnd)
     ON_WM_SIZE()
     ON_WM_CREATE()
     ON_WM_DESTROY()
+    ON_MESSAGE(CChatSettingDirWatchTab::WM_DIRWATCH_PICK_FOLDER, OnDirWatchPickFolder)
 END_MESSAGE_MAP()
 
 // 构造函数
@@ -104,6 +105,15 @@ BOOL CChatSettingPage::Create(const RECT& rect, CWnd* pParentWnd, UINT nID)
         if (!pOpsCtrl) return {};
         return pOpsCtrl->FindLastNNotDisabledSessionEnds(3);
     });
+
+    // 初始化 DirWatch Tab 逻辑控制器
+    _dirWatchTab.Init(
+        [this](const std::wstring& action, const std::wstring& data) { _PostWebMessage(action, data); },
+        [this](const std::wstring& fullJson) { _PostWebMessage(L"", fullJson, true); },
+        [this](const std::wstring& script) { ExecuteScript(script); },
+        [this]() { return _IsReady(); },
+        GetSafeHwnd()
+    );
 
     return result;
 }
@@ -316,7 +326,15 @@ void CChatSettingPage::OnDestroy()
         _controller->Close();
     }
 
+	_dirWatchTab.Shutdown();
 	_taskMgr.Shutdown();
+}
+
+// 处理延迟的文件夹选择消息（不能在 WebView 回调中直接弹模态对话框）
+LRESULT CChatSettingPage::OnDirWatchPickFolder(WPARAM, LPARAM)
+{
+    _dirWatchTab.OnPickFolderDeferred("");
+    return 0;
 }
 
 //====================== 设置页面功能相关实现 ======================
@@ -350,6 +368,12 @@ void CChatSettingPage::_InitializeDefaultTabs()
     providersTab.id = L"providers";
     providersTab.title = L"Providers & APIs";
     _tabs.push_back(providersTab);
+
+    // DirWatch Tab
+    SettingTab dirWatchTab;
+    dirWatchTab.id = L"dirwatch";
+    dirWatchTab.title = L"Dir Watch";
+    _tabs.push_back(dirWatchTab);
     
     // 发送Tab数据到WebView
     std::wstring tabsJson = _BuildTabsJson();
@@ -520,6 +544,10 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
         // 先让 Provider Tab 处理 Provider 相关消息
         if (_providerTab.HandleWebMessage(action, jsonMsg))
             return;
+
+        // 再让 DirWatch Tab 处理 DirWatch 相关消息
+        if (_dirWatchTab.HandleWebMessage(action, jsonMsg))
+            return;
         
         // 处理通用消息
         if (action == "tabChanged")
@@ -647,6 +675,7 @@ void CChatSettingPage::Update()
 	_taskMgr.Update();
 	UpdateReload();
 	_providerTab.Update();
+	_dirWatchTab.Update();
 }
 
 // 检测并重新加载（如果LLM Lib配置有变化则更新显示）

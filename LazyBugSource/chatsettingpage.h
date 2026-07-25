@@ -11,6 +11,7 @@
 
 #include "ChatTaskMgr.h"
 #include "ChatSettingProviderTab.h"
+#include "ChatSettingDirWatchTab.h"
 
 // 回调函数类型定义
 using SettingPageNavigationCompletedCallback = std::function<void(bool)>;
@@ -83,6 +84,7 @@ protected:
     afx_msg void OnSize(UINT nType, int cx, int cy);
     afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void OnDestroy();
+    afx_msg LRESULT OnDirWatchPickFolder(WPARAM, LPARAM);
     
     DECLARE_MESSAGE_MAP()
 
@@ -119,6 +121,9 @@ private:
     
     // Provider Tab 逻辑控制器
     CChatSettingProviderTab _providerTab;
+
+    // DirWatch Tab 逻辑控制器
+    CChatSettingDirWatchTab _dirWatchTab;
     
     // 检查WebView和Setting是否已初始化
     bool _IsReady() const;
