@@ -86,6 +86,9 @@
     <ClCompile Include="..\LazyBugSource\SolutionDump.cpp">
       <Filter>Source Files\SolutionDump</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp">
+      <Filter>Source Files\SolutionDump</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonIncludes.h">
@@ -143,6 +146,9 @@
       <Filter>common\_timer</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\SolutionDump.h">
+      <Filter>Source Files\SolutionDump</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h">
       <Filter>Source Files\SolutionDump</Filter>
     </ClInclude>
   </ItemGroup>

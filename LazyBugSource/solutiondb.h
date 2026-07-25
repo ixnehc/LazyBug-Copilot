@@ -2,6 +2,7 @@
 
 //#include "Changelist.h"
 #include <unordered_map>
+#include <set>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -24,7 +25,7 @@ struct SolutionFile :public ProjFile
 {
 	SolutionFile()
 	{
-		needDiscard = false;
+		sourceMask = 0;
 		setting = ProjSettingHandle_Null;
 	}
 	
@@ -44,7 +45,7 @@ struct SolutionFile :public ProjFile
 	}
 	
 	ProjSettingHandle setting;
-	bool needDiscard;
+	FileSourceMask sourceMask;
 };
 
 class CSolutionFiles
@@ -110,8 +111,19 @@ public:
 
 	void Update();
 
-	// 更新函数声明以匹配实现
-	void RefreshSolutionFiles(const SolutionDump& slnDump, std::vector<SolutionFile*>* newFiles, std::vector<SolutionFile*>* updatedFiles, std::vector<std::string>* removedFiles);
+	// 多来源文件追踪接口
+	void InitSources(const SolutionDump& slnDump, const std::vector<struct DirWatchEntry>& dirWatchEntries);
+
+	// 全量更新 .slndmp 来源
+	void UpdateSource_Sln(const std::unordered_map<std::string, ProjSettingHandle>& fileSettings, SourceUpdateResult& outResult);
+
+	// 全量更新某个 folder 来源
+	void UpdateSource_Folder(FileSourceMask sourceBit, const std::set<std::string>& files, SourceUpdateResult& outResult);
+
+	// 单文件更新（仅 folder 场景），返回操作后文件在 DB 中的指针（完全移除则返回 nullptr）
+	// outIsNewOrRemoved: add=true 时表示文件是否首次进入系统(sourceMask 0→非0)
+	//                    add=false 时表示文件是否完全离开系统(sourceMask 非0→0)
+	SolutionFile* UpdateFileSource(FileSourceMask sourceBit, const std::string& lowerCasedPath, bool add, bool* outIsNewOrRemoved = nullptr);
 
 	const char* GetSlnPath()
 	{

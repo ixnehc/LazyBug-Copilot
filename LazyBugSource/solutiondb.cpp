@@ -255,79 +255,235 @@ void CSolutionDB::Update()
 	_scanner.Update(); 
 }
 
-void CSolutionDB::RefreshSolutionFiles(const SolutionDump& slnDump,
-	std::vector<SolutionFile*>* newFiles, std::vector<SolutionFile*>* updatedFiles, std::vector<std::string>* removedFiles)
+void CSolutionDB::InitSources(const SolutionDump& slnDump,
+	const std::vector<DirWatchEntry>& dirWatchEntries)
 {
 	CSolutionFiles::WriteLock lock(_files._filesMutex);
 
-	if (newFiles)
-		newFiles->clear();
-	if (removedFiles)
-		removedFiles->clear();
+	_files._lowerCasedFiles.clear();
 
-	// 第一步：标记所有现有文件为需要丢弃
-	for (auto& filePair : _files._lowerCasedFiles)
-	{
-		filePair.second.needDiscard = true;
-	}
-
-	// 第二步：遍历所有项目，将ProjSetting添加到_projSettingLib，并更新或添加文件条目
-	std::set<std::string> processedFiles;
+	// 处理 .slndmp 来源
 	for (const auto& projPair : slnDump.projs)
 	{
 		const SolutionDump::ProjDump& projDump = projPair.second;
-
-		// 将项目的ProjSetting添加到_projSettingLib
 		ProjSettingHandle projSetting = _projSettingLib.Add(projDump.setting);
 
 		for (const std::string& lowerCasedFilePath : projDump.files)
 		{
-			if (processedFiles.find(lowerCasedFilePath) != processedFiles.end())
-				continue;//已经处理过
-			processedFiles.insert(lowerCasedFilePath);
-
-			// 检查文件是否已存在
 			auto it = _files._lowerCasedFiles.find(lowerCasedFilePath);
 			if (it != _files._lowerCasedFiles.end())
 			{
-				// 文件已存在，更新标记为不需要丢弃并更新设置
-				it->second.needDiscard = false;
+				it->second.sourceMask |= SOURCE_SLNDUMP;
 				if (projSetting != it->second.setting)
-				{
-					if (updatedFiles)
-						updatedFiles->push_back(&(*it).second);
-				}
-				it->second.setting = projSetting;
+					it->second.setting = projSetting;
 			}
 			else
 			{
-				// 文件不存在，添加新条目
 				SolutionFile newFile;
 				newFile.lowerCasedFilePath = lowerCasedFilePath;
-				newFile.filePath = lowerCasedFilePath; // 仅有 lowerCased 路径，filePath 同值
+				newFile.filePath = lowerCasedFilePath;
 				newFile.fileName = GetFileName(lowerCasedFilePath);
-				newFile.needDiscard = false;
-				newFile.setting = projSetting;  // 设置项目设置句柄
-				auto insertResult = _files._lowerCasedFiles.insert({ lowerCasedFilePath, newFile });
-				if (newFiles)
-					newFiles->push_back(&insertResult.first->second);
+				newFile.sourceMask = SOURCE_SLNDUMP;
+				newFile.setting = projSetting;
+				_files._lowerCasedFiles[lowerCasedFilePath] = newFile;
 			}
 		}
 	}
 
-	// 第三步：删除所有仍然标记为需要丢弃的文件
+	// 处理目录监视来源
+	for (const auto& entry : dirWatchEntries)
+	{
+		for (const std::string& lowerCasedFilePath : entry.files)
+		{
+			auto it = _files._lowerCasedFiles.find(lowerCasedFilePath);
+			if (it != _files._lowerCasedFiles.end())
+			{
+				it->second.sourceMask |= entry.sourceBit;
+			}
+			else
+			{
+				SolutionFile newFile;
+				newFile.lowerCasedFilePath = lowerCasedFilePath;
+				newFile.filePath = lowerCasedFilePath;
+				newFile.fileName = GetFileName(lowerCasedFilePath);
+				newFile.sourceMask = entry.sourceBit;
+				newFile.setting = ProjSettingHandle_Null;
+				_files._lowerCasedFiles[lowerCasedFilePath] = newFile;
+			}
+		}
+	}
+}
+
+void CSolutionDB::UpdateSource_Sln(
+	const std::unordered_map<std::string, ProjSettingHandle>& fileSettings,
+	SourceUpdateResult& outResult)
+{
+	CSolutionFiles::WriteLock lock(_files._filesMutex);
+
+	outResult.newFiles.clear();
+	outResult.updatedFiles.clear();
+	outResult.removedFiles.clear();
+
+	// Phase A: 清除 SOURCE_SLNDUMP 位
+	for (auto& pair : _files._lowerCasedFiles)
+	{
+		if (pair.second.sourceMask & SOURCE_SLNDUMP)
+			pair.second.sourceMask &= ~SOURCE_SLNDUMP;
+	}
+
+	// Phase B: 设置当前文件的位
+	for (const auto& kv : fileSettings)
+	{
+		const std::string& lowerCasedPath = kv.first;
+		ProjSettingHandle handle = kv.second;
+
+		auto it = _files._lowerCasedFiles.find(lowerCasedPath);
+		if (it != _files._lowerCasedFiles.end())
+		{
+			bool wasEmpty = (it->second.sourceMask == 0);
+			it->second.sourceMask |= SOURCE_SLNDUMP;
+
+			if (wasEmpty)
+				outResult.newFiles.push_back(&it->second);
+			else if (handle != it->second.setting)
+				outResult.updatedFiles.push_back(&it->second);
+
+			it->second.setting = handle;
+		}
+		else
+		{
+			SolutionFile newFile;
+			newFile.lowerCasedFilePath = lowerCasedPath;
+			newFile.filePath = lowerCasedPath;
+			newFile.fileName = GetFileName(lowerCasedPath);
+			newFile.sourceMask = SOURCE_SLNDUMP;
+			newFile.setting = handle;
+			auto insResult = _files._lowerCasedFiles.insert({ lowerCasedPath, newFile });
+			outResult.newFiles.push_back(&insResult.first->second);
+		}
+	}
+
+	// Phase C: 移除 sourceMask==0 的文件
 	for (auto it = _files._lowerCasedFiles.begin(); it != _files._lowerCasedFiles.end(); )
 	{
-		if (it->second.needDiscard)
+		if (it->second.sourceMask == 0)
 		{
-			if (removedFiles)
-				removedFiles->push_back(it->first);
+			outResult.removedFiles.push_back(it->first);
 			it = _files._lowerCasedFiles.erase(it);
 		}
 		else
 		{
 			++it;
 		}
+	}
+}
+
+void CSolutionDB::UpdateSource_Folder(
+	FileSourceMask sourceBit,
+	const std::set<std::string>& files,
+	SourceUpdateResult& outResult)
+{
+	CSolutionFiles::WriteLock lock(_files._filesMutex);
+
+	outResult.newFiles.clear();
+	outResult.updatedFiles.clear();
+	outResult.removedFiles.clear();
+
+	// Phase A: 清除该 bit
+	for (auto& pair : _files._lowerCasedFiles)
+	{
+		if (pair.second.sourceMask & sourceBit)
+			pair.second.sourceMask &= ~sourceBit;
+	}
+
+	// Phase B: 设置当前文件的位
+	for (const std::string& lowerCasedPath : files)
+	{
+		auto it = _files._lowerCasedFiles.find(lowerCasedPath);
+		if (it != _files._lowerCasedFiles.end())
+		{
+			bool wasEmpty = (it->second.sourceMask == 0);
+			it->second.sourceMask |= sourceBit;
+
+			if (wasEmpty)
+				outResult.newFiles.push_back(&it->second);
+		}
+		else
+		{
+			SolutionFile newFile;
+			newFile.lowerCasedFilePath = lowerCasedPath;
+			newFile.filePath = lowerCasedPath;
+			newFile.fileName = GetFileName(lowerCasedPath);
+			newFile.sourceMask = sourceBit;
+			newFile.setting = ProjSettingHandle_Null;
+			auto insResult = _files._lowerCasedFiles.insert({ lowerCasedPath, newFile });
+			outResult.newFiles.push_back(&insResult.first->second);
+		}
+	}
+
+	// Phase C: 移除 sourceMask==0 的文件
+	for (auto it = _files._lowerCasedFiles.begin(); it != _files._lowerCasedFiles.end(); )
+	{
+		if (it->second.sourceMask == 0)
+		{
+			outResult.removedFiles.push_back(it->first);
+			it = _files._lowerCasedFiles.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
+SolutionFile* CSolutionDB::UpdateFileSource(FileSourceMask sourceBit, const std::string& lowerCasedPath, bool add, bool* outIsNewOrRemoved)
+{
+	CSolutionFiles::WriteLock lock(_files._filesMutex);
+
+	if (outIsNewOrRemoved)
+		*outIsNewOrRemoved = false;
+
+	auto it = _files._lowerCasedFiles.find(lowerCasedPath);
+
+	if (add)
+	{
+		if (it != _files._lowerCasedFiles.end())
+		{
+			bool wasEmpty = (it->second.sourceMask == 0);
+			it->second.sourceMask |= sourceBit;
+			if (outIsNewOrRemoved && wasEmpty)
+				*outIsNewOrRemoved = true;
+			return &it->second;
+		}
+		else
+		{
+			SolutionFile newFile;
+			newFile.lowerCasedFilePath = lowerCasedPath;
+			newFile.filePath = lowerCasedPath;
+			newFile.fileName = GetFileName(lowerCasedPath);
+			newFile.sourceMask = sourceBit;
+			newFile.setting = ProjSettingHandle_Null;
+			auto insResult = _files._lowerCasedFiles.insert({ lowerCasedPath, newFile });
+			if (outIsNewOrRemoved)
+				*outIsNewOrRemoved = true;
+			return &insResult.first->second;
+		}
+	}
+	else
+	{
+		if (it != _files._lowerCasedFiles.end() && (it->second.sourceMask & sourceBit))
+		{
+			it->second.sourceMask &= ~sourceBit;
+			if (it->second.sourceMask == 0)
+			{
+				if (outIsNewOrRemoved)
+					*outIsNewOrRemoved = true;
+				_files._lowerCasedFiles.erase(it);
+				return nullptr;
+			}
+			return &it->second;
+		}
+		return nullptr;
 	}
 }
 

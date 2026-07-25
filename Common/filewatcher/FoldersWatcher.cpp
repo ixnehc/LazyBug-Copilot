@@ -359,6 +359,37 @@ void CFoldersWatcher::AddFilePath(const char* path)
 	}
 }
 
+void CFoldersWatcher::AddFolder(const char* folderPath)
+{
+	if (!folderPath || !*folderPath)
+		return;
+
+	std::unique_lock<std::shared_mutex> lock(_foldersMutex);
+
+	std::string lowerPath = folderPath;
+	StringLower(lowerPath);
+
+	// 已在监视中
+	if (_watchedFolders.find(lowerPath) != _watchedFolders.end())
+		return;
+
+	// 检查是否已被某个已监视的父目录包含
+	for (auto& pair : _watchedFolders)
+	{
+		if (CheckPathContaining(pair.second->path.c_str(), folderPath))
+			return;
+	}
+
+	// 尝试添加
+	if (_AddWatchFolder(folderPath))
+	{
+		if (_watchedFolders.size() > _maxWatchFolder)
+		{
+			_MergeFolders();
+		}
+	}
+}
+
 int CFoldersWatcher::FetchChangedFiles(const ChangedFileInformation*& files)
 {
 	thread_local static std::vector<ChangedFileInformation> sChangedFileVector;

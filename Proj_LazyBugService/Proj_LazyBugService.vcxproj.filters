@@ -319,6 +319,9 @@
     <ClCompile Include="..\LazyBugSource\TreeSitterLanguageJava.cpp">
       <Filter>Core\TreeSitterSymbol</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp">
+      <Filter>Core\SolutionDB</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdh.h">
@@ -1715,6 +1718,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\TreeSitterLanguageTypeScript.h">
       <Filter>Core\TreeSitterSymbol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h">
+      <Filter>Core\SolutionDB</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

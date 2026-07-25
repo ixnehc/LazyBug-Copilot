@@ -29,6 +29,7 @@ public:
 	~CFoldersWatcher();
 
 	void AddFilePath(const char* path);
+	void AddFolder(const char* folderPath);
 
 	// 设置文件后缀过滤列表（例如：".cpp", ".h"）
 	void SetSuffixFilter(const std::vector<std::string>& suffixes);

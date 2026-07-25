@@ -257,6 +257,7 @@
     <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp" />
     <ClCompile Include="..\LazyBugSource\CppSymbolParser.cpp" />
     <ClCompile Include="..\LazyBugSource\CppySymbolParserCore.cpp" />
+    <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp" />
     <ClCompile Include="..\LazyBugSource\EmbeddingDB.cpp" />
     <ClCompile Include="..\LazyBugSource\embeddinggenerator.cpp" />
     <ClCompile Include="..\LazyBugSource\LlmSkills.cpp" />
@@ -755,6 +756,7 @@
     <ClInclude Include="..\LazyBugSource\CppSymbol.h" />
     <ClInclude Include="..\LazyBugSource\CppSymbolDefines.h" />
     <ClInclude Include="..\LazyBugSource\CppSymbolParser.h" />
+    <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h" />
     <ClInclude Include="..\LazyBugSource\EmbeddingDB.h" />
     <ClInclude Include="..\LazyBugSource\embeddinggenerator.h" />
     <ClInclude Include="..\LazyBugSource\embeddingtypes.h" />

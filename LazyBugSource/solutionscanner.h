@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <unordered_map>
+#include <set>
 #include <vector>
 #include <string>
 #include <mutex>
@@ -12,6 +13,8 @@
 #include "filewatcher/FoldersWatcher.h"
 
 #include "Utils.h"
+
+#include "DirWatchEntryConfig.h"
 
 
 
@@ -64,6 +67,8 @@ public:
 #endif
 		_solutionIndexer = nullptr;
 		_slnDumpTime = Utils::GetZeroFileTime();
+		_dirWatchConfigTime = Utils::GetZeroFileTime();
+		_nextFreeSourceBit = SOURCE_SLNDUMP << 1;  // bit 0 保留给 slndmp
 	}
 	void Init(CSolutionDB &db,CppSymbol::CSymbolDB &symbolDB, TreeSitterSymbol::CSymbolDB& symbolDB2,CSolutionIndexer &indexer
 #ifdef USE_EMBEDDING_DB
@@ -79,14 +84,17 @@ public:
 protected:
 	void _WaitTillIdle();
 
-	//检测solution文件的修改时间是否更新,如果是的话,则启动一个线程来_ScanSolution()
-	//检测所有_projs,是否有proj文件修改时间更新,如果是的话,则启动一个线程来_ScanProj()
 	void _Refresh();
 
-	void _CommitScanned(const SolutionDump& slnDump);
-
+	// 目录监视相关
+	void _RefreshDirWatch(SourceUpdateResult& outMergedResult);
+	void _ScanDirEntry(DirWatchEntry& entry);
+	FileSourceMask _AllocSourceBit();
+	void _FreeSourceBit(FileSourceMask bit);
+	void _FindDirWatchEntriesForFile(const char* lowerCasedPath, std::vector<DirWatchEntry*>& outEntries);
 
 	FILETIME _slnDumpTime;
+	FILETIME _dirWatchConfigTime;
 
 	CSolutionDB* _db;
 	CppSymbol::CSymbolDB* _symbolDB;
@@ -99,6 +107,11 @@ protected:
 	std::string _dbFolder;
 
 	CFoldersWatcher _foldersWatcher;
+
+	// 目录监视相关
+	std::vector<DirWatchEntry> _dirWatchEntries;
+	FileSourceMask _nextFreeSourceBit;
+	std::vector<FileSourceMask> _freeSourceBits;  // 回收的空闲位
 
 	// 线程同步相关
 	std::mutex _scanMutex;
