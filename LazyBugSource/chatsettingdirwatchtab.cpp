@@ -53,6 +53,16 @@ void CChatSettingDirWatchTab::Shutdown()
 // ========== Update ==========
 void CChatSettingDirWatchTab::Update()
 {
+    // 检测 DB 文件夹是否变化
+    const char* curDbPath = GetOpenedDBFolderPath_utf8();
+    std::string curDb = (curDbPath && *curDbPath) ? curDbPath : "";
+    if (curDb != _dbFolder)
+    {
+        _dbFolder = curDb;
+        RefreshData();
+        return;
+    }
+
     if (!_tabActive)
         return;
 
@@ -100,7 +110,8 @@ bool CChatSettingDirWatchTab::HandleWebMessage(const std::string& action, const 
 {
     if (action == "requestDirWatchData")
     {
-        RefreshData();
+        // 只推送当前数据，不重新加载/扫描
+        _BuildAndPushData();
         return true;
     }
     else if (action == "tabChanged")
@@ -158,10 +169,11 @@ void CChatSettingDirWatchTab::_LoadConfig()
     _entries.clear();
 
     const char* dbPath = GetOpenedDBFolderPath_utf8();
-    if (!dbPath || !*dbPath)
+    _dbFolder = (dbPath && *dbPath) ? dbPath : "";
+    if (_dbFolder.empty())
         return;
 
-    _configPath = std::string(dbPath) + "\\.dirwatch";
+    _configPath = _dbFolder + "\\.dirwatch";
 
     std::vector<DirWatchEntry> rawEntries;
     if (!LoadDirWatchConfig(_configPath.c_str(), rawEntries))
@@ -178,8 +190,13 @@ void CChatSettingDirWatchTab::_LoadConfig()
 
 void CChatSettingDirWatchTab::_SaveConfig()
 {
+    // 如果 _configPath 为空（Init 时 DB 尚未打开），尝试重新获取
     if (_configPath.empty())
-        return;
+    {
+        if (_dbFolder.empty())
+            return;
+        _configPath = _dbFolder + "\\.dirwatch";
+    }
 
     std::vector<DirWatchEntry> rawEntries;
     for (auto& e : _entries)
@@ -288,6 +305,17 @@ void CChatSettingDirWatchTab::_BuildAndPushData()
     if (!_isReady || !_isReady())
         return;
 
+    json msg;
+    if (_dbFolder.empty())
+    {
+        // DB 未打开，推送禁用状态
+        msg["action"] = "setDirWatchData";
+        msg["data"]["dbReady"] = false;
+        msg["data"]["entries"] = json::array();
+        _postFullJson(utf8_to_widechar(msg.dump()));
+        return;
+    }
+
     json entriesJson = json::array();
 
     for (auto& e : _entries)
@@ -356,8 +384,10 @@ void CChatSettingDirWatchTab::_BuildAndPushData()
         entriesJson.push_back(entryJson);
     }
 
-    std::string utf8Json = entriesJson.dump();
-    _postMsg(L"setDirWatchData", utf8_to_widechar(utf8Json));
+    msg["action"] = "setDirWatchData";
+    msg["data"]["dbReady"] = true;
+    msg["data"]["entries"] = entriesJson;
+    _postFullJson(utf8_to_widechar(msg.dump()));
 }
 
 // ========== _Find ==========

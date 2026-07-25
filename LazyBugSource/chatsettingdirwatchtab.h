@@ -63,6 +63,7 @@ public:
 private:
     std::vector<std::unique_ptr<Entry>> _entries;
     std::string _configPath;
+    std::string _dbFolder;    // 用于检测 DB 文件夹路径是否发生变化
     bool _tabActive = false;  // DirWatch tab 是否处于激活状态
 
     // 回调
