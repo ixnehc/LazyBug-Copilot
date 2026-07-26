@@ -203,7 +203,7 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 	std::unordered_set<std::string> currentFiles;
 	for (const auto& file : *filesSnapshot)
 	{
-		if (Utils::CheckFileBinary(file.lowerCasedFilePath.c_str()))
+		if (_CheckFileBinary(file.lowerCasedFilePath.c_str()))
 			continue;
 		currentFiles.insert(file.lowerCasedFilePath);
 	}

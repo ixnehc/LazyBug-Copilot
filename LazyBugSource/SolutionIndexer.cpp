@@ -5,6 +5,7 @@
 #include "SolutionIndexerImpl_Lucene.h"
 #include "Utils.h"
 #include "SolutionDB.h"
+#include "stringparser/stringparser.h"
 
 
 // ==================== CSolutionIndexerImplBase 实现 ====================
@@ -67,7 +68,7 @@ void CSolutionIndexerImplBase::ProcessTask(const IndexingTask& task)
 		}
 		else if (task.type == IndexingTask::Add)
 		{
-			if (Utils::CheckFileBinary(task.lowerCasedFilePath.c_str()))
+			if (_CheckFileBinary(task.lowerCasedFilePath.c_str()))
 				return;
 
 			time_t currentMTime = Utils::GetFileTimeT(task.lowerCasedFilePath.c_str());
@@ -92,6 +93,46 @@ void CSolutionIndexerImplBase::ProcessTask(const IndexingTask& task)
 	{
 		// 兜底确保工作线程不会因异常退出
 	}
+}
+
+bool CSolutionIndexerImplBase::_CheckFileBinary(const char* path)
+{
+	if (!path || *path == '\0')
+		return true;
+
+	std::string suffix = GetFileSuffix(path);
+	if (suffix.empty())
+		return true; // 无后缀视为二进制
+
+	StringLower(suffix);
+
+	// 1. 文本白名单缓存命中 → 非二进制
+	{
+		std::lock_guard<std::mutex> lock(_extCacheMutex);
+		if (_textExtensionCache.count(suffix))
+			return false;
+	}
+
+	// 2. 二进制缓存命中 → 是二进制
+	{
+		std::lock_guard<std::mutex> lock(_extCacheMutex);
+		if (_binaryExtensionCache.count(suffix))
+			return true;
+	}
+
+	// 3. 首次遇到此后缀，调用底层内容分析
+	bool isBinary = Utils::CheckFileBinary(path);
+
+	// 4. 缓存结果
+	{
+		std::lock_guard<std::mutex> lock(_extCacheMutex);
+		if (isBinary)
+			_binaryExtensionCache.insert(suffix);
+		else
+			_textExtensionCache.insert(std::move(suffix));
+	}
+
+	return isBinary;
 }
 
 void CSolutionIndexerImplBase::WorkerLoop()

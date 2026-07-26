@@ -265,6 +265,11 @@ void CStringPool::Load(const char* folderPath)
 			// 读取每个字符串
 			for (int j = 0; j < count; ++j)
 			{
+				if ((j == 4099) && (i == 21))
+				{
+					int v = 0;
+					v++;
+				}
 				std::string str;
 				dp.Data_ReadString(str);
 				bucket._strVec[j] = str;

@@ -158,6 +158,7 @@ public:
 	CSolutionFiles _files;
 
 
+	static void EnsureDBFolders(const char* pathDBFolder);
 	static void _SaveSetting(CDataPacket& dp, const SolutionDBSetting& setting);
 	static void _LoadSetting(CDataPacket& dp, SolutionDBSetting& setting);
 	void _LoadEntries();

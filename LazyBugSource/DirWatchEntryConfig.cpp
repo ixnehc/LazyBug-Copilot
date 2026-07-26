@@ -15,7 +15,8 @@ static void to_json(json& j, const DirWatchEntry& e)
 	j = json{
 		{ "path", e.directoryPath },
 		{ "extensions", e.extensions },
-		{ "recursive", e.recursive }
+		{ "recursive", e.recursive },
+		{ "enabled", e.enabled }
 	};
 }
 
@@ -24,6 +25,11 @@ static void from_json(const json& j, DirWatchEntry& e)
 	j.at("path").get_to(e.directoryPath);
 	j.at("extensions").get_to(e.extensions);
 	j.at("recursive").get_to(e.recursive);
+	// enabled 字段可选，默认为 true（向后兼容）
+	if (j.contains("enabled"))
+		j.at("enabled").get_to(e.enabled);
+	else
+		e.enabled = true;
 	e.sourceBit = 0;
 }
 

@@ -8,6 +8,7 @@
 #include <atomic>
 #include <thread>
 #include <ctime>
+#include <unordered_set>
 
 struct FindInFileResults;
 class CSolutionFiles;
@@ -63,12 +64,21 @@ protected:
 	// 模板方法：统一的任务分发逻辑（子类不需要重写）
 	virtual void ProcessTask(const IndexingTask& task);
 
+	// 带缓存的二进制文件检查，内部调用Utils::CheckFileBinary
+	// 同时维护文本后缀白名单和二进制后缀缓存，避免重复I/O
+	bool _CheckFileBinary(const char* path);
+
 	// 工作线程相关
 	std::thread _workerThread;
 	std::atomic<bool> _workerRunning;
 	std::queue<IndexingTask> _taskQueue;
 	std::mutex _queueMutex;
 	std::condition_variable _queueCondition;
+
+	// 文件后缀缓存：文本白名单 + 二进制黑名单，避免重复调用CheckFileBinary的I/O开销
+	std::unordered_set<std::string> _textExtensionCache;
+	std::unordered_set<std::string> _binaryExtensionCache;
+	std::mutex _extCacheMutex;
 };
 
 

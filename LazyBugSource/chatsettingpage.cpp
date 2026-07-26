@@ -369,11 +369,11 @@ void CChatSettingPage::_InitializeDefaultTabs()
     providersTab.title = L"Providers & APIs";
     _tabs.push_back(providersTab);
 
-    // DirWatch Tab
-    SettingTab dirWatchTab;
-    dirWatchTab.id = L"dirwatch";
-    dirWatchTab.title = L"Dir Watch";
-    _tabs.push_back(dirWatchTab);
+    // Folder Watch Tab
+    SettingTab folderWatchTab;
+    folderWatchTab.id = L"dirwatch";
+    folderWatchTab.title = L"Folder Watch";
+    _tabs.push_back(folderWatchTab);
     
     // 发送Tab数据到WebView
     std::wstring tabsJson = _BuildTabsJson();

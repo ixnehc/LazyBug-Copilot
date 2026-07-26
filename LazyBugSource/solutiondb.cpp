@@ -46,6 +46,39 @@ static void EnsureOrgFile(const char* folderPath, const char* content)
 //////////////////////////////////////////////////////////////////////////
 //CDatabase
 
+//确保数据库所需的子目录都存在
+void CSolutionDB::EnsureDBFolders(const char* pathDBFolder)
+{
+	Utils::EnsureFolder(pathDBFolder);
+	
+	std::string path;
+	path = std::string(pathDBFolder) + "\\_pch";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_defines";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_defines2";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_index";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_log";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_strlib";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_strlib2";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_chats";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_checkpoints";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_embedding";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_backup";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_mcps";
+	Utils::EnsureFolder(path.c_str());
+	path = std::string(pathDBFolder) + "\\_skills";
+	Utils::EnsureFolder(path.c_str());
+}
 
 //清空指定目录，并在该目录下保存一个.db文件，其中包含数据库设置信息
 bool CSolutionDB::New(const char* pathDBFolder, const SolutionDBSetting& setting)
@@ -55,33 +88,7 @@ bool CSolutionDB::New(const char* pathDBFolder, const SolutionDBSetting& setting
         return false;
     }
     
-	//确保一些目录存在
-	if (true)
-	{
-		Utils::EnsureFolder(pathDBFolder);
-		
-		std::string path;
-		path = std::string(pathDBFolder) + "\\_pch";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_defines";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_defines2";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_index";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_log";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_strlib";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_strlib2";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_chats";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_checkpoints";
-		Utils::EnsureFolder(path.c_str());
-		path = std::string(pathDBFolder) + "\\_embedding";
-		Utils::EnsureFolder(path.c_str());
-	}
+	EnsureDBFolders(pathDBFolder);
 
     // 创建.db文件
 	std::string dbFileName = pathDBFolder;
@@ -146,6 +153,9 @@ void CSolutionDB::Open(const char* pathDBFolder)
     
     // 保存数据库路径
     _pathDBFolder = pathDBFolder;
+    
+    // 确保所需的子目录都存在
+    EnsureDBFolders(_pathDBFolder.c_str());
     
     // 打开数据库文件
     std::string dbFileName = _pathDBFolder + "\\.db";

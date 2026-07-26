@@ -1,8 +1,9 @@
 #include "stdh.h"
 #include "ChatSettingDirWatchTab.h"
-#include <shlobj.h>        // SHBrowseForFolderW
+#include <shlobj.h>        // IFileDialog
 #include <algorithm>
 #include <fstream>
+#include "Utils_File.h"
 #include "nlohmann/json.hpp"
 using json = nlohmann::ordered_json;
 
@@ -150,13 +151,19 @@ bool CChatSettingDirWatchTab::HandleWebMessage(const std::string& action, const 
         }
         return true;
     }
-    else if (action == "updateDirWatchRecursive")
+    else if (action == "toggleDirWatchEnabled")
+    {
+        if (jsonMsg.contains("path") && jsonMsg["path"].is_string() &&
+            jsonMsg.contains("enabled") && jsonMsg["enabled"].is_boolean())
+        {
+            _SetEnabled(jsonMsg["path"], jsonMsg["enabled"]);
+        }
+        return true;
+    }
+    else if (action == "rescanDirWatchEntry")
     {
         if (jsonMsg.contains("path") && jsonMsg["path"].is_string())
-        {
-            bool recursive = jsonMsg.value("recursive", false);
-            _SetRecursive(jsonMsg["path"], recursive);
-        }
+            _Rescan(jsonMsg["path"]);
         return true;
     }
 
@@ -181,6 +188,7 @@ void CChatSettingDirWatchTab::_LoadConfig()
 
     for (auto& de : rawEntries)
     {
+        de.directoryPath = Utils::GetActualFilePath(de.directoryPath.c_str());
         auto entry = std::make_unique<Entry>();
         entry->config = std::move(de);
         entry->scanStatus = Entry::Idle;
@@ -325,6 +333,9 @@ void CChatSettingDirWatchTab::_BuildAndPushData()
         json entryJson;
         entryJson["path"] = e->config.directoryPath;
         entryJson["recursive"] = e->config.recursive;
+        entryJson["enabled"] = e->config.enabled;
+        entryJson["justChanged"] = e->justChanged;
+        e->justChanged = false;  // 推送后清除
 
         // scanStatus
         switch (e->scanStatus.load())
@@ -413,6 +424,8 @@ void CChatSettingDirWatchTab::_Add(const std::string& path)
     auto entry = std::make_unique<Entry>();
     entry->config.directoryPath = lowerPath;
     entry->config.recursive = true;
+    entry->config.enabled = true;  // 默认启用
+    entry->justChanged = true;     // 标记为新增，通知 JS 自动展开
     _entries.push_back(std::move(entry));
 
     _SaveConfig();
@@ -456,6 +469,7 @@ void CChatSettingDirWatchTab::_UpdatePath(const std::string& oldPath, const std:
 
     _StopScan(*e);
     e->config.directoryPath = lowerNew;
+    e->justChanged = true;  // 标记为修改路径，通知 JS 自动展开
     _SaveConfig();
     _LaunchScan(*e);
     _BuildAndPushData();
@@ -479,19 +493,29 @@ void CChatSettingDirWatchTab::_ToggleExt(const std::string& path, const std::str
     _BuildAndPushData();  // 不重新扫描，只更新选中状态
 }
 
-// ========== _SetRecursive ==========
-void CChatSettingDirWatchTab::_SetRecursive(const std::string& path, bool recursive)
+// ========== _SetEnabled ==========
+void CChatSettingDirWatchTab::_SetEnabled(const std::string& path, bool enabled)
+{
+    Entry* e = _Find(path);
+    if (!e || e->config.enabled == enabled)
+        return;
+
+    e->config.enabled = enabled;
+    _SaveConfig();
+    _BuildAndPushData();
+}
+
+// ========== _Rescan ==========
+void CChatSettingDirWatchTab::_Rescan(const std::string& path)
 {
     Entry* e = _Find(path);
     if (!e)
         return;
 
-    if (e->config.recursive == recursive)
+    // 如果正在扫描中，忽略
+    if (e->scanStatus == Entry::Status::Scanning)
         return;
 
-    e->config.recursive = recursive;
-    _SaveConfig();
-    // 递归设置变化需要重新扫描
     _LaunchScan(*e);
     _BuildAndPushData();
 }
@@ -499,24 +523,59 @@ void CChatSettingDirWatchTab::_SetRecursive(const std::string& path, bool recurs
 // ========== _PickFolder ==========
 void CChatSettingDirWatchTab::_PickFolder(const std::string& oldPath)
 {
-    BROWSEINFOW bi = {};
-    bi.hwndOwner = _hwnd;
-    bi.lpszTitle = L"Select a directory to watch";
-    bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+    // 使用 IFileDialog (Vista+) 现代风格的文件夹选择对话框
+    IFileDialog* pfd = nullptr;
+    HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+    if (FAILED(hr))
+        return;
 
-    LPITEMIDLIST pidl = SHBrowseForFolderW(&bi);
-    if (!pidl)
-        return;  // 用户取消
-
-    wchar_t folderPath[MAX_PATH] = {};
-    if (!SHGetPathFromIDListW(pidl, folderPath))
+    // 设置为只选择文件夹模式
+    DWORD dwOptions = 0;
+    if (SUCCEEDED(pfd->GetOptions(&dwOptions)))
     {
-        CoTaskMemFree(pidl);
+        pfd->SetOptions(dwOptions | FOS_PICKFOLDERS);
+    }
+    pfd->SetTitle(L"Select Folder");
+
+    // 如果是编辑模式，设置初始文件夹路径
+    if (!oldPath.empty())
+    {
+        std::wstring wideOldPath = utf8_to_widechar(oldPath);
+        IShellItem* psi = nullptr;
+        if (SUCCEEDED(SHCreateItemFromParsingName(wideOldPath.c_str(), nullptr, IID_PPV_ARGS(&psi))))
+        {
+            pfd->SetFolder(psi);
+            psi->Release();
+        }
+    }
+
+    hr = pfd->Show(_hwnd);
+    if (FAILED(hr))
+    {
+        pfd->Release();
+        return;  // 用户取消
+    }
+
+    IShellItem* psi = nullptr;
+    if (FAILED(pfd->GetResult(&psi)))
+    {
+        pfd->Release();
         return;
     }
-    CoTaskMemFree(pidl);
+
+    PWSTR folderPath = nullptr;
+    if (FAILED(psi->GetDisplayName(SIGDN_FILESYSPATH, &folderPath)))
+    {
+        psi->Release();
+        pfd->Release();
+        return;
+    }
 
     std::string utf8Path = widechar_to_utf8(folderPath);
+    CoTaskMemFree(folderPath);
+    psi->Release();
+    pfd->Release();
+
     if (utf8Path.empty())
         return;
 

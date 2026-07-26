@@ -662,7 +662,7 @@ void ProcessRequest_CollectRef(const ParseRequest& request, ParseResult& result)
 
 	if (!isGeneratingPCH)
 	{
-		if (!request.setting->lowerCasedPchOutputFullPath.empty())
+		if (request.setting && !request.setting->lowerCasedPchOutputFullPath.empty())
 		{
 			args.push_back("-include-pch");
 			args.push_back(request.setting->lowerCasedPchOutputFullPath.c_str());
@@ -778,7 +778,7 @@ void ProcessRequest(const ParseRequest& request, ParseResult& result)
 	// 添加预编译头文件参数
 	if (!isGeneratingPCH)
 	{
-		if (!request.setting->lowerCasedPchOutputFullPath.empty())
+		if (request.setting && !request.setting->lowerCasedPchOutputFullPath.empty())
 		{
 			args.push_back("-include-pch");
 			args.push_back(request.setting->lowerCasedPchOutputFullPath.c_str());

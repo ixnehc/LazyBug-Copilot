@@ -120,8 +120,9 @@
         }
 
         .tab-button {
-            display: block;
-            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            padding: 14px 22px;
             background-color: var(--tab-inactive-bg);
             color: var(--text-color);
             text-decoration: none;
@@ -129,9 +130,40 @@
             cursor: pointer;
             transition: all 0.2s ease;
             border-bottom: 3px solid transparent;
-            font-size: 0.9em;
+            font-size: 1.1em;
             font-weight: 500;
             white-space: nowrap;
+        }
+
+        /* Tab 按钮文字 */
+        .tab-text {
+            display: inline-block;
+            line-height: 1;
+        }
+
+        /* Tab 按钮内的图标 */
+        .tab-icon {
+            font-size: 1.5em;
+            margin-right: 6px;
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* 叠加图标 (如 👁 叠加在 📁 上) */
+        .tab-icon-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -20%);
+            font-size: 0.55em;
+            text-shadow:
+                -1px -1px 0 #888, 1px -1px 0 #888,
+                -1px  1px 0 #888, 1px  1px 0 #888,
+                 0   -1px 0 #888, 0    1px 0 #888,
+                -1px  0   0 #888, 1px  0   0 #888;
         }
 
         .tab-button:hover {
@@ -288,19 +320,26 @@
             renderTabContents();
         }
 
+        // Tab 图标映射：id → 图标 HTML
+        const TAB_ICONS = {
+            'providers': '<span class="tab-icon">🏭</span>',
+            'dirwatch': '<span class="tab-icon">📁<span class="tab-icon-overlay">👁️</span></span>'
+        };
+
         // 渲染Tab导航
         function renderTabs() {
             tabList.innerHTML = '';
-            
+
             currentTabs.forEach(tab => {
                 const li = document.createElement('li');
                 li.className = 'tab-item';
-                
+
                 const button = document.createElement('button');
                 button.className = 'tab-button' + (tab.id === activeTabId ? ' active' : '');
-                button.textContent = tab.title;
+                button.dataset.tabId = tab.id;
+                button.innerHTML = (TAB_ICONS[tab.id] || '') + '<span class="tab-text">' + tab.title + '</span>';
                 button.onclick = () => switchTab(tab.id);
-                
+
                 li.appendChild(button);
                 tabList.appendChild(li);
             });
@@ -377,7 +416,7 @@
             // 找到对应的按钮并添加active类
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => {
-                if (btn.textContent === currentTabs.find(t => t.id === tabId)?.title) {
+                if (btn.dataset.tabId === tabId) {
                     btn.classList.add('active');
                 }
             });

@@ -3,6 +3,9 @@
 // DirWatch 数据缓存
 let cachedDirWatchData = null;
 
+// 展开的目录路径集合（默认全部折叠）
+let expandedDirWatchPaths = new Set();
+
 // 辅助：发送消息到 C++
 function postDirWatchMsg(obj) {
     if (window.chrome && window.chrome.webview)
@@ -16,6 +19,20 @@ function requestDirWatchData() {
 
 // 处理 setDirWatchData 消息（由 HTML 的 message listener 调用）
 function setDirWatchData(data) {
+    // DB 未打开时清空展开状态
+    if (!data || !data.dbReady) {
+        expandedDirWatchPaths.clear();
+    }
+
+    // 处理 justChanged 标记：新增或修改路径的 entry 自动展开
+    if (data && data.entries) {
+        data.entries.forEach(entry => {
+            if (entry.justChanged && entry.path) {
+                expandedDirWatchPaths.add(entry.path);
+            }
+        });
+    }
+
     cachedDirWatchData = data;
     renderDirWatchEntries();
 }
@@ -24,8 +41,8 @@ function setDirWatchData(data) {
 function createDirWatchTabContent(contentDiv) {
     contentDiv.innerHTML = `
         <div class="dirwatch-container" id="dirwatch-container">
-            <div class="dirwatch-toolbar" id="dirwatch-toolbar" style="display:none;">
-                <button class="dirwatch-add-btn" onclick="onAddDirWatchEntry()">Add Directory</button>
+            <div class="dirwatch-toolbar" id="dirwatch-toolbar" style="display:flex;justify-content:center;align-items:center;">
+                <div class="add-provider-button" onclick="onAddDirWatchEntry()" title="Add new folder">+</div>
             </div>
             <div class="dirwatch-entries" id="dirwatch-entries">
             </div>
@@ -46,7 +63,7 @@ function renderDirWatchEntries() {
             <div class="dirwatch-empty">
                 <div class="dirwatch-empty-icon">📁</div>
                 <div class="dirwatch-empty-text">Database is not opened</div>
-                <div class="dirwatch-empty-subtext">Please open a database first to use Dir Watch</div>
+                <div class="dirwatch-empty-subtext">Please open a database first to use Folder Watch</div>
             </div>
         `;
         return;
@@ -60,11 +77,18 @@ function renderDirWatchEntries() {
         container.innerHTML = `
             <div class="dirwatch-empty">
                 <div class="dirwatch-empty-icon">📁</div>
-                <div class="dirwatch-empty-text">No directories watched</div>
-                <div class="dirwatch-empty-subtext">Click the button above to add a directory to watch</div>
+                <div class="dirwatch-empty-text">No folders watched</div>
+                <div class="dirwatch-empty-subtext">Click the button above to add a folder to watch</div>
             </div>
         `;
         return;
+    }
+
+    // 清理已不存在的路径
+    const currentPaths = new Set(entries.map(e => e.path || ''));
+    for (const p of expandedDirWatchPaths) {
+        if (!currentPaths.has(p))
+            expandedDirWatchPaths.delete(p);
     }
 
     let html = '';
@@ -72,30 +96,51 @@ function renderDirWatchEntries() {
         html += buildEntryCard(entry);
     });
     container.innerHTML = html;
+
+    // 恢复展开状态：默认全部折叠，仅展开 expandedDirWatchPaths 中的路径
+    const newCards = container.querySelectorAll('.dirwatch-card');
+    newCards.forEach(card => {
+        const p = card.getAttribute('data-path');
+        if (!expandedDirWatchPaths.has(p)) {
+            const body = card.querySelector('.dirwatch-card-body');
+            if (body) body.style.display = 'none';
+        }
+    });
 }
 
 // 构建单个条目卡片 HTML
 function buildEntryCard(entry) {
     const path = entry.path || '';
-    const recursive = entry.recursive || false;
     const scanStatus = entry.scanStatus || 'idle';
     const extButtons = entry.extButtons || [];
+    const enabled = entry.enabled !== false;  // 默认为 true
 
     // 统计信息
     let totalExts = extButtons.length;
     let totalFiles = 0;
     extButtons.forEach(b => { totalFiles += b.count; });
 
-    let statusHtml = '';
-    if (scanStatus === 'scanning') {
-        statusHtml = `<span class="dirwatch-card-status scanning">Scanning... found ${totalExts} extension(s), ${totalFiles} file(s)</span>`;
-    } else if (scanStatus === 'done') {
-        statusHtml = `<span class="dirwatch-card-status done">Done (${totalExts} extension(s), ${totalFiles} file(s))</span>`;
-    } else {
-        statusHtml = `<span class="dirwatch-card-status">Waiting...</span>`;
+    // 选中的扩展名 pill（如果 disabled，显示为灰色）
+    let selectedHtml = '';
+    extButtons.filter(b => b.selected).forEach(btn => {
+        selectedHtml += `<span class="dirwatch-selected-pill">${escHtml(btn.ext)}</span>`;
+    });
+    if (!selectedHtml) {
+        selectedHtml = '<span class="dirwatch-selected-pill none">none</span>';
     }
 
-    // 扩展名按钮
+    // 展开区域：统计 + 所有扩展名按钮
+    let statsHtml = '';
+    if (scanStatus === 'scanning') {
+        statsHtml = `<div class="dirwatch-stats scanning">Scanning... found ${totalExts} extension(s), ${totalFiles} file(s)</div>`;
+    } else if (scanStatus === 'done') {
+        statsHtml = `<div class="dirwatch-stats done">${totalExts} extension(s), ${totalFiles} file(s)</div>`;
+    } else if (totalExts > 0) {
+        statsHtml = `<div class="dirwatch-stats">${totalExts} extension(s), ${totalFiles} file(s)</div>`;
+    } else {
+        statsHtml = `<div class="dirwatch-stats">Waiting...</div>`;
+    }
+
     let buttonsHtml = '';
     extButtons.forEach(btn => {
         const cls = btn.selected ? 'dirwatch-ext-btn selected' : 'dirwatch-ext-btn';
@@ -105,25 +150,52 @@ function buildEntryCard(entry) {
             </button>`;
     });
 
+    // enable checkbox
+    const enableToggleHtml = `
+        <input type="checkbox" class="dirwatch-enable-checkbox" ${enabled ? 'checked' : ''} 
+               onchange="onToggleEnabled(this)" 
+               title="${enabled ? 'Disable this folder' : 'Enable this folder'}"
+               onclick="event.stopPropagation()">
+    `;
+
     return `
         <div class="dirwatch-card" data-path="${escHtml(path)}">
-            <div class="dirwatch-card-header">
-                <span class="dirwatch-card-path">${escHtml(path)}</span>
-                <div class="dirwatch-card-actions">
-                    <button class="dirwatch-action-btn" onclick="onEditDirWatchEntry(this)">Edit</button>
-                    <button class="dirwatch-action-btn delete-btn" onclick="onDeleteDirWatchEntry(this)">Delete</button>
-                    <label class="dirwatch-recursive-label">
-                        <input type="checkbox" ${recursive ? 'checked' : ''} onchange="onToggleRecursive(this)">
-                        Recursive
-                    </label>
+            <div class="dirwatch-card-title" onclick="toggleDirWatchCard(this)" title="Click to expand/collapse">
+                <div class="dirwatch-title-row">
+                    ${enableToggleHtml}
+                    <span class="dirwatch-card-path">${escHtml(path)}</span>
+                    <div class="dirwatch-card-actions" onclick="event.stopPropagation()">
+                        <button class="dirwatch-action-btn icon-btn" onclick="onRescanDirWatchEntry(this)" title="Rescan directory">🔄</button>
+                        <button class="dirwatch-action-btn icon-btn" onclick="onEditDirWatchEntry(this)" title="Change directory">📂</button>
+                        <button class="dirwatch-action-btn icon-btn delete-btn" onclick="onDeleteDirWatchEntry(this)" title="Remove directory">❌</button>
+                    </div>
+                </div>
+                <div class="dirwatch-selected-row">
+                    <span class="dirwatch-selected-summary">${selectedHtml}</span>
                 </div>
             </div>
-            ${statusHtml}
-            <div class="dirwatch-ext-buttons">
-                ${buttonsHtml || '<span style="font-size:0.78em;color:#666;">(no files)</span>'}
+            <div class="dirwatch-card-body">
+                ${statsHtml}
+                <div class="dirwatch-ext-buttons">
+                    ${buttonsHtml || '<span class="dirwatch-no-files">(no files)</span>'}
+                </div>
             </div>
         </div>
     `;
+}
+
+// 展开/收起卡片
+function toggleDirWatchCard(titleEl) {
+    const card = titleEl.closest('.dirwatch-card');
+    const body = card.querySelector('.dirwatch-card-body');
+    const path = card.getAttribute('data-path');
+    if (body.style.display === 'none') {
+        body.style.display = '';
+        expandedDirWatchPaths.add(path);
+    } else {
+        body.style.display = 'none';
+        expandedDirWatchPaths.delete(path);
+    }
 }
 
 // HTML 转义
@@ -151,6 +223,17 @@ function onEditDirWatchEntry(el) {
     postDirWatchMsg({ action: 'pickDirWatchFolder', oldPath: path });
 }
 
+// 重新扫描目录
+function onRescanDirWatchEntry(el) {
+    const path = getCardPath(el);
+    // 展开卡片
+    expandedDirWatchPaths.add(path);
+    const card = el.closest('.dirwatch-card');
+    const body = card.querySelector('.dirwatch-card-body');
+    if (body) body.style.display = '';
+    postDirWatchMsg({ action: 'rescanDirWatchEntry', path: path });
+}
+
 // 删除目录
 function onDeleteDirWatchEntry(el) {
     const path = getCardPath(el);
@@ -166,8 +249,9 @@ function onToggleExt(el) {
     postDirWatchMsg({ action: 'toggleDirWatchExtension', path: path, ext: ext });
 }
 
-// Toggle 递归
-function onToggleRecursive(el) {
+// Toggle enabled 状态
+function onToggleEnabled(el) {
     const path = getCardPath(el);
-    postDirWatchMsg({ action: 'updateDirWatchRecursive', path: path, recursive: el.checked });
+    const enabled = el.checked;
+    postDirWatchMsg({ action: 'toggleDirWatchEnabled', path: path, enabled: enabled });
 }

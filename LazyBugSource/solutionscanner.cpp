@@ -190,6 +190,9 @@ void CSolutionScanner::_Refresh()
 
 	if (isInitialCommit)
 	{
+
+//		MessageBoxA(NULL, "Here", "Current Parsing:", MB_OK);
+
 		_slnDumpTime = tSln;
 		_dirWatchConfigTime = tDirWatch;
 
@@ -198,9 +201,11 @@ void CSolutionScanner::_Refresh()
 		extern bool LoadSolutionDump(const char* fullPath, SolutionDump & slnDump);
 		LoadSolutionDump(slnDumpPath.c_str(), slnDump);
 
-		// 加载 .dirwatch 并扫描
+		// 加载 .dirwatch 并过滤 disabled 条目
 		std::vector<DirWatchEntry> dirWatchEntries;
 		LoadDirWatchConfig(dirWatchPath.c_str(), dirWatchEntries);
+		dirWatchEntries.erase(std::remove_if(dirWatchEntries.begin(), dirWatchEntries.end(),
+			[](const DirWatchEntry& e) { return !e.enabled; }), dirWatchEntries.end());
 		for (auto& entry : dirWatchEntries)
 		{
 			entry.sourceBit = _AllocSourceBit();
@@ -342,13 +347,13 @@ void CSolutionScanner::_FindDirWatchEntriesForFile(const char* lowerCasedPath, s
 	}
 }
 
-// 递归扫描辅助
+// 递归扫描辅助（使用 widechar API 以正确处理 UTF-8 路径）
 static void _ScanDirRecursive(const std::string& dirPath, const std::vector<std::string>& extensions, std::set<std::string>& outFiles)
 {
-	std::string searchPath = dirPath + "\\*";
+	std::wstring wSearchPath = utf8_to_widechar(dirPath) + L"\\*";
 
-	WIN32_FIND_DATAA fd;
-	HANDLE hFind = FindFirstFileA(searchPath.c_str(), &fd);
+	WIN32_FIND_DATAW fd;
+	HANDLE hFind = FindFirstFileW(wSearchPath.c_str(), &fd);
 	if (hFind == INVALID_HANDLE_VALUE)
 		return;
 
@@ -357,15 +362,15 @@ static void _ScanDirRecursive(const std::string& dirPath, const std::vector<std:
 		if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			// 跳过 . 和 ..
-			if (strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0)
+			if (wcscmp(fd.cFileName, L".") != 0 && wcscmp(fd.cFileName, L"..") != 0)
 			{
-				std::string subDir = dirPath + "\\" + fd.cFileName;
+				std::string subDir = dirPath + "\\" + widechar_to_utf8(fd.cFileName);
 				_ScanDirRecursive(subDir, extensions, outFiles);
 			}
 			continue;
 		}
 
-		std::string fileName = fd.cFileName;
+		std::string fileName = widechar_to_utf8(fd.cFileName);
 		std::string suffix = GetFileSuffix(fileName);
 		StringLower(suffix);
 
@@ -380,7 +385,7 @@ static void _ScanDirRecursive(const std::string& dirPath, const std::vector<std:
 			}
 		}
 	}
-	while (FindNextFileA(hFind, &fd));
+	while (FindNextFileW(hFind, &fd));
 
 	FindClose(hFind);
 }
@@ -389,14 +394,19 @@ void CSolutionScanner::_ScanDirEntry(DirWatchEntry& entry)
 {
 	entry.files.clear();
 
+	// 去掉尾部反斜杠，避免拼接时出现双斜杠
+	std::string dirPath = entry.directoryPath;
+	while (!dirPath.empty() && (dirPath.back() == '\\' || dirPath.back() == '/'))
+		dirPath.pop_back();
+
 	if (entry.recursive)
-		_ScanDirRecursive(entry.directoryPath, entry.extensions, entry.files);
+		_ScanDirRecursive(dirPath, entry.extensions, entry.files);
 	else
 	{
-		std::string searchPath = entry.directoryPath + "\\*";
+		std::wstring wSearchPath = utf8_to_widechar(dirPath) + L"\\*";
 
-		WIN32_FIND_DATAA fd;
-		HANDLE hFind = FindFirstFileA(searchPath.c_str(), &fd);
+		WIN32_FIND_DATAW fd;
+		HANDLE hFind = FindFirstFileW(wSearchPath.c_str(), &fd);
 		if (hFind == INVALID_HANDLE_VALUE)
 			return;
 
@@ -405,7 +415,7 @@ void CSolutionScanner::_ScanDirEntry(DirWatchEntry& entry)
 			if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				continue;
 
-			std::string fileName = fd.cFileName;
+			std::string fileName = widechar_to_utf8(fd.cFileName);
 			std::string suffix = GetFileSuffix(fileName);
 			StringLower(suffix);
 
@@ -413,14 +423,14 @@ void CSolutionScanner::_ScanDirEntry(DirWatchEntry& entry)
 			{
 				if (suffix == ext)
 				{
-					std::string fullPath = entry.directoryPath + "\\" + fileName;
+					std::string fullPath = dirPath + "\\" + fileName;
 					StringLower(fullPath);
 					entry.files.insert(fullPath);
 					break;
 				}
 			}
 		}
-		while (FindNextFileA(hFind, &fd));
+		while (FindNextFileW(hFind, &fd));
 
 		FindClose(hFind);
 	}
@@ -428,10 +438,12 @@ void CSolutionScanner::_ScanDirEntry(DirWatchEntry& entry)
 
 void CSolutionScanner::_RefreshDirWatch(SourceUpdateResult& outMergedResult)
 {
-	// 加载新的配置
+	// 加载新的配置，立即移除 disabled 条目
 	std::vector<DirWatchEntry> newEntries;
 	std::string dirWatchPath = _dbFolder + "\\.dirwatch";
 	LoadDirWatchConfig(dirWatchPath.c_str(), newEntries);
+	newEntries.erase(std::remove_if(newEntries.begin(), newEntries.end(),
+		[](const DirWatchEntry& e) { return !e.enabled; }), newEntries.end());
 
 	// 建立旧 entry 的目录路径索引
 	std::unordered_map<std::string, int> oldIndexByPath;
@@ -465,6 +477,7 @@ void CSolutionScanner::_RefreshDirWatch(SourceUpdateResult& outMergedResult)
 	std::vector<DirWatchEntry> updatedEntries;
 	for (auto& newEntry : newEntries)
 	{
+
 		auto oldIt = oldIndexByPath.find(newEntry.directoryPath);
 		if (oldIt != oldIndexByPath.end())
 		{

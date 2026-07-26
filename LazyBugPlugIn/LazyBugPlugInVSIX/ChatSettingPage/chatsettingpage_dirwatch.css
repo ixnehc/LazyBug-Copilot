@@ -16,57 +16,110 @@
     margin-bottom: 8px;
 }
 
-.dirwatch-add-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 14px;
-    background-color: var(--primary-color);
-    color: #e0f2f1;
-    border: 1px solid #00695c;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.dirwatch-add-btn:hover {
-    background-color: var(--primary-color-hover);
-    border-color: #00897b;
-}
-
-.dirwatch-add-btn::before {
-    content: "+";
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
 /* 目录条目卡片 */
 .dirwatch-card {
     background-color: var(--secondary-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    padding: 12px 14px;
     margin-bottom: 10px;
     flex-shrink: 0;
 }
 
-.dirwatch-card-header {
+/* ===== Title 区域（始终可见，点击展开/收起） ===== */
+.dirwatch-card-title {
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    background: #0a1f12;
+    border-radius: 8px 8px 0 0;
+    transition: background-color 0.15s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.dirwatch-card-title:hover {
+    background: #0c2818;
+}
+
+/* 第一行：enable checkbox + 路径 + 操作按钮 */
+.dirwatch-title-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
+}
+
+/* Enable Checkbox - 使用与 api-enable-checkbox 一致的样式（尺寸放大） */
+.dirwatch-enable-checkbox {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background-color: #1a1a1a;
+    border: 1px solid #666;
+    border-radius: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.dirwatch-enable-checkbox:hover {
+    border-color: #888;
+}
+
+.dirwatch-enable-checkbox:checked {
+    background-color: #333;
+    border-color: #888;
+}
+
+.dirwatch-enable-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
 }
 
 .dirwatch-card-path {
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 0.85em;
-    color: #80cbc4;
+    font-size: 1em;
+    color: #ffffff;
     flex: 1 1 auto;
-    min-width: 200px;
-    word-break: break-all;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 第二行：选中的扩展名摘要 pill */
+.dirwatch-selected-row {
+    margin-top: 6px;
+    padding-left: 28px;  /* 与 checkbox 宽度对齐（18px + gap） */
+}
+
+.dirwatch-selected-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.dirwatch-selected-pill {
+    display: inline-block;
+    padding: 1px 8px;
+    font-size: 0.72em;
+    font-weight: 500;
+    color: #e0f2f1;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.dirwatch-selected-pill.none {
+    background-color: transparent;
+    color: #666;
+    font-style: italic;
 }
 
 .dirwatch-card-actions {
@@ -76,8 +129,8 @@
 }
 
 .dirwatch-action-btn {
-    padding: 3px 10px;
-    font-size: 0.78em;
+    padding: 3px 8px;
+    font-size: 0.85em;
     border-radius: 4px;
     border: 1px solid var(--border-color);
     background-color: #303030;
@@ -85,6 +138,7 @@
     cursor: pointer;
     transition: all 0.15s ease;
     white-space: nowrap;
+    line-height: 1;
 }
 
 .dirwatch-action-btn:hover {
@@ -97,38 +151,31 @@
     color: #ef9a9a;
 }
 
-/* 扫描状态行 */
-.dirwatch-card-status {
-    font-size: 0.78em;
-    color: #888;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* ===== 展开区域 ===== */
+.dirwatch-card-body {
+    padding: 0 14px 12px 14px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
 }
 
-.dirwatch-card-status.scanning {
+/* 统计信息行 */
+.dirwatch-stats {
+    font-size: 0.78em;
+    color: #888;
+    margin-bottom: 8px;
+}
+
+.dirwatch-stats.scanning {
     color: #81c784;
 }
 
-.dirwatch-card-status.done {
+.dirwatch-stats.done {
     color: #90a4ae;
 }
 
-/* 递归开关 */
-.dirwatch-recursive-label {
+.dirwatch-no-files {
     font-size: 0.78em;
-    color: #aaa;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    user-select: none;
-    margin-left: 4px;
-}
-
-.dirwatch-recursive-label input {
-    cursor: pointer;
+    color: #666;
 }
 
 /* 扩展名按钮列表 */
@@ -136,7 +183,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 8px;
 }
 
 .dirwatch-ext-btn {

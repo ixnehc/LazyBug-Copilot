@@ -35,6 +35,8 @@ public:
 
         std::thread scanThread;
         std::atomic<bool> scanAbort{ false };
+
+        bool justChanged = false;  // 新增或修改路径后标记，用于通知 JS 自动展开
     };
 
     CChatSettingDirWatchTab();
@@ -88,7 +90,8 @@ private:
     void _Delete(const std::string& path);
     void _UpdatePath(const std::string& oldPath, const std::string& newPath);
     void _ToggleExt(const std::string& path, const std::string& ext);
-    void _SetRecursive(const std::string& path, bool recursive);
+    void _SetEnabled(const std::string& path, bool enabled);
+    void _Rescan(const std::string& path);  // 重新扫描指定目录
     void _PickFolder(const std::string& oldPath);  // oldPath 为空表示新增，非空表示修改
 
     // 静态线程函数

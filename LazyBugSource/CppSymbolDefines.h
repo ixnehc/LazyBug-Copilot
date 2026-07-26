@@ -126,6 +126,8 @@ namespace CppSymbol
 		}
 		bool NeedGenPCH() const
 		{
+			if (!setting)
+				return false;
 			return (!lowerCasedParseFilePath.empty()) && (lowerCasedParseFilePath == setting->lowerCasedPchFullPath) ;
 		}
 
