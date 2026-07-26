@@ -275,3 +275,76 @@
     font-size: 0.85em;
     opacity: 0.6;
 }
+
+/* ===== 自定义确认对话框（深色主题） ===== */
+.custom-confirm-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.custom-confirm-dialog {
+    background-color: #1e1e1e;
+    border: 1px solid #505050;
+    border-radius: 8px;
+    padding: 24px 28px 20px 28px;
+    min-width: 360px;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.custom-confirm-title {
+    font-size: 1.05em;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin-bottom: 12px;
+}
+
+.custom-confirm-message {
+    font-size: 0.85em;
+    color: #999;
+    margin-bottom: 20px;
+    word-break: break-all;
+    font-family: "Consolas", "Courier New", monospace;
+}
+
+.custom-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.custom-confirm-actions button {
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: 1px solid #505050;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.custom-confirm-cancel {
+    background-color: #303030;
+    color: #ccc;
+}
+
+.custom-confirm-cancel:hover {
+    background-color: #3a3a3a;
+}
+
+.custom-confirm-ok {
+    background-color: #5c2a2a;
+    border-color: #8b3a3a;
+    color: #ef9a9a;
+}
+
+.custom-confirm-ok:hover {
+    background-color: #6b3333;
+}

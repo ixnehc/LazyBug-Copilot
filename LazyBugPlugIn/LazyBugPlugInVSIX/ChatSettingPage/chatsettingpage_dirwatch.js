@@ -169,9 +169,9 @@ function buildEntryCard(entry) {
                     ${enableToggleHtml}
                     <span class="dirwatch-card-path">${escHtml(path)}</span>
                     <div class="dirwatch-card-actions" onclick="event.stopPropagation()">
-                        <button class="dirwatch-action-btn" onclick="onRescanDirWatchEntry(this)" title="Rescan directory">${rescanSvg}</button>
-                        <button class="dirwatch-action-btn" onclick="onEditDirWatchEntry(this)" title="Change directory">${folderSvg}</button>
-                        <div class="delete-provider-btn" onclick="onDeleteDirWatchEntry(this)" title="Remove directory"></div>
+                        <button class="dirwatch-action-btn" onclick="onRescanDirWatchEntry(this)" title="Rescan folder">${rescanSvg}</button>
+                        <button class="dirwatch-action-btn" onclick="onEditDirWatchEntry(this)" title="Change folder">${folderSvg}</button>
+                        <div class="delete-provider-btn" onclick="onDeleteDirWatchEntry(this)" title="Remove folder"></div>
                     </div>
                 </div>
                 <div class="dirwatch-selected-row">
@@ -241,9 +241,61 @@ function onRescanDirWatchEntry(el) {
 // 删除目录
 function onDeleteDirWatchEntry(el) {
     const path = getCardPath(el);
-    if (!confirm('Are you sure you want to delete this directory?\n\n' + path))
-        return;
-    postDirWatchMsg({ action: 'deleteDirWatchEntry', path: path });
+    showConfirmDialog(
+        'Are you sure you want to remove this folder?',
+        path,
+        function() {
+            postDirWatchMsg({ action: 'deleteDirWatchEntry', path: path });
+        }
+    );
+}
+
+// 深色自定义确认对话框
+function showConfirmDialog(title, message, onConfirm) {
+    // 移除可能已存在的旧对话框
+    const old = document.querySelector('.custom-confirm-overlay');
+    if (old) old.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-confirm-overlay';
+
+    // 点击遮罩关闭
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
+
+    const dialog = document.createElement('div');
+    dialog.className = 'custom-confirm-dialog';
+
+    dialog.innerHTML = `
+        <div class="custom-confirm-title">${escHtml(title)}</div>
+        <div class="custom-confirm-message">${escHtml(message)}</div>
+        <div class="custom-confirm-actions">
+            <button class="custom-confirm-cancel">Cancel</button>
+            <button class="custom-confirm-ok">Remove</button>
+        </div>
+    `;
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    // 按钮事件
+    dialog.querySelector('.custom-confirm-cancel').addEventListener('click', function() {
+        overlay.remove();
+    });
+    dialog.querySelector('.custom-confirm-ok').addEventListener('click', function() {
+        overlay.remove();
+        if (onConfirm) onConfirm();
+    });
+
+    // ESC 关闭
+    function onKey(e) {
+        if (e.key === 'Escape') {
+            overlay.remove();
+            document.removeEventListener('keydown', onKey);
+        }
+    }
+    document.addEventListener('keydown', onKey);
 }
 
 // Toggle 扩展名
