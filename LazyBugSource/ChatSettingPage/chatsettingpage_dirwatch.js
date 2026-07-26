@@ -158,6 +158,10 @@ function buildEntryCard(entry) {
                onclick="event.stopPropagation()">
     `;
 
+    // SVG 图标（与 API 页面按钮风格一致）
+    const rescanSvg = `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/></svg>`;
+    const folderSvg = `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+
     return `
         <div class="dirwatch-card" data-path="${escHtml(path)}">
             <div class="dirwatch-card-title" onclick="toggleDirWatchCard(this)" title="Click to expand/collapse">
@@ -165,9 +169,9 @@ function buildEntryCard(entry) {
                     ${enableToggleHtml}
                     <span class="dirwatch-card-path">${escHtml(path)}</span>
                     <div class="dirwatch-card-actions" onclick="event.stopPropagation()">
-                        <button class="dirwatch-action-btn icon-btn" onclick="onRescanDirWatchEntry(this)" title="Rescan directory">🔄</button>
-                        <button class="dirwatch-action-btn icon-btn" onclick="onEditDirWatchEntry(this)" title="Change directory">📂</button>
-                        <button class="dirwatch-action-btn icon-btn delete-btn" onclick="onDeleteDirWatchEntry(this)" title="Remove directory">❌</button>
+                        <button class="dirwatch-action-btn" onclick="onRescanDirWatchEntry(this)" title="Rescan directory">${rescanSvg}</button>
+                        <button class="dirwatch-action-btn" onclick="onEditDirWatchEntry(this)" title="Change directory">${folderSvg}</button>
+                        <div class="delete-provider-btn" onclick="onDeleteDirWatchEntry(this)" title="Remove directory"></div>
                     </div>
                 </div>
                 <div class="dirwatch-selected-row">
