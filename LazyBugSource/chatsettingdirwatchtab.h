@@ -67,6 +67,8 @@ private:
     std::string _configPath;
     std::string _dbFolder;    // 用于检测 DB 文件夹路径是否发生变化
     bool _tabActive = false;  // DirWatch tab 是否处于激活状态
+    bool _configDirty = false;  // 配置已修改但尚未写入磁盘
+    DWORD _lastModifyTick = 0;  // 最后一次修改配置的时间戳
 
     // 回调
     PostMsgCallback _postMsg;
@@ -78,7 +80,9 @@ private:
 
     // === 内部方法 ===
     void _LoadConfig();
-    void _SaveConfig();
+    void _SaveConfig();         // 标记脏位，不直接写盘
+    void _DoSaveConfig();       // 实际写入 .dirwatch 文件
+    void _UpdateSaveConfig();   // 在 Update 中检查是否需要写盘（防抖/tab切换/窗口隐藏）
     void _LaunchScan(Entry& e);
     void _StopScan(Entry& e);
     void _BuildAndPushData();

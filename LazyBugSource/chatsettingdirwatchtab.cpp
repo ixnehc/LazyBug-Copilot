@@ -43,6 +43,10 @@ void CChatSettingDirWatchTab::Init(
 // ========== Shutdown ==========
 void CChatSettingDirWatchTab::Shutdown()
 {
+    // 退出前立即保存
+    if (_configDirty)
+        _DoSaveConfig();
+
     for (auto& e : _entries)
     {
         if (e)
@@ -63,6 +67,9 @@ void CChatSettingDirWatchTab::Update()
         RefreshData();
         return;
     }
+
+    // 检查是否需要写盘（防抖/tab切换/窗口隐藏）
+    _UpdateSaveConfig();
 
     if (!_tabActive)
         return;
@@ -120,7 +127,11 @@ bool CChatSettingDirWatchTab::HandleWebMessage(const std::string& action, const 
         if (jsonMsg.contains("tabId") && jsonMsg["tabId"].is_string())
         {
             std::string tabId = jsonMsg["tabId"];
+            bool wasActive = _tabActive;
             _tabActive = (tabId == "dirwatch");
+            // 从 DirWatch 切走时立即保存
+            if (wasActive && !_tabActive)
+                _UpdateSaveConfig();
         }
         // 不 return true，让 CChatSettingPage 也处理
         return false;
@@ -196,15 +207,21 @@ void CChatSettingDirWatchTab::_LoadConfig()
     }
 }
 
+// ========== _SaveConfig / _DoSaveConfig / _UpdateSaveConfig ==========
 void CChatSettingDirWatchTab::_SaveConfig()
 {
-    // 如果 _configPath 为空（Init 时 DB 尚未打开），尝试重新获取
-    if (_configPath.empty())
-    {
-        if (_dbFolder.empty())
-            return;
-        _configPath = _dbFolder + "\\.dirwatch";
-    }
+    _configDirty = true;
+    _lastModifyTick = GetTickCount();
+}
+
+void CChatSettingDirWatchTab::_DoSaveConfig()
+{
+    if (_dbFolder.empty())
+        return;
+
+    std::string path = _configPath;
+    if (path.empty())
+        path = _dbFolder + "\\.dirwatch";
 
     std::vector<DirWatchEntry> rawEntries;
     for (auto& e : _entries)
@@ -213,7 +230,31 @@ void CChatSettingDirWatchTab::_SaveConfig()
             rawEntries.push_back(e->config);
     }
 
-    SaveDirWatchConfig(_configPath.c_str(), rawEntries);
+    SaveDirWatchConfig(path.c_str(), rawEntries);
+    _configDirty = false;
+}
+
+void CChatSettingDirWatchTab::_UpdateSaveConfig()
+{
+    if (!_configDirty)
+        return;
+
+    bool shouldSave = false;
+
+    // 防抖：距离上次修改超过 5 秒
+    if (GetTickCount() - _lastModifyTick > 5000)
+        shouldSave = true;
+
+    // Tab 已切走
+    if (!_tabActive)
+        shouldSave = true;
+
+    // 窗口不可见
+    if (_hwnd && !::IsWindowVisible(_hwnd))
+        shouldSave = true;
+
+    if (shouldSave)
+        _DoSaveConfig();
 }
 
 // ========== _LaunchScan / _StopScan ==========
