@@ -599,6 +599,15 @@
     <ClCompile Include="..\LazyBugSource\ChatOpsSummarizer.cpp">
       <Filter>Core\ChatAgent</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\chatsettingdirwatchtab.cpp">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatSettingProviderTab.cpp">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -734,6 +743,18 @@
     </None>
     <None Include="..\LazyBugSource\inputhintwindow.html">
       <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_dirwatch.css">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_dirwatch.js">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_providers.css">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_providers.js">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1186,6 +1207,15 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\ChatOpsSummarizer.h">
       <Filter>Core\ChatAgent</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\chatsettingdirwatchtab.h">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatSettingProviderTab.h">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

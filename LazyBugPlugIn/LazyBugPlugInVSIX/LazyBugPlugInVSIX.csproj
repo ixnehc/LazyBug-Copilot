@@ -184,6 +184,12 @@
     <Content Include="ChatSettingPage\chatsettingpage.html">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="ChatSettingPage\chatsettingpage_dirwatch.css">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="ChatSettingPage\chatsettingpage_dirwatch.js">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="ChatSettingPage\chatsettingpage_providers.css">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>

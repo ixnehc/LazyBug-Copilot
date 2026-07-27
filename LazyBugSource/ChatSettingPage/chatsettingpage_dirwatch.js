@@ -237,7 +237,7 @@ function onRescanDirWatchEntry(el) {
     if (body) body.style.display = '';
     postDirWatchMsg({ action: 'rescanDirWatchEntry', path: path });
 }
-
+ 
 // 删除目录
 function onDeleteDirWatchEntry(el) {
     const path = getCardPath(el);

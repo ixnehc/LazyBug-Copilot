@@ -360,8 +360,10 @@
     <ClCompile Include="..\LazyBugSource\ChatOpsCompress.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatOpsCtrl.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatOpsSummarizer.cpp" />
+    <ClCompile Include="..\LazyBugSource\chatsettingdirwatchtab.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatSettingMenu.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatSettingPage.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatSettingProviderTab.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatSkillsTree.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatSkillTip.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTaskMgr.cpp" />
@@ -392,6 +394,7 @@
     <ClCompile Include="..\LazyBugSource\CodingHistory.cpp" />
     <ClCompile Include="..\LazyBugSource\CoreDefines.cpp" />
     <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp" />
+    <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp" />
     <ClCompile Include="..\LazyBugSource\FileChange.cpp" />
     <ClCompile Include="..\LazyBugSource\FileLocator.cpp" />
     <ClCompile Include="..\LazyBugSource\GuiActor_Changelists.cpp">
@@ -522,6 +525,10 @@
     <None Include="..\LazyBugSource\ChatMcpTip.html" />
     <None Include="..\LazyBugSource\ChatSettingMenu.html" />
     <None Include="..\LazyBugSource\ChatSettingPage.html" />
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_dirwatch.css" />
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_dirwatch.js" />
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_providers.css" />
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_providers.js" />
     <None Include="..\LazyBugSource\ChatSkillsTree.html" />
     <None Include="..\LazyBugSource\ChatSkillTip.html" />
     <None Include="..\LazyBugSource\CommonHtml\tag-common.css" />
@@ -567,10 +574,13 @@
     <ClInclude Include="..\Common\xml\tinyxml.h" />
     <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
     <ClInclude Include="..\LazyBugSource\ChatOpsSummarizer.h" />
+    <ClInclude Include="..\LazyBugSource\chatsettingdirwatchtab.h" />
+    <ClInclude Include="..\LazyBugSource\ChatSettingProviderTab.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_InputHint2.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint3.h" />
+    <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h" />
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h" />
     <ClInclude Include="..\LazyBugSource\PinyinLib.h" />
     <ClInclude Include="..\LazyBugSource\Utils_InputHint.h" />
