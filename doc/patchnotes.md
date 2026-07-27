@@ -1,5 +1,11 @@
 ﻿# LazyBug Version History
 
+## Version 0.23
+
+- Added watch folder support, allowing users to explore watched folders via glob, grep, and find symbol operations
+
+---
+
 ## Version 0.22.1
 
 - Enhanced the Question tool with multi-select support and manual answer input

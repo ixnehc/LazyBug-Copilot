@@ -865,7 +865,7 @@ void CChatTask_ReplaceInFile::Update()
 				if (!_wasReadOnly)
 				{
 					std::string fileName = GetFileName(_filePath);
-					std::wstring progressText = utf8_to_widechar(fileName) + L" <span style='color:#ff6b6b;'>[read only]</span>";
+				std::wstring progressText = utf8_to_widechar(fileName) + L" <span style='color:#ff6b6b;'>[read only] Unlock to continue</span>";
 					_context->chatAgent->ShowFileEditProgressLabel(progressText, utf8_to_widechar(_filePath));
 					_wasReadOnly = true;
 				}
