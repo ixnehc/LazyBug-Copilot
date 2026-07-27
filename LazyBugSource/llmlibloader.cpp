@@ -631,7 +631,6 @@ void CLlmLibLoader::SaveJsonFile(CLlmLib& lib, const char* jsonFilePath)
 		jProvider["url"] = provider.url;
 		jProvider["endpoint"] = provider.endpoint;
 		jProvider["format"] = ApiFormatToString(provider.format);
-		jProvider["key"] = provider.key;
 		jProvider["status"] = ProviderStatusToString(provider.status);
 		j["providers"].push_back(jProvider);
 	}
@@ -698,7 +697,6 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 				provider.desc = jProvider.value("desc", "");
 				provider.url = jProvider.value("url", "");
 				provider.endpoint = jProvider.value("endpoint", "");
-				provider.key = jProvider.value("key", "");
 				std::string formatStr = jProvider.value("format", "");
 				if (formatStr.empty())
 					provider.format = LlmApiFormat::OpenAI_;
