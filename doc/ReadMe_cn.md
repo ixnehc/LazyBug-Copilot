@@ -46,6 +46,15 @@ _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 - **自动代码数据库** — 自动从解决方案中的所有文件构建代码数据库，支持增量更新。
 - **代码库搜索** — 对超大型项目（百万行规模）进行快速文本搜索。速度远超 ripgrep，在大代码库中尤为明显。
 - **符号搜索** — 快速符号搜索，支持 C/C++/C#/JavaScript/Java/Python/TypeScript。开箱即用，无需 LSP 配置。
+
+- **监视文件夹** — 将任意文件夹添加到工作区，使用 glob、grep 和 find symbol 操作进行探索。非常适合引用外部代码库而无需将其加入解决方案。
+
+<div align="center">
+
+![watch folder](../media/watchfolder.jpg)
+
+</div>
+
 - **智能输入框** — 基于标签的文件附件系统，支持 `@` 自动补全、输入历史遍历（`PageUp`/`PageDown`）、快速切换模型，以及输入提示补全功能。
 
 <div align="center">
