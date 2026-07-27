@@ -31,17 +31,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 ## Version 0.23 更新说明
 
-- 新增 watch folder 支持，允许用户通过 glob、grep 及 find symbol 操作浏览受监视的文件夹
-
-## Version 0.22.1 更新说明
-
-- 完善 Question 工具，支持多选选项及手动输入答案
-
-## Version 0.22 更新说明
-
-- 支持后台上下文压缩，开始聊天时无需等待
-- 新增 AddMcpServer 工具，允许 LLM 动态设置 MCP 服务器
-- 点击符号链接时，符号在编辑器中居中显示
+- 允许用户添加 watch folder，支持多种探索操作，如 glob、grep 及 find symbol
 
 _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 

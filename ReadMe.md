@@ -31,17 +31,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 ## Version 0.23 Release Notes
 
-- Added watch folder support, allowing users to explore watched folders via glob, grep, and find symbol operations
-
-## Version 0.22.1 Release Notes
-
-- Enhanced the Question tool with multi-select support and manual answer input
-
-## Version 0.22 Release Notes
-
-- Support background context compression, no more wait when starting a chat
-- Add a new AddMcpServer tool to allow LLM to set up MCP servers dynamically
-- Clicking symbol link now shows the symbol centered in the editor
+- Allow users to add watch folders, support various exploring operations, such as glob, grep, and find symbol
 
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 

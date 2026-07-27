@@ -2,7 +2,7 @@
 
 ## Version 0.23
 
-- Added watch folder support, allowing users to explore watched folders via glob, grep, and find symbol operations
+- Allow users to add watch folders, support various exploring operations, such as glob, grep, and find symbol
 
 ---
 
