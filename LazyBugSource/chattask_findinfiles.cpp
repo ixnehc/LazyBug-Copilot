@@ -223,22 +223,31 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	// 对每个关键字进行查找
 	for (const auto& kw : keywords)
 	{
-		// 检查是否被中断
-		if (_shouldStop)
-		{
-			std::lock_guard<std::mutex> lock(_resultMutex);
-			Utils::BuildFindInFilesErrorJson(resultJson, "Task interrupted");
-			_threadResult = resultJson.dump();
-			_threadMessage = "";
-			_threadSuccess = false;
-			_threadFinished = true;
-			return;
-		}
-		
-		// 调用SolutionDB接口在文件中查找
+		// 调用SolutionDB接口在文件中查找，若索引中则等待后重试
 		SolutionDBMsg_FindInFilesResults result;
-		SolutionDB_FindInFiles(_dbFolderPath.c_str(), kw.c_str(), maxResult, result);
-		
+		while (true)
+		{
+			SolutionDB_FindInFiles(_dbFolderPath.c_str(), kw.c_str(), maxResult, result);
+
+			if (!result.isStillIndexing)
+				break;
+
+			// 分片等待500ms，每50ms检查中断
+			for (int w = 0; w < 500 && !_shouldStop; w += 50)
+				std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+			if (_shouldStop)
+			{
+				std::lock_guard<std::mutex> lock(_resultMutex);
+				Utils::BuildFindInFilesErrorJson(resultJson, "Task interrupted");
+				_threadResult = resultJson.dump();
+				_threadMessage = "";
+				_threadSuccess = false;
+				_threadFinished = true;
+				return;
+			}
+		}
+
 		resultsMap[kw] = std::move(result.results);
 	}
 
