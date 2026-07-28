@@ -699,6 +699,12 @@ void CSolutionDBServer::_FindInFiles(const SolutionDBMsg_FindInFiles& request, S
 	if (!db)
 		return;
 
+	if (db->GetSolutionIndexer().IsIndexing())
+	{
+		result.isStillIndexing = true;
+		return;
+	}
+
 	if (db->GetSolutionIndexer().Find(request.keyword.c_str(), request.maxResults, result.results))
 	{
 		_CollectFindInFileResultSymbols(db, result.results);

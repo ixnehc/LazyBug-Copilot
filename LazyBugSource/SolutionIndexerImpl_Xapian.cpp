@@ -221,41 +221,8 @@ bool CSolutionIndexerImpl_Xapian::Find(const char* key, int maxResult, FindInFil
 	if (!_database)
 		return false;
 
-	// 检查队列中是否有未完成的任务，最多等待500ms
-	{
-		const int maxWaitMs = 500;
-		const int checkIntervalMs = 50;
-		int waitedMs = 0;
-
-		while (waitedMs < maxWaitMs)
-		{
-			bool isEmpty = false;
-			{
-				std::lock_guard<std::mutex> lock(_queueMutex);
-				isEmpty = _taskQueue.empty();
-			}
-
-			if (isEmpty)
-			{
-				// 队列为空，可以开始搜索
-				break;
-			}
-
-			// 队列不为空，等待一段时间后再检查
-			std::this_thread::sleep_for(std::chrono::milliseconds(checkIntervalMs));
-			waitedMs += checkIntervalMs;
-		}
-
-		// 最后检查一次队列
-		{
-			std::lock_guard<std::mutex> lock(_queueMutex);
-			if (!_taskQueue.empty())
-			{
-				// 500ms后仍有任务，返回false
-				return false;
-			}
-		}
-	}
+	if (HasPendingWork())
+		return false;
 
 	try
 	{

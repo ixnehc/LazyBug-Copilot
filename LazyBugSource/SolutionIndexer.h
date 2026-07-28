@@ -46,6 +46,12 @@ public:
 	void StartWorkerThread();
 	void StopWorkerThread();
 
+	bool HasPendingWork() const
+	{
+		std::lock_guard<std::mutex> lock(_queueMutex);
+		return !_taskQueue.empty();
+	}
+
 protected:
 	virtual void WorkerLoop();
 
@@ -72,7 +78,7 @@ protected:
 	std::thread _workerThread;
 	std::atomic<bool> _workerRunning;
 	std::queue<IndexingTask> _taskQueue;
-	std::mutex _queueMutex;
+	mutable std::mutex _queueMutex;
 	std::condition_variable _queueCondition;
 
 	// 文件后缀缓存：文本白名单 + 二进制黑名单，避免重复调用CheckFileBinary的I/O开销
@@ -103,6 +109,8 @@ public:
 	void UpdateIfExists(const char* lowerCasedFilePath);
 
 	bool Find(const char* key, int maxResult, FindInFileResults &results);
+
+	bool IsIndexing() const	{ return _impl->HasPendingWork();	}
 
 private:
 	std::unique_ptr<CSolutionIndexerImplBase> _impl;
