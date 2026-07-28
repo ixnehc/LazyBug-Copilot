@@ -406,17 +406,13 @@ void CSolutionDB::UpdateSource_Folder(
 			pair.second.sourceMask &= ~sourceBit;
 	}
 
-	// Phase B: 设置当前文件的位
+	// Phase B: 设置当前文件的位（已存在的文件只恢复 bit，不算 new）
 	for (const std::string& lowerCasedPath : files)
 	{
 		auto it = _files._lowerCasedFiles.find(lowerCasedPath);
 		if (it != _files._lowerCasedFiles.end())
 		{
-			bool wasEmpty = (it->second.sourceMask == 0);
 			it->second.sourceMask |= sourceBit;
-
-			if (wasEmpty)
-				outResult.newFiles.push_back(&it->second);
 		}
 		else
 		{

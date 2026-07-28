@@ -77,7 +77,7 @@ void CSolutionIndexerImplBase::ProcessTask(const IndexingTask& task)
 			std::string content;
 			if (Utils::GetFileContentIntoUTF8(task.lowerCasedFilePath.c_str(), content, codingFmt))
 			{
-				AddDocumentIfChanged(task.lowerCasedFilePath, currentMTime, content);
+			AddDocument(task.lowerCasedFilePath, currentMTime, content);
 			}
 		}
 		else if (task.type == IndexingTask::SetContent)

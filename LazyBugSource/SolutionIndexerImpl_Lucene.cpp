@@ -113,7 +113,7 @@ bool CSolutionIndexerImpl_Lucene::Open(const char* indexPath)
 		// 创建IndexWriter
 		// create参数：false表示打开已有索引追加，true表示创建新索引（会清空已有数据）
 		bool create = !indexExists;  // 只有当索引不存在时才创建
-		_indexWriter = Lucene::newLucene<Lucene::IndexWriter>(_directory, _analyzer, create, 
+		_indexWriter = Lucene::newLucene<Lucene::IndexWriter>(_directory, _analyzer, create,
 			Lucene::IndexWriter::MaxFieldLengthUNLIMITED);
 		_indexWriter->setMaxFieldLength(50000);
 
@@ -176,6 +176,12 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 	Lucene::IndexReaderPtr reader;
 	try
 	{
+		// 先提交之前的修改，确保索引状态是最新的
+		if (_indexWriter)
+		{
+			_indexWriter->commit();
+		}
+
 		if (Lucene::IndexReader::indexExists(_directory))
 		{
 			reader = Lucene::IndexReader::open(_directory);
@@ -223,11 +229,11 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 		time_t currentMTime = Utils::GetFileTimeT(lowerCasedFilePath.c_str());
 		time_t storedMTime = GetStoredMTime(reader, lowerCasedFilePath);
 
-// 		if (lowerCasedFilePath == "s:\\tal\\code\\games\\farcry\\game\\rclient\\rclient_agent.cpp")
-// 		{
-// 			int v = 0;
-// 			v++;
-// 		}
+		// 		if (lowerCasedFilePath == "s:\\tal\\code\\games\\farcry\\game\\rclient\\rclient_agent.cpp")
+		// 		{
+		// 			int v = 0;
+		// 			v++;
+		// 		}
 
 		if (currentMTime != storedMTime)
 		{
@@ -236,7 +242,6 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 			std::string content;
 			if (Utils::GetFileContentIntoUTF8(lowerCasedFilePath.c_str(), content, codingFmt))
 			{
-				PreParseProcess(content);
 				AddDocument(lowerCasedFilePath, currentMTime, content);
 			}
 		}
@@ -248,11 +253,6 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 
 void CSolutionIndexerImpl_Lucene::AddDocument(const std::string& lowerCasedFilePath, time_t mtime, const std::string& content)
 {
-// 	if (lowerCasedFilePath == "d:\\lazybug\\proj_lazybug\\chatdialog.cpp")
-// 	{
-// 		int v = 0;
-// 		v++;
-// 	}
 	// 首先删除旧文档（如果存在）
 	RemoveDocument(lowerCasedFilePath);
 
@@ -282,7 +282,9 @@ void CSolutionIndexerImpl_Lucene::AddDocument(const std::string& lowerCasedFileP
 		Lucene::Field::STORE_YES, Lucene::Field::INDEX_ANALYZED));
 
 	// 添加内容字段（索引但不存储，因为文件内容可能很大）
-	Lucene::String contentW = ToLuceneString(content);
+	std::string processedContent = content;
+	PreParseProcess(processedContent);
+	Lucene::String contentW = ToLuceneString(processedContent);
 	doc->add(Lucene::newLucene<Lucene::Field>(FIELD_CONTENT, contentW,
 		Lucene::Field::STORE_NO, Lucene::Field::INDEX_ANALYZED));
 
@@ -313,6 +315,12 @@ void CSolutionIndexerImpl_Lucene::AddDocumentIfChanged(const std::string& lowerC
 	if (!_indexWriter)
 		return;
 
+	// 先提交之前的修改，确保索引状态是最新的
+	if (_indexWriter)
+	{
+		_indexWriter->commit();
+	}
+
 	// 打开索引读取器以检查存储的修改时间
 	time_t storedMTime = 0;
 	Lucene::IndexReaderPtr reader;
@@ -327,9 +335,7 @@ void CSolutionIndexerImpl_Lucene::AddDocumentIfChanged(const std::string& lowerC
 	// 如果时间不一样，添加或更新文档
 	if (mtime != storedMTime)
 	{
-		std::string newContent = content;
-		PreParseProcess(newContent);
-		AddDocument(lowerCasedFilePath, mtime, newContent);
+		AddDocument(lowerCasedFilePath, mtime, content);
 	}
 }
 
@@ -380,7 +386,7 @@ bool CSolutionIndexerImpl_Lucene::Find(const char* key, int maxResult, FindInFil
 		_indexWriter->commit();
 
 		// 打开索引读取器
-		Lucene::IndexReaderPtr reader = Lucene::IndexReader::open(_directory,true);
+		Lucene::IndexReaderPtr reader = Lucene::IndexReader::open(_directory, true);
 		int totalDocs = reader->numDocs();  // 返回索引中的实际文档数
 		int maxDocs = reader->maxDoc();     // 返回最大文档ID
 
@@ -442,7 +448,7 @@ bool CSolutionIndexerImpl_Lucene::Find(const char* key, int maxResult, FindInFil
 
 		return true;
 	}
-	catch (const Lucene::LuceneException&e)
+	catch (const Lucene::LuceneException& e)
 	{
 		return false;
 	}
@@ -521,7 +527,6 @@ void CSolutionIndexerImpl_Lucene::ProcessUpdateIfExists(const std::string& lower
 			std::string content;
 			if (Utils::GetFileContentIntoUTF8(lowerCasedFilePath.c_str(), content, codingFmt))
 			{
-				PreParseProcess(content);
 				AddDocument(lowerCasedFilePath, currentMTime, content);
 			}
 		}
