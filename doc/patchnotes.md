@@ -4,6 +4,7 @@
 
 - Allow users to add watch folders, support various exploring operations, such as glob, grep, and find symbol
 - Grep tool will now wait for indexing to complete before searching, to get the most accurate results
+- Allow re-ordering diff blocks
 
 ---
 
