@@ -186,6 +186,56 @@ void GenerateCodeDiff(const std::vector<LineInfo>& oldLines,
 // 	}
 }
 
+// Reorder lines inside each consecutive change block (a run of DELETED/ADDED
+// lines with no UNCHANGED line in between) so that all DELETED lines come
+// before all ADDED lines. This keeps deleted(red) blocks contiguous and
+// always displayed before added(green) blocks in the diff view.
+// Relative order inside each part is preserved; line numbers stored in
+// CodeDiffLine are not affected by the reorder.
+static void ReorderDiffBlocks(std::deque<CodeDiffLine>& diff)
+{
+	size_t i = 0;
+	while (i < diff.size())
+	{
+		if (diff[i].type == CodeDiffType::UNCHANGED)
+		{
+			++i;
+			continue;
+		}
+
+		// find the consecutive change block [blockBegin, blockEnd)
+		size_t blockBegin = i;
+		size_t blockEnd = i;
+		while (blockEnd < diff.size() && diff[blockEnd].type != CodeDiffType::UNCHANGED)
+		{
+			++blockEnd;
+		}
+
+		// collect lines of the block by type, keeping their relative order
+		std::deque<CodeDiffLine> deletedLines, addedLines, otherLines;
+		for (size_t k = blockBegin; k < blockEnd; ++k)
+		{
+			if (diff[k].type == CodeDiffType::DELETED)
+				deletedLines.push_back(diff[k]);
+			else if (diff[k].type == CodeDiffType::ADDED)
+				addedLines.push_back(diff[k]);
+			else
+				otherLines.push_back(diff[k]);
+		}
+
+		// write back: deleted first, then others, then added
+		size_t pos = blockBegin;
+		for (size_t k = 0; k < deletedLines.size(); ++k)
+			diff[pos++] = deletedLines[k];
+		for (size_t k = 0; k < otherLines.size(); ++k)
+			diff[pos++] = otherLines[k];
+		for (size_t k = 0; k < addedLines.size(); ++k)
+			diff[pos++] = addedLines[k];
+
+		i = blockEnd;
+	}
+}
+
 void PostProcessCodeDiff(std::deque<CodeDiffLine>& diff)
 {
 	for (int i = 0;i < diff.size();i++)
@@ -251,6 +301,9 @@ void PostProcessCodeDiff(std::deque<CodeDiffLine>& diff)
 			}
 		}
 	}
+
+	// group deleted(red) lines together and always place them before added(green) lines
+	ReorderDiffBlocks(diff);
 }
 
 //把一行的头部的空白部分,按照tabCount个空格转换为一个tab进行转换,多余的空格也转换为一个tab
