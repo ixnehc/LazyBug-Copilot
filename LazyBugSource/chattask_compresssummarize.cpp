@@ -59,7 +59,8 @@ void CChatTask_CompressSummarize::_Fail(const std::string& reason)
 	_resultMessage = _MakeShortResultString(false, reason);
 	
 	// Immediate 模式不通知 compressor（通过 chatDialogA 直接操作 ops）
-	if (_mode != CompressSummarizeMode::Immediate && _context && _context->chatAgent)
+//	if (_mode != CompressSummarizeMode::Immediate && _context && _context->chatAgent)
+	if (_context && _context->chatAgent)
 	{
 		CChatOpsCompress& compressor = _context->chatAgent->GetCompressor();
 		compressor._SetCompressSummarizeTip(false, _resultMessage, GetCompressSummarizeLogPath());

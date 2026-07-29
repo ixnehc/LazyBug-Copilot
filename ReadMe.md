@@ -56,7 +56,7 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
 </div>
 
-- **Smart Input Box** — Tag-based file attachment system with `@` auto-completion, input history (`PageUp`/`PageDown`), quick model switching, and input hint completions while typing.
+- **Smart Input Box** — Tag-based file attachment system, `@` auto-completion, input history (`PageUp`/`PageDown`), quick model switching, and input hint completions while typing.
 
 <div align="center">
 

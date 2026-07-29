@@ -26,6 +26,7 @@ void CChatOpsSummarizer::Init(CChatOpsCtrl* opsCtrl, CChatAgent* agent)
 
 	ChatTaskContext ctx;
 	ctx.chatOpsCtrl = opsCtrl;
+	ctx.chatAgent = agent;
 	_taskMgr.Init(ctx);
 }
 

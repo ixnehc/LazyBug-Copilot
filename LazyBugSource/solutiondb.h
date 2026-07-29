@@ -125,6 +125,9 @@ public:
 	//                    add=false 时表示文件是否完全离开系统(sourceMask 非0→0)
 	SolutionFile* UpdateFileSource(FileSourceMask sourceBit, const std::string& lowerCasedPath, bool add, bool* outIsNewOrRemoved = nullptr);
 
+	// 按路径查找文件，返回 SolutionFile 指针（不存在则返回 nullptr）
+	SolutionFile* FindFile(const std::string& lowerCasedPath);
+
 	const char* GetSlnPath()
 	{
 		return _setting.pathSln.c_str();

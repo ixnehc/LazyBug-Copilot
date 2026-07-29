@@ -77,31 +77,36 @@ void CSolutionScanner::Update()
 
 			if (_solutionIndexer && (_symbolDB||_symbolDB2))
 			{
-				std::string path;
-				std::string suffix; 
-				bool symbolDBNotified = false;
-				bool symbolDB2Notified = false;
-
-				// 收集目录监视的文件增减
-				std::vector<SolutionFile*> dirNewFiles;
-				std::vector<std::string> dirRemovedFiles;
+			std::string path;
+			std::string suffix; 
+			bool symbolDBNotified = false;
+			bool symbolDB2Notified = false;
 
 				for (int i = 0;i < nInfo;i++)
 				{
 					const ChangedFileInformation& info = infos[i];
 
-					// 处理目录监视的文件增减（一个文件可能匹配多个条目）
-					if (info.action == FA_ADDED || info.action == FA_REMOVED)
-					{
-						path = info.name;
-						StringLower(path);
+					path = info.name;
+					StringLower(path);
 
-						std::vector<DirWatchEntry*> entries;
-						_FindDirWatchEntriesForFile(path.c_str(), entries);
+					if (info.action == FA_MODIFIED || info.action == FA_ADDED || FA_RENAMED_OLD_NAME || FA_RENAMED_NEW_NAME)
+					{
+						_solutionIndexer->UpdateIfExists(path.c_str());
+					}
+
+					std::vector<DirWatchEntry*> entries;
+					_FindDirWatchEntriesForFile(path.c_str(), entries);
+
+					if (entries.size()>0)
+					{
+						SolutionFile* pDeltaNew = nullptr;
+						SolutionFile* pDeltaUpdated = nullptr;
+						std::string deltaRemovedPath;
+						bool hasDeltaRemoved = false;
 
 						for (DirWatchEntry* pEntry : entries)
 						{
-							if (info.action == FA_ADDED)
+							if (info.action == FA_ADDED || info.action == FA_RENAMED_NEW_NAME)
 							{
 								bool isNew = false;
 								SolutionFile* pFile = _db->UpdateFileSource(pEntry->sourceBit, path, true, &isNew);
@@ -109,26 +114,48 @@ void CSolutionScanner::Update()
 								{
 									pEntry->files.insert(path);
 									if (isNew)
-										dirNewFiles.push_back(pFile);
+										pDeltaNew = pFile;
 								}
 							}
-							else // FA_REMOVED
+							else if (info.action == FA_REMOVED || info.action == FA_RENAMED_OLD_NAME)
 							{
 								bool isRemoved = false;
 								_db->UpdateFileSource(pEntry->sourceBit, path, false, &isRemoved);
 								pEntry->files.erase(path);
 								if (isRemoved)
-									dirRemovedFiles.push_back(path);
+								{
+									hasDeltaRemoved = true;
+									deltaRemovedPath = path;
+								}
 							}
+							else if (info.action == FA_MODIFIED)
+							{
+								if (!pDeltaUpdated)
+									pDeltaUpdated = _db->FindFile(path);
+							}
+						}
+
+						if (pDeltaNew || pDeltaUpdated || hasDeltaRemoved)
+						{
+							std::vector<SolutionFile*> deltaNew;
+							std::vector<SolutionFile*> deltaUpdated;
+							std::vector<std::string> deltaRemoved;
+							if (pDeltaNew) deltaNew.push_back(pDeltaNew);
+							if (pDeltaUpdated) deltaUpdated.push_back(pDeltaUpdated);
+							if (hasDeltaRemoved) deltaRemoved.push_back(deltaRemovedPath);
+
+							_symbolDB->SetDeltaContent(deltaNew, deltaUpdated, deltaRemoved);
+							_symbolDB2->SetDeltaContent(deltaNew, deltaUpdated, deltaRemoved);
+							_solutionIndexer->SetDeltaContent(deltaNew, deltaUpdated, deltaRemoved);
+#ifdef USE_EMBEDDING_DB
+							if (_embeddingDB)
+								_embeddingDB->SetDeltaContent(deltaNew, deltaUpdated, deltaRemoved);
+#endif
 						}
 					}
 
 					if (info.action == FA_MODIFIED || info.action == FA_ADDED || FA_RENAMED_OLD_NAME || FA_RENAMED_NEW_NAME)
 					{
-						path = info.name;
-						StringLower(path);
-						_solutionIndexer->UpdateIfExists(path.c_str());
-
 						if ((!symbolDBNotified)|| (!symbolDB2Notified))
 							suffix = GetFileSuffix(path);
 
@@ -150,19 +177,6 @@ void CSolutionScanner::Update()
 							}
 						}
 					}
-				}
-
-				// 通知目录监视的文件增减
-				if (!dirNewFiles.empty() || !dirRemovedFiles.empty())
-				{
-					std::vector<SolutionFile*> emptyUpdated;
-					_symbolDB->SetDeltaContent(dirNewFiles, emptyUpdated, dirRemovedFiles);
-					_symbolDB2->SetDeltaContent(dirNewFiles, emptyUpdated, dirRemovedFiles);
-					_solutionIndexer->SetDeltaContent(dirNewFiles, emptyUpdated, dirRemovedFiles);
-#ifdef USE_EMBEDDING_DB
-					if (_embeddingDB)
-						_embeddingDB->SetDeltaContent(dirNewFiles, emptyUpdated, dirRemovedFiles);
-#endif
 				}
 			}
 		}

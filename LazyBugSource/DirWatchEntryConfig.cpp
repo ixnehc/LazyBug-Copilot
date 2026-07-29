@@ -23,6 +23,9 @@ static void to_json(json& j, const DirWatchEntry& e)
 static void from_json(const json& j, DirWatchEntry& e)
 {
 	j.at("path").get_to(e.directoryPath);
+	// 清除末尾斜杠
+	while (!e.directoryPath.empty() && (e.directoryPath.back() == '\\' || e.directoryPath.back() == '/'))
+		e.directoryPath.pop_back();
 	j.at("extensions").get_to(e.extensions);
 	j.at("recursive").get_to(e.recursive);
 	// enabled 字段可选，默认为 true（向后兼容）

@@ -493,3 +493,12 @@ SolutionFile* CSolutionDB::UpdateFileSource(FileSourceMask sourceBit, const std:
 	}
 }
 
+SolutionFile* CSolutionDB::FindFile(const std::string& lowerCasedPath)
+{
+	CSolutionFiles::ReadLock lock(_files._filesMutex);
+	auto it = _files._lowerCasedFiles.find(lowerCasedPath);
+	if (it != _files._lowerCasedFiles.end())
+		return &it->second;
+	return nullptr;
+}
+
