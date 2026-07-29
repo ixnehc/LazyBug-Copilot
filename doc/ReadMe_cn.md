@@ -33,7 +33,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 - 允许用户添加 watch folder，支持多种探索操作，如 glob、grep 及 find symbol
 - Grep 工具现在会等待索引完成后再进行搜索，以获取最准确的结果
-- 支持重新排序差异块
+- 重新排序差异块
 
 _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 
