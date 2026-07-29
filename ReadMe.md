@@ -48,7 +48,7 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 - **Codebase Search** — Fast text search for ultra-large projects (million-line scale). Significantly faster than ripgrep, especially in large codebases. 
 - **Symbol Search** — Fast symbol search for C/C++/C#/JavaScript/Java/Python/TypeScript codes. Works out of the box — no LSP configuration required.
 
-- **Watch Folder** — Add arbitrary folders to the workspace for exploring with glob, grep, and find symbol operations. Ideal for referencing external codebases without adding them to your solution.
+- **Watch Folder** — Add arbitrary folders to the workspace for exploring with glob, grep, and find symbol operations. Ideal for referencing external code/data without adding them to your solution.
 
 <div align="center">
 
