@@ -41,4 +41,6 @@ private:
 	std::string _threadMessage;
 	bool _threadSuccess;
 
+	std::atomic<bool> _pendingIndexingMessage;
+
 };

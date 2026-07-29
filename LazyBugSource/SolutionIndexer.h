@@ -48,8 +48,7 @@ public:
 
 	bool HasPendingWork() const
 	{
-		std::lock_guard<std::mutex> lock(_queueMutex);
-		return !_taskQueue.empty();
+		return _taskProcessing || !_taskQueue.empty();
 	}
 
 protected:
@@ -77,6 +76,7 @@ protected:
 	// 工作线程相关
 	std::thread _workerThread;
 	std::atomic<bool> _workerRunning;
+	std::atomic<bool> _taskProcessing{false};
 	std::queue<IndexingTask> _taskQueue;
 	mutable std::mutex _queueMutex;
 	std::condition_variable _queueCondition;

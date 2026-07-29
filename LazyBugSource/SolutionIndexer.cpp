@@ -159,7 +159,9 @@ void CSolutionIndexerImplBase::WorkerLoop()
 
 		if (hasTask)
 		{
+			_taskProcessing = true;
 			ProcessTask(task);
+			_taskProcessing = false;
 		}
 	}
 }
