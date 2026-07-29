@@ -32,6 +32,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 ## Version 0.23 Release Notes
 
 - Allow users to add watch folders, support various exploring operations, such as glob, grep, and find symbol
+- Grep tool will now wait for indexing to complete before searching, to get the most accurate results
 
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
