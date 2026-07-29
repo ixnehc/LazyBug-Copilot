@@ -51,7 +51,11 @@ public:
 		return _taskProcessing || !_taskQueue.empty();
 	}
 
+	int GetPendingOpCount() const { return _pendingOpCount.load(); }
+
 protected:
+	void _OnFileProcessed() { _pendingOpCount--; }
+
 	virtual void WorkerLoop();
 
 	// 子类必须实现：检查索引引擎是否已准备好
@@ -77,6 +81,7 @@ protected:
 	std::thread _workerThread;
 	std::atomic<bool> _workerRunning;
 	std::atomic<bool> _taskProcessing{false};
+	std::atomic<int> _pendingOpCount{0};
 	std::queue<IndexingTask> _taskQueue;
 	mutable std::mutex _queueMutex;
 	std::condition_variable _queueCondition;
@@ -111,6 +116,7 @@ public:
 	bool Find(const char* key, int maxResult, FindInFileResults &results);
 
 	bool IsIndexing() const	{ return _impl->HasPendingWork();	}
+	int GetPendingOpCount() const { return _impl->GetPendingOpCount(); }
 
 private:
 	std::unique_ptr<CSolutionIndexerImplBase> _impl;

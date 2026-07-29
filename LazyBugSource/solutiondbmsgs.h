@@ -315,6 +315,7 @@ public:
 	std::string keyword;
 	FindInFileResults results;
 	bool isStillIndexing = false;
+	int pendingOpCount = 0;
 
 	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::FindInFilesResults; }
 
@@ -324,6 +325,7 @@ public:
 		dp.Data_WriteString(keyword);
 		results.Save(dp);
 		dp.Data_WriteSimple(isStillIndexing);
+		dp.Data_WriteSimple(pendingOpCount);
 	}
 
 	void Load(CDataPacket& dp) override
@@ -333,6 +335,7 @@ public:
 
 		results.Load(dp);
 		dp.Data_ReadSimple(isStillIndexing);
+		dp.Data_ReadSimple(pendingOpCount);
 	}
 };
 

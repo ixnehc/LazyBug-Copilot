@@ -26,6 +26,10 @@ void CSolutionIndexerImplBase::QueueTask(const IndexingTask& task)
 		std::lock_guard<std::mutex> lock(_queueMutex);
 		_taskQueue.push(task);
 	}
+	if (task.type == IndexingTask::SetContent)
+		_pendingOpCount += task.filesSnapshot ? (int)task.filesSnapshot->size() : 0;
+	else
+		_pendingOpCount++;
 	_queueCondition.notify_one();
 }
 
@@ -161,7 +165,18 @@ void CSolutionIndexerImplBase::WorkerLoop()
 		{
 			_taskProcessing = true;
 			ProcessTask(task);
+
+			if (task.type != IndexingTask::SetContent)
+				_pendingOpCount--;
+
 			_taskProcessing = false;
+
+			// 队列清空后兜底归零
+			{
+				std::lock_guard<std::mutex> lock(_queueMutex);
+				if (_taskQueue.empty())
+					_pendingOpCount = 0;
+			}
 		}
 	}
 }

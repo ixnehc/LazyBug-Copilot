@@ -45,6 +45,7 @@ CChatTask_FindInFiles::CChatTask_FindInFiles()
 	_threadFinished = false;
 	_threadSuccess = false;
 	_pendingIndexingMessage = false;
+	_pendingOpCount = 0;
 }
 
 CChatTask_FindInFiles::~CChatTask_FindInFiles()
@@ -226,7 +227,7 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	{
 		// 调用SolutionDB接口在文件中查找，若索引中则等待后重试
 		SolutionDBMsg_FindInFilesResults result;
-		bool firstIndexing = true;
+		int retryCount = 0;
 		while (true)
 		{
 			SolutionDB_FindInFiles(_dbFolderPath.c_str(), kw.c_str(), maxResult, result);
@@ -234,11 +235,12 @@ void CChatTask_FindInFiles::_ThreadFunc()
 			if (!result.isStillIndexing)
 				break;
 
-			if (firstIndexing)
+			if (retryCount % 4 == 0)
 			{
-				firstIndexing = false;
 				_pendingIndexingMessage = true;
+				_pendingOpCount = result.pendingOpCount;
 			}
+			retryCount++;
 
 			// 分片等待500ms，每50ms检查中断
 			for (int w = 0; w < 500 && !_shouldStop; w += 50)
@@ -339,6 +341,7 @@ void CChatTask_FindInFiles::Start()
 	_threadFinished = false;
 	_threadSuccess = false;
 	_pendingIndexingMessage = false;
+	_pendingOpCount = 0;
 	_threadResult.clear();
 	_threadResultSimple.clear();
 
@@ -366,7 +369,10 @@ void CChatTask_FindInFiles::Update()
 		return;
 
 	if (_pendingIndexingMessage.exchange(false))
-		_SendToolCallMessage_Exploring("Waiting for indexing to complete...");
+	{
+		std::string msg = "Waiting for indexing to complete... (" + std::to_string(_pendingOpCount.load()) + " remaining index operations)";
+		_SendToolCallMessage_Exploring(msg.c_str());
+	}
 
 	// 检查线程是否完成
 	if (_threadFinished)

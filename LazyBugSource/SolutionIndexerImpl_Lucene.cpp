@@ -210,7 +210,10 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 	for (const auto& file : *filesSnapshot)
 	{
 		if (_CheckFileBinary(file.lowerCasedFilePath.c_str()))
+		{
+			_OnFileProcessed();
 			continue;
+		}
 		currentFiles.insert(file.lowerCasedFilePath);
 	}
 
@@ -229,12 +232,6 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 		time_t currentMTime = Utils::GetFileTimeT(lowerCasedFilePath.c_str());
 		time_t storedMTime = GetStoredMTime(reader, lowerCasedFilePath);
 
-		// 		if (lowerCasedFilePath == "s:\\tal\\code\\games\\farcry\\game\\rclient\\rclient_agent.cpp")
-		// 		{
-		// 			int v = 0;
-		// 			v++;
-		// 		}
-
 		if (currentMTime != storedMTime)
 		{
 			// 需要更新（使用原始路径读取文件内容，使用小写路径存储索引）
@@ -245,6 +242,7 @@ void CSolutionIndexerImpl_Lucene::ProcessSetContent(std::shared_ptr<std::vector<
 				AddDocument(lowerCasedFilePath, currentMTime, content);
 			}
 		}
+		_OnFileProcessed();
 	}
 
 	if (reader)

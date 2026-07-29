@@ -42,5 +42,6 @@ private:
 	bool _threadSuccess;
 
 	std::atomic<bool> _pendingIndexingMessage;
+	std::atomic<int> _pendingOpCount;
 
 };

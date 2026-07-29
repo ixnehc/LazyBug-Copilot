@@ -702,6 +702,7 @@ void CSolutionDBServer::_FindInFiles(const SolutionDBMsg_FindInFiles& request, S
 	if (db->GetSolutionIndexer().IsIndexing())
 	{
 		result.isStillIndexing = true;
+		result.pendingOpCount = db->GetSolutionIndexer().GetPendingOpCount();
 		return;
 	}
 

@@ -111,7 +111,10 @@ void CSolutionIndexerImpl_Xapian::ProcessSetContent(std::shared_ptr<std::vector<
 	for (const auto& file : *filesSnapshot)
 	{
 		if (_CheckFileBinary(file.lowerCasedFilePath.c_str()))
+		{
+			_OnFileProcessed();
 			continue;
+		}
 
 		currentFiles.insert(file.lowerCasedFilePath);
 	}
@@ -141,6 +144,7 @@ void CSolutionIndexerImpl_Xapian::ProcessSetContent(std::shared_ptr<std::vector<
 				AddDocument(lowerCasedFilePath, currentMTime, content);
 			}
 		}
+		_OnFileProcessed();
 	}
 }
 
