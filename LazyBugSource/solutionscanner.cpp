@@ -75,12 +75,12 @@ void CSolutionScanner::Update()
 			const ChangedFileInformation* infos;
 			int nInfo = _foldersWatcher.FetchChangedFiles(infos);
 
-			if (_solutionIndexer && (_symbolDB||_symbolDB2))
+			if (_solutionIndexer && (_symbolDB || _symbolDB2))
 			{
-			std::string path;
-			std::string suffix; 
-			bool symbolDBNotified = false;
-			bool symbolDB2Notified = false;
+				std::string path;
+				std::string suffix;
+				bool symbolDBNotified = false;
+				bool symbolDB2Notified = false;
 
 				for (int i = 0;i < nInfo;i++)
 				{
@@ -97,7 +97,7 @@ void CSolutionScanner::Update()
 					std::vector<DirWatchEntry*> entries;
 					_FindDirWatchEntriesForFile(path.c_str(), entries);
 
-					if (entries.size()>0)
+					if (entries.size() > 0)
 					{
 						SolutionFile* pDeltaNew = nullptr;
 						SolutionFile* pDeltaUpdated = nullptr;
@@ -156,7 +156,7 @@ void CSolutionScanner::Update()
 
 					if (info.action == FA_MODIFIED || info.action == FA_ADDED || FA_RENAMED_OLD_NAME || FA_RENAMED_NEW_NAME)
 					{
-						if ((!symbolDBNotified)|| (!symbolDB2Notified))
+						if ((!symbolDBNotified) || (!symbolDB2Notified))
 							suffix = GetFileSuffix(path);
 
 						if (!symbolDBNotified)
@@ -166,11 +166,11 @@ void CSolutionScanner::Update()
 								_symbolDB->NotifyFilesChanged();
 								symbolDBNotified = true;
 							}
-						} 
+						}
 
 						if (!symbolDB2Notified)
 						{
-							if(TreeSitterSymbol::GetLanguageFromExtension(suffix)!=Language::Unknown)
+							if (TreeSitterSymbol::GetLanguageFromExtension(suffix) != Language::Unknown)
 							{
 								_symbolDB2->NotifyFilesChanged();
 								symbolDB2Notified = true;
@@ -205,7 +205,7 @@ void CSolutionScanner::_Refresh()
 	if (isInitialCommit)
 	{
 
-//		MessageBoxA(NULL, "Here", "Current Parsing:", MB_OK);
+		//		MessageBoxA(NULL, "Here", "Current Parsing:", MB_OK);
 
 		_slnDumpTime = tSln;
 		_dirWatchConfigTime = tDirWatch;
@@ -398,8 +398,7 @@ static void _ScanDirRecursive(const std::string& dirPath, const std::vector<std:
 				break;
 			}
 		}
-	}
-	while (FindNextFileW(hFind, &fd));
+	} while (FindNextFileW(hFind, &fd));
 
 	FindClose(hFind);
 }
@@ -443,8 +442,7 @@ void CSolutionScanner::_ScanDirEntry(DirWatchEntry& entry)
 					break;
 				}
 			}
-		}
-		while (FindNextFileW(hFind, &fd));
+		} while (FindNextFileW(hFind, &fd));
 
 		FindClose(hFind);
 	}
