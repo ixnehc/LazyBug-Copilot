@@ -1155,17 +1155,22 @@ void CChatDialogA::_HandleInlineTagClicked(const std::wstring& id, const std::ws
 		if (results.empty())
 			return;
 
-		const auto& r = results[0];
+		// 循环切换：同一个 tag 多次点击时跳到下一个结果
+		int& idx = _inlineSymbolClickIndex[id];
+		if (idx < 0 || idx >= (int)results.size())
+			idx = 0;
+
+		const auto& r = results[idx];
 		const std::string& filePathStr = CChatTask_ResolveSymbolLinks::GetFilePath(r.fileIndex);
 		if (filePathStr.empty())
 			return;
 
 		FileLocation loc;
 		if (r.lineNumber >= 0)
-		{
 			loc.lineLoc.line = (WORD)r.lineNumber;
-		}
 		GetFileLocator().Request(filePathStr.c_str(), loc);
+
+		idx++;
 		return;
 	}
 
@@ -1462,6 +1467,7 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 		// 清空编辑框
 		_inputHistory.OnSendCurrent();
 		_chatInput.SetInputContent_(_inputHistory.GetCurrentContent());
+		_inlineSymbolClickIndex.clear();
 	}
 }
 

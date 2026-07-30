@@ -205,6 +205,7 @@ protected:
 	void _HandleOpenFile(const std::wstring& filePath);
 	std::wstring _currentSymbolLink; // 当前点击的symbol
 	int _symbolLinkClickIndex; // 当前symbol的点击索引，用于循环多个结果
+	std::map<std::wstring, int> _inlineSymbolClickIndex; // inline symbol tag 点击索引，按 tagId 记录
 
 	//Notify
 	bool _OnBeforeSendToLlm(bool isUserMessage);
