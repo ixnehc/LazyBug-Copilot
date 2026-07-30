@@ -425,6 +425,21 @@ HRESULT CChatInput::InitializeWebView()
 									}
 								}
 							}
+							else if (action == "inlineTagClicked")
+							{
+								if (jsonMsg.contains("tag") && jsonMsg["tag"].is_object())
+								{
+									auto& tag = jsonMsg["tag"];
+									std::wstring id = tag.contains("id") && tag["id"].is_string() ? utf8_to_widechar(tag["id"].get<std::string>()) : L"";
+									std::wstring text = tag.contains("text") && tag["text"].is_string() ? utf8_to_widechar(tag["text"].get<std::string>()) : L"";
+									std::wstring type = tag.contains("type") && tag["type"].is_string() ? utf8_to_widechar(tag["type"].get<std::string>()) : L"";
+									std::wstring path = tag.contains("path") && tag["path"].is_string() ? utf8_to_widechar(tag["path"].get<std::string>()) : L"";
+									if (_inlineTagClickedCallback)
+									{
+										_inlineTagClickedCallback(id, text, type, path);
+									}
+								}
+							}
 							else if (action == "imageTagHoverResult")
 							{
 								// 处理 JS 返回的 image tag 悬停状态
@@ -759,6 +774,11 @@ void CChatInput::SetTagClickedCallback(InputTagClickedCallback callback)
 	_tagClickedCallback = callback;
 }
 
+void CChatInput::SetInlineTagClickedCallback(InputInlineTagClickedCallback callback)
+{
+	_inlineTagClickedCallback = callback;
+}
+
 void CChatInput::SetEscapeCallback(InputEscapeCallback callback)
 {
 	_escapeCallback = callback;
@@ -920,10 +940,10 @@ void CChatInput::_ProcessPastedFilePath(const wchar_t* filePath)
 	{
 		canAddInline = true;
 		canAttach = true;
-		if (Utils::CheckFileBinary(actualPath.c_str()))
-			canAttach = false;
-		else
-			showAttach = true;
+// 		if (Utils::CheckFileBinary(actualPath.c_str()))
+// 			canAttach = false;
+// 		else
+// 			showAttach = true;
 	}
 	else
 		canAddInline = true;

@@ -158,6 +158,14 @@ function initializeEventListeners() {
     // 文本选择监听
     document.addEventListener('selectionchange', handleSelectionChange);
     inputEditor.addEventListener('mouseup', handleSelectionChange);
+
+    // inline tag 点击事件委托（不能用 addEventListener 直接绑定，因为 outerHTML 序列化会丢失事件）
+    inputEditor.addEventListener('click', function(e) {
+        const tagEl = e.target.closest('.inline-tag');
+        if (tagEl && window.handleInlineTagClick) {
+            window.handleInlineTagClick(tagEl);
+        }
+    });
     inputEditor.addEventListener('keyup', handleSelectionChange);
 
     // 发送按钮点击

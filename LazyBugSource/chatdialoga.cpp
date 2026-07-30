@@ -259,6 +259,11 @@ BOOL CChatDialogA::OnInitDialog()
 		_HandleTagClicked(tagId);
 	});
 
+	// 设置内联标签点击回调
+	_chatInput.SetInlineTagClickedCallback([this](const std::wstring& id, const std::wstring& text, const std::wstring& type, const std::wstring& path) {
+		_HandleInlineTagClicked(id, text, type, path);
+	});
+
 	// 设置文件粘贴回调
 	_chatInput.SetFilePastedCallback([this](const std::wstring& fileType) {
 			_chatInput.HandlePaste();
@@ -1135,6 +1140,42 @@ void CChatDialogA::_HandleTagClicked(const std::wstring& tagId)
 // 		
 // 		AfxMessageBox(message, MB_OK | MB_ICONINFORMATION);
 // 	}
+}
+
+void CChatDialogA::_HandleInlineTagClicked(const std::wstring& id, const std::wstring& text, const std::wstring& type, const std::wstring& path)
+{
+	if (type == L"symbol")
+	{
+		// 符号类型：通过 FuzzyResolveSymbol 解析后跳转到定义位置
+		if (text.empty())
+			return;
+		std::string dbFolderPath = GetOpenedDBFolderPath_utf8();
+		std::string symbolName = widechar_to_utf8(text.c_str());
+		auto results = CChatTask_ResolveSymbolLinks::FuzzyResolveSymbol(dbFolderPath, symbolName);
+		if (results.empty())
+			return;
+
+		const auto& r = results[0];
+		const std::string& filePathStr = CChatTask_ResolveSymbolLinks::GetFilePath(r.fileIndex);
+		if (filePathStr.empty())
+			return;
+
+		FileLocation loc;
+		if (r.lineNumber >= 0)
+		{
+			loc.lineLoc.line = (WORD)r.lineNumber;
+		}
+		GetFileLocator().Request(filePathStr.c_str(), loc);
+		return;
+	}
+
+	// file / image 等类型：直接打开路径
+	if (path.empty())
+		return;
+
+	std::string filePath = widechar_to_utf8(path.c_str());
+	FileLocation loc;
+	GetFileLocator().Request(filePath.c_str(), loc);
 }
 
 void CChatDialogA::_HandleSettingsButtonClicked()

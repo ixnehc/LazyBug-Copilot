@@ -189,6 +189,7 @@ protected:
 	void _HandleSettingMenuItemClicked(const std::wstring& itemName);
 	void _HandleChatSettingPageClose();
 	void _HandleTagClicked(const std::wstring& tagId);
+	void _HandleInlineTagClicked(const std::wstring& id, const std::wstring& text, const std::wstring& type, const std::wstring& path);
 	void _HandleEscape();
 	bool _HandleTab();
 	void _HandleContentVersionIncreased(int contentVersion);

@@ -22,6 +22,7 @@ using InputPageNavigationCallback = std::function<void(bool, const std::wstring&
 using InputStopButtonClickedCallback = std::function<void()>; // stop按钮点击回调
 using InputMajorChatApiChangedCallback = std::function<void(const std::wstring&)>; // majorChatApi changed callback
 using InputTagClickedCallback = std::function<void(const std::wstring&)>; // tagId
+using InputInlineTagClickedCallback = std::function<void(const std::wstring&, const std::wstring&, const std::wstring&, const std::wstring&)>; // id, text, type, path
 using InputEscapeCallback = std::function<void()>; // Esc键按下回调
 using InputReadyCallback = std::function<void()>; // WebView和Input准备就绪回调
 using InputFilePastedCallback = std::function<void(const std::wstring&)>; // 文件粘贴回调，参数为文件类型：L"files"或L"image"
@@ -75,6 +76,7 @@ public:
     void SetStopButtonClickedCallback(InputStopButtonClickedCallback callback);
     void SetMajorChatApiChangedCallback(InputMajorChatApiChangedCallback callback);
     void SetTagClickedCallback(InputTagClickedCallback callback);
+    void SetInlineTagClickedCallback(InputInlineTagClickedCallback callback);
     void SetEscapeCallback(InputEscapeCallback callback);
     void SetReadyCallback(InputReadyCallback callback);
     void SetFilePastedCallback(InputFilePastedCallback callback);
@@ -300,6 +302,7 @@ private:
     InputStopButtonClickedCallback _stopButtonClickedCallback;
     InputMajorChatApiChangedCallback _majorChatApiChangedCallback;
     InputTagClickedCallback _tagClickedCallback;
+    InputInlineTagClickedCallback _inlineTagClickedCallback;
     InputEscapeCallback _escapeCallback;
     InputReadyCallback _readyCallback;
     InputFilePastedCallback _filePastedCallback;

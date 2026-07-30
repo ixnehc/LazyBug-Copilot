@@ -111,6 +111,24 @@ function updateTags(tags) {
     updateTagsDisplay();
 }
 
+// inline tag 点击事件委托：由 main.js 在 inputEditor 上绑定，通过 data 属性读取 tag 信息
+function handleInlineTagClick(tagElement) {
+    const id = tagElement.getAttribute('data-tag-id') || '';
+    const text = tagElement.getAttribute('data-tag-text') || '';
+    const type = tagElement.getAttribute('data-tag-type') || '';
+    const data = tagElement.getAttribute('data-tag-data') || '';
+    sendMessageToNative({
+        action: 'inlineTagClicked',
+        tag: {
+            id: id,
+            text: text,
+            type: type,
+            data: data,
+            path: data  // data 字段通常就是文件路径
+        }
+    });
+}
+
 // 创建内联标签元素
 function createInlineTagElement(tag) {
     const tagType = tag.type || tag.tagType || 'info';
@@ -438,6 +456,7 @@ window.removeTag = removeTag;
 window.toggleTagVisibility = toggleTagVisibility;
 window.updateTags = updateTags;
 window.createInlineTagElement = createInlineTagElement;
+window.handleInlineTagClick = handleInlineTagClick;
 window.removeInlineTag = removeInlineTag;
 window.ensureTagIntegrity = ensureTagIntegrity;
 window.selectTagCombination = selectTagCombination;
