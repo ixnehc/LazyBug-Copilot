@@ -259,7 +259,7 @@ void FindInFile(const char* key, std::vector<std::string>& folderPathes, FindInF
 
 
 int FindMatchingLines(const std::string& filePath, const std::string& key,
-	const std::string& content, FindInFileResults& results, int maxLines)
+	const std::string& content, FindInFileResults& results, int maxLines, bool caseInsensitive)
 {
 	std::istringstream stream(content);
 	std::string line;
@@ -281,13 +281,32 @@ int FindMatchingLines(const std::string& filePath, const std::string& key,
 		}
 	}
 
+	// 大小写不敏感时使用小写副本进行匹配
+	std::string keyLower;
+	std::string lineLower;
+	const std::string* keyPtr = &key;
+	const std::string* linePtr = &line;
+	if (caseInsensitive)
+	{
+		keyLower = key;
+		StringLower(keyLower);
+		keyPtr = &keyLower;
+	}
+
 	while (std::getline(stream, line) && addedCount < maxLines)
 	{
-		++lineNumber;
+			++lineNumber;
 
-		// 大小写敏感的匹配
+		if (caseInsensitive)
+		{
+			lineLower = line;
+			StringLower(lineLower);
+			linePtr = &lineLower;
+		}
+
+		// 字符串匹配（大小写根据参数决定）
 		size_t pos = 0;
-		while ((pos = line.find(key, pos)) != std::string::npos)
+		while ((pos = linePtr->find(*keyPtr, pos)) != std::string::npos)
 		{
 			// 如果key包含非word字符，不进行全词匹配检查
 			if (hasNonWordChar)
@@ -297,7 +316,7 @@ int FindMatchingLines(const std::string& filePath, const std::string& key,
 				break; // 当前行已匹配，跳到下一行
 			}
 
-			// 检查前面是否是单词边界
+			// 检查前面是否是单词边界（word-boundary 检查用原始 line，不受大小写影响）
 			bool leftBoundary = (pos == 0) || !isWordChar(line[pos - 1]);
 			// 检查后面是否是单词边界
 			bool rightBoundary = (pos + key.length() == line.length()) || !isWordChar(line[pos + key.length()]);

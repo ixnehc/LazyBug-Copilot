@@ -403,6 +403,7 @@ void CLlmTools::Init()
 	AppendToolDesc("Note: Wildcards or regular expression are not supported. It only supports 'Match case' and 'Match whole word' matching.");
 	AddToolPara_String("keywords", "The keyword or text to search for. Multiple keywords can be separated by '|' to search for each keyword independently. Example: 'functionA|functionB|classC'", true);
 // 	AddToolPara_Integer("maxResults", "Maximum number of results to return (default: 100)", false);
+	AddToolPara_Boolean("caseInsensitive", "Set to true for case-insensitive search (default: false)", false);
 	EndTool();
 
 	// 定义 SearchFile 工具

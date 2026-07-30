@@ -11,7 +11,7 @@ public:
 
 	bool Open(const char* indexPath) override;
 	void Close() override;
-	bool Find(const char* key, int maxResult, FindInFileResults& results) override;
+	bool Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive = false) override;
 
 protected:
 	bool IsReady() const override;

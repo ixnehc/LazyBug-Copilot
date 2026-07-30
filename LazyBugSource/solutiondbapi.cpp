@@ -241,12 +241,13 @@ void SolutionDB_FindSymbolDefines(const char* dbFolderPath, const char* symbolNa
 	msg.WaitAndFetch(result);
 }
 
-void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_FindInFilesResults& result)
+void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_FindInFilesResults& result, bool caseInsensitive)
 {
 	SolutionDBMsg_FindInFiles request;
 	request.dbFolderPath = dbFolderPath;
 	request.keyword = keyword;
 	request.maxResults = maxResults;
+	request.caseInsensitive = caseInsensitive;
 
 	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
 

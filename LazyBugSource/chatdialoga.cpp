@@ -1327,7 +1327,7 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 		std::string dbFolderPath = GetOpenedDBFolderPath_utf8();
 
 		SolutionDBMsg_FindInFilesResults result;
-		extern void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_FindInFilesResults & result);
+		extern void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_FindInFilesResults & result, bool caseInsensitive = false);
 		SolutionDB_FindInFiles(dbFolderPath.c_str(), "selectTagCombination", 100, result);
 
 		std::string s;

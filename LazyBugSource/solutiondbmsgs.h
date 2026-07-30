@@ -289,6 +289,7 @@ public:
 	std::string dbFolderPath;
 	std::string keyword;
 	int maxResults = 100; // 最大结果数
+	bool caseInsensitive = false;
 
 	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::FindInFiles; }
 
@@ -297,6 +298,7 @@ public:
 		dp.Data_WriteString(dbFolderPath);
 		dp.Data_WriteString(keyword);
 		dp.Data_WriteSimple(maxResults);
+		dp.Data_WriteSimple(caseInsensitive);
 	}
 
 	void Load(CDataPacket& dp) override
@@ -304,6 +306,7 @@ public:
 		dp.Data_ReadString(dbFolderPath);
 		dp.Data_ReadString(keyword);
 		dp.Data_ReadSimple(maxResults);
+		dp.Data_ReadSimple(caseInsensitive);
 	}
 };
 

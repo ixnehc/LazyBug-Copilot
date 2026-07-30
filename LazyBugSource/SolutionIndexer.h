@@ -40,7 +40,7 @@ public:
 
 	virtual bool Open(const char* indexPath) = 0;
 	virtual void Close() = 0;
-	virtual bool Find(const char* key, int maxResult, FindInFileResults& results) = 0;
+	virtual bool Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive = false) = 0;
 
 	void QueueTask(const IndexingTask& task);
 	void StartWorkerThread();
@@ -113,7 +113,7 @@ public:
 	//检查指定文件是否已在索引中，如果在索引中且文件时间不同，则更新索引
 	void UpdateIfExists(const char* lowerCasedFilePath);
 
-	bool Find(const char* key, int maxResult, FindInFileResults &results);
+	bool Find(const char* key, int maxResult, FindInFileResults &results, bool caseInsensitive = false);
 
 	bool IsIndexing() const	{ return _impl->HasPendingWork();	}
 	int GetPendingOpCount() const { return _impl->GetPendingOpCount(); }

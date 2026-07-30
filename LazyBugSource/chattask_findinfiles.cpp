@@ -205,6 +205,10 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	
 	// 获取最大结果数（可选）
 	int maxResult = 120;
+	
+	// 获取大小写不敏感参数（可选）
+	bool caseInsensitive = false;
+	_toolCall.GetBoolParam("caseInsensitive", caseInsensitive);
 
 	// 解析多个关键字（以"|"分隔）
 	std::vector<std::string> keywords = SplitKeywords(keyword, '|');
@@ -230,7 +234,7 @@ void CChatTask_FindInFiles::_ThreadFunc()
 		int retryCount = 0;
 		while (true)
 		{
-			SolutionDB_FindInFiles(_dbFolderPath.c_str(), kw.c_str(), maxResult, result);
+		SolutionDB_FindInFiles(_dbFolderPath.c_str(), kw.c_str(), maxResult, result, caseInsensitive);
 
 			if (!result.isStillIndexing)
 				break;

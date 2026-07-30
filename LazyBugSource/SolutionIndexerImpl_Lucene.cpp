@@ -337,7 +337,7 @@ void CSolutionIndexerImpl_Lucene::AddDocumentIfChanged(const std::string& lowerC
 	}
 }
 
-bool CSolutionIndexerImpl_Lucene::Find(const char* key, int maxResult, FindInFileResults& results)
+bool CSolutionIndexerImpl_Lucene::Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive)
 {
 	if (!_indexWriter)
 		return false;
@@ -403,7 +403,7 @@ bool CSolutionIndexerImpl_Lucene::Find(const char* key, int maxResult, FindInFil
 			std::string fileContent;
 			if (Utils::GetFileContentIntoUTF8(lowerCasedFilePath.c_str(), fileContent, codingFmt))
 			{
-				currentCount += Utils::FindMatchingLines(lowerCasedFilePath, key, fileContent, results, maxResult - currentCount);
+			currentCount += Utils::FindMatchingLines(lowerCasedFilePath, key, fileContent, results, maxResult - currentCount, caseInsensitive);
 			}
 		}
 

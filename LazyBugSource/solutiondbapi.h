@@ -19,7 +19,7 @@ extern void SolutionDB_QueryNameItems(const char* dbFolderPath,const char *query
 extern bool SolutionDB_CollectRefs(const char* dbFolderPath, const CppSymbol::CollectRefsParam &collectRefsParam);
 extern void SolutionDB_FindSymbolDefines(const char* dbFolderPath, const char* symbolName, int maxResult, SolutionDBMsg_SymbolDefines& result);
 
-extern void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_FindInFilesResults& result);
+extern void SolutionDB_FindInFiles(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_FindInFilesResults& result, bool caseInsensitive = false);
 extern void SolutionDB_SearchFile(const char* dbFolderPath, const char* keyword, int maxResults, SolutionDBMsg_SearchFileResult& result);
 
 extern SolutionDBMsg_EmbeddingModelSet SolutionDB_SetEmbeddingModel(const char* dbFolderPath, const EmbedModelParam& modelParam);

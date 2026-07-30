@@ -706,7 +706,7 @@ void CSolutionDBServer::_FindInFiles(const SolutionDBMsg_FindInFiles& request, S
 		return;
 	}
 
-	if (db->GetSolutionIndexer().Find(request.keyword.c_str(), request.maxResults, result.results))
+	if (db->GetSolutionIndexer().Find(request.keyword.c_str(), request.maxResults, result.results, request.caseInsensitive))
 	{
 		_CollectFindInFileResultSymbols(db, result.results);
 		return;

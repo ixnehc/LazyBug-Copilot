@@ -219,5 +219,18 @@ void CSolutionDBClient::ReaderLoop()
 			_pendingRequests.erase(it);
 		}
 	}
+
+	// 管道断开（如 Service 被 kill）后的清理：
+	// 1. 标记连接断开，让 EnsureConnected 能感知并触发重连
+	// 2. 唤醒所有等待中的 promise（设为 nullptr），防止调用线程永久阻塞
+	{
+		std::lock_guard<std::mutex> lock(_mutex);
+		_isConnected = false;
+		for (auto& pair : _pendingRequests)
+		{
+			pair.second.set_value(nullptr);
+		}
+		_pendingRequests.clear();
+	}
 }
 

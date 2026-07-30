@@ -220,7 +220,10 @@ void CSolutionIndexerImpl_Xapian::AddDocumentIfChanged(const std::string& lowerC
 	}
 }
 
-bool CSolutionIndexerImpl_Xapian::Find(const char* key, int maxResult, FindInFileResults& results)
+// TODO: 当 caseInsensitive=true 时，需要：
+//   1. 用原始 key 和小写 key 分别构建 Xapian::Query，通过 OP_OR 合并
+//   2. 调用 FindMatchingLines 时传入 caseInsensitive
+bool CSolutionIndexerImpl_Xapian::Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive)
 {
 	if (!_database)
 		return false;
@@ -265,6 +268,7 @@ bool CSolutionIndexerImpl_Xapian::Find(const char* key, int maxResult, FindInFil
 			std::string fileContent;
 			if (Utils::GetFileContentIntoUTF8(lowerCasedFilePath.c_str(), fileContent, codingFmt))
 			{
+				// TODO: 当 caseInsensitive=true 时传入 caseInsensitive
 				currentCount += Utils::FindMatchingLines(lowerCasedFilePath, key, fileContent, results, maxResult - currentCount);
 			}
 		}

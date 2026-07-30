@@ -274,7 +274,7 @@ void CSolutionIndexer::UpdateIfExists(const char* lowerCasedFilePath)
 	_impl->QueueTask(task);
 }
 
-bool CSolutionIndexer::Find(const char* key, int maxResult, FindInFileResults& results)
+bool CSolutionIndexer::Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive)
 {
-	return _impl->Find(key, maxResult, results);
+	return _impl->Find(key, maxResult, results, caseInsensitive);
 }
