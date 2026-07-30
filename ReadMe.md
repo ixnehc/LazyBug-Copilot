@@ -33,12 +33,6 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 - Grep tool now supports case-insensitive search
 
-## Version 0.23 Release Notes
-
-- Allow users to add watch folders, support various exploring operations, such as glob, grep, and find symbol
-- Grep tool will now wait for indexing to complete before searching, to get the most accurate results
-- Re-order diff blocks
-
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
 ---
