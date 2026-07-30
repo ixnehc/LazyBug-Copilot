@@ -1,5 +1,9 @@
 ﻿# LazyBug Version History
 
+## Version 0.24
+
+- Grep tool now supports case-insensitive search
+
 ## Version 0.23
 
 - Allow users to add watch folders, support various exploring operations, such as glob, grep, and find symbol
