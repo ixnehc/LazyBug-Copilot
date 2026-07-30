@@ -32,6 +32,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 ## Version 0.24 Release Notes
 
 - Grep tool now supports case-insensitive search
+- Clicking file or symbol tags in the ChatInput edit box now navigates to the corresponding location
 
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 

@@ -32,6 +32,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 ## Version 0.24 更新说明
 
 - Grep 工具支持忽略大小写的搜索
+- 点击 ChatInput 编辑框内的文件或符号标签现在可以跳转到对应的位置
 
 _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 
