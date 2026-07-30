@@ -95,6 +95,57 @@ function setupGlobalEvents() {
             }
         }
     }, true); // 使用捕获阶段，确保在其他事件处理之前拦截
+
+    // 检测 inline image tag 的 hover，发送消息给 C++ 做图片预览
+    let _lastChatImageFilePath = null;
+    let _chatImageCheckTimeout = null;
+    document.addEventListener('mousemove', (e) => {
+        if (_chatImageCheckTimeout) return;
+        _chatImageCheckTimeout = setTimeout(() => {
+            _chatImageCheckTimeout = null;
+            const chatContainer = document.getElementById('chat-container');
+            if (!chatContainer) return;
+
+            // 只查找 chat-container 内的 inline image tag
+            const imageTags = chatContainer.querySelectorAll('.inline-tag.image');
+            let activeTag = null;
+            let filePath = null;
+
+            for (const tagElement of imageTags) {
+                if (tagElement.matches(':hover')) {
+                    activeTag = tagElement;
+                    break;
+                }
+            }
+
+            if (activeTag) {
+                filePath = activeTag.getAttribute('data-tag-data') || '';
+            }
+
+            if (activeTag && filePath) {
+                if (_lastChatImageFilePath !== filePath) {
+                    _lastChatImageFilePath = filePath;
+                    const rect = activeTag.getBoundingClientRect();
+                    window.chrome.webview.postMessage({
+                        action: 'imageTagHoverResult',
+                        filePath: filePath,
+                        position: {
+                            x: Math.round(rect.left + rect.width / 2),
+                            y: Math.round(rect.bottom)
+                        }
+                    });
+                }
+            } else {
+                if (_lastChatImageFilePath !== null) {
+                    _lastChatImageFilePath = null;
+                    window.chrome.webview.postMessage({
+                        action: 'imageTagHoverResult',
+                        filePath: null
+                    });
+                }
+            }
+        }, 50); // 50ms 防抖
+    });
 }
 
 /**

@@ -12,6 +12,7 @@
 #include "ChatAgentDefines.h"
 
 #include "ChatTitleMenu.h"
+#include "ChatInputImageTip.h"
 
 
 class CDataPacket;
@@ -153,7 +154,7 @@ public:
     void HideTitlebarMenu();
     void ToggleTitlebarMenu();
 
-
+	void Update();
 
 protected:
     // 初始化WebView2环境
@@ -217,6 +218,10 @@ private:
 	};
 	QuestionData _currentQuestion;
 	std::mutex _questionMutex;
+
+	// Image tag hover 预览
+	CChatInputImageTip _imageTipWindow;
+	std::wstring _currentHoveredImageFilePath;
 
 	// CLI 输入数据结构
 	struct CliInputData

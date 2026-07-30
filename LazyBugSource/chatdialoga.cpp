@@ -530,6 +530,8 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 	_chatSkillsTree.Update();
 
+	_ui.Update();
+
 	if (stopWorking)
 		_chatMcpsTree.EnableModify(true);
 

@@ -406,6 +406,56 @@ HRESULT CChatUi::InitializeWebView()
                                                         // JSON parsing error - silently ignore
                                                     }
                                                 }
+                                                // 处理 image tag hover 消息
+                                                else if (msgStr.find(L"\"action\":\"imageTagHoverResult\"") != std::wstring::npos)
+                                                {
+                                                    try
+                                                    {
+                                                        std::string utf8Msg = widechar_to_utf8(msgStr.c_str());
+                                                        auto jsonMsg = nlohmann::json::parse(utf8Msg);
+
+                                                        std::wstring filePath;
+                                                        bool hasHover = false;
+                                                        int x = 0, y = 0;
+
+                                                        if (jsonMsg.contains("filePath") && !jsonMsg["filePath"].is_null() && jsonMsg["filePath"].is_string())
+                                                        {
+                                                            filePath = utf8_to_widechar(jsonMsg["filePath"].get<std::string>());
+                                                            hasHover = !filePath.empty();
+
+                                                            if (jsonMsg.contains("position") && jsonMsg["position"].is_object())
+                                                            {
+                                                                auto pos = jsonMsg["position"];
+                                                                if (pos.contains("x") && pos["x"].is_number())
+                                                                    x = pos["x"].get<int>();
+                                                                if (pos.contains("y") && pos["y"].is_number())
+                                                                    y = pos["y"].get<int>();
+                                                            }
+                                                        }
+
+                                                        if (hasHover)
+                                                        {
+                                                            if (_currentHoveredImageFilePath != filePath)
+                                                            {
+                                                                _currentHoveredImageFilePath = filePath;
+                                                                CRect chatUiRect;
+                                                                GetWindowRect(&chatUiRect);
+                                                                int screenX = chatUiRect.left + x;
+                                                                int screenY = chatUiRect.top + y;
+                                                                _imageTipWindow.ShowImage(filePath, screenX, screenY, chatUiRect);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (!_currentHoveredImageFilePath.empty())
+                                                            {
+                                                                _currentHoveredImageFilePath.clear();
+                                                                _imageTipWindow.HideWindow();
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (const std::exception&) {}
+                                                }
                                                 else if (_webMessageReceivedCallback)
                                                 {
                                                     _webMessageReceivedCallback(message);
@@ -568,11 +618,19 @@ void CChatUi::OnDestroy()
 	// 隐藏标题栏菜单窗口
 	_titleMenuWindow.HideMenu();
 
-    // 关闭WebView
+	// 隐藏图片预览
+	_imageTipWindow.HideWindow();
+
+	// 关闭WebView
     if (_controller != nullptr)
     {
         _controller->Close();
     }
+}
+
+void CChatUi::Update()
+{
+	_imageTipWindow.Update();
 }
 
 //====================== 聊天功能相关实现 ======================
@@ -586,6 +644,8 @@ void CChatUi::InitializeChatUI()
         return;
 
     _isChatInitialized = true;
+
+	_imageTipWindow.CreateTipWindow(this);
 
 	// 设置标题栏菜单回调
 	_titleMenuWindow.SetMenuItemClickedCallback([this](const std::wstring& menuItemId,
