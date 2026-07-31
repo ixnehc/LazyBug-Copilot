@@ -477,13 +477,24 @@ void CChatAgent::_FinishChat()
 
 	if (!_aiMessageId.empty())
 	{
-		if (true)
+		// So Far 累积列表：一个 session 仅一条 op
 		{
-			std::vector<std::wstring> pathes;
-			_opsCtrl.GetFileEditFilePathesByMessageId(_aiMessageId, pathes);
+			std::vector<std::wstring> soFarPathes;
+			std::unordered_set<std::wstring> recentSet;
+			_opsCtrl.GetAllModifiedFilePathesUpToMessageId(_aiMessageId, soFarPathes, recentSet);
 
-			for (int i = 0;i < pathes.size();i++)
-				_opsCtrl.AddFileSummarizeToAIMessage(_aiMessageId, Utils::GetActualFilePath(pathes[i].c_str()));
+			if (!soFarPathes.empty())
+			{
+				nlohmann::json filesJson = nlohmann::json::array();
+				for (auto& p : soFarPathes)
+				{
+					nlohmann::json entry;
+					entry["path"] = widechar_to_utf8(p.c_str());
+					entry["recent"] = (recentSet.find(p) != recentSet.end());
+					filesJson.push_back(std::move(entry));
+				}
+				_opsCtrl.AddFileSummarizeSoFarToAIMessage(_aiMessageId, filesJson.dump());
+			}
 		}
 
 		// 完成 AI 流式消息
@@ -774,5 +785,27 @@ bool CChatAgent::GetFileSummarizeDiff(const std::wstring& messageId, const std::
 		return false;
 
 	return true;
+}
+
+bool CChatAgent::GetFileSummarizeDiffSoFar(const std::wstring& filePath, FilesCheckpointUID& oldCheckpointId, FilesCheckpointUID& newCheckpointId)
+{
+	// new = 该文件路径全局最后一个 FileEdit 的 checkpoint
+	std::wstring fileEditId = _opsCtrl.GetLastFileEditCheckpointFromFilePathGlobal(filePath);
+	if (fileEditId.empty())
+		return false;
+
+	if (!_opsCtrl.GetFileEditCheckpoint(fileEditId, newCheckpointId))
+		return false;
+
+	// old = 该文件路径全局第一个 FileEdit 的 checkpoint（首次被修改时的状态）
+	std::wstring firstFileEditId = _opsCtrl.GetFirstFileEditCheckpointFromFilePathGlobal(filePath);
+	if (firstFileEditId.empty())
+		return false;
+
+	if (!_opsCtrl.GetFileEditCheckpointInSessionBegin(firstFileEditId, oldCheckpointId))
+		return false;
+
+	return (oldCheckpointId != FilesCheckpointUID_Invalid
+	     && newCheckpointId != FilesCheckpointUID_Invalid);
 }
 

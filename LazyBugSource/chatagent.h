@@ -194,6 +194,9 @@ public:
 	// 返回值: true 表示成功，false 表示失败
 	bool GetFileSummarizeDiff(const std::wstring& messageId, const std::wstring& filePath, FilesCheckpointUID& oldCheckpointId, FilesCheckpointUID& newCheckpointId);
 
+	// So Far 模式的 diff：对话起点 → 文件最新状态
+	bool GetFileSummarizeDiffSoFar(const std::wstring& filePath, FilesCheckpointUID& oldCheckpointId, FilesCheckpointUID& newCheckpointId);
+
 	int  GetRecentPromptToken() const { return _opsCtrl.GetRecentPromptToken(); }
 
 	CChatOpsCtrl& GetOpsCtrl() { return _opsCtrl; }

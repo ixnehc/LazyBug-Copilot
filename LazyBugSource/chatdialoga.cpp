@@ -197,8 +197,8 @@ BOOL CChatDialogA::OnInitDialog()
 	});
 
 	// 设置FileSummarize点击回调
-	_ui.SetFileSummarizeClickedCallback([this](const std::wstring& messageId, const std::wstring& filePath) {
-		_HandleFileSummarizeClicked(messageId, filePath);
+	_ui.SetFileSummarizeClickedCallback([this](const std::wstring& messageId, const std::wstring& filePath, bool soFar) {
+		_HandleFileSummarizeClicked(messageId, filePath, soFar);
 	});
 
 	// 设置标题栏菜单点击回调
@@ -1074,11 +1074,20 @@ void CChatDialogA::_HandleFileEditTitleClicked(const std::wstring& fileEditId)
 	_checkpointsFileChange.Activate(oldCheckpointId, newCheckpointId, filePath.c_str());
 }
 
-void CChatDialogA::_HandleFileSummarizeClicked(const std::wstring& messageId, const std::wstring& filePath)
+void CChatDialogA::_HandleFileSummarizeClicked(const std::wstring& messageId, const std::wstring& filePath, bool soFar)
 {
 	FilesCheckpointUID oldCheckpointId, newCheckpointId;
-	if (!_agent.GetFileSummarizeDiff(messageId, filePath, oldCheckpointId, newCheckpointId))
-		return;
+
+	if (soFar)
+	{
+		if (!_agent.GetFileSummarizeDiffSoFar(filePath, oldCheckpointId, newCheckpointId))
+			return;
+	}
+	else
+	{
+		if (!_agent.GetFileSummarizeDiff(messageId, filePath, oldCheckpointId, newCheckpointId))
+			return;
+	}
 
 	std::string localFilePath = widechar_to_utf8(filePath.c_str());
 	StringLower(localFilePath);

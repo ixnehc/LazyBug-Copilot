@@ -227,7 +227,7 @@ function setupWebViewMessageListener() {
                 
                 // ====== FileSummarize 相关 =====
                 case 'addFileSummarize':
-                    createFileSummarizeWindow(message.messageId, message.filePath);
+                    createFileSummarizeWindow(message.messageId, message.filePath, message.listType, message.files);
                     break;
                 
                 // ====== User Interject 相关 =====

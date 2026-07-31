@@ -21,6 +21,12 @@
     font-weight: 600;
     color: #e2e8f0;
     user-select: none;
+    border-radius: 4px;
+    transition: color 0.2s;
+}
+
+.file-summarize-container-header[style*="cursor: pointer"]:hover {
+    color: #63b3ed;
 }
 
 /* 文件列表区域 */
@@ -61,6 +67,11 @@
     background-color: rgba(255, 255, 255, 0.15);
 }
 
+/* So Far 模式下非最近 session 的文件显示浅色 */
+.file-summarize-button.faded {
+    color: #666;
+}
+
 /* 暗色主题适配 */
 [data-theme="dark"] .file-summarize-button {
     background-color: transparent;
@@ -69,6 +80,10 @@
 
 [data-theme="dark"] .file-summarize-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .file-summarize-button.faded {
+    color: #555;
 }
 
 

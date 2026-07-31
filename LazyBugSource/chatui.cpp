@@ -273,11 +273,17 @@ HRESULT CChatUi::InitializeWebView()
                                                                     
                                                                     // 反转义JSON字符串
                                                                     filePath = UnescapeJsonString(filePath);
+
+                                                                    // 解析 sofar 字段（可选，默认 false）
+                                                                    bool soFar = false;
+                                                                    size_t soFarStart = msgStr.find(L"\"sofar\":true");
+                                                                    if (soFarStart != std::wstring::npos)
+                                                                        soFar = true;
                                                                     
                                                                     // 调用FileSummarize点击回调
                                                                     if (_fileSummarizeClickedCallback)
                                                                     {
-                                                                        _fileSummarizeClickedCallback(messageId, filePath);
+                                                                        _fileSummarizeClickedCallback(messageId, filePath, soFar);
                                                                     }
                                                                 }
                                                             }

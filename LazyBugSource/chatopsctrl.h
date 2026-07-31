@@ -25,7 +25,8 @@ class CDataPacket;
 #define CHATOPSCTRL_VERSION_1_4     0x00010004
 #define CHATOPSCTRL_VERSION_1_5     0x00010005
 #define CHATOPSCTRL_VERSION_1_6     0x00010006
-#define CHATOPSCTRL_VERSION_CURRENT CHATOPSCTRL_VERSION_1_6
+#define CHATOPSCTRL_VERSION_1_7     0x00010007
+#define CHATOPSCTRL_VERSION_CURRENT CHATOPSCTRL_VERSION_1_7
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ChatOp
@@ -61,6 +62,7 @@ struct ChatOp
 		Op_QuestionDisplay,
 		Op_McpDisplay,
 		Op_AddToolCallMessage_AddMcpServer,
+		Op_AddFileSummarizeSoFarToAIMessage,
 		// 重要：后添加的 Op 一定要加在末尾
     };
 
@@ -360,7 +362,24 @@ public:
     // 添加 FileSummarize 按钮
     void AddFileSummarizeToAIMessage(const std::wstring& messageId, const std::wstring& filePath);
 
-    bool ExistSummarizeInSession(const std::wstring& fileEditId) const;
+    // 添加 So Far 模式的 FileSummarize（一个 session 仅一条，contentUtf8 存 JSON）
+    void AddFileSummarizeSoFarToAIMessage(const std::wstring& messageId, const std::string& filesJsonUtf8);
+
+    // 收集从对话起点到指定 messageId 所在 session 为止的所有修改文件
+    // outPathes: 全部文件（首次出现顺序，路径已规范化）
+    // outRecentSet: 当前 session 中修改的文件集合
+    void GetAllModifiedFilePathesUpToMessageId(const std::wstring& messageId,
+                                               std::vector<std::wstring>& outPathes,
+                                               std::unordered_set<std::wstring>& outRecentSet) const;
+
+    // 获取首个 Op_BeginSession 的 checkpoint（对话起点）
+    bool GetFirstSessionBeginCheckpoint(FilesCheckpointUID& checkpointId) const;
+
+    // 按文件路径从全局查找最后一个有效 FileEdit（不限制 messageId）
+    std::wstring GetLastFileEditCheckpointFromFilePathGlobal(const std::wstring& fullPath) const;
+
+    // 按文件路径从全局查找第一个有效 FileEdit（正向遍历，返回 fileEditId）
+    std::wstring GetFirstFileEditCheckpointFromFilePathGlobal(const std::wstring& fullPath) const;
 
     // ── FileEdit Progress Label ─────────────────────────────────────────────
 

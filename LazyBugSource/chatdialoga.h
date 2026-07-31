@@ -184,7 +184,7 @@ protected:
 	void _RestoreUserMessageToInput(const std::wstring& messageId);
 	void _HandleDisabledMessageClicked(const std::wstring& messageId);
 	void _HandleFileEditTitleClicked(const std::wstring& fileEditId);
-	void _HandleFileSummarizeClicked(const std::wstring& messageId, const std::wstring& filePath);
+	void _HandleFileSummarizeClicked(const std::wstring& messageId, const std::wstring& filePath, bool soFar);
 	void _HandleSettingsButtonClicked();
 	void _HandleSettingMenuItemClicked(const std::wstring& itemName);
 	void _HandleChatSettingPageClose();

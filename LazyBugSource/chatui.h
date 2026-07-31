@@ -23,7 +23,7 @@ using WebViewNavigationCompletedCallback = std::function<void(bool)>;
 using WebViewMessageReceivedCallback = std::function<void(const std::wstring&)>;
 using TitlebarMenuUpdateCallback = std::function<void()>;
 using FileEditTitleClickedCallback = std::function<void(const std::wstring&)>; // fileEditId
-using FileSummarizeClickedCallback = std::function<void(const std::wstring&, const std::wstring&)>; // messageId, filePath
+using FileSummarizeClickedCallback = std::function<void(const std::wstring&, const std::wstring&, bool)>; // messageId, filePath, soFar
 using SymbolLinkClickedCallback = std::function<void(const std::wstring&)>; // symbol
 using QuerySymbolLocationsCallback = std::function<void(const std::wstring&, const std::vector<std::wstring>&)>; // messageId, symbols
 

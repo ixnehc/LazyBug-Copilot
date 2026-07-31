@@ -955,28 +955,155 @@ void CChatOpsCtrl::AddFileSummarizeToAIMessage(const std::wstring& messageId, co
 	_AddOp(op);
 }
 
-// 查找是否存在和这个fileEditId的messageId一致的Summarize
-bool CChatOpsCtrl::ExistSummarizeInSession(const std::wstring& fileEditId) const
+// 添加 So Far 模式的 FileSummarize
+void CChatOpsCtrl::AddFileSummarizeSoFarToAIMessage(const std::wstring& messageId, const std::string& filesJsonUtf8)
 {
-	// 查找fileEditId对应的操作
-	int fileEditIndex = _FindFileEditOpIndex(fileEditId);
-	if (fileEditIndex < 0)
-		return false;
+	if (_ui)
+	{
+		std::wstring safeMessageId = EscapeJsonString(messageId);
+		// filesJsonUtf8 是已序列化的合法 JSON 数组，直接嵌入
+		std::wstring jsonMessage = L"{\"action\":\"addFileSummarize\",\"messageId\":\""
+			+ safeMessageId + L"\",\"listType\":\"sofar\",\"files\":"
+			+ utf8_to_widechar(filesJsonUtf8.c_str()) + L"}";
+		_ui->PostJsonMessage(jsonMessage);
+	}
 
-	// 获取该fileEdit的messageId
-	std::wstring messageId = _ops[fileEditIndex].messageId;
+	ChatOp op(ChatOp::Op_AddFileSummarizeSoFarToAIMessage);
+	op.messageId = messageId;
+	op.contentUtf8 = filesJsonUtf8;
+	_AddOp(op);
+}
 
-	// 查找是否存在相同messageId的Op_AddFileSummarizeToAIMessage操作
+// 收集从对话起点到指定 messageId 所在 session 为止的所有修改文件
+void CChatOpsCtrl::GetAllModifiedFilePathesUpToMessageId(const std::wstring& messageId,
+                                                         std::vector<std::wstring>& outPathes,
+                                                         std::unordered_set<std::wstring>& outRecentSet) const
+{
+	outPathes.clear();
+	outRecentSet.clear();
+
+	// 找到 messageId 在 _ops 中的位置
+	int targetIndex = -1;
 	for (int i = 0; i < static_cast<int>(_ops.size()); i++)
 	{
-		const ChatOp& op = _ops[i];
-		if (op.type == ChatOp::Op_AddFileSummarizeToAIMessage && op.messageId == messageId)
+		if (_ops[i].messageId == messageId)
 		{
+			targetIndex = i;
+			break;
+		}
+	}
+	if (targetIndex < 0)
+		return;
+
+	// 找到该 messageId 所在 session 的结束边界
+	// 注意：_FinishChat 中调用时 Op_EndSession 可能尚未写入，此时用 _ops 末尾作为有效终点
+	int sessionBegin, sessionEnd;
+	if (!FindSessionBoundaries(targetIndex, sessionBegin, sessionEnd))
+	{
+		// 可能因为 session 尚未结束（_FinishChat 场景），
+		// 此时只要找到 Op_BeginSession 即可，终止位置用 _ops 末尾
+		if (sessionBegin < 0)
+			return;  // 连 BeginSession 都找不到，放弃
+		sessionEnd = static_cast<int>(_ops.size()) - 1;
+	}
+
+	std::unordered_set<std::wstring> uniquePaths;
+
+	// 从对话起点遍历到 sessionEnd
+	for (int i = 0; i <= sessionEnd; i++)
+	{
+		const ChatOp& op = _ops[i];
+		if (op.type != ChatOp::Op_AddFileEditToAIMessage)
+			continue;
+
+		// 获取 checkpoint
+		FilesCheckpointUID checkpointId;
+		if (!GetFileEditCheckpoint(op.fileEditId, checkpointId))
+			continue;
+		if (checkpointId == FilesCheckpointUID_Invalid)
+			continue;
+
+		// 获取文件路径
+		std::wstring fullPath;
+		if (!GetFileEditFullPath(op.fileEditId, fullPath))
+			continue;
+
+		// 规范化路径
+		fullPath = Utils::GetActualFilePath(fullPath.c_str());
+
+		// 去重
+		if (uniquePaths.insert(fullPath).second)
+			outPathes.push_back(fullPath);
+
+		// 属于当前 session 的文件加入 recentSet
+		if (op.messageId == messageId)
+			outRecentSet.insert(fullPath);
+	}
+}
+
+// 获取首个 Op_BeginSession 的 checkpoint
+bool CChatOpsCtrl::GetFirstSessionBeginCheckpoint(FilesCheckpointUID& checkpointId) const
+{
+	checkpointId = FilesCheckpointUID_Invalid;
+
+	for (int i = 0; i < static_cast<int>(_ops.size()); i++)
+	{
+		if (_ops[i].type == ChatOp::Op_BeginSession)
+		{
+			checkpointId = _ops[i].checkpointId;
 			return true;
 		}
 	}
 
 	return false;
+}
+
+// 按文件路径从全局查找最后一个有效 FileEdit
+std::wstring CChatOpsCtrl::GetLastFileEditCheckpointFromFilePathGlobal(const std::wstring& fullPath) const
+{
+	for (int i = static_cast<int>(_ops.size()) - 1; i >= 0; i--)
+	{
+		const ChatOp& op = _ops[i];
+
+		if (op.type != ChatOp::Op_AddFileEditToAIMessage)
+			continue;
+
+		if (_wcsicmp(op.fullPath.c_str(), fullPath.c_str()) != 0)
+			continue;
+
+		FilesCheckpointUID checkpointId;
+		if (GetFileEditCheckpoint(op.fileEditId, checkpointId))
+		{
+			if (checkpointId != FilesCheckpointUID_Invalid)
+				return op.fileEditId;
+		}
+	}
+
+	return L"";
+}
+
+// 按文件路径从全局查找第一个有效 FileEdit（正向遍历）
+std::wstring CChatOpsCtrl::GetFirstFileEditCheckpointFromFilePathGlobal(const std::wstring& fullPath) const
+{
+	for (int i = 0; i < static_cast<int>(_ops.size()); i++)
+	{
+		const ChatOp& op = _ops[i];
+
+		if (op.type != ChatOp::Op_AddFileEditToAIMessage)
+			continue;
+
+		if (_wcsicmp(op.fullPath.c_str(), fullPath.c_str()) != 0)
+			continue;
+
+		FilesCheckpointUID checkpointId;
+		if (GetFileEditCheckpoint(op.fileEditId, checkpointId))
+		{
+			if (checkpointId != FilesCheckpointUID_Invalid)
+				return op.fileEditId;
+		}
+	}
+
+	return L"";
 }
 
 //====================== FileEdit 私有辅助方法实现 ======================
@@ -1315,6 +1442,12 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 	case ChatOp::Op_AddFileSummarizeToAIMessage:
 	{
 		AddFileSummarizeToAIMessage(op.messageId, op.fullPath);
+		break;
+	}
+
+	case ChatOp::Op_AddFileSummarizeSoFarToAIMessage:
+	{
+		AddFileSummarizeSoFarToAIMessage(op.messageId, op.contentUtf8);
 		break;
 	}
 
