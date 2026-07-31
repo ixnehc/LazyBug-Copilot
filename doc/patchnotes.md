@@ -4,6 +4,7 @@
 
 - Grep tool now supports case-insensitive search
 - Clicking file or symbol tags in the ChatInput edit box now navigates to the corresponding location
+- Also show image preview when mouse hovering on images in chat content
 
 ## Version 0.23
 
