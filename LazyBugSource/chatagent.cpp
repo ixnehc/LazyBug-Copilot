@@ -483,10 +483,10 @@ void CChatAgent::_FinishChat()
 			std::unordered_set<std::wstring> recentSet;
 			_opsCtrl.GetAllModifiedFilePathesUpToMessageId(_aiMessageId, soFarPathes, recentSet);
 
-			if (!soFarPathes.empty())
+			if (!recentSet.empty())
 			{
 				nlohmann::json filesJson = nlohmann::json::array();
-				for (auto& p : soFarPathes)
+				for (const auto& p : soFarPathes)
 				{
 					nlohmann::json entry;
 					entry["path"] = widechar_to_utf8(p.c_str());
