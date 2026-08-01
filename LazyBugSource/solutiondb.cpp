@@ -350,12 +350,9 @@ void CSolutionDB::UpdateSource_Sln(
 		auto it = _files._lowerCasedFiles.find(lowerCasedPath);
 		if (it != _files._lowerCasedFiles.end())
 		{
-			bool wasEmpty = (it->second.sourceMask == 0);
 			it->second.sourceMask |= SOURCE_SLNDUMP;
 
-			if (wasEmpty)
-				outResult.newFiles.push_back(&it->second);
-			else if (handle != it->second.setting)
+			if (handle != it->second.setting)
 				outResult.updatedFiles.push_back(&it->second);
 
 			it->second.setting = handle;
