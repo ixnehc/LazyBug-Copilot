@@ -564,7 +564,7 @@ void CChatTask_CLI::_ThreadFunc()
 	SetHandleInformation(_hWriteInput, HANDLE_FLAG_INHERIT, 0);
 
 	// 设置启动信息
-	STARTUPINFOA si;
+	STARTUPINFOW si;
 	PROCESS_INFORMATION pi;
 
 	ZeroMemory(&si, sizeof(si));
@@ -582,18 +582,18 @@ void CChatTask_CLI::_ThreadFunc()
 	bool useTempFile = false;
 
 	// 根据 shell 类型构建命令行
-	std::string cmdLine;
+	std::wstring cmdLine;
 	if (shellType == "powershell.exe")
 	{
 		// 将命令写入临时文件并执行
 		if (CreateTempScriptFile(L"ps", L".ps1", command, tempFilePath))
 		{
 			useTempFile = true;
-			cmdLine = "powershell.exe -ExecutionPolicy Bypass -File \"" + widechar_to_utf8(tempFilePath.c_str()) + "\"";
+			cmdLine = L"powershell.exe -ExecutionPolicy Bypass -File \"" + tempFilePath + L"\"";
 		}
 		else
 		{
-			cmdLine = "powershell.exe -Command " + command;
+			cmdLine = L"powershell.exe -Command " + utf8_to_widechar(command);
 		}
 	}
 	else if (shellType == "bash.exe")
@@ -610,11 +610,11 @@ void CChatTask_CLI::_ThreadFunc()
 			useTempFile = true;
 			// bash.exe 不认识 Windows 路径，需转换为当前 bash 风格(WSL=/mnt/c, GitBash=/c, ...)的 POSIX 路径
 			std::string posixPath = Utils::WindowsPathToPosix(widechar_to_utf8(tempFilePath.c_str()));
-			cmdLine = "bash.exe \"" + posixPath + "\"";
+			cmdLine = L"bash.exe \"" + utf8_to_widechar(posixPath) + L"\"";
 		}
 		else
 		{
-			cmdLine = "bash.exe -c \"" + Utils::ConvertBashCommandPaths(command) + "\"";
+			cmdLine = L"bash.exe -c \"" + utf8_to_widechar(Utils::ConvertBashCommandPaths(command)) + L"\"";
 		}
 	}
 	else if (shellType == "python.exe")
@@ -623,11 +623,11 @@ void CChatTask_CLI::_ThreadFunc()
 		if (CreateTempScriptFile(L"py", L".py", command, tempFilePath))
 		{
 			useTempFile = true;
-			cmdLine = "cmd.exe /c set PYTHONIOENCODING=utf8 && python.exe \"" + widechar_to_utf8(tempFilePath.c_str()) + "\"";
+			cmdLine = L"cmd.exe /c set PYTHONIOENCODING=utf8 && python.exe \"" + tempFilePath + L"\"";
 		}
 		else
 		{
-			cmdLine = "cmd.exe /c python.exe -c \"" + command + "\"";
+			cmdLine = L"cmd.exe /c python.exe -c \"" + utf8_to_widechar(command) + L"\"";
 		}
 	}
 	else
@@ -643,15 +643,18 @@ void CChatTask_CLI::_ThreadFunc()
 //		command = "\"C:\\Users\\xi.chen\\AppData\\Roaming\\LazyBugDB\\_skills\\global\\system\\ffmpeg\\ffmpeg.exe\" - i \"C:\\Users\\ixnehc\\Desktop\\LazyBug_Publish\\20260527_121641_trimmed_speed75.mp4\" - vf \"fps=15,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse\" \"C:\\Users\\ixnehc\\Desktop\\LazyBug_Publish\\20260527_121641_trimmed_speed75.gif";
 		//可能需要加上 /u,使输出unicode字符,避免某些cmd命令(比如dir)无法正确在英文windows上输出中文时出现"???"的问题
 		//需要同时在COutputBuffer里添加检测unicode编码的逻辑
-		cmdLine = "cmd.exe /c \"" + command + "\"";
+		cmdLine = L"cmd.exe /c \"" + utf8_to_widechar(command) + L"\"";
 	}
-	char* pCmdLine = &cmdLine[0];
+	wchar_t* pCmdLine = &cmdLine[0];
 
 	// 获取工作目录
-	const char* pWorkingDir = workingDir.empty() ? NULL : workingDir.c_str();
+	std::wstring wWorkingDir;
+	if (!workingDir.empty())
+		wWorkingDir = utf8_to_widechar(workingDir);
+	const wchar_t* pWorkingDir = workingDir.empty() ? NULL : wWorkingDir.c_str();
 
 	// 创建进程
-	if (!CreateProcessA(
+	if (!CreateProcessW(
 		NULL,           // 应用程序名（使用命令行）
 		pCmdLine,       // 命令行
 		NULL,           // 进程安全属性

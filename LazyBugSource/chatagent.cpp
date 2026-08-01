@@ -478,6 +478,7 @@ void CChatAgent::_FinishChat()
 	if (!_aiMessageId.empty())
 	{
 		// So Far 累积列表：一个 session 仅一条 op
+		// 仅当 recent session 中有 modified files 时才发送（避免空列表无意义推送）
 		{
 			std::vector<std::wstring> soFarPathes;
 			std::unordered_set<std::wstring> recentSet;
