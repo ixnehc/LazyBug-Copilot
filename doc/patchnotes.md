@@ -1,6 +1,6 @@
 ﻿# LazyBug Version History
 
-## Version 0.24
+## Version 0.23.1
 
 - Grep tool now supports case-insensitive search
 - Clicking file or symbol tags in the ChatInput edit box now navigates to the corresponding location

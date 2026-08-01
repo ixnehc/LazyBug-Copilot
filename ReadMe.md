@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI Coding Assistant Extension
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.24-blue)](doc/patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.23.1-blue)](doc/patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -29,12 +29,18 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 ---
 
-## Version 0.24 Release Notes
+## Version 0.23.1 Release Notes
 
 - Grep tool now supports case-insensitive search
 - Clicking file or symbol tags in the ChatInput edit box now navigates to the corresponding location
 - Also show image preview when mouse hovering on images in chat content
 - Add "so far" mode for modified files frame
+
+## Version 0.23 Release Notes
+
+- Allow users to add watch folders, support various exploring operations, such as glob, grep, and find symbol
+- Grep tool will now wait for indexing to complete before searching, to get the most accurate results
+- Re-order diff blocks
 
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
