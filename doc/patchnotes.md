@@ -1,5 +1,11 @@
 ﻿# LazyBug Version History
 
+## Version 0.24
+
+- Improved non-ASCII command compatibility for CLI tools
+
+---
+
 ## Version 0.23.1.1
 
 - Add "so far" mode for modified files list
