@@ -1,10 +1,6 @@
 ﻿# LazyBug Version History
 
-## Version 0.23.2
-
-- Maintenance release
-
-## Version 0.23.1
+## Version 0.23.1.1
 
 - Add "so far" mode for modified files list
 - Grep tool now supports case-insensitive search
