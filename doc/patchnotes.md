@@ -1,5 +1,9 @@
 ﻿# LazyBug Version History
 
+## Version 0.23.2
+
+- Maintenance release
+
 ## Version 0.23.1
 
 - Add "so far" mode for modified files list

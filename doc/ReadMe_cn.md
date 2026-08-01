@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI 编程助手扩展
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.23.1-blue)](patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.23.2-blue)](patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](../LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
