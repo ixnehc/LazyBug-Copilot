@@ -381,6 +381,7 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_QueryFinish.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Question.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_ReadFile.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_ReadMedia.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_ReplaceInFile.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_ResolveSymbolLinks.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_SearchFile.cpp" />
@@ -650,6 +651,7 @@
     <ClInclude Include="..\LazyBugSource\ChatTask_QueryFinish.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_Question.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_ReadFile.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_ReadMedia.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_ReplaceInFile.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_ResolveSymbolLinks.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_SearchFile.h" />

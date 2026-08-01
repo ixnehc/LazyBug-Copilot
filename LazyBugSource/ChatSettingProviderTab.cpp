@@ -435,6 +435,7 @@ void CChatSettingProviderTab::_SendProviderDataToWebView()
         case LlmToolType::FindInFiles:      return "FindInFiles";
         case LlmToolType::SearchFile:       return "SearchFile";
         case LlmToolType::ReadFile:         return "ReadFile";
+        case LlmToolType::ReadMedia:       return "ReadMedia";
         case LlmToolType::CLI_Cmd:          return "CLI_Cmd";
         case LlmToolType::CLI_Bash:         return "CLI_Bash";
         case LlmToolType::CLI_RunScript:    return "CLI_RunScript";
@@ -700,6 +701,7 @@ void CChatSettingProviderTab::_UpdateApiField(const std::wstring& apiNameW, cons
         if (s == "FindInFiles")      return LlmToolType::FindInFiles;
         if (s == "SearchFile")       return LlmToolType::SearchFile;
         if (s == "ReadFile")         return LlmToolType::ReadFile;
+        if (s == "ReadMedia")       return LlmToolType::ReadMedia;
         if (s == "CLI_Cmd")          return LlmToolType::CLI_Cmd;
         if (s == "CLI_Bash")         return LlmToolType::CLI_Bash;
         if (s == "CLI_RunScript")    return LlmToolType::CLI_RunScript;

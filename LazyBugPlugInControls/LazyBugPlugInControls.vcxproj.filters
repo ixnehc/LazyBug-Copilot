@@ -437,6 +437,9 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_ReadFile.cpp">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatTask_ReadMedia.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
     <ClCompile Include="..\LazyBugSource\ChatTitleMenu.cpp">
       <Filter>GUI\ChatDialog\ChatCtrl</Filter>
     </ClCompile>
@@ -1041,6 +1044,9 @@
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\ChatTask_ReadFile.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatTask_ReadMedia.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\ChatTitleMenu.h">

@@ -7,6 +7,7 @@
 #include "ChatTask_FindInFiles.h"
 #include "ChatTask_SearchFile.h"
 #include "ChatTask_ReadFile.h"
+#include "ChatTask_ReadMedia.h"
 #include "ChatTask_CLI.h"
 #include "ChatTask_Question.h"
 #include "ChatTask_QueryFinish.h"
@@ -673,6 +674,13 @@ void CChatTaskMgr::AddTask_ReadFile(const LlmToolCall& toolCall)
 	_AddTask(task);
 }
 
+void CChatTaskMgr::AddTask_ReadMedia(const LlmToolCall& toolCall)
+{
+	CChatTask_ReadMedia* task = new CChatTask_ReadMedia;
+	task->SetToolCall(toolCall);
+	_AddTask(task);
+}
+
 void CChatTaskMgr::AddTask_CLI_Cmd(const LlmToolCall& toolCall)
 {
 	CChatTask_CLI* task = new CChatTask_CLI("cmd.exe");
@@ -844,6 +852,12 @@ void CChatTaskMgr::UpdateToolCalls(std::vector<LlmToolCall>& toolCalls)
 		{
 			if (toolCall.IsComplete())
 				AddTask_ReadFile(toolCall);
+			break;
+		}
+		case LlmToolType::ReadMedia:
+		{
+			if (toolCall.IsComplete())
+				AddTask_ReadMedia(toolCall);
 			break;
 		}
 		case LlmToolType::CLI_Cmd:

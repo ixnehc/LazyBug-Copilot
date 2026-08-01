@@ -426,6 +426,16 @@ void CLlmTools::Init()
 	AddToolPara_Integer("endLine", "The ending line number to read to. If not specified, reads the entire file.", false);
 	EndTool();
 
+	// 定义 ReadMedia 工具
+	BeginTool(LlmToolType::ReadMedia, "ReadMedia");
+	AppendToolDesc("Read an image file and return it as a base64-encoded data URI. This allows the assistant to view the image content.");
+	AppendToolDesc(" Currently supports image formats: jpg, jpeg, png, webp, bmp, gif.");
+	AppendToolDesc(" (Video support planned for future extension: mp4, avi, mkv, mov, webm)");
+	AddToolPara_String("filePath", "The full path of the image file to read.", true);
+	AddToolPara_Integer("maxWidth", "Maximum width of the thumbnail used for compressed/simple result (default: 256). Only effective when maxHeight is also specified.", false);
+	AddToolPara_Integer("maxHeight", "Maximum height of the thumbnail used for compressed/simple result (default: 256). Only effective when maxWidth is also specified.", false);
+	EndTool();
+
 	// 定义 CLI_Cmd 工具
 	BeginTool(LlmToolType::CLI_Cmd, "Cmd");
 	AppendToolDesc("Execute a Windows cmd.exe command and return the output.");

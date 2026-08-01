@@ -39,6 +39,7 @@ enum class LlmToolType
 	FindInFiles,
 	SearchFile,
 	ReadFile,
+	ReadMedia,
 	CLI_Cmd,
 	CLI_Bash,
 	CLI_RunScript,

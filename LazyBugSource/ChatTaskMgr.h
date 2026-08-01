@@ -128,6 +128,7 @@ public:
 	void AddTask_FindInFiles(const LlmToolCall& toolCall);
 	void AddTask_SearchFile(const LlmToolCall& toolCall);
 	void AddTask_ReadFile(const LlmToolCall& toolCall);
+	void AddTask_ReadMedia(const LlmToolCall& toolCall);
 	void AddTask_CLI_Cmd(const LlmToolCall& toolCall);
 	void AddTask_CLI_Bash(const LlmToolCall& toolCall);
 	void AddTask_CLI_RunScript(const LlmToolCall& toolCall);

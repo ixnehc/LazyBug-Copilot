@@ -84,6 +84,8 @@ namespace
 					tools.push_back(LlmToolType::FindInFiles);
 				else if (item == "ReadFile")
 					tools.push_back(LlmToolType::ReadFile);
+				else if (item == "ReadMedia")
+					tools.push_back(LlmToolType::ReadMedia);
 				else if (item == "SearchFile")
 					tools.push_back(LlmToolType::SearchFile);
 				else if (item == "CLI_Cmd")
@@ -224,6 +226,7 @@ namespace
 		case LlmToolType::FindInFiles: return "FindInFiles";
 		case LlmToolType::SearchFile: return "SearchFile";
 		case LlmToolType::ReadFile: return "ReadFile";
+		case LlmToolType::ReadMedia: return "ReadMedia";
 		case LlmToolType::CLI_Cmd: return "CLI_Cmd";
 		case LlmToolType::CLI_Bash: return "CLI_Bash";
 		case LlmToolType::CLI_RunScript: return "CLI_RunScript";
@@ -254,6 +257,7 @@ namespace
 		if (str == "FindInFiles") return LlmToolType::FindInFiles;
 		if (str == "SearchFile") return LlmToolType::SearchFile;
 		if (str == "ReadFile") return LlmToolType::ReadFile;
+		if (str == "ReadMedia") return LlmToolType::ReadMedia;
 		if (str == "CLI_Cmd") return LlmToolType::CLI_Cmd;
 		if (str == "CLI_Bash") return LlmToolType::CLI_Bash;
 		if (str == "CLI_RunScript") return LlmToolType::CLI_RunScript;
@@ -562,7 +566,8 @@ void CLlmLibLoader::LoadInto(std::vector<LlmApiProvider>& providers, std::vector
 				LlmToolType::ReplaceInFile,
 				LlmToolType::FindSymbolDefine,
 				LlmToolType::FindInFiles,
-				LlmToolType::ReadFile ,
+				LlmToolType::ReadFile,
+				LlmToolType::ReadMedia,
 				LlmToolType::SearchFile,
 				LlmToolType::CLI_Cmd,
 				LlmToolType::CLI_Bash,
@@ -753,7 +758,7 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 // 					for (const auto& jTool : jApi["tools"])
 // 						api.tools.push_back(StringToToolType(jTool.get<std::string>()));
 // 				}
-// 				else
+				// 				else
 				{
 					api.tools =
 					{
@@ -761,6 +766,7 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 						LlmToolType::FindSymbolDefine,
 						LlmToolType::FindInFiles,
 						LlmToolType::ReadFile,
+						LlmToolType::ReadMedia,
 						LlmToolType::SearchFile,
 						LlmToolType::CLI_Cmd,
 						LlmToolType::CLI_Bash,
