@@ -287,7 +287,6 @@ public:
 	bool MakeSessionRequest(LlmSessionRequest& request, int fileAttaches);
 	bool MakeSessionRequest_Debug(LlmSessionRequest& request);
 	void CollectUncompressedSessionAIContent(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes, std::string& content);
-	int  EstimateUncompressedSessionAIContentToken(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes);
 
 	// 直接写入压缩内容到指定 op（供 Immediate 模式使用）
 	void SetOpCompressedContent(int index, int level, const std::string& content);
@@ -471,7 +470,7 @@ private:
 
 	int _EstimateTokenCountBetweenOps(int startIndex, int endIndex, bool useUncompressed = false);
 
-	// 遍历 Session 内的 AI 内容（供 CollectUncompressedSessionAIContent 和 EstimateUncompressedSessionAIContentToken 共用逻辑）
+	// 遍历 Session 内的 AI 内容（供 CollectUncompressedSessionAIContent 使用）
 	// callback 参数: (const std::string& contentFragment, LlmToolType toolType) -> bool，返回 false 可中断遍历
 	void _IterateSessionAIContent(int targetSrcIndex, 
 	                               const std::vector<LlmToolType>& toolTypes,

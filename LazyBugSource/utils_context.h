@@ -7,6 +7,10 @@ namespace Utils
 
 	// 估算UTF-8格式字符串的token数量
 	int EstimateTokenCount(const std::string& text);
+
+	// 估算 Op_AddToolCallResult 的 JSON 字符串的 token 数
+	// 正确处理 content 为数组（含 image_url block）的情况
+	int EstimateTokenCountForToolCallResult(const std::string& jsonString);
 	 
 	// 估计文件的Token数
 	// - 图片文件：根据图片尺寸估算 (粗略 Token 数 ≈ (宽 × 高) ÷ 1500)

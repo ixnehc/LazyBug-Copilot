@@ -244,7 +244,7 @@ function getEditorPlainText() {
                 const tagType = child.getAttribute('data-tag-type') || '';
                 const tagData = child.getAttribute('data-tag-data') || '';
                 
-                if (tagType === 'file' && tagData) {
+                if ((tagType === 'file' || tagType === 'image') && tagData) {
                     text += `[${tagData}]`;
                 } else {
                     // 优先查找 .inline-tag-text 元素

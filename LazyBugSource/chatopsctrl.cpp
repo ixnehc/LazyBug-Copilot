@@ -3182,6 +3182,50 @@ bool CChatOpsCtrl::MakeSessionRequest(LlmSessionRequest& request, int fileAttach
 	return true;
 }
 
+// 从 tool call result JSON 中剥离 image_url block，仅保留 text block
+// 用于压缩/摘要场景，图片 base64 数据对摘要无意义且浪费 token
+static std::string _StripImageBlocksFromToolCallResult(const std::string& jsonString)
+{
+	try
+	{
+		nlohmann::json parsed = nlohmann::json::parse(jsonString);
+		if (!parsed.is_array() || parsed.size() < 2)
+			return jsonString;
+
+		auto& toolResultMsg = parsed[1];
+		if (!toolResultMsg.contains("content") || toolResultMsg["content"].is_string())
+			return jsonString;
+
+		const auto& content = toolResultMsg["content"];
+		if (!content.is_array())
+			return jsonString;
+
+		// 遍历 content 数组，只保留 text block
+		nlohmann::json stripped = nlohmann::json::array();
+		for (const auto& block : content)
+		{
+			if (block.is_object() && block.value("type", "") == "text")
+				stripped.push_back(block);
+		}
+
+		if (stripped.empty())
+		{
+			// 全被剥离，保留一个占位 text
+			nlohmann::json placeholder;
+			placeholder["type"] = "text";
+			placeholder["text"] = "[image data omitted]";
+			stripped.push_back(placeholder);
+		}
+
+		toolResultMsg["content"] = stripped;
+		return parsed.dump();
+	}
+	catch (...)
+	{
+		return jsonString;
+	}
+}
+
 void CChatOpsCtrl::CollectUncompressedSessionAIContent(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes, std::string& content)
 {
 	content.clear();
@@ -3200,37 +3244,19 @@ void CChatOpsCtrl::CollectUncompressedSessionAIContent(int targetSrcIndex, const
 			collectedContent += "[ToolCall: ";
 			collectedContent += g_llmTools.GetToolTypeName(toolType);
 			collectedContent += "]\n";
-			collectedContent += fragment;
+
+			// ReadMedia 的图片 base64 数据对摘要无意义，剥离 image_url block
+			if (toolType == LlmToolType::ReadMedia)
+				collectedContent += _StripImageBlocksFromToolCallResult(fragment);
+			else
+				collectedContent += fragment;
+
 			collectedContent += "\n\n";
 		}
 		return true; // 继续遍历
 	});
 
 	content = std::move(collectedContent);
-}
-
-int CChatOpsCtrl::EstimateUncompressedSessionAIContentToken(int targetSrcIndex, const std::vector<LlmToolType>& toolTypes)
-{
-	int totalTokens = 0;
-	_IterateSessionAIContent(targetSrcIndex, toolTypes, [&totalTokens](const std::string& fragment, LlmToolType toolType) -> bool {
-		// 使用 Utils::EstimateTokenCount 估算 token 数
-		totalTokens += Utils::EstimateTokenCount(fragment);
-		
-		// ToolCall 的额外前缀也需要估算 token
-		if (toolType != LlmToolType::None)
-		{
-			std::string prefix = "[ToolCall: ";
-			prefix += g_llmTools.GetToolTypeName(toolType);
-			prefix += "]\n";
-			totalTokens += Utils::EstimateTokenCount(prefix);
-		}
-		
-		// 分隔符 "\n\n" 的估算
-		totalTokens += Utils::EstimateTokenCount("\n\n");
-		
-		return true; // 继续遍历
-	});
-	return totalTokens;
 }
 
 void CChatOpsCtrl::SetOpCompressedContent(int index, int level, const std::string& content)
@@ -3485,8 +3511,8 @@ int CChatOpsCtrl::_EstimateTokenCountBetweenOps(int startIndex, int endIndex, bo
 
 		case ChatOp::Op_AddToolCallResult:
 		{
-			// 工具调用结果
-			int tokens = Utils::EstimateTokenCount(effectiveContent);
+			// 工具调用结果（可能包含图片 block，使用专用估算）
+			int tokens = Utils::EstimateTokenCountForToolCallResult(effectiveContent);
 			totalTokens += tokens;
 			break;
 		}

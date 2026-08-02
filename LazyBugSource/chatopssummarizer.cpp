@@ -96,11 +96,6 @@ void CChatOpsSummarizer::_CheckAndStartSummarize()
 		if (it != op.compressedContents.end() && !it->second.empty())
 			continue;
 
-// 		// 估算 token 数
-// 		int nTokens = _opsCtrl->EstimateUncompressedSessionAIContentToken(endIndex, CChatOpsCompress::GetSessionSummarizeToolTypes());
-// 		if (nTokens < 300)
-// 			continue;
-
 		// 提交任务（Immediate 模式，直接写回 ChatOp）
 		_taskMgr.AddTask_CompressSummarize(endIndex, summarizeApiName, CompressSummarizeMode::Immediate);
 

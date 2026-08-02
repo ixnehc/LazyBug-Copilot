@@ -194,6 +194,118 @@ namespace Utils
 		return static_cast<int>(estimatedTokens);
 	}
 
+	// 估算 Op_AddToolCallResult 的 JSON 字符串的 token 数
+	// jsonString 格式为 MakeToolCallResultString 产生的 [assistant_msg, tool_result_msg] 数组
+	// 对 tool result 的 content 为数组（含 image_url block）的情况做正确处理
+	int EstimateTokenCountForToolCallResult(const std::string& jsonString)
+	{
+		try
+		{
+			json parsed = json::parse(jsonString);
+			if (!parsed.is_array())
+				return EstimateTokenCount(jsonString);
+
+			int totalTokens = 0;
+			int imgWidth = 0, imgHeight = 0; // 从 text block 中提取的 WxH，供 image_url block 使用
+
+			for (const auto& msg : parsed)
+			{
+				if (!msg.is_object())
+				{
+					totalTokens += EstimateTokenCount(msg.dump());
+					continue;
+				}
+
+				const std::string& role = msg.value("role", "");
+				if (role == "tool" && msg.contains("content"))
+				{
+					const auto& content = msg["content"];
+					if (content.is_string())
+					{
+						totalTokens += EstimateTokenCount(content.get<std::string>());
+					}
+					else if (content.is_array())
+					{
+						for (const auto& block : content)
+						{
+							if (!block.is_object())
+							{
+								totalTokens += EstimateTokenCount(block.dump());
+								continue;
+							}
+
+							const std::string& type = block.value("type", "");
+							if (type == "text" && block.contains("text"))
+							{
+								const std::string& text = block["text"].get<std::string>();
+								totalTokens += EstimateTokenCount(text);
+
+								// 尝试从文本中提取宽高，格式 "(WxH)"，如 "Image read: xxx.png (1920x1080)"
+								// 正则: (数字)x(数字)
+								size_t pos = text.find('(');
+								if (pos != std::string::npos)
+								{
+									size_t xPos = text.find('x', pos + 1);
+									size_t closePos = text.find(')', xPos + 1);
+									if (xPos != std::string::npos && closePos != std::string::npos && closePos > xPos + 1)
+									{
+										std::string wStr = text.substr(pos + 1, xPos - pos - 1);
+										std::string hStr = text.substr(xPos + 1, closePos - xPos - 1);
+										int w = atoi(wStr.c_str());
+										int h = atoi(hStr.c_str());
+										if (w > 0 && h > 0)
+										{
+											imgWidth = w;
+											imgHeight = h;
+										}
+									}
+								}
+							}
+							else if (type == "image_url" && block.contains("image_url"))
+							{
+								// 使用从 text block 中提取的宽高计算图片 token
+								if (imgWidth > 0 && imgHeight > 0)
+								{
+									long long totalPixels = static_cast<long long>(imgWidth) * imgHeight;
+									int imageTokens = static_cast<int>(totalPixels / 1500);
+									const int MAX_IMAGE_TOKENS = 2048;
+									if (imageTokens > MAX_IMAGE_TOKENS)
+										imageTokens = MAX_IMAGE_TOKENS;
+									if (imageTokens < 1)
+										imageTokens = 1;
+									totalTokens += imageTokens;
+								}
+								else
+								{
+									// 无法获取尺寸，使用默认值
+									totalTokens += 255;
+								}
+							}
+							else
+							{
+								totalTokens += EstimateTokenCount(block.dump());
+							}
+						}
+					}
+					else
+					{
+						totalTokens += EstimateTokenCount(content.dump());
+					}
+				}
+				else
+				{
+					// 非 tool 消息（如 assistant），按整段 JSON 文本估算
+					totalTokens += EstimateTokenCount(msg.dump());
+				}
+			}
+
+			return totalTokens;
+		}
+		catch (const json::parse_error&)
+		{
+			return EstimateTokenCount(jsonString);
+		}
+	}
 
 	// 估计文件的Token数
 	// - 图片文件：根据图片尺寸估算 (粗略 Token 数 ≈ (宽 × 高) ÷ 1500)

@@ -104,10 +104,11 @@ int CChatOpsCompress::_GetOpCurrentTokens(const Op& op) const
 	}
 	case ChatOp::Op_AddStreamingAIMessage:
 	case ChatOp::Op_AddStreamingAIMessage_Thinking:
-	case ChatOp::Op_AddToolCallResult:
 	case ChatOp::Op_BeginSession:
 	case ChatOp::Op_EndSession:
 		return Utils::EstimateTokenCount(*effectiveContent);
+	case ChatOp::Op_AddToolCallResult:
+		return Utils::EstimateTokenCountForToolCallResult(*effectiveContent);
 	default:
 		return 0;
 	}
@@ -423,8 +424,9 @@ int CChatOpsCompress::_EstimateOpTokens(const ChatOp& op, bool useUncompressed) 
 	}
 	case ChatOp::Op_AddStreamingAIMessage:
 	case ChatOp::Op_AddStreamingAIMessage_Thinking:
-	case ChatOp::Op_AddToolCallResult:
 		return Utils::EstimateTokenCount(effectiveContent);
+	case ChatOp::Op_AddToolCallResult:
+		return Utils::EstimateTokenCountForToolCallResult(effectiveContent);
 	default:
 		return 0;
 	}

@@ -797,11 +797,27 @@ std::string CLlmTools::MakeToolCallResultString(const LlmToolCall& toolCall, con
 	messages.push_back(tool_call_message);
 
 	// 添加工具结果消息
+	// 尝试将 processed_result 解析为 JSON 数组（如 ReadMedia 产生的 image_url block 数组），
+	// 若成功且为数组则直接作为 content，否则保持字符串（向后兼容）。
+	json content_value;
+	if (json::accept(processed_result))
+	{
+		json parsed = json::parse(processed_result);
+		if (parsed.is_array())
+			content_value = parsed;
+		else
+			content_value = processed_result;
+	}
+	else
+	{
+		content_value = processed_result;
+	}
+
 	json tool_result_message = json{
 		{"role", "tool"},
 		{"tool_call_id", toolCall.id},
 		{"name", tool_name},
-		{"content", processed_result}
+		{"content", content_value}
 	};
 	messages.push_back(tool_result_message);
 
@@ -950,9 +966,23 @@ bool CLlmTools::ParseToolCallResultString(const char* jsonString, LlmToolCall& t
 			}
 
 			// 解析工具结果
-			if (tool_result_msg.contains("content") && tool_result_msg["content"].is_string())
+			if (tool_result_msg.contains("content"))
 			{
-				result = tool_result_msg.value("content", "");
+				if (tool_result_msg["content"].is_string())
+				{
+					result = tool_result_msg.value("content", "");
+				}
+				else if (tool_result_msg["content"].is_array())
+				{
+					// 从数组 content 中提取所有 text block 的文本
+					for (const auto& block : tool_result_msg["content"])
+					{
+						if (block.is_object() && block.value("type", "") == "text" && block.contains("text"))
+						{
+							result += block["text"].get<std::string>();
+						}
+					}
+				}
 			}
 
 			toolCall.isComplete = true;

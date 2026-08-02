@@ -105,13 +105,13 @@ void CChatTask_ReadMedia::_ThreadFunc()
 	// 获取可选参数
 	int maxWidth = 0;
 	int maxHeight = 0;
-	bool hasThumbnailParams = false;
+	bool hasMaxSize = false;
 
 	if (_toolCall.ExistParam("maxWidth") && _toolCall.ExistParam("maxHeight"))
 	{
 		_toolCall.GetIntParam("maxWidth", maxWidth);
 		_toolCall.GetIntParam("maxHeight", maxHeight);
-		hasThumbnailParams = (maxWidth > 0 && maxHeight > 0);
+		hasMaxSize = (maxWidth > 0 && maxHeight > 0);
 	}
 
 	// 检查是否被中断
@@ -159,35 +159,55 @@ void CChatTask_ReadMedia::_ThreadFunc()
 	}
 	else
 	{
-		// 构建 data URI
-		resultStr = "data:" + std::string(mimeType) + ";base64," + fullBase64;
+		// 从完整路径中提取文件名用于文本描述
+		std::string fileName = filePath;
+		size_t lastSep = fileName.find_last_of("\\/");
+		if (lastSep != std::string::npos)
+			fileName = fileName.substr(lastSep + 1);
 
-		// Simple result: 生成缩略图 base64
-		if (hasThumbnailParams)
+		// 获取原图尺寸用于 token 估算
+		int imgWidth = 0, imgHeight = 0;
+		Utils::GetImageSize(filePath.c_str(), imgWidth, imgHeight);
+
+		// 构建 OpenAI content block 数组（text + image_url）
+		auto buildImageResult = [&](const std::string& base64) -> std::string
 		{
-			std::string thumbBase64;
-			if (Utils::LoadImageThumbnailIntoBase64(filePath.c_str(), maxWidth, maxHeight, thumbBase64) && !thumbBase64.empty())
-			{
-				resultStrSimple = "data:" + std::string(mimeType) + ";base64," + thumbBase64;
-			}
+			nlohmann::json arr = nlohmann::json::array();
+
+			nlohmann::json textBlock;
+			textBlock["type"] = "text";
+			textBlock["text"] = "Image read: " + fileName + " (" + std::to_string(imgWidth) + "x" + std::to_string(imgHeight) + ")";
+			arr.push_back(textBlock);
+
+			nlohmann::json imageBlock;
+			imageBlock["type"] = "image_url";
+			imageBlock["image_url"]["url"] = "data:" + std::string(mimeType) + ";base64," + base64;
+			arr.push_back(imageBlock);
+
+			return arr.dump();
+		};
+
+		// 全尺寸结果：若指定了 maxWidth/maxHeight，将图片限制在该尺寸内
+		if (hasMaxSize)
+		{
+			std::string constrainedBase64;
+			if (Utils::LoadImageThumbnailIntoBase64(filePath.c_str(), maxWidth, maxHeight, constrainedBase64) && !constrainedBase64.empty())
+				resultStr = buildImageResult(constrainedBase64);
 			else
-			{
-				// 缩略图生成失败，回退到截断原 base64（取前 512 字符）
-				resultStrSimple = resultStr.substr(0, std::min<size_t>(resultStr.size(), 512));
-			}
+				resultStr = buildImageResult(fullBase64);
 		}
 		else
 		{
-			// 未指定缩略图参数，使用默认缩略图尺寸
+			resultStr = buildImageResult(fullBase64);
+		}
+
+		// Simple result: 始终生成固定小缩略图用作 partial
+		{
 			std::string thumbBase64;
 			if (Utils::LoadImageThumbnailIntoBase64(filePath.c_str(), 256, 256, thumbBase64) && !thumbBase64.empty())
-			{
-				resultStrSimple = "data:" + std::string(mimeType) + ";base64," + thumbBase64;
-			}
+				resultStrSimple = buildImageResult(thumbBase64);
 			else
-			{
 				resultStrSimple = resultStr.substr(0, std::min<size_t>(resultStr.size(), 512));
-			}
 		}
 
 		messageStr = "Successfully read media file: \"" + filePath + "\"";

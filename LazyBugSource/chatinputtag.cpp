@@ -303,7 +303,7 @@ std::string ExtractPlainTextUtf8(const std::string& inputContent)
 				{
 					std::string tagText;
 					// 如果tagType是file，优先使用data字段
-					if (item.contains("tagType") && item["tagType"] == "file" && item.contains("data"))
+					if (item.contains("tagType") && (item["tagType"] == "file" || item["tagType"] == "image") && item.contains("data"))
 					{
 						tagText = item["data"].get<std::string>();
 					}

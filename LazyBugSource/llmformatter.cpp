@@ -42,6 +42,20 @@ static std::string NormalizeAnthropicToolId(const std::string& rawId)
 	return result;
 }
 
+// 尝试将字符串解析为JSON，检查是否包含 "error" 字段
+static bool IsJsonErrorLine(const std::string& line)
+{
+	try
+	{
+		json j = json::parse(line);
+		return j.contains("error");
+	}
+	catch (const json::parse_error&)
+	{
+		return false;
+	}
+}
+
 bool CLlmFormatter::ConvertLlmRequestToAnthoropicFormat(json& requestJson)
 {
 	// 将 OpenAI 格式的 image_url content block 转换为 Anthropic 格式的 image block
@@ -734,8 +748,8 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 				continue;
 			}
 
-			// error lines: directly transfer to output
-			if (front.find("{\"error\": ", 0) == 0)
+			// error lines: try to parse JSON and check for error field, then directly transfer to output
+			if (IsJsonErrorLine(front))
 			{
 				outputLines.push_back(front);
 				inputLines.pop_front();
@@ -1355,8 +1369,8 @@ bool CLlmFormatter::ProcessLlmResponseFromGeminiFormat(std::deque<std::string>& 
 				continue;
 			}
 
-			// error lines: directly transfer to output
-			if (front.find("{\"error\":", 0) == 0)
+			// error lines: try to parse JSON and check for error field, then directly transfer to output
+			if (IsJsonErrorLine(front))
 			{
 				outputLines.push_back(front);
 				inputLines.pop_front();
@@ -1537,8 +1551,8 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAiCompatibleFormat(std::deque<std:
 				continue;
 			}
 
-			// error lines: directly transfer to output
-			if (front.find("{\"error\":", 0) == 0 || front.find("{\"error\": ", 0) == 0)
+			// error lines: try to parse JSON and check for error field, then directly transfer to output
+			if (IsJsonErrorLine(front))
 			{
 				outputLines.push_back(front);
 				inputLines.pop_front();
