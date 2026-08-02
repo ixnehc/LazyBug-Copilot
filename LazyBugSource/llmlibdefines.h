@@ -22,6 +22,12 @@ enum class LlmApiFormat
 	DeepSeek,
 };
 
+// ReadMedia tool 仅在这些格式下可用（支持多模态图片输入）
+inline bool IsReadMediaSupported(LlmApiFormat format)
+{
+	return format == LlmApiFormat::Anthropic_ || format == LlmApiFormat::Kimi;
+}
+
 using LlmApiProviderTypeName = std::string;
 
 enum LlmApiCacheControlType

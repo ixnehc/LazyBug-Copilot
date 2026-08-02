@@ -165,7 +165,7 @@ void CLlmLib::_LoadLlmSessionSetting(LlmSessionSetting& setting, const LlmApi &a
 	setting.apiCacheControlType = GetApiCacheControlType(api.name);
 
 	// ReadMedia 仅在 Anthropic 和 Kimi 格式下可用，其他格式过滤掉
-	if (setting.apiFormat != LlmApiFormat::Anthropic_ && setting.apiFormat != LlmApiFormat::Kimi)
+	if (!IsReadMediaSupported(setting.apiFormat))
 	{
 		setting.api.tools.erase(
 			std::remove(setting.api.tools.begin(), setting.api.tools.end(), LlmToolType::ReadMedia),

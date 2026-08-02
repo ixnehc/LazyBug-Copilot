@@ -376,6 +376,26 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 		if (!parsedJson.is_array() || parsedJson.empty())
 			return;
 
+		// 对于不支持 ReadMedia 的 API 格式，剥离 tool result 中的 image_url block
+		if (!IsReadMediaSupported(setting.apiFormat))
+		{
+			for (auto& msg : parsedJson)
+			{
+				if (msg.is_object() && msg.value("role", "") == "tool" && msg.contains("content") && msg["content"].is_array())
+				{
+					std::string textContent;
+					for (const auto& block : msg["content"])
+					{
+						if (block.is_object() && block.value("type", "") == "text" && block.contains("text"))
+							textContent += block["text"].get<std::string>();
+					}
+					if (textContent.empty())
+						textContent = "[image data omitted]";
+					msg["content"] = textContent;
+				}
+			}
+		}
+
 		const json& assistant_msg = parsedJson[0];
 		if (!assistant_msg.is_object() || !assistant_msg.contains("role") || assistant_msg["role"] != "assistant" || !assistant_msg.contains("tool_calls"))
 		{

@@ -1004,7 +1004,7 @@ void CChatOpsCompress::_Pass_TruncateFindSymbol(int startSessionAge, int endSess
 
 void CChatOpsCompress::_Pass_TruncateReadFile(int startSessionAge, int endSessionAge)
 {
-	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::ReadFile });
+	_Pass_TruncateToolCallResult(startSessionAge, endSessionAge, { LlmToolType::ReadFile, LlmToolType::ReadMedia });
 }
 
 void CChatOpsCompress::_Pass_TruncateFindInFiles(int startSessionAge, int endSessionAge)
