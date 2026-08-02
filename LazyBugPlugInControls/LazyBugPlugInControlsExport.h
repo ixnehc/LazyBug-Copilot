@@ -40,6 +40,7 @@ LazyBugPlugInControls_Api void OpenSolution(const char* slnPath);
 LazyBugPlugInControls_Api void CloseSolution();
 LazyBugPlugInControls_Api const char* GetOpenedDBFolderPath_utf8();
 LazyBugPlugInControls_Api const char* GetOpenedSlnPath_utf8();
+LazyBugPlugInControls_Api void EnsureSolutionDBConnected();
 
 LazyBugPlugInControls_Api void UpdateReload();
 

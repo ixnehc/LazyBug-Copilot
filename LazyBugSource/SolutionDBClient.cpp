@@ -96,6 +96,9 @@ void CSolutionDBClient::Disconnect()
 
 FuturePipeMsg CSolutionDBClient::SendMessage(const PipeMsg& request)
 {
+	if (!_isConnected)
+		return FuturePipeMsg();
+
 	if (_hRequestPipe == INVALID_HANDLE_VALUE)
 	{
 		_isConnected = false;

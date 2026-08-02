@@ -8,6 +8,7 @@
 #include "PackageState.h"
 
 #include "../Common/stringparser/stringparser.h"
+// #include "../LazyBugSource/SolutionDBApi.h"
 
 
 extern void SaveSolutionDump(const char* fullPath, SolutionDump& slnDump);
@@ -302,6 +303,8 @@ LRESULT LazyBugPlugInWindowPane::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam
 		extern bool UpdateFileLocatorOpenDocument();
 		UpdateFileLocatorOpenDocument();
 
+		EnsureSolutionDBConnected();
+		
 		UpdateChatInputEscape();
 
 		bHandled = TRUE;

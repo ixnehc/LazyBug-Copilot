@@ -201,6 +201,11 @@ void OpenSolution(const char* slnPath)
 	g_backupDepot.Init(g_dbFolderPath.c_str());
 }
 
+void EnsureSolutionDBConnected()
+{
+	SolutionDB_EnsureConnected();
+}
+
 const unsigned short* GetFileChangeFullPath(const FileChange* change)
 {
 	static std::wstring ret;

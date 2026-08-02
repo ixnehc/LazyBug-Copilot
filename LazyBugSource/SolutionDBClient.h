@@ -25,7 +25,7 @@ public:
 private:
 	void ReaderLoop();
 
-	bool _isConnected;
+	std::atomic<bool> _isConnected;
 
 	HANDLE _hRequestPipe;
 	HANDLE _hResponsePipe;
