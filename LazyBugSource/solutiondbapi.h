@@ -14,6 +14,7 @@ extern void SolutionDB_Connect();
 extern void SolutionDB_Disconnect();
 
 extern SolutionDBMsg_Opened SolutionDB_Open(const char* slnPath);
+extern SolutionDBMsg_Closed SolutionDB_Close(const char* slnPath);
 extern void SolutionDB_QueryNameItems(const char* dbFolderPath,const char *query, SolutionDBMsg_NameItems&result);
 
 extern bool SolutionDB_CollectRefs(const char* dbFolderPath, const CppSymbol::CollectRefsParam &collectRefsParam);

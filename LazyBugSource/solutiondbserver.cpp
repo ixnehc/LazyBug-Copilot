@@ -266,6 +266,19 @@ void CSolutionDBServer::Run()
 					}
 				}
 
+				if (msgType == SolutionDBMsgType::RequestClose)
+				{
+					auto* request = static_cast<SolutionDBMsg_RequestClose*>(msg.get());
+
+					g_solutionDBs.CloseOne(request->dbFolderPath.c_str());
+
+					SolutionDBMsg_Closed response;
+					response.success = true;
+					response.dbFolderPath = request->dbFolderPath;
+
+					SendMessage(response, requestId);
+				}
+
 			});
 
 			// 分离线程，让它独立运行

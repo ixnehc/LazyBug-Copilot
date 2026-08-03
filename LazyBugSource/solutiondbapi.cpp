@@ -205,6 +205,26 @@ SolutionDBMsg_Opened SolutionDB_Open(const char* slnPath)
 	return std::move(result);
 }
 
+SolutionDBMsg_Closed SolutionDB_Close(const char* slnPath)
+{
+	std::string slnName;
+	ConvertFullPathToName(slnPath, slnName);
+	RemoveFileSuffix(slnName);
+
+	std::string dbRoot = Utils::GetDBRootFolder_utf8();
+	std::string pathFolder = dbRoot + "\\" + slnName;
+
+	SolutionDBMsg_RequestClose request;
+	request.dbFolderPath = pathFolder;
+
+	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
+
+	SolutionDBMsg_Closed result;
+	msg.WaitAndFetch(result);
+
+	return std::move(result);
+}
+
 void SolutionDB_QueryNameItems(const char* dbFolderPath, const char* query, SolutionDBMsg_NameItems& result)
 {
 	SolutionDBMsg_QueryNameItems request;

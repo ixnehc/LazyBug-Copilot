@@ -15,7 +15,19 @@ CSolutionDB* CSolutionDBs::Obtain(const char* dbFolder, const char* slnPath)
 	path = dbFolder;
 	StringLower(path);
 
-	std::unordered_map<std::string, CSolutionDB>::iterator it = _entries.find(path);
+	// 读锁快速路径：已存在则直接返回
+	{
+		std::shared_lock<std::shared_mutex> lock(_mutex);
+		auto it = _entries.find(path);
+		if (it != _entries.end())
+			return &it->second;
+	}
+
+	// 写锁：创建 DB，避免重复 New()/Open()
+	std::unique_lock<std::shared_mutex> lock(_mutex);
+
+	// double-check：其他线程可能已在等待锁期间完成创建
+	auto it = _entries.find(path);
 	if (it != _entries.end())
 		return &it->second;
 
@@ -29,7 +41,6 @@ CSolutionDB* CSolutionDBs::Obtain(const char* dbFolder, const char* slnPath)
 			return nullptr;
 	}
 
-	std::unique_lock< std::shared_mutex> lock(_mutex);
 	CSolutionDB& db = _entries[path];
 	db.Open(dbFolder);
 	return &db;
@@ -45,6 +56,24 @@ void CSolutionDBs::CloseAll()
 	}
 	_entries.clear();
 }
+
+void CSolutionDBs::CloseOne(const char* dbFolder)
+{
+	if (!dbFolder || !dbFolder[0])
+		return;
+
+	std::string path = dbFolder;
+	StringLower(path);
+
+	std::unique_lock< std::shared_mutex> lock(_mutex);
+	auto it = _entries.find(path);
+	if (it != _entries.end())
+	{
+		it->second.Close();
+		_entries.erase(it);
+	}
+}
+ 
  
 void CSolutionDBs::Update()
 {

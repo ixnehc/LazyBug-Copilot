@@ -33,6 +33,9 @@ enum class SolutionDBMsgType
 
 	ActivateFiles,
 	ActivateFilesResult,
+
+	RequestClose,
+	Closed,
 	//XXXXX: more SolutionDB message
 };
 
@@ -486,6 +489,50 @@ public:
 	}
 
 	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::ActivateFilesResult; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteSimple(success);
+		dp.Data_WriteString(dbFolderPath);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadSimple(success);
+		dp.Data_ReadString(dbFolderPath);
+	}
+};
+
+struct SolutionDBMsg_RequestClose : public PipeMsg
+{
+public:
+	std::string dbFolderPath;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::RequestClose; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteString(dbFolderPath);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadString(dbFolderPath);
+	}
+};
+
+struct SolutionDBMsg_Closed : public PipeMsg
+{
+public:
+	bool success;
+	std::string dbFolderPath;
+
+	SolutionDBMsg_Closed()
+	{
+		success = true;
+	}
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::Closed; }
 
 	void Save(CDataPacket& dp) const override
 	{
