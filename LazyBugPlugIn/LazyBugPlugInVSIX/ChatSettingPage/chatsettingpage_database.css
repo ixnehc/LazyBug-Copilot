@@ -44,12 +44,49 @@
 
 .database-path {
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: #aaa;
     background-color: rgba(255, 255, 255, 0.04);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 4px;
     border: 1px solid var(--border-color);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.database-path-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.database-path-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--tab-inactive-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.database-path-btn:hover {
+    background-color: var(--hover-bg);
+    border-color: #555;
+}
+
+.database-path-btn:active {
+    transform: scale(0.93);
 }
 
 /* 空状态 */
@@ -96,6 +133,68 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+/* combo + button 行 */
+.database-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.database-select {
+    flex: 1;
+    padding: 14px 12px;
+    background-color: var(--tab-inactive-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 0.95em;
+    cursor: pointer;
+    outline: none;
+    appearance: auto;
+}
+
+.database-select:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.database-select option {
+    background-color: #2a2a2a;
+    color: #ddd;
+}
+
+/* Clean up 图标按钮（与 combobox 等高宽，红色 hover） */
+.database-cleanup-btn {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--tab-inactive-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.database-cleanup-btn:hover:not(:disabled) {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.4);
+}
+
+.database-cleanup-btn:active:not(:disabled) {
+    transform: scale(0.93);
+}
+
+.database-cleanup-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .database-action-btn {

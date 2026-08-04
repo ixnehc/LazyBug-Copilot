@@ -12,12 +12,15 @@ public:
     using PostFullJsonCallback  = std::function<void(const std::wstring& fullJson)>;
     using ExecuteScriptCallback = std::function<void(const std::wstring& script)>;
     using IsReadyCallback       = std::function<bool()>;
+    using DeleteOldChatsCallback = std::function<void(int days, const char* checkpointsDir)>;
 
     CChatSettingDatabaseTab();
     ~CChatSettingDatabaseTab();
 
     void Init(PostMsgCallback postMsg, PostFullJsonCallback postFullJson,
               ExecuteScriptCallback executeScript, IsReadyCallback isReady, HWND hwnd);
+
+    void SetDeleteOldChatsCallback(DeleteOldChatsCallback callback);
 
     void Update();
 
@@ -36,8 +39,12 @@ private:
 
     std::string _dbFolder;
     bool _isClearDBScheduled = false;
+    int _cleanupChatHistoryDays = 0;
+    DeleteOldChatsCallback _deleteOldChatsCallback;
 
     void _SendDataToWebView();
     void _OpenDatabaseFolder();
     void _ClearDatabase();
+    void _ScheduleCleanupChatHistory(int days);
+    void _CleanupChatHistory(int days);
 };

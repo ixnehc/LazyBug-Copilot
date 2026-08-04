@@ -28,15 +28,21 @@ function createDatabaseTabContent(contentDiv) {
                 <div class="database-info-section" id="database-info-section">
                 </div>
                 <div class="database-actions-section">
-                    <div class="database-actions-title">Operations</div>
-                    <div class="database-actions-buttons">
-                        <button class="database-action-btn" onclick="onOpenDatabaseFolder()" id="btn-open-db-folder" disabled>
-                            <span class="database-btn-icon">📂</span>
-                            <span class="database-btn-text">Open Database Folder</span>
-                        </button>
-                        <button class="database-action-btn database-action-btn-danger" onclick="onClearDatabase()" id="btn-clear-db" disabled>
+                    <div class="database-actions-title">Clean up</div>
+                    <div class="database-actions-row">
+                        <select class="database-select" id="db-history-retention" disabled>
+                            <option value="30" data-label="30 days">Keep last 30 days of chat history</option>
+                            <option value="30" data-label="1 month">Keep 1 month of chat history</option>
+                            <option value="90" data-label="3 months">Keep 3 months of chat history</option>
+                            <option value="180" data-label="6 months">Keep 6 months of chat history</option>
+                            <option value="365" data-label="1 year">Keep 1 year of chat history</option>
+                        </select>
+                        <button class="database-cleanup-btn" onclick="onCleanupChatHistory()" id="btn-cleanup-chat" disabled title="Clean up old chats">🧹</button>
+                    </div>
+                    <div class="database-actions-buttons" style="margin-top: 20px;">
+                        <button class="database-action-btn database-action-btn-danger" onclick="onCleanDatabase()" id="btn-clean-db" disabled>
                             <span class="database-btn-icon">🗑️</span>
-                            <span class="database-btn-text">Clear Database</span>
+                            <span class="database-btn-text">Clean symbol &amp; index</span>
                         </button>
                     </div>
                 </div>
@@ -48,8 +54,9 @@ function createDatabaseTabContent(contentDiv) {
 // 渲染数据库信息
 function renderDatabaseInfo() {
     const infoSection = document.getElementById('database-info-section');
-    const btnOpen = document.getElementById('btn-open-db-folder');
-    const btnClear = document.getElementById('btn-clear-db');
+    const btnClean = document.getElementById('btn-clean-db');
+    const btnCleanupChat = document.getElementById('btn-cleanup-chat');
+    const selRetention = document.getElementById('db-history-retention');
 
     const data = cachedDatabaseData;
     if (!data || !data.dbReady) {
@@ -62,20 +69,25 @@ function renderDatabaseInfo() {
                 </div>
             `;
         }
-        if (btnOpen) btnOpen.disabled = true;
-        if (btnClear) btnClear.disabled = true;
+        if (btnClean) btnClean.disabled = true;
+        if (btnCleanupChat) btnCleanupChat.disabled = true;
+        if (selRetention) selRetention.disabled = true;
         return;
     }
 
-    if (btnOpen) btnOpen.disabled = false;
-    if (btnClear) btnClear.disabled = false;
+    if (btnClean) btnClean.disabled = false;
+    if (btnCleanupChat) btnCleanupChat.disabled = false;
+    if (selRetention) selRetention.disabled = false;
 
     if (infoSection) {
         infoSection.innerHTML = `
             <div class="database-info-card">
                 <div class="database-info-item">
                     <span class="database-info-label">Database Location</span>
-                    <span class="database-info-value database-path">${escHtml(data.dbFolderPath || '')}</span>
+                    <div class="database-path-row">
+                        <span class="database-path">${escHtml(data.dbFolderPath || '')}</span>
+                        <button class="database-path-btn" onclick="onOpenDatabaseFolder()" title="Open folder">📂</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -89,10 +101,25 @@ function onOpenDatabaseFolder() {
     postDatabaseMsg({ action: 'openDatabaseFolder' });
 }
 
-// 清空数据库
-function onClearDatabase() {
+// 清理旧聊天记录
+function onCleanupChatHistory() {
+    const sel = document.getElementById('db-history-retention');
+    const days = sel ? parseInt(sel.value) : 30;
+    const shortLabel = sel ? sel.options[sel.selectedIndex].getAttribute('data-label') : '30 days';
+
     showDatabaseConfirmDialog(
-        'Clear Database',
+        'Clean up chat history',
+        'This will permanently delete non-favorited chat files older than <b>' + shortLabel + '</b>.<br>The 10 most recent chats and all favorited chats will be preserved.<br><br><b>Are you sure you want to continue?</b>',
+        function() {
+            postDatabaseMsg({ action: 'cleanupChatHistory', days: days });
+        }
+    );
+}
+
+// 清空数据库
+function onCleanDatabase() {
+    showDatabaseConfirmDialog(
+        'Clean symbol &amp; index',
         'This will delete all symbol databases (indexes, defines, PCH cache, embeddings).<br>Chat history and backups will be preserved.<br><br><b>Are you sure you want to continue?</b>',
         function() {
             postDatabaseMsg({ action: 'clearDatabase' });

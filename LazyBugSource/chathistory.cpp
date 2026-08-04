@@ -314,3 +314,115 @@ std::string CChatHistory::GetRecentFileName()
     return widechar_to_utf8(_entries[0].fileName.c_str());
 }
 
+// 解析 .chat 文件，收集所有引用的 checkpoint UID
+static void _CollectChatCheckpointUIDs(const char* chatFilePath, std::set<FilesCheckpointUID>& uids)
+{
+	try
+	{
+		std::ifstream file(utf8_to_widechar(chatFilePath), std::ios::binary);
+		if (!file.is_open())
+			return;
+
+		DWORD magic;
+		file.read(reinterpret_cast<char*>(&magic), sizeof(magic));
+		if (magic != 0x4F504348) // "HCPO"
+			return;
+
+		DWORD version;
+		file.read(reinterpret_cast<char*>(&version), sizeof(version));
+
+		// 文件头中的 undoCheckpointId
+		FilesCheckpointUID checkpointId;
+		file.read(reinterpret_cast<char*>(&checkpointId), sizeof(checkpointId));
+		if (checkpointId != FilesCheckpointUID_Invalid)
+			uids.insert(checkpointId);
+
+		// restoredCheckpointId (v1.1+)
+		if (version >= CHATOPSCTRL_VERSION_1_1)
+		{
+			file.read(reinterpret_cast<char*>(&checkpointId), sizeof(checkpointId));
+			if (checkpointId != FilesCheckpointUID_Invalid)
+				uids.insert(checkpointId);
+		}
+
+		int recentPromptToken;
+		if (version >= CHATOPSCTRL_VERSION_1_2)
+			file.read(reinterpret_cast<char*>(&recentPromptToken), sizeof(recentPromptToken));
+
+		// 遍历所有 ChatOp，收集其中的 checkpointId
+		DWORD opCount;
+		file.read(reinterpret_cast<char*>(&opCount), sizeof(opCount));
+		for (DWORD i = 0; i < opCount; ++i)
+		{
+			ChatOp op;
+			op.Load(file, version);
+			if (op.checkpointId != FilesCheckpointUID_Invalid)
+				uids.insert(op.checkpointId);
+		}
+	}
+	catch (...)
+	{
+	}
+}
+
+void CChatHistory::DeleteOldChats(int days, const char* checkpointsDir)
+{
+	if (days <= 0 || _folderPath.empty())
+		return;
+
+	// 计算 cutoff 时间
+	FILETIME now;
+	GetSystemTimeAsFileTime(&now);
+	ULARGE_INTEGER cutoff;
+	cutoff.LowPart = now.dwLowDateTime;
+	cutoff.HighPart = now.dwHighDateTime;
+	cutoff.QuadPart -= static_cast<ULONGLONG>(days) * 24ULL * 3600ULL * 10000000ULL; // days -> 100ns
+
+	// 收集要删除的 entry 索引（跳过最近10个）
+	std::vector<size_t> deleteIndices;
+	for (size_t i = 0; i < _entries.size(); ++i)
+	{
+		if (i < 10 || _entries[i].isFavorite)
+			continue;
+
+		ULARGE_INTEGER fileTime;
+		fileTime.LowPart = _entries[i].modifiedTime.dwLowDateTime;
+		fileTime.HighPart = _entries[i].modifiedTime.dwHighDateTime;
+
+		if (fileTime.QuadPart < cutoff.QuadPart)
+			deleteIndices.push_back(i);
+	}
+
+	if (deleteIndices.empty())
+		return;
+
+	// 从后往前删除（避免索引变化影响前面的元素）
+	for (auto it = deleteIndices.rbegin(); it != deleteIndices.rend(); ++it)
+	{
+		const Entry& entry = _entries[*it];
+		std::string chatFileName = widechar_to_utf8(entry.fileName.c_str());
+		std::string chatFilePath = _folderPath + "\\" + chatFileName;
+
+		// 收集该 chat 引用的所有 checkpoint UID 并删除对应 .cp 文件
+		std::set<FilesCheckpointUID> checkpointUIDs;
+		_CollectChatCheckpointUIDs(chatFilePath.c_str(), checkpointUIDs);
+		for (FilesCheckpointUID uid : checkpointUIDs)
+		{
+			char hexStr[32];
+			sprintf_s(hexStr, "%llx.cp", uid);
+			std::string cpPath = std::string(checkpointsDir) + "\\" + hexStr;
+			Utils::RemoveFile(cpPath.c_str());
+		}
+
+		// 删除 .chat 文件
+		Utils::RemoveFile(chatFilePath.c_str());
+
+		// 删除 .chat.fav 文件（如存在）
+		std::string favPath = chatFilePath + ".fav";
+		Utils::RemoveFile(favPath.c_str());
+
+		// 从 _entries 中移除
+		_entries.erase(_entries.begin() + *it);
+	}
+}
+

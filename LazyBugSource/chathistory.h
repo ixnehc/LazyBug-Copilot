@@ -45,6 +45,10 @@ public:
 	void GetRecentMenuItems(DWORD count, std::vector<MenuItemInfo>& items);
 	void GetFavoriteMenuItems(std::vector<MenuItemInfo>& items);
 
+	//删除 days 天前修改的非收藏聊天文件，并清理其引用的 checkpoint 文件
+	//checkpointsDir: _checkpoints 目录的全路径
+	void DeleteOldChats(int days, const char* checkpointsDir);
+
 protected:
 
 	//content:打开.chat文件,依次读入其中的op,找到第一个Op_SetTitle,使用里面的content

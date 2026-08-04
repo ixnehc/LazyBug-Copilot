@@ -123,6 +123,11 @@ BOOL CChatSettingPage::Create(const RECT& rect, CWnd* pParentWnd, UINT nID)
         [this]() { return _IsReady(); },
         GetSafeHwnd()
     );
+    _databaseTab.SetDeleteOldChatsCallback([this](int days, const char* checkpointsDir) {
+        CChatDialogA* pDialog = (CChatDialogA*)GetParent();
+        if (pDialog)
+            pDialog->GetChatHistory().DeleteOldChats(days, checkpointsDir);
+    });
 
     return result;
 }

@@ -36,6 +36,12 @@ void CChatSettingDatabaseTab::Init(
     RefreshData();
 }
 
+// ========== SetDeleteOldChatsCallback ==========
+void CChatSettingDatabaseTab::SetDeleteOldChatsCallback(DeleteOldChatsCallback callback)
+{
+    _deleteOldChatsCallback = callback;
+}
+
 // ========== Update ==========
 void CChatSettingDatabaseTab::Update()
 {
@@ -46,6 +52,13 @@ void CChatSettingDatabaseTab::Update()
     {
         _dbFolder = curDb;
         _SendDataToWebView();
+    }
+
+    if (_cleanupChatHistoryDays > 0)
+    {
+        const int days = _cleanupChatHistoryDays;
+        _cleanupChatHistoryDays = 0;
+        _CleanupChatHistory(days);
     }
 
     if (_isClearDBScheduled)
@@ -92,6 +105,13 @@ bool CChatSettingDatabaseTab::HandleWebMessage(const std::string& action, const 
         _ClearDatabase();
         return true;
     }
+    else if (action == "cleanupChatHistory")
+    {
+        const int days = jsonMsg.value("days", 0);
+        if (days > 0)
+            _ScheduleCleanupChatHistory(days);
+        return true;
+    }
 
     return false;
 }
@@ -129,4 +149,21 @@ void CChatSettingDatabaseTab::_ClearDatabase()
     // 延迟到 Update 中执行，因为在 WebView 消息回调中直接调用
     // SolutionDB_ClearDB（同步 pipe 消息）可能会阻塞消息循环
     _isClearDBScheduled = true;
+}
+
+// ========== _ScheduleCleanupChatHistory ==========
+void CChatSettingDatabaseTab::_ScheduleCleanupChatHistory(int days)
+{
+    // 避免在 WebView 回调中执行可能耗时的文件清理。
+    _cleanupChatHistoryDays = days;
+}
+
+// ========== _CleanupChatHistory ==========
+void CChatSettingDatabaseTab::_CleanupChatHistory(int days)
+{
+    if (!_deleteOldChatsCallback || _dbFolder.empty())
+        return;
+
+    std::string checkpointsDir = _dbFolder + "\\_checkpoints";
+    _deleteOldChatsCallback(days, checkpointsDir.c_str());
 }

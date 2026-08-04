@@ -83,6 +83,7 @@ public:
 	CChatFileWriter& GetChatFileWriter()	{	return _chatFileWriter;	}
 	CCheckpointsFileChange& GetCheckpointsFileChange() { return _checkpointsFileChange; }
 	CFileLacator& GetFileLocator()	{	return _fileLocator;	}
+	CChatHistory& GetChatHistory() { return _chatHistory; }
 	AbsTick FetchEscapeInputRequestTime() {		AbsTick ret = _requestEscapeInputTime; _requestEscapeInputTime = 0;		return ret;	}
 
 
