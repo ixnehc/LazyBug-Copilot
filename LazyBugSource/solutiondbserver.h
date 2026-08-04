@@ -4,6 +4,7 @@
 #include <thread>
 #include <vector>
 #include <mutex>
+#include <shared_mutex>
 
 #include "SolutionDBMsgs.h"
 
@@ -44,6 +45,7 @@ private:
 	HANDLE _hResponsePipe;
 	std::thread _thread;
 	std::mutex _pipeMutex; // 添加互斥锁以保护管道写入
+	std::shared_mutex _requestMutex; // RequestClearDB 排他，其他请求共享并发
 	
 	std::atomic<bool> _isDisconnected{false};
 	mutable std::mutex _disconnectMutex;

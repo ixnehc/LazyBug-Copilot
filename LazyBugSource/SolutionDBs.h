@@ -11,7 +11,7 @@ public:
 	void Update();
 
 	void CloseAll();
-	void CloseOne(const char* dbFolder);
+	void ClearDB(const char* dbFolder);
 
 public:
 

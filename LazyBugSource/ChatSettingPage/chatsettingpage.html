@@ -6,6 +6,7 @@
     <title>Settings</title>
     <link rel="stylesheet" href="chatsettingpage_providers.css">
     <link rel="stylesheet" href="chatsettingpage_dirwatch.css">
+    <link rel="stylesheet" href="chatsettingpage_database.css">
     <style>
         :root {
             --body-bg: #121212; /* 黑色背景 */
@@ -304,6 +305,7 @@
 
     <script src="chatsettingpage_providers.js"></script>
     <script src="chatsettingpage_dirwatch.js"></script>
+    <script src="chatsettingpage_database.js"></script>
     <script>
         // 全局状态
         let currentTabs = [];
@@ -323,7 +325,8 @@
         // Tab 图标映射：id → 图标 HTML
         const TAB_ICONS = {
             'providers': '<span class="tab-icon">🏭</span>',
-            'dirwatch': '<span class="tab-icon">📁<span class="tab-icon-overlay">👁️</span></span>'
+            'dirwatch': '<span class="tab-icon">📁<span class="tab-icon-overlay">👁️</span></span>',
+            'database': '<span class="tab-icon">🗄️</span>'
         };
 
         // 渲染Tab导航
@@ -358,6 +361,8 @@
                     createProvidersTabContent(contentDiv);
                 } else if (tab.id === 'dirwatch') {
                     createDirWatchTabContent(contentDiv);
+                } else if (tab.id === 'database') {
+                    createDatabaseTabContent(contentDiv);
                 } else {
                     // 其他tab显示空状态
                     const emptyState = document.createElement('div');
@@ -438,6 +443,11 @@
                 requestDirWatchData();
             }
             
+            // 如果切换到database tab，重新请求数据
+            if (tabId === 'database') {
+                requestDatabaseData();
+            }
+            
             
             // 发送Tab变更消息到C++
             window.chrome.webview.postMessage({
@@ -506,6 +516,10 @@
 
                     case 'setDirWatchData':
                         setDirWatchData(message.data);
+                        break;
+                        
+                    case 'setDatabaseData':
+                        setDatabaseData(message.data);
                         break;
                         
                         

@@ -978,6 +978,42 @@ bool RemoveFile(const char* path)
 	}
 }
 
+static void DeleteDirectoryW(const std::wstring& wpath)
+{
+	std::wstring search = wpath + L"\\*";
+	_wfinddata_t fd;
+	intptr_t handle = _wfindfirst(search.c_str(), &fd);
+	if (handle == -1)
+		return;
+
+	do
+	{
+		if (wcscmp(fd.name, L".") == 0 || wcscmp(fd.name, L"..") == 0)
+			continue;
+		std::wstring full = wpath + L"\\" + fd.name;
+		if (fd.attrib & _A_SUBDIR)
+			DeleteDirectoryW(full);
+		else
+			::DeleteFileW(full.c_str());
+	} while (_wfindnext(handle, &fd) == 0);
+	_findclose(handle);
+
+	::RemoveDirectoryW(wpath.c_str());
+}
+
+bool DeleteDirectory(const char* path)
+{
+	if (!path || *path == '\0')
+		return false;
+
+	if (!IsFileExist(path))
+		return true; // 目录已不存在，视为成功
+
+	std::wstring wpath = utf8_to_widechar(path);
+	DeleteDirectoryW(wpath);
+	return true;
+}
+
 bool SetFileContentFromUTF8(const char* path, const std::vector<BYTE>& content, FileContentCodingFormat codingFmt)
 {
 	return WriteFileFromUTF8(path, content, codingFmt);

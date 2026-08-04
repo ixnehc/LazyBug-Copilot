@@ -140,6 +140,15 @@ void CSolutionDBServer::Run()
 				msg->Load(dp);
 
 				SolutionDBMsgType msgType = (SolutionDBMsgType)msg->GetType();
+
+				// RequestClearDB 持排他锁：与所有其他请求互斥；其他请求持共享锁：彼此可并发
+				std::shared_lock<std::shared_mutex> requestSharedLock;
+				std::unique_lock<std::shared_mutex> requestUniqueLock;
+				if (msgType == SolutionDBMsgType::RequestClearDB)
+					requestUniqueLock = std::unique_lock<std::shared_mutex>(_requestMutex);
+				else
+					requestSharedLock = std::shared_lock<std::shared_mutex>(_requestMutex);
+
 				if (msgType == SolutionDBMsgType::RequestOpen)
 				{
 					auto* request = static_cast<SolutionDBMsg_RequestOpen*>(msg.get());
@@ -266,13 +275,13 @@ void CSolutionDBServer::Run()
 					}
 				}
 
-				if (msgType == SolutionDBMsgType::RequestClose)
+				if (msgType == SolutionDBMsgType::RequestClearDB)
 				{
-					auto* request = static_cast<SolutionDBMsg_RequestClose*>(msg.get());
+					auto* request = static_cast<SolutionDBMsg_RequestClearDB*>(msg.get());
 
-					g_solutionDBs.CloseOne(request->dbFolderPath.c_str());
+					g_solutionDBs.ClearDB(request->dbFolderPath.c_str());
 
-					SolutionDBMsg_Closed response;
+					SolutionDBMsg_ClearDBDone response;
 					response.success = true;
 					response.dbFolderPath = request->dbFolderPath;
 

@@ -57,7 +57,7 @@ void CSolutionDBs::CloseAll()
 	_entries.clear();
 }
 
-void CSolutionDBs::CloseOne(const char* dbFolder)
+void CSolutionDBs::ClearDB(const char* dbFolder)
 {
 	if (!dbFolder || !dbFolder[0])
 		return;
@@ -68,10 +68,7 @@ void CSolutionDBs::CloseOne(const char* dbFolder)
 	std::unique_lock< std::shared_mutex> lock(_mutex);
 	auto it = _entries.find(path);
 	if (it != _entries.end())
-	{
-		it->second.Close();
-		_entries.erase(it);
-	}
+		it->second.ClearDB();
 }
  
  

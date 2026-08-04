@@ -115,6 +115,15 @@ BOOL CChatSettingPage::Create(const RECT& rect, CWnd* pParentWnd, UINT nID)
         GetSafeHwnd()
     );
 
+    // 初始化 Database Tab 逻辑控制器
+    _databaseTab.Init(
+        [this](const std::wstring& action, const std::wstring& data) { _PostWebMessage(action, data); },
+        [this](const std::wstring& fullJson) { _PostWebMessage(L"", fullJson, true); },
+        [this](const std::wstring& script) { ExecuteScript(script); },
+        [this]() { return _IsReady(); },
+        GetSafeHwnd()
+    );
+
     return result;
 }
 
@@ -374,6 +383,12 @@ void CChatSettingPage::_InitializeDefaultTabs()
     folderWatchTab.id = L"dirwatch";
     folderWatchTab.title = L"Folder Watch";
     _tabs.push_back(folderWatchTab);
+
+    // Database Tab
+    SettingTab databaseTab;
+    databaseTab.id = L"database";
+    databaseTab.title = L"Database";
+    _tabs.push_back(databaseTab);
     
     // 发送Tab数据到WebView
     std::wstring tabsJson = _BuildTabsJson();
@@ -548,6 +563,10 @@ void CChatSettingPage::_HandleWebMessage(const std::wstring& message)
         // 再让 DirWatch Tab 处理 DirWatch 相关消息
         if (_dirWatchTab.HandleWebMessage(action, jsonMsg))
             return;
+
+        // 再让 Database Tab 处理 Database 相关消息
+        if (_databaseTab.HandleWebMessage(action, jsonMsg))
+            return;
         
         // 处理通用消息
         if (action == "tabChanged")
@@ -676,6 +695,7 @@ void CChatSettingPage::Update()
 	UpdateReload();
 	_providerTab.Update();
 	_dirWatchTab.Update();
+	_databaseTab.Update();
 }
 
 // 检测并重新加载（如果LLM Lib配置有变化则更新显示）

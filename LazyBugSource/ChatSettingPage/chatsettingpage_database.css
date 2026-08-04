@@ -1,0 +1,142 @@
+/* ===== Database Tab 样式 ===== */
+
+.database-container {
+    padding: 24px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.database-content {
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+/* 信息区域 */
+.database-info-section {
+    margin-bottom: 32px;
+}
+
+.database-info-card {
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.database-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.database-info-label {
+    font-size: 0.85em;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.database-info-value {
+    font-size: 0.95em;
+    color: var(--text-color);
+    word-break: break-all;
+}
+
+.database-path {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 0.9em;
+    color: #aaa;
+    background-color: rgba(255, 255, 255, 0.04);
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+}
+
+/* 空状态 */
+.database-empty {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.database-empty-icon {
+    font-size: 3.5em;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.database-empty-text {
+    font-size: 1.1em;
+    color: #888;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.database-empty-subtext {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* ===== 操作按钮区域 ===== */
+.database-actions-section {
+    background-color: var(--secondary-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.database-actions-title {
+    font-size: 0.85em;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+}
+
+.database-actions-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.database-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background-color: var(--tab-inactive-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.database-action-btn:hover:not(:disabled) {
+    background-color: var(--hover-bg);
+    border-color: #555;
+}
+
+.database-action-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.database-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.database-action-btn-danger:hover:not(:disabled) {
+    background-color: rgba(220, 53, 69, 0.15);
+    border-color: rgba(220, 53, 69, 0.4);
+}
+
+.database-btn-icon {
+    font-size: 1.3em;
+    flex-shrink: 0;
+}
+
+.database-btn-text {
+    flex: 1;
+}

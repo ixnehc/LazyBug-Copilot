@@ -12,6 +12,7 @@
 #include "ChatTaskMgr.h"
 #include "ChatSettingProviderTab.h"
 #include "ChatSettingDirWatchTab.h"
+#include "ChatSettingDatabaseTab.h"
 
 // 回调函数类型定义
 using SettingPageNavigationCompletedCallback = std::function<void(bool)>;
@@ -124,6 +125,9 @@ private:
 
     // DirWatch Tab 逻辑控制器
     CChatSettingDirWatchTab _dirWatchTab;
+
+    // Database Tab 逻辑控制器
+    CChatSettingDatabaseTab _databaseTab;
     
     // 检查WebView和Setting是否已初始化
     bool _IsReady() const;

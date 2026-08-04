@@ -37,10 +37,10 @@ PipeMsgPtr CreateSolutionDBMsg(PipeMsgType type)
 		return std::make_unique<SolutionDBMsg_ActivateFiles>();
 	case SolutionDBMsgType::ActivateFilesResult:
 		return std::make_unique<SolutionDBMsg_ActivateFilesResult>();
-	case SolutionDBMsgType::RequestClose:
-		return std::make_unique<SolutionDBMsg_RequestClose>();
-	case SolutionDBMsgType::Closed:
-		return std::make_unique<SolutionDBMsg_Closed>();
+	case SolutionDBMsgType::RequestClearDB:
+		return std::make_unique<SolutionDBMsg_RequestClearDB>();
+	case SolutionDBMsgType::ClearDBDone:
+		return std::make_unique<SolutionDBMsg_ClearDBDone>();
 	//XXXXX: more SolutionDB message
 	default:
 		always_assert(false);

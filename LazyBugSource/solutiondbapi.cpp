@@ -205,21 +205,14 @@ SolutionDBMsg_Opened SolutionDB_Open(const char* slnPath)
 	return std::move(result);
 }
 
-SolutionDBMsg_Closed SolutionDB_Close(const char* slnPath)
+SolutionDBMsg_ClearDBDone SolutionDB_ClearDB(const char* dbFolderPath)
 {
-	std::string slnName;
-	ConvertFullPathToName(slnPath, slnName);
-	RemoveFileSuffix(slnName);
-
-	std::string dbRoot = Utils::GetDBRootFolder_utf8();
-	std::string pathFolder = dbRoot + "\\" + slnName;
-
-	SolutionDBMsg_RequestClose request;
-	request.dbFolderPath = pathFolder;
+	SolutionDBMsg_RequestClearDB request;
+	request.dbFolderPath = dbFolderPath;
 
 	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
 
-	SolutionDBMsg_Closed result;
+	SolutionDBMsg_ClearDBDone result;
 	msg.WaitAndFetch(result);
 
 	return std::move(result);

@@ -109,6 +109,13 @@ public:
 	void Open(const char* pathDB);//打开pathDB目录,并读取里面的.db文件
 	void Close();
 
+	/**
+	 * @brief 清空数据库数据并重新打开
+	 *
+	 * 先Close()释放资源，删除磁盘上的symbol/index/strlib数据，再重新Open()
+	 */
+	void ClearDB();
+
 	void Update();
 
 	// 多来源文件追踪接口

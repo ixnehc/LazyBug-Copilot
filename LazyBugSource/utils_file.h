@@ -56,6 +56,7 @@ extern std::wstring GetActualFilePath(const wchar_t* fullPath);
 extern std::string GetActualFilePath(const char* fullPath);
 extern std::string GetActualFileName(const char* fullPath);
 extern bool RemoveFile(const char* path);
+extern bool DeleteDirectory(const char* path);
 extern bool CopyFile(const char* srcPath, const char* targetPath);
 extern bool OpenIFStream(std::ifstream& ifs, const char* path);
 extern bool OpenOFStream(std::ofstream& ifs, const char* path, int mode = std::ios::binary| std::ios::out);

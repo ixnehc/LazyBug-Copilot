@@ -260,6 +260,31 @@ void CSolutionDB::Close()
 	_projSettingLib.Clear();
 }
 
+void CSolutionDB::ClearDB()
+{
+	std::string dbFolder = _pathDBFolder; // Close() 会清空 _pathDBFolder，先保存
+
+	Close();
+
+	// 删除数据目录（Open() 会重新创建）
+	Utils::DeleteDirectory((dbFolder + "\\_pch").c_str());
+	Utils::DeleteDirectory((dbFolder + "\\_defines").c_str());
+	Utils::DeleteDirectory((dbFolder + "\\_defines2").c_str());
+	Utils::DeleteDirectory((dbFolder + "\\_index").c_str());
+	Utils::DeleteDirectory((dbFolder + "\\_strlib").c_str());
+	Utils::DeleteDirectory((dbFolder + "\\_strlib2").c_str());
+#ifdef USE_EMBEDDING_DB
+	Utils::DeleteDirectory((dbFolder + "\\_embedding").c_str());
+#endif
+
+	// 删除 .projsettings 文件
+	Utils::RemoveFile((dbFolder + "\\.projsettings").c_str());
+
+	// 保留：.db 配置文件、_log/、_chats/、_checkpoints/、_backup/、_mcps/、_skills/
+
+	Open(dbFolder.c_str());
+}
+
 void CSolutionDB::Update()
 {
 	_scanner.Update(); 
