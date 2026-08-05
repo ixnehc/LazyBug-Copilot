@@ -29,8 +29,8 @@ function createDatabaseTabContent(contentDiv) {
                     <div class="database-actions-title">Clean up</div>
                     <div class="database-actions-row">
                         <select class="database-select" id="db-history-retention" disabled>
-                            <option value="30" data-label="30 days">Keep last 30 days of chat history</option>
                             <option value="30" data-label="1 month">Keep 1 month of chat history</option>
+                            <option value="60" data-label="2 months">Keep 2 months of chat history</option>
                             <option value="90" data-label="3 months">Keep 3 months of chat history</option>
                             <option value="180" data-label="6 months">Keep 6 months of chat history</option>
                             <option value="365" data-label="1 year">Keep 1 year of chat history</option>
