@@ -611,6 +611,9 @@
     <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp">
       <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatSettingDatabaseTab.cpp">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -757,6 +760,12 @@
       <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
     </None>
     <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_providers.js">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_database.css">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </None>
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_database.js">
       <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
     </None>
   </ItemGroup>
@@ -1221,6 +1230,9 @@
       <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h">
+      <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatSettingDatabaseTab.h">
       <Filter>GUI\ChatDialog\ChatSettingPage</Filter>
     </ClInclude>
   </ItemGroup>

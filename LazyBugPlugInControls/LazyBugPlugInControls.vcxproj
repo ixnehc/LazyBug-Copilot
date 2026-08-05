@@ -360,6 +360,7 @@
     <ClCompile Include="..\LazyBugSource\ChatOpsCompress.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatOpsCtrl.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatOpsSummarizer.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatSettingDatabaseTab.cpp" />
     <ClCompile Include="..\LazyBugSource\chatsettingdirwatchtab.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatSettingMenu.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatSettingPage.cpp" />
@@ -526,6 +527,8 @@
     <None Include="..\LazyBugSource\ChatMcpTip.html" />
     <None Include="..\LazyBugSource\ChatSettingMenu.html" />
     <None Include="..\LazyBugSource\ChatSettingPage.html" />
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_database.css" />
+    <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_database.js" />
     <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_dirwatch.css" />
     <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_dirwatch.js" />
     <None Include="..\LazyBugSource\ChatSettingPage\chatsettingpage_providers.css" />
@@ -575,6 +578,7 @@
     <ClInclude Include="..\Common\xml\tinyxml.h" />
     <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
     <ClInclude Include="..\LazyBugSource\ChatOpsSummarizer.h" />
+    <ClInclude Include="..\LazyBugSource\ChatSettingDatabaseTab.h" />
     <ClInclude Include="..\LazyBugSource\chatsettingdirwatchtab.h" />
     <ClInclude Include="..\LazyBugSource\ChatSettingProviderTab.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h" />
