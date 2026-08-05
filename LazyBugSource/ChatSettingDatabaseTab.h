@@ -42,9 +42,16 @@ private:
     int _cleanupChatHistoryDays = 0;
     DeleteOldChatsCallback _deleteOldChatsCallback;
 
+    // 清理结果（延迟到 Update 末尾发送，避免在阻塞操作中嵌套 WebView 消息）
+    bool _cleanupResultPending = false;
+    std::string _cleanupResultType;
+    bool _cleanupResultSuccess = false;
+    std::string _cleanupResultMsg;
+
     void _SendDataToWebView();
     void _OpenDatabaseFolder();
     void _ClearDatabase();
     void _ScheduleCleanupChatHistory(int days);
     void _CleanupChatHistory(int days);
+    void _PostCleanupResult(const char* type, bool success, const char* message);
 };

@@ -159,24 +159,18 @@ void CChatTask_ReadMedia::_ThreadFunc()
 	}
 	else
 	{
-		// 从完整路径中提取文件名用于文本描述
-		std::string fileName = filePath;
-		size_t lastSep = fileName.find_last_of("\\/");
-		if (lastSep != std::string::npos)
-			fileName = fileName.substr(lastSep + 1);
-
 		// 获取原图尺寸用于 token 估算
 		int imgWidth = 0, imgHeight = 0;
 		Utils::GetImageSize(filePath.c_str(), imgWidth, imgHeight);
 
-		// 构建 OpenAI content block 数组（text + image_url）
+		// 构建 content block 数组（text + image_url）
 		auto buildImageResult = [&](const std::string& base64) -> std::string
 		{
 			nlohmann::json arr = nlohmann::json::array();
 
 			nlohmann::json textBlock;
 			textBlock["type"] = "text";
-			textBlock["text"] = "Image read: " + fileName + " (" + std::to_string(imgWidth) + "x" + std::to_string(imgHeight) + ")";
+			textBlock["text"] = "Image read: " + filePath + " (" + std::to_string(imgWidth) + "x" + std::to_string(imgHeight) + ")";
 			arr.push_back(textBlock);
 
 			nlohmann::json imageBlock;

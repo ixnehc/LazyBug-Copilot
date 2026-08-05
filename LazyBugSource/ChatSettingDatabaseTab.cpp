@@ -58,12 +58,27 @@ void CChatSettingDatabaseTab::Update()
     {
         const int days = _cleanupChatHistoryDays;
         _cleanupChatHistoryDays = 0;
+
+        // 通知前端开始清理（由于清理阻塞 UI 线程，此消息实际会在清理完成后才被处理；
+        // 保留此消息供后续改为后台线程时使用）
+        _postMsg(L"cleanupStarted", L"{}");
+
         _CleanupChatHistory(days);
+
+        _PostCleanupResult("cleanupChatHistory", true, "Chat history cleanup completed.");
     }
 
     if (_isClearDBScheduled)
     {
         _isClearDBScheduled = false;
+
+        _postMsg(L"cleanupStarted", L"{}");
+
+//         // TODO: 测试用，验证 UI 线程阻塞效果，正式上线前移除
+//         Sleep(60000);
+
+        bool success = true;
+        std::string errMsg;
 
         const char* dbPath = GetOpenedDBFolderPath_utf8();
         if (dbPath && *dbPath)
@@ -72,9 +87,31 @@ void CChatSettingDatabaseTab::Update()
             // solution name，因此传入 dbFolderPath 和传入 slnPath 效果相同
             SolutionDB_ClearDB(dbPath);
         }
+        else
+        {
+            success = false;
+            errMsg = "Database path is not available.";
+        }
 
         // 刷新显示的路径信息
         RefreshData();
+
+        _PostCleanupResult("clearDatabase", success,
+            success ? "Symbol &amp; index cleaned successfully." : errMsg.c_str());
+    }
+
+    // 发送清理结果到前端
+    if (_cleanupResultPending)
+    {
+        _cleanupResultPending = false;
+
+        json result;
+        result["type"] = _cleanupResultType;
+        result["success"] = _cleanupResultSuccess;
+        result["message"] = _cleanupResultMsg;
+
+        _postMsg(L"cleanupFinished",
+            utf8_to_widechar(result.dump()));
     }
 }
 
@@ -166,4 +203,13 @@ void CChatSettingDatabaseTab::_CleanupChatHistory(int days)
 
     std::string checkpointsDir = _dbFolder + "\\_checkpoints";
     _deleteOldChatsCallback(days, checkpointsDir.c_str());
+}
+
+// ========== _PostCleanupResult ==========
+void CChatSettingDatabaseTab::_PostCleanupResult(const char* type, bool success, const char* message)
+{
+    _cleanupResultType = type;
+    _cleanupResultSuccess = success;
+    _cleanupResultMsg = message;
+    _cleanupResultPending = true;
 }

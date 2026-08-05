@@ -1416,7 +1416,7 @@ void CChatDialogA::_OnSendMessage(const std::wstring& content)
 		return;
 	}
 
-	if (false)
+	if (true)
 	{
 		std::vector<ChatInputTag> inlineTags;
 		ParseInlineTags(content, inlineTags);

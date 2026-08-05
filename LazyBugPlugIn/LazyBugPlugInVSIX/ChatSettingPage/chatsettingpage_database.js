@@ -170,3 +170,72 @@ function showDatabaseConfirmDialog(title, message, onConfirm) {
     }
     document.addEventListener('keydown', onKey);
 }
+
+// ===== 清理遮罩 & 结果对话框 =====
+
+function showCleanupOverlay() {
+    // 移除已有遮罩
+    hideCleanupOverlay();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'cleanup-overlay';
+    overlay.id = 'cleanup-overlay';
+    overlay.innerHTML = `
+        <div class="cleanup-spinner">
+            <div class="cleanup-spinner-icon"></div>
+            <div class="cleanup-spinner-text">Cleaning up, please wait...</div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+function hideCleanupOverlay() {
+    const overlay = document.getElementById('cleanup-overlay');
+    if (overlay) overlay.remove();
+}
+
+function showCleanupResultDialog(jsonData) {
+    let data = jsonData;
+    if (typeof data === 'string') {
+        try { data = JSON.parse(data); } catch(e) { return; }
+    }
+
+    const title = data.success ? 'Cleanup Complete' : 'Cleanup Failed';
+    const msgHtml = data.message || '';
+
+    const old = document.querySelector('.custom-confirm-overlay');
+    if (old) old.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'custom-confirm-overlay';
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
+
+    const dialog = document.createElement('div');
+    dialog.className = 'custom-confirm-dialog';
+
+    dialog.innerHTML = `
+        <div class="custom-confirm-title">${title}</div>
+        <div class="custom-confirm-message">${msgHtml}</div>
+        <div class="custom-confirm-actions">
+            <button class="custom-confirm-ok" style="width:100%">OK</button>
+        </div>
+    `;
+
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    dialog.querySelector('.custom-confirm-ok').addEventListener('click', function() {
+        overlay.remove();
+    });
+
+    function onKey(e) {
+        if (e.key === 'Escape' || e.key === 'Enter') {
+            overlay.remove();
+            document.removeEventListener('keydown', onKey);
+        }
+    }
+    document.addEventListener('keydown', onKey);
+}

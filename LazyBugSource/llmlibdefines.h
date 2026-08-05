@@ -25,6 +25,14 @@ enum class LlmApiFormat
 // ReadMedia tool 仅在这些格式下可用（支持多模态图片输入）
 inline bool IsReadMediaSupported(LlmApiFormat format)
 {
+	return format == LlmApiFormat::Anthropic_ || format == LlmApiFormat::Kimi ||
+	       format == LlmApiFormat::OpenAI_;
+}
+
+// 判断 API 格式是否支持在 tool result 消息中直接包含 media 内容（image_url block）
+// 不支持的格式会将 media 提取为独立的 user 多模态消息
+inline bool IsToolResultMediaSupported(LlmApiFormat format)
+{
 	return format == LlmApiFormat::Anthropic_ || format == LlmApiFormat::Kimi;
 }
 

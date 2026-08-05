@@ -522,6 +522,15 @@
                         setDatabaseData(message.data);
                         break;
                         
+                    case 'cleanupStarted':
+                        showCleanupOverlay();
+                        break;
+                        
+                    case 'cleanupFinished':
+                        hideCleanupOverlay();
+                        showCleanupResultDialog(message.data);
+                        break;
+                        
                         
                     case 'startValidatingProvider':
                         startValidatingProvider(message.providerType);

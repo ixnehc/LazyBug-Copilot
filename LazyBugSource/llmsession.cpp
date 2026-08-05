@@ -249,6 +249,13 @@ void LlmSessionRequest::CommitMessages(json& messages, const LlmSessionSetting& 
 			CommitCacheControl(messages,setting);
 		}
 	}
+
+	// 清理 ReadMedia 图片消息的临时标记
+	for (auto& msg : messages)
+	{
+		if (msg.is_object() && msg.contains("_readmedia_image"))
+			msg.erase("_readmedia_image");
+	}
 }
 
 static void CommitMessage(json& messages, const char* role, const char* content, const LlmSessionSetting& setting)
@@ -365,6 +372,48 @@ void LlmSessionRequest::CommitSystemMessage(json& messages,const char* str,const
 	CommitMessage(messages, "system", str, setting);
 }
 
+// 将 parsedJson[1..end] 中的 tool result 和 ReadMedia 图片 user 消息分别追加到 messages：
+// - tool result 插入到 assistantIndex 之后、第一个 _readmedia_image user 消息之前
+// - 图片 user 消息追加到 messages 末尾
+// 这样保证所有 tool result 连续紧跟 assistant，图片 user 消息统一在末尾
+static void _AppendToolResultsKeepImagesLast(json& messages, const json& parsedJson, int assistantIndex)
+{
+	json toolResults = json::array();
+	json imageMessages = json::array();
+
+	for (size_t i = 1; i < parsedJson.size(); i++)
+	{
+		const auto& msg = parsedJson[i];
+		if (!msg.is_object() || !msg.contains("role"))
+			continue;
+
+		const std::string& role = msg["role"];
+		if (role == "user" && msg.contains("_readmedia_image") && msg["_readmedia_image"] == true)
+			imageMessages.push_back(msg);
+		else
+			toolResults.push_back(msg);
+	}
+
+	// 找到 assistantIndex 之后第一个 _readmedia_image user 消息的位置
+	int insertPos = (int)messages.size();
+	for (int i = assistantIndex + 1; i < (int)messages.size(); i++)
+	{
+		if (messages[i].is_object() && messages[i].contains("role") &&
+			messages[i]["role"] == "user" && messages[i].contains("_readmedia_image") &&
+			messages[i]["_readmedia_image"] == true)
+		{
+			insertPos = i;
+			break;
+		}
+	}
+
+	// 插入 tool result（在图片消息之前）
+	messages.insert(messages.begin() + insertPos, toolResults.begin(), toolResults.end());
+
+	// 追加图片 user 消息到末尾
+	messages.insert(messages.end(), imageMessages.begin(), imageMessages.end());
+}
+
 void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr, const LlmSessionSetting& setting)
 {
 	try
@@ -376,7 +425,7 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 		if (!parsedJson.is_array() || parsedJson.empty())
 			return;
 
-		// 对于不支持 ReadMedia 的 API 格式，剥离 tool result 中的 image_url block
+		// 不支持 ReadMedia 的格式：剥离 tool result 中的 image_url block
 		if (!IsReadMediaSupported(setting.apiFormat))
 		{
 			for (auto& msg : parsedJson)
@@ -395,6 +444,47 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 				}
 			}
 		}
+		// 支持 ReadMedia 但不支持在 tool result 中携带 media 的格式：
+		// 将图片从 tool result 提取为紧随其后的独立 user 多模态消息
+		else if (!IsToolResultMediaSupported(setting.apiFormat))
+		{
+			json imageMessages = json::array();
+			for (auto& msg : parsedJson)
+			{
+				if (!msg.is_object() || msg.value("role", "") != "tool" || !msg.contains("content") || !msg["content"].is_array())
+					continue;
+
+				std::string textContent;
+				json imageContent = json::array();
+				for (const auto& block : msg["content"])
+				{
+					if (!block.is_object())
+						continue;
+
+					const std::string blockType = block.value("type", "");
+					if (blockType == "text" && block.contains("text"))
+						textContent += block["text"].get<std::string>();
+					else if (blockType == "image_url")
+						imageContent.push_back(block);
+				}
+
+				msg["content"] = textContent.empty() ? "[image data omitted]" : textContent;
+			if (!imageContent.empty())
+				{
+					json imageMessage;
+					imageMessage["role"] = "user";
+					imageMessage["_readmedia_image"] = true; // 标记，供合并逻辑跳过
+					imageMessage["content"] = json::array();
+					// 使用原 tool result 中的文本（包含图片绝对路径）
+					imageMessage["content"].push_back({ { "type", "text" }, { "text", textContent.empty() ? "The ReadMedia tool returned the following image." : textContent } });
+					for (const auto& imageBlock : imageContent)
+						imageMessage["content"].push_back(imageBlock);
+					imageMessages.push_back(imageMessage);
+				}
+			}
+			parsedJson.insert(parsedJson.end(), imageMessages.begin(), imageMessages.end());
+		}
+
 
 		const json& assistant_msg = parsedJson[0];
 		if (!assistant_msg.is_object() || !assistant_msg.contains("role") || assistant_msg["role"] != "assistant" || !assistant_msg.contains("tool_calls"))
@@ -436,12 +526,9 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 						lastMessage["reasoning_content"] = assistant_msg["reasoning_content"];
 				}
 				
-				// 追加其余消息（即 tool result）
-				if (parsedJson.size() > 1)
-				{
-					messages.insert(messages.end(), parsedJson.begin() + 1, parsedJson.end());
-				}
-				return;
+			// 追加其余消息（即 tool result），保持图片 user 消息在末尾
+			_AppendToolResultsKeepImagesLast(messages, parsedJson, (int)messages.size() - 1);
+			return;
 			}
 			//我们要保证两个assistant不连续,所以额外添加一个user 消息
 			if ((setting.apiFormat != LlmApiFormat::Anthropic_)&& !IsSendingBackReasoningContent(setting.apiFormat))
@@ -461,8 +548,12 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 				{
 					const std::string& role = messages[i]["role"];
 
-					// 如果是tool result，继续向前查找
+				// 如果是tool result，继续向前查找
 					if (role == "tool")
+						continue;
+
+					// 如果是 ReadMedia 图片 user 消息，继续向前查找（不阻断合并）
+					if (role == "user" && messages[i].contains("_readmedia_image") && messages[i]["_readmedia_image"] == true)
 						continue;
 
 					// 如果是assistant且包含tool_calls，找到了合并目标
@@ -506,11 +597,8 @@ void LlmSessionRequest::CommitToolCallResult(json& messages, const char* jsonStr
 			// 根据OpenAI规范，如果存在tool_calls，content应为null
 //			lastMessage["content"] = nullptr;
 
-			// 追加其余消息（即 tool result）
-			if (parsedJson.size() > 1)
-			{
-				messages.insert(messages.end(), parsedJson.begin() + 1, parsedJson.end());
-			}
+		// 追加其余消息（即 tool result），保持图片 user 消息在末尾
+			_AppendToolResultsKeepImagesLast(messages, parsedJson, lastAssistantIndex);
 		}
 		else
 		{

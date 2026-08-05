@@ -396,12 +396,12 @@ bool CLlmFormatter::ConvertLlmRequestToAnthoropicFormat(json& requestJson)
 				std::string thinkingType = thinking.value("type", "");
 				if (thinkingType == "enabled")
 				{
-				// Anthropic 的 thinking 参数
-				thinkingConverted["type"] = "enabled";
-				if (thinking.contains("budget_tokens"))
-				{
-					thinkingConverted["budget_tokens"] = thinking["budget_tokens"];
-				}
+					// Anthropic 的 thinking 参数
+					thinkingConverted["type"] = "enabled";
+					if (thinking.contains("budget_tokens"))
+					{
+						thinkingConverted["budget_tokens"] = thinking["budget_tokens"];
+					}
 					hasThinking = true;
 				}
 				else if (thinkingType == "disabled")
@@ -509,7 +509,7 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 						msgId = data["message"].value("id", "");
 						modelName = data["message"].value("model", "");
 
-					int inputTokens = 0;
+						int inputTokens = 0;
 						int outputTokens = 0;
 						int originalInputTokens = 0;
 
@@ -680,7 +680,7 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 				{
 					std::string stopReason;
 
-				int inputTokens = 0;
+					int inputTokens = 0;
 					int outputTokens = 0;
 					int originalInputTokens = 0;
 
@@ -719,12 +719,12 @@ bool CLlmFormatter::ProcessLlmResponseFromAnthropicFormat(std::deque<std::string
 					chunk["model"] = modelName;
 					chunk["choices"] = json::array({ choice });
 
-				chunk["usage"] = {
-						{"prompt_tokens", originalInputTokens},
-						{"prompt_tokens_cacheRead", cacheReadTokens},
-						{"prompt_tokens_cacheWrite", cacheWriteTokens},
-						{"completion_tokens", outputTokens},
-						{"total_tokens", originalInputTokens + cacheReadTokens + cacheWriteTokens + outputTokens}
+					chunk["usage"] = {
+							{"prompt_tokens", originalInputTokens},
+							{"prompt_tokens_cacheRead", cacheReadTokens},
+							{"prompt_tokens_cacheWrite", cacheWriteTokens},
+							{"completion_tokens", outputTokens},
+							{"total_tokens", originalInputTokens + cacheReadTokens + cacheWriteTokens + outputTokens}
 					};
 					emitChunk(chunk);
 				}
