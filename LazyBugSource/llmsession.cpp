@@ -1403,8 +1403,14 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	if (settings.api.maxToken > 0)
 		requestJson["max_tokens"] = settings.api.maxToken;
 
-	// 处理 thinkingMode 设置（必须在 max_tokens 之后，以便计算 budget_tokens）
-	if (settings.api.thinkingMode == LlmThinkingMode::Disable)
+	// OpenAI Chat Completions 使用 reasoning_effort；未单独配置强度时默认使用 medium。
+	if (settings.apiFormat == LlmApiFormat::OpenAI_)
+	{
+		requestJson["reasoning_effort"] =
+			(settings.api.thinkingMode == LlmThinkingMode::Disable) ? "none" : "medium";
+	}
+	// 处理其他 API 的 thinkingMode 设置（必须在 max_tokens 之后，以便计算 budget_tokens）
+	else if (settings.api.thinkingMode == LlmThinkingMode::Disable)
 	{
 		if (settings.api.providerTypeName == "OpenRouter")
 		{
@@ -1435,7 +1441,6 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		}
 	}
 	// LlmThinkingMode::Auto 时不进行特殊处理，使用 API 默认行为
-
 
 	if (request.prompt.empty())
 	{
