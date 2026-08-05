@@ -3,6 +3,8 @@
 ## Version 0.24
 
 - Improved non-ASCII command compatibility for CLI tools
+- Added `ReadMedia` tool for reading image files
+- Added a Database panel for cleaning up chat history and codebase symbol/index data
 
 ---
 

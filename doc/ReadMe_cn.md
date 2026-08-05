@@ -32,6 +32,8 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 ## Version 0.24 更新说明
 
 - 提高 CLI 工具对非 ASCII 命令的兼容性
+- 新增 `ReadMedia` 工具，用于读取图片文件
+- 新增数据库面板，用于清理聊天记录以及 codebase 的 symbol 和 index 数据
 
 _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 

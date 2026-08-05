@@ -32,6 +32,8 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 ## Version 0.24 Release Notes
 
 - Improved non-ASCII command compatibility for CLI tools
+- Added `ReadMedia` tool for reading image files
+- Added a Database panel for cleaning up chat history and codebase symbol/index data
 
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
