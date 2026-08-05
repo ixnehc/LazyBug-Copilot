@@ -161,7 +161,6 @@ void CChatSettingDatabaseTab::_SendDataToWebView()
 
     json data;
     data["dbReady"] = !_dbFolder.empty();
-    data["dbFolderPath"] = _dbFolder;
 
     json msg;
     msg["action"] = "setDatabaseData";

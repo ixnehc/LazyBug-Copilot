@@ -25,8 +25,6 @@ function createDatabaseTabContent(contentDiv) {
     contentDiv.innerHTML = `
         <div class="database-container" id="database-container">
             <div class="database-content">
-                <div class="database-info-section" id="database-info-section">
-                </div>
                 <div class="database-actions-section">
                     <div class="database-actions-title">Clean up</div>
                     <div class="database-actions-row">
@@ -51,47 +49,18 @@ function createDatabaseTabContent(contentDiv) {
     `;
 }
 
-// 渲染数据库信息
+// 根据 DB 就绪状态启用/禁用按钮
 function renderDatabaseInfo() {
-    const infoSection = document.getElementById('database-info-section');
     const btnClean = document.getElementById('btn-clean-db');
     const btnCleanupChat = document.getElementById('btn-cleanup-chat');
     const selRetention = document.getElementById('db-history-retention');
 
     const data = cachedDatabaseData;
-    if (!data || !data.dbReady) {
-        if (infoSection) {
-            infoSection.innerHTML = `
-                <div class="database-empty">
-                    <div class="database-empty-icon">🗄️</div>
-                    <div class="database-empty-text">Database is not opened</div>
-                    <div class="database-empty-subtext">Please open a solution first to use database features</div>
-                </div>
-            `;
-        }
-        if (btnClean) btnClean.disabled = true;
-        if (btnCleanupChat) btnCleanupChat.disabled = true;
-        if (selRetention) selRetention.disabled = true;
-        return;
-    }
+    const ready = data && data.dbReady;
 
-    if (btnClean) btnClean.disabled = false;
-    if (btnCleanupChat) btnCleanupChat.disabled = false;
-    if (selRetention) selRetention.disabled = false;
-
-    if (infoSection) {
-        infoSection.innerHTML = `
-            <div class="database-info-card">
-                <div class="database-info-item">
-                    <span class="database-info-label">Database Location</span>
-                    <div class="database-path-row">
-                        <span class="database-path">${escHtml(data.dbFolderPath || '')}</span>
-                        <button class="database-path-btn" onclick="onOpenDatabaseFolder()" title="Open folder">📂</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
+    if (btnClean) btnClean.disabled = !ready;
+    if (btnCleanupChat) btnCleanupChat.disabled = !ready;
+    if (selRetention) selRetention.disabled = !ready;
 }
 
 // ===== 事件处理 =====
