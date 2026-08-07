@@ -1248,11 +1248,80 @@ function startValidatingProvider(providerType) {
 }
 
 // 结束验证Provider
-function endValidatingProvider(providerType, available) {
+function endValidatingProvider(providerType, available, errorMessage) {
     const statusDot = document.querySelector(`.provider-status-dot[data-provider-type="${providerType}"]`);
     if (statusDot) {
         statusDot.className = `provider-status-dot ${available ? 'available' : 'unavailable'}`;
     }
+    
+    // 失败时显示 toast 提示
+    if (!available && errorMessage) {
+        showValidationErrorToast(providerType, errorMessage);
+    }
+}
+
+let _validationToastTimer = null;
+
+function showValidationErrorToast(providerType, errorMessage) {
+    // 移除已有的 toast
+    const existing = document.querySelector('.validation-error-toast');
+    if (existing) {
+        existing.remove();
+        if (_validationToastTimer) {
+            clearTimeout(_validationToastTimer);
+            _validationToastTimer = null;
+        }
+    }
+    
+    const toast = document.createElement('div');
+    toast.className = 'validation-error-toast';
+    toast.innerHTML = 
+        '<span class="validation-error-toast-icon">⚠</span>' +
+        '<span class="validation-error-toast-text">' +
+            '<b>' + escapeHtml(providerType) + ':</b> ' + escapeHtml(errorMessage) +
+        '</span>' +
+        '<span class="validation-error-toast-close">✕</span>';
+    
+    // 点击关闭
+    toast.querySelector('.validation-error-toast-close').addEventListener('click', function() {
+        hideToast(toast);
+    });
+    
+    // 鼠标悬停暂停自动关闭
+    toast.addEventListener('mouseenter', function() {
+        if (_validationToastTimer) {
+            clearTimeout(_validationToastTimer);
+            _validationToastTimer = null;
+        }
+    });
+    toast.addEventListener('mouseleave', function() {
+        _validationToastTimer = setTimeout(function() { hideToast(toast); }, 3000);
+    });
+    
+    document.body.appendChild(toast);
+    
+    // 触发入场动画
+    requestAnimationFrame(function() {
+        toast.classList.add('show');
+    });
+    
+    // 自动关闭
+    _validationToastTimer = setTimeout(function() {
+        hideToast(toast);
+    }, 5000);
+}
+
+function hideToast(toast) {
+    toast.classList.remove('show');
+    setTimeout(function() {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 300); // 等待 fade-out 动画结束
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // 开始评估压缩

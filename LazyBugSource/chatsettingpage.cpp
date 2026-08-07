@@ -682,9 +682,9 @@ void CChatSettingPage::StartValidatingProvider(const LlmApiProviderTypeName& pro
     _providerTab.StartValidatingProvider(providerTypeName);
 }
 
-void CChatSettingPage::EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available)
+void CChatSettingPage::EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available, const std::string& errorMessage)
 {
-    _providerTab.EndValidatingProvider(providerTypeName, available);
+    _providerTab.EndValidatingProvider(providerTypeName, available, errorMessage);
 }
 
 bool CChatSettingPage::IsValidatingProvider()

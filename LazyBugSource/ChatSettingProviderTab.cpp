@@ -789,13 +789,38 @@ void CChatSettingProviderTab::StartValidatingProvider(const LlmApiProviderTypeNa
     _postFullJson(jsonMessage);
 }
 
-void CChatSettingProviderTab::EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available)
+void CChatSettingProviderTab::EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available, const std::string& errorMessage)
 {
     if (!_isReady())
         return;
 
-    std::wstring jsonMessage = L"{\"action\":\"endValidatingProvider\",\"providerType\":\"" + utf8_to_widechar(providerTypeName.c_str()) + L"\",\"available\":" + (available ? L"true" : L"false") + L"}";
-    _postFullJson(jsonMessage);
+    std::wstring wProviderType = utf8_to_widechar(providerTypeName.c_str());
+
+    if (errorMessage.empty())
+    {
+        std::wstring jsonMessage = L"{\"action\":\"endValidatingProvider\",\"providerType\":\"" + wProviderType + L"\",\"available\":" + (available ? L"true" : L"false") + L"}";
+        _postFullJson(jsonMessage);
+    }
+    else
+    {
+        std::wstring wError = utf8_to_widechar(errorMessage.c_str());
+        // JSON 转义
+        std::wstring escapedError;
+        for (wchar_t ch : wError)
+        {
+            switch (ch)
+            {
+            case L'"':  escapedError += L"\\\""; break;
+            case L'\\': escapedError += L"\\\\"; break;
+            case L'\n': escapedError += L"\\n";  break;
+            case L'\r': escapedError += L"\\r";  break;
+            case L'\t': escapedError += L"\\t";  break;
+            default:    escapedError += ch;      break;
+            }
+        }
+        std::wstring jsonMessage = L"{\"action\":\"endValidatingProvider\",\"providerType\":\"" + wProviderType + L"\",\"available\":" + (available ? L"true" : L"false") + L",\"errorMessage\":\"" + escapedError + L"\"}";
+        _postFullJson(jsonMessage);
+    }
 
     _SendCastSheetDataToWebView();
 }

@@ -20,8 +20,10 @@ public:
 	bool DependsOn(CChatTask* task) override;
 
 private:
-	void _Fail();
+	void _Fail(const std::string& errorMessage);
 	void _Succeed();
+
+	std::string _errorMessage;
 
 	bool _hasStartedRequest;
 	bool _requestInterrupt;

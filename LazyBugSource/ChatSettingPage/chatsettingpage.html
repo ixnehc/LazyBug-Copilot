@@ -537,7 +537,7 @@
                         break;
                         
                     case 'endValidatingProvider':
-                        endValidatingProvider(message.providerType, message.available);
+                        endValidatingProvider(message.providerType, message.available, message.errorMessage || '');
                         break;
                         
                     case 'startEvaluateSummarize':

@@ -32,11 +32,12 @@ bool CChatTask_VerifyLlmApiProvider::DependsOn(CChatTask* task0)
 	return false;
 }
 
-void CChatTask_VerifyLlmApiProvider::_Fail()
+void CChatTask_VerifyLlmApiProvider::_Fail(const std::string& errorMessage)
 {
+	_errorMessage = errorMessage;
 	g_llmLib.SetProviderStatus(_providerTypeName, LlmApiProvider::Status::Unavailable);
 	if (_context->chatSettingPage)
-		_context->chatSettingPage->EndValidatingProvider(_providerTypeName, false);
+		_context->chatSettingPage->EndValidatingProvider(_providerTypeName, false, errorMessage);
 	g_llmLib.SaveSettings();
 	_status = TaskStatus::Failure;
 }
@@ -59,7 +60,7 @@ void CChatTask_VerifyLlmApiProvider::Start()
 	std::string apiName = g_llmLib.FindApiToValidateApiKey(_providerTypeName);
 	if (apiName.empty())
 	{
-		_Fail();
+		_Fail("No API with a valid model name found for this provider");
 		return;
 	}
 
@@ -87,7 +88,7 @@ void CChatTask_VerifyLlmApiProvider::Start()
 			// Embedding endpoint: 使用异步embedding请求验证
 			if (!_llmChats[0]->RequestEmbedding(u8"test", setting))
 			{
-				_Fail();
+				_Fail("Failed to send embedding validation request");
 				return;
 			}
 			_hasStartedRequest = true;
@@ -101,14 +102,14 @@ void CChatTask_VerifyLlmApiProvider::Start()
 
 		if (!_llmChats[0]->Request(request, setting))
 		{
-			_Fail();
+			_Fail("Failed to send validation request");
 			return;
 		}
 		_hasStartedRequest = true;
 		return;
 	}
 
-	_Fail();
+	_Fail("Failed to load API settings for validation");
 }
 
 void CChatTask_VerifyLlmApiProvider::Update()
@@ -126,31 +127,28 @@ void CChatTask_VerifyLlmApiProvider::Update()
 			// 检查会话是否完成
 			if (output.isCompleted)
 			{
-				if (output.content.empty() && output.fullContent.empty())
+				if (output.hasError)
 				{
-					_Fail();
+					_Fail(output.errorMessage.empty() ? "API key validation failed" : output.errorMessage);
+				}
+				else if (output.content.empty() && output.fullContent.empty())
+				{
+					_Fail("Empty response from server - API key may be invalid");
+				}
+				else if (_requestInterrupt)
+				{
+					_Fail("Validation was interrupted");
 				}
 				else
 				{
-					if (output.hasError)
-					{
-						_Fail();
-					}
-					else if (!_requestInterrupt)
-					{
-						_Succeed();
-					}
-					else
-					{
-						_Fail();
-					}
+					_Succeed();
 				}
 			}
 		}
 	}
 	else if (_hasStartedRequest)
 	{
-		_Fail();
+		_Fail("API key validation request failed - no response");
 	}
 }
 

@@ -70,7 +70,7 @@ public:
 
     // Provider验证方法（外部调用，转发到 _providerTab）
     void StartValidatingProvider(const LlmApiProviderTypeName& providerTypeName);
-    void EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available);
+    void EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available, const std::string& errorMessage = "");
 	bool IsValidatingProvider();
 
     // 检测并重新加载（如果LLM Lib配置有变化则更新显示）

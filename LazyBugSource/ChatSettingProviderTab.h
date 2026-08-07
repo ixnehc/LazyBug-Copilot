@@ -48,7 +48,7 @@ public:
 
     // ===== 外部调用的验证方法（通过 CChatSettingPage 转发）=====
     void StartValidatingProvider(const LlmApiProviderTypeName& providerTypeName);
-    void EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available);
+    void EndValidatingProvider(const LlmApiProviderTypeName& providerTypeName, bool available, const std::string& errorMessage = "");
     bool IsValidatingProvider();
 
 private:
