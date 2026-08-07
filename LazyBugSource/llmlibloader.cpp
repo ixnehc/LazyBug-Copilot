@@ -139,6 +139,8 @@ namespace
 			return LlmApiFormat::Minimax;
 		else if (_stricmp(str, "DeepSeek") == 0)
 			return LlmApiFormat::DeepSeek;
+		else if (_stricmp(str, "OpenAIResponses") == 0)
+			return LlmApiFormat::OpenAIResponses;
 
 		return LlmApiFormat::Unknown;
 	}
@@ -171,8 +173,9 @@ namespace
 		case LlmApiFormat::Kimi: return "Kimi";
 		case LlmApiFormat::GLM: return "GLM";
 		case LlmApiFormat::Minimax: return "Minimax";
-		case LlmApiFormat::DeepSeek: return "DeepSeek";
-		default: return "Unknown";
+	case LlmApiFormat::DeepSeek: return "DeepSeek";
+	case LlmApiFormat::OpenAIResponses: return "OpenAIResponses";
+	default: return "Unknown";
 		}
 	}
 

@@ -200,8 +200,9 @@ bool CChatSettingProviderTab::HandleWebMessage(const std::string& action, const 
                     else if (formatStr == "Kimi") format = LlmApiFormat::Kimi;
                     else if (formatStr == "GLM") format = LlmApiFormat::GLM;
                     else if (formatStr == "Minimax") format = LlmApiFormat::Minimax;
-                    else if (formatStr == "DeepSeek") format = LlmApiFormat::DeepSeek;
-                    g_llmLib.SetProviderFormat(name, format);
+                else if (formatStr == "DeepSeek") format = LlmApiFormat::DeepSeek;
+                else if (formatStr == "OpenAIResponses") format = LlmApiFormat::OpenAIResponses;
+                g_llmLib.SetProviderFormat(name, format);
                 }
                 _SaveLlmJson();
                 _LoadProviderData();
@@ -471,6 +472,7 @@ void CChatSettingProviderTab::_SendProviderDataToWebView()
         case LlmApiFormat::GLM:         return "GLM";
         case LlmApiFormat::Minimax:     return "Minimax";
         case LlmApiFormat::DeepSeek:    return "DeepSeek";
+        case LlmApiFormat::OpenAIResponses: return "OpenAIResponses";
         default:                        return "Unknown";
         }
     };
@@ -624,6 +626,7 @@ void CChatSettingProviderTab::_UpdateProviderFormat(const std::wstring& provider
     else if (formatStr == "GLM") format = LlmApiFormat::GLM;
     else if (formatStr == "Minimax") format = LlmApiFormat::Minimax;
     else if (formatStr == "DeepSeek") format = LlmApiFormat::DeepSeek;
+    else if (formatStr == "OpenAIResponses") format = LlmApiFormat::OpenAIResponses;
 
     if (g_llmLib.SetProviderFormat(providerName, format))
         _SaveLlmJson();

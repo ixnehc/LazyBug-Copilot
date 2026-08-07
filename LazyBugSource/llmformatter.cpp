@@ -1587,3 +1587,545 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAiCompatibleFormat(std::deque<std:
 		return false;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////
+// OpenAI Responses API
+//////////////////////////////////////////////////////////////////////////
+
+// 将 Chat Completions 的 content block 转换为 Responses API 的 content block
+static json ConvertContentBlockToResponses(const json& block, bool isAssistant)
+{
+	json result = json::object();
+	std::string type = block.value("type", "");
+
+	if (type == "text")
+	{
+		result["type"] = isAssistant ? "output_text" : "input_text";
+		result["text"] = block.value("text", "");
+	}
+	else if (type == "image_url")
+	{
+		result["type"] = "input_image";
+		if (block.contains("image_url") && block["image_url"].is_object())
+			result["image_url"] = block["image_url"].value("url", "");
+		else if (block.contains("image_url") && block["image_url"].is_string())
+			result["image_url"] = block["image_url"].get<std::string>();
+	}
+	return result;
+}
+
+// 将 Chat Completions tools 定义转换为 Responses tools 定义
+static json ConvertToolsToResponsesFormat(const json& tools)
+{
+	json result = json::array();
+	for (const auto& tool : tools)
+	{
+		if (!tool.is_object())
+			continue;
+
+		std::string type = tool.value("type", "");
+		if (type == "function" && tool.contains("function"))
+		{
+			const auto& fn = tool["function"];
+			json respTool;
+			respTool["type"] = "function";
+			respTool["name"] = fn.value("name", "");
+			respTool["description"] = fn.value("description", "");
+			if (fn.contains("parameters"))
+				respTool["parameters"] = fn["parameters"];
+			result.push_back(respTool);
+		}
+		else
+		{
+			// 其他类型工具（如内置工具）直接透传
+			result.push_back(tool);
+		}
+	}
+	return result;
+}
+
+bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
+{
+	try
+	{
+		if (!requestJson.contains("messages") || !requestJson["messages"].is_array())
+			return false;
+
+		json& messages = requestJson["messages"];
+		json input = json::array();
+		std::string instructions;
+
+		for (const auto& msg : messages)
+		{
+			if (!msg.is_object())
+				continue;
+
+			std::string role = msg.value("role", "");
+
+			if (role == "system")
+			{
+				// 提取 system 消息内容到 instructions
+				if (msg.contains("content"))
+				{
+					std::string text;
+					if (msg["content"].is_string())
+						text = msg["content"].get<std::string>();
+					else if (msg["content"].is_array())
+					{
+						for (const auto& block : msg["content"])
+						{
+							if (block.is_object() && block.value("type", "") == "text")
+							{
+								if (!text.empty()) text += "\n\n";
+								text += block.value("text", "");
+							}
+						}
+					}
+					if (!text.empty())
+					{
+						if (!instructions.empty()) instructions += "\n\n";
+						instructions += text;
+					}
+				}
+			}
+		else if (role == "user" || role == "assistant")
+			{
+				json inputItem;
+				inputItem["role"] = role;
+
+				bool hasContent = false;
+
+				if (msg.contains("content"))
+				{
+					if (msg["content"].is_string())
+					{
+						std::string text = msg["content"].get<std::string>();
+						if (!text.empty())
+						{
+							json contentArr = json::array();
+							json block;
+							block["type"] = (role == "assistant") ? "output_text" : "input_text";
+							block["text"] = text;
+							contentArr.push_back(block);
+							inputItem["content"] = contentArr;
+							hasContent = true;
+						}
+					}
+					else if (msg["content"].is_array())
+					{
+						json contentArr = json::array();
+						for (const auto& block : msg["content"])
+						{
+							if (!block.is_object())
+								continue;
+							json converted = ConvertContentBlockToResponses(block, role == "assistant");
+							if (!converted.empty())
+								contentArr.push_back(converted);
+						}
+						if (!contentArr.empty())
+						{
+							inputItem["content"] = contentArr;
+							hasContent = true;
+						}
+					}
+				}
+
+				// 仅当 assistant 消息有实际内容时才加入 input；
+				// 空内容的 assistant 消息（只有 tool_calls）由 function_call 项表示
+				if (hasContent || role == "user")
+					input.push_back(inputItem);
+
+				// assistant 消息中的 tool_calls 转为 function_call items
+				if (role == "assistant" && msg.contains("tool_calls") && msg["tool_calls"].is_array())
+				{
+					for (const auto& tc : msg["tool_calls"])
+					{
+						if (!tc.is_object())
+							continue;
+						json fcItem;
+						fcItem["type"] = "function_call";
+						fcItem["call_id"] = tc.value("id", "");
+						if (tc.contains("function"))
+						{
+							fcItem["name"] = tc["function"].value("name", "");
+							fcItem["arguments"] = tc["function"].value("arguments", "");
+						}
+						input.push_back(fcItem);
+					}
+				}
+			}
+			else if (role == "tool")
+			{
+				// 工具结果转为 function_call_output
+				json fcOutput;
+				fcOutput["type"] = "function_call_output";
+				fcOutput["call_id"] = msg.value("tool_call_id", "");
+				if (msg.contains("content"))
+				{
+					if (msg["content"].is_string())
+						fcOutput["output"] = msg["content"].get<std::string>();
+					else if (msg["content"].is_array())
+					{
+						// 将 content array 转为文本
+						std::string text;
+						for (const auto& block : msg["content"])
+						{
+							if (block.is_object() && block.value("type", "") == "text")
+							{
+								if (!text.empty()) text += "\n";
+								text += block.value("text", "");
+							}
+						}
+						fcOutput["output"] = text;
+					}
+				}
+				input.push_back(fcOutput);
+			}
+		}
+
+		// 构建 Responses 请求
+		if (!instructions.empty())
+			requestJson["instructions"] = instructions;
+
+		requestJson["input"] = input;
+		requestJson.erase("messages");
+
+		// 转换 tools
+		if (requestJson.contains("tools") && requestJson["tools"].is_array())
+		{
+			requestJson["tools"] = ConvertToolsToResponsesFormat(requestJson["tools"]);
+		}
+
+		// 重命名 max_tokens → max_output_tokens
+		if (requestJson.contains("max_tokens"))
+		{
+			requestJson["max_output_tokens"] = requestJson["max_tokens"];
+			requestJson.erase("max_tokens");
+		}
+
+		// 移除 Chat Completions 专属字段
+		if (requestJson.contains("reasoning_effort"))
+		{
+			std::string effort = requestJson["reasoning_effort"].get<std::string>();
+			if (effort != "none")
+			{
+				// 设置 reasoning effort
+				// 注意：summary 字段可让服务端返回推理摘要的流式事件（如 response.reasoning_summary_text.delta），
+				//       但目前暂不发送 summary，因为部分网关支持不稳定，且当前不需要在聊天框中显示 reasoning 内容。
+				//       若后续需要开启，取消下方注释即可：
+				// requestJson["reasoning"] = { {"effort", effort}, {"summary", "concise"} };
+				requestJson["reasoning"] = { {"effort", effort} };
+			}
+			requestJson.erase("reasoning_effort");
+		}
+
+		// 清理可能残留的 Anthropic 风格 thinking 字段
+		if (requestJson.contains("thinking"))
+			requestJson.erase("thinking");
+
+		// 不存储服务端对话
+		requestJson["store"] = false;
+
+		return true;
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
+}
+
+bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::string>& inputLines, std::vector<std::string>& outputLines, const LlmApi& api)
+{
+	try
+	{
+		while (!inputLines.empty())
+		{
+			std::string& front = inputLines.front();
+
+			if (front.rfind("data: ", 0) == 0)
+			{
+				std::string data = front.substr(6);
+				inputLines.pop_front();
+
+				if (data.empty() || data == "[DONE]")
+					continue;
+
+				json event;
+				try { event = json::parse(data); }
+				catch (...) { continue; }
+
+				if (!event.is_object())
+					continue;
+
+			std::string eventType = event.value("type", "");
+				json chunk;
+
+				if (eventType == "response.output_text.delta")
+				{
+					chunk = {
+						{"id", event.value("response_id", "")},
+						{"object", "chat.completion.chunk"},
+						{"created", 0},
+						{"model", ""},
+						{"choices", json::array({
+							{{"index", 0}, {"delta", {{"role", "assistant"}, {"content", event.value("delta", "")}}}, {"finish_reason", nullptr}}
+						})}
+					};
+				}
+			else if (eventType == "response.output_item.added")
+				{
+					if (!event.contains("item") || !event["item"].is_object())
+						continue;
+
+					const auto& item = event["item"];
+					std::string itemType = item.value("type", "");
+
+					if (itemType == "function_call")
+					{
+						// function_call 开始：初始化 tool call
+						int outputIndex = event.value("output_index", 0);
+						std::string callId = item.value("call_id", "");
+						std::string fnName = item.value("name", "");
+
+						json toolCall;
+						toolCall["index"] = outputIndex;
+						toolCall["id"] = callId;
+						toolCall["type"] = "function";
+						toolCall["function"] = {{"name", fnName}, {"arguments", ""}};
+
+						chunk = {
+							{"id", ""},
+							{"object", "chat.completion.chunk"},
+							{"created", 0},
+							{"model", ""},
+							{"choices", json::array({
+								{{"index", 0}, {"delta", {{"tool_calls", json::array({toolCall})}}}, {"finish_reason", nullptr}}
+							})}
+						};
+					}
+					else if (itemType == "reasoning")
+					{
+						// reasoning 开始：发送 reasoning_content 占位标记，让 UI 知道模型正在思考。
+						// 由于当前网关不返回实际的推理文本（content/summary 为空），此处发送一个非空标记
+						// 以激活 UI 的思考状态指示器。当 text 内容开始输出时，UI 自然切换到文本模式。
+						chunk = {
+							{"id", ""},
+							{"object", "chat.completion.chunk"},
+							{"created", 0},
+							{"model", ""},
+							{"choices", json::array({
+								{{"index", 0}, {"delta", {{"reasoning_content", "\n"}}}, {"finish_reason", nullptr}}
+							})}
+						};
+					}
+					else
+					{
+						// 其他类型（如 message 等），跳过
+						continue;
+					}
+				}
+				else if (eventType == "response.function_call_arguments.delta")
+				{
+					int outputIndex = event.value("output_index", 0);
+					std::string delta = event.value("delta", "");
+
+					json toolCall;
+					toolCall["index"] = outputIndex;
+					toolCall["function"] = {{"arguments", delta}};
+
+					chunk = {
+						{"id", ""},
+						{"object", "chat.completion.chunk"},
+						{"created", 0},
+						{"model", ""},
+						{"choices", json::array({
+							{{"index", 0}, {"delta", {{"tool_calls", json::array({toolCall})}}}, {"finish_reason", nullptr}}
+						})}
+					};
+				}
+				else if (eventType == "response.completed")
+				{
+					// 检查是否有 function_call 输出项
+					bool hasToolCalls = false;
+					std::string respId;
+					if (event.contains("response") && event["response"].is_object())
+					{
+						respId = event["response"].value("id", "");
+						if (event["response"].contains("output") && event["response"]["output"].is_array())
+						{
+							for (const auto& item : event["response"]["output"])
+							{
+								if (item.is_object() && item.value("type", "") == "function_call")
+								{
+									hasToolCalls = true;
+									break;
+								}
+							}
+						}
+					}
+
+					chunk = {
+						{"id", respId},
+						{"object", "chat.completion.chunk"},
+						{"created", 0},
+						{"model", ""},
+						{"choices", json::array({
+							{{"index", 0}, {"delta", json::object()}, {"finish_reason", hasToolCalls ? "tool_calls" : "stop"}}
+						})}
+					};
+					// 转换 usage
+					if (event.contains("response") && event["response"].contains("usage"))
+					{
+						const auto& respUsage = event["response"]["usage"];
+						json usage;
+						usage["prompt_tokens"] = respUsage.value("input_tokens", 0);
+						usage["completion_tokens"] = respUsage.value("output_tokens", 0);
+						usage["total_tokens"] = usage["prompt_tokens"].get<int>() + usage["completion_tokens"].get<int>();
+						if (respUsage.contains("input_tokens_details"))
+						{
+							const auto& details = respUsage["input_tokens_details"];
+							// 优先使用 cached_read_tokens，回退到 cached_tokens
+							int cached = 0;
+							if (details.contains("cached_read_tokens"))
+								cached = details.value("cached_read_tokens", 0);
+							else if (details.contains("cached_tokens"))
+								cached = details.value("cached_tokens", 0);
+							usage["prompt_tokens_cacheRead"] = cached;
+						}
+						chunk["usage"] = usage;
+					}
+				}
+				else if (eventType == "response.failed" || eventType == "error")
+				{
+					std::string errorMsg = "Unknown error";
+					if (event.contains("response") && event["response"].contains("error"))
+						errorMsg = event["response"]["error"].value("message", errorMsg);
+					else if (event.contains("error"))
+						errorMsg = event["error"].value("message", errorMsg);
+
+					chunk = {
+						{"error", {
+							{"message", errorMsg},
+							{"type", "api_error"},
+							{"code", 0}
+						}}
+					};
+				}
+			else if (eventType == "response.reasoning_summary_text.delta" ||
+				         eventType == "response.reasoning_text.delta")
+				{
+					// 兼容两种 reasoning 事件：summary_text 和 reasoning_text
+					chunk = {
+						{"id", event.value("response_id", "")},
+						{"object", "chat.completion.chunk"},
+						{"created", 0},
+						{"model", ""},
+						{"choices", json::array({
+							{{"index", 0}, {"delta", {{"reasoning_content", event.value("delta", "")}}}, {"finish_reason", nullptr}}
+						})}
+					};
+				}
+				else
+				{
+					// 忽略其他事件类型（如 response.created, response.in_progress,
+					// response.output_item.done, response.function_call_arguments.done 等）
+					continue;
+				}
+
+				outputLines.push_back("data: " + chunk.dump());
+			}
+			else if (front.rfind("{", 0) == 0)
+			{
+				// 非流式 JSON 响应
+				std::string data = front;
+				inputLines.pop_front();
+
+				json resp;
+				try { resp = json::parse(data); }
+				catch (...) { continue; }
+
+				if (!resp.is_object())
+					continue;
+
+				// 检查错误（Responses API 正常响应中 error 为 null）
+				if (resp.contains("error") && !resp["error"].is_null())
+				{
+					outputLines.push_back("data: " + data);
+					continue;
+				}
+
+				// 提取 output 内容
+				std::string fullText;
+				bool hasToolCalls = false;
+
+				if (resp.contains("output") && resp["output"].is_array())
+				{
+					for (const auto& item : resp["output"])
+					{
+						if (!item.is_object()) continue;
+						std::string itemType = item.value("type", "");
+
+						if (itemType == "message" && item.contains("content"))
+						{
+							for (const auto& block : item["content"])
+							{
+								if (block.is_object() && block.value("type", "") == "output_text")
+									fullText += block.value("text", "");
+							}
+						}
+						else if (itemType == "function_call")
+						{
+							hasToolCalls = true;
+						}
+					}
+				}
+
+				json chunk;
+				chunk["id"] = resp.value("id", "");
+				chunk["object"] = "chat.completion";
+				chunk["created"] = resp.value("created_at", 0);
+				chunk["model"] = resp.value("model", "");
+
+				json choice;
+				choice["index"] = 0;
+				choice["message"]["role"] = "assistant";
+				choice["message"]["content"] = fullText;
+				choice["finish_reason"] = hasToolCalls ? "tool_calls" : "stop";
+				chunk["choices"] = json::array({ choice });
+
+				// 转换 usage
+				if (resp.contains("usage"))
+				{
+					const auto& respUsage = resp["usage"];
+					json usage;
+					usage["prompt_tokens"] = respUsage.value("input_tokens", 0);
+					usage["completion_tokens"] = respUsage.value("output_tokens", 0);
+					usage["total_tokens"] = usage["prompt_tokens"].get<int>() + usage["completion_tokens"].get<int>();
+				if (respUsage.contains("input_tokens_details"))
+				{
+					const auto& details = respUsage["input_tokens_details"];
+					int cached = 0;
+					if (details.contains("cached_read_tokens"))
+						cached = details.value("cached_read_tokens", 0);
+					else if (details.contains("cached_tokens"))
+						cached = details.value("cached_tokens", 0);
+					usage["prompt_tokens_cacheRead"] = cached;
+				}
+				chunk["usage"] = usage;
+				}
+
+				outputLines.push_back("data: " + chunk.dump());
+			}
+			else
+			{
+				inputLines.pop_front();
+			}
+		}
+
+		return true;
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
+}

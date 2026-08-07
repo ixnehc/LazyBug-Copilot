@@ -21,5 +21,8 @@ public:
 	static bool ConvertLlmRequestToOpenAiCompatibleFormat(json& requestJson,LlmApiFormat fmt);
 	static bool ProcessLlmResponseFromOpenAiCompatibleFormat(std::deque<std::string>& inputLines, std::vector<std::string>& outputLines, const LlmApi& api);
 
+	static bool ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson);
+	static bool ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::string>& inputLines, std::vector<std::string>& outputLines, const LlmApi& api);
+
 };
 

@@ -50,13 +50,22 @@ struct LlmSessionSetting
 
 
 // 判断 API 格式是否会在响应中返回 reasoning_content（思考内容）
+// 对于 OpenAIResponses：当前不会返回真正的 reasoning 内容（summary 字段未开启），
+// 但仍有占位符 reasoning_content（如 "\n"）用于激活 UI 思考指示器。
+// 返回 true 是为了防止这些占位符被 _ProcessReasoning 合并为 "[thinking...]\n"
+// 存入 content 字段，从而在 ConvertLlmRequestToOpenAIResponsesFormat 中被当作
+// assistant 文本写入 input[]，污染请求历史。
+// 注意：reasoning content 仅用于 UI 展示，ConvertLlmRequestToOpenAIResponsesFormat
+// 构建 input[] 时只读取 role、content、tool_calls，会忽略 reasoning_content 字段，
+// 因此 reasoning 内容永远不会传回给 LLM。
 inline bool IsSendingBackReasoningContent(LlmApiFormat fmt)
 {
 	return (fmt == LlmApiFormat::DeepSeek) ||
 	       (fmt == LlmApiFormat::Kimi) ||
 	       (fmt == LlmApiFormat::GLM) ||
 		(fmt == LlmApiFormat::OpenAI_)||
-		(fmt == LlmApiFormat::OpenRouter);
+		(fmt == LlmApiFormat::OpenRouter)||
+		(fmt == LlmApiFormat::OpenAIResponses);
 }
 
 struct LlmSessionRequest

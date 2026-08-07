@@ -926,6 +926,14 @@ void ParseRawLine(std::string& line, CLlmSession* session)
 		for (int i = 0;i < convertedLines.size();i++)
 			ParseLine(convertedLines[i],session);
 	}
+	else if (session->m_settings.apiFormat == LlmApiFormat::OpenAIResponses)
+	{
+		session->m_bufferLines.push_back(line);
+		std::vector<std::string> convertedLines;
+		CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(session->m_bufferLines, convertedLines, session->m_settings.api);
+		for (int i = 0;i < convertedLines.size();i++)
+			ParseLine(convertedLines[i],session);
+	}
 	else if (session->m_settings.apiFormat == LlmApiFormat::OpenAI_ ||
 	         session->m_settings.apiFormat == LlmApiFormat::Kimi ||
 	         session->m_settings.apiFormat == LlmApiFormat::GLM ||
@@ -1404,10 +1412,20 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		requestJson["max_tokens"] = settings.api.maxToken;
 
 	// OpenAI Chat Completions 使用 reasoning_effort；未单独配置强度时默认使用 medium。
-	if (settings.apiFormat == LlmApiFormat::OpenAI_)
+	// OpenAI Responses API 同样使用 reasoning_effort（转换器会将其转为 reasoning.effort）。
+	if (settings.apiFormat == LlmApiFormat::OpenAI_ ||
+	    settings.apiFormat == LlmApiFormat::OpenAIResponses)
 	{
-		requestJson["reasoning_effort"] =
-			(settings.api.thinkingMode == LlmThinkingMode::Disable) ? "none" : "medium";
+		if (settings.api.thinkingMode == LlmThinkingMode::Disable)
+		{
+			// Responses API 不支持 "none"，使用 "low"
+			requestJson["reasoning_effort"] =
+				(settings.apiFormat == LlmApiFormat::OpenAIResponses) ? "low" : "none";
+		}
+		else
+		{
+			requestJson["reasoning_effort"] = "medium";
+		}
 	}
 	// 处理其他 API 的 thinkingMode 设置（必须在 max_tokens 之后，以便计算 budget_tokens）
 	else if (settings.api.thinkingMode == LlmThinkingMode::Disable)
@@ -1510,6 +1528,8 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		CLlmFormatter::ConvertLlmRequestToAnthoropicFormat(requestJson);
 	else if (settings.apiFormat==LlmApiFormat::Gemini_)
 		CLlmFormatter::ConvertLlmRequestToGeminiFormat(requestJson);
+	else if (settings.apiFormat==LlmApiFormat::OpenAIResponses)
+		CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(requestJson);
 	else 
 		CLlmFormatter::ConvertLlmRequestToOpenAiCompatibleFormat(requestJson, settings.apiFormat);
 

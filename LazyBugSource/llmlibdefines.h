@@ -20,13 +20,14 @@ enum class LlmApiFormat
 	GLM,
 	Minimax,
 	DeepSeek,
+	OpenAIResponses,
 };
 
 // ReadMedia tool 仅在这些格式下可用（支持多模态图片输入）
 inline bool IsReadMediaSupported(LlmApiFormat format)
 {
 	return format == LlmApiFormat::Anthropic_ || format == LlmApiFormat::Kimi ||
-	       format == LlmApiFormat::OpenAI_;
+	       format == LlmApiFormat::OpenAI_ || format == LlmApiFormat::OpenAIResponses;
 }
 
 // 判断 API 格式是否支持在 tool result 消息中直接包含 media 内容（image_url block）

@@ -713,7 +713,7 @@ function setProviderData(providers) {
             const formatSelect = document.createElement('select');
             formatSelect.className = 'provider-edit-input';
             formatSelect.style.cursor = 'pointer';
-            const formatOptions = ['OpenAI', 'Anthropic', 'Gemini', 'OpenRouter', 'Kimi', 'GLM', 'Minimax', 'DeepSeek'];
+            const formatOptions = ['OpenAI', 'Anthropic', 'Gemini', 'OpenRouter', 'Kimi', 'GLM', 'Minimax', 'DeepSeek', 'OpenAIResponses'];
             formatOptions.forEach(v => {
                 const opt = document.createElement('option');
                 opt.value = v;
