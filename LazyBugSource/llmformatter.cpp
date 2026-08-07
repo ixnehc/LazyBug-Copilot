@@ -2047,12 +2047,20 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::
 				if (!resp.is_object())
 					continue;
 
-				// 检查错误（Responses API 正常响应中 error 为 null）
-				if (resp.contains("error") && !resp["error"].is_null())
-				{
-					outputLines.push_back("data: " + data);
-					continue;
-				}
+			// 检查错误（Responses API 正常响应中 error 为 null）
+			if (resp.contains("error") && !resp["error"].is_null())
+			{
+				outputLines.push_back("data: " + data);
+				continue;
+			}
+
+			// 部分网关返回非标准错误格式：{ "error_code": "...", "message": "..." }
+			// 直接原样透传，parseLlmResponse 已原生支持 error_code 格式
+			if (resp.contains("error_code"))
+			{
+				outputLines.push_back("data: " + data);
+				continue;
+			}
 
 				// 提取 output 内容
 				std::string fullText;
