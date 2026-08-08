@@ -79,7 +79,7 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 </div>
 
 - **Multi-Model Support** — Customizable API endpoints. Supports mainstream LLMs: OpenAI, Anthropic, Google Gemini, OpenRouter, Moonshot (Kimi), z.ai (GLM), DeepSeek and more. Also supports local LLMs (Ollama, LM Studio).
-- **Multi-API Format** — Supports three API formats: OpenAI-compatible, Anthropic, and Gemini.
+- **Multi-API Format** — Supported API formats: OpenAI-compatible, OpenAI Responses, Anthropic, and Gemini.
 
 - **Skill System** — Browse, create, rename, and toggle skills via a management panel. Supports BuiltIn, Global, and Project-level skills. Allow using AI to edit or create new skills.
 

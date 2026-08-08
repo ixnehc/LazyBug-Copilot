@@ -79,7 +79,7 @@ _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 </div>
 
 - **多模型支持** — 可自定义 API 端点。支持主流 LLM：OpenAI、Anthropic、Google Gemini、OpenRouter、Moonshot（Kimi）、z.ai（GLM）、DeepSeek 等。同时支持本地 LLM（Ollama、LM Studio）。
-- **多 API 格式** — 支持三种 API 格式：OpenAI 兼容格式、Anthropic 和 Gemini。
+- **多 API 格式** — 支持的 API 格式：OpenAI 兼容格式、OpenAI Responses、Anthropic 和 Gemini。
 
 - **技能系统** — 通过管理面板浏览、创建、重命名和开关技能。支持内置、全局和项目级技能。允许使用 AI 编辑或创建新技能。
 
