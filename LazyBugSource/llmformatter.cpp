@@ -1869,8 +1869,8 @@ bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
 		// 公共字段处理
 		ApplyResponsesCommonFields(requestJson);
 
-		// 不存储服务端对话（完整历史模式无需 previous_response_id）
-		requestJson["store"] = false;
+		// 必须存储服务端对话，返回的 response.id 供后续续接请求的 previous_response_id 引用
+		requestJson["store"] = true;
 
 		return true;
 	}

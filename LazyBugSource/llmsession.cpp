@@ -1547,10 +1547,10 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		CLlmFormatter::ConvertLlmRequestToGeminiFormat(requestJson);
 	else if (settings.apiFormat==LlmApiFormat::OpenAIResponses)
 	{
-		if (session->m_previousResponseId.empty())
-			CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(requestJson);
-		else
+		if (settings.enableResponsesContinuation && !session->m_previousResponseId.empty())
 			CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(requestJson, session->m_previousResponseId);
+		else
+			CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(requestJson);
 	}
 	else 
 		CLlmFormatter::ConvertLlmRequestToOpenAiCompatibleFormat(requestJson, settings.apiFormat);
