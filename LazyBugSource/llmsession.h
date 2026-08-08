@@ -97,6 +97,7 @@ struct LlmSessionRequest
 		std::string reasoningContent;//只在tp为Assistant时有效
 		bool cacheControl;
 		std::string mimeType;    // 非空表示 content 是 base64 图片数据
+		bool isCurrentTurn = false;  // 本轮新增的 entry（OpenAI Responses 续接模式下用于标记需要发送的内容）
 	};
 
 	void Clear() { entries.clear();	prompt.clear();isStreaming = true; allowMcpTools = true; }
@@ -113,6 +114,11 @@ struct LlmSessionRequest
 	{
 		if (entries.size() > 0)
 			entries[entries.size() - 1].cacheControl = true;
+	}
+	void MarkLastEntryCurrentTurn()
+	{
+		if (!entries.empty())
+			entries.back().isCurrentTurn = true;
 	}
 	void SetPrompt(const char* str)	{		prompt = str;	}
 
@@ -296,6 +302,13 @@ public:
 	std::atomic<bool> m_interruptRequested; // 添加停止请求标志
 
 	LlmSessionUsage m_usage;
+
+	// OpenAI Responses API: 上一轮响应的 ID（输入，由 CLlmChat 设置）
+	// 非空时表示工具结果续接模式，仅发送本轮新增内容 + previous_response_id
+	std::string m_previousResponseId;
+	// OpenAI Responses API: 本次响应的 ID（输出，由 ParseLine 从响应中提取）
+	// 会话完成后由 CLlmChat 读取并保存，作为下一轮请求的 previousResponseId
+	std::string m_responseId;
 
 	std::vector<float> m_embedding;  // embedding请求的结果向量
 

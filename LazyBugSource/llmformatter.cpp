@@ -1644,6 +1644,101 @@ static json ConvertToolsToResponsesFormat(const json& tools)
 	return result;
 }
 
+void CLlmFormatter::CleanupTempFields(json& requestJson)
+{
+	// 清理 messages 数组中的临时标记
+	if (requestJson.contains("messages") && requestJson["messages"].is_array())
+	{
+		for (auto& msg : requestJson["messages"])
+		{
+			if (msg.is_object())
+				msg.erase("_current_turn");
+		}
+	}
+
+	// 清理 input 数组（Responses 格式）中的临时标记
+	if (requestJson.contains("input") && requestJson["input"].is_array())
+	{
+		for (auto& item : requestJson["input"])
+		{
+			if (item.is_object())
+				item.erase("_current_turn");
+		}
+	}
+}
+
+// 从 system messages 提取 instructions（两种模式共用）
+static std::string ExtractResponsesInstructions(const json& messages)
+{
+	std::string instructions;
+	for (const auto& msg : messages)
+	{
+		if (!msg.is_object() || msg.value("role", "") != "system")
+			continue;
+
+		if (!msg.contains("content"))
+			continue;
+
+		std::string text;
+		if (msg["content"].is_string())
+			text = msg["content"].get<std::string>();
+		else if (msg["content"].is_array())
+		{
+			for (const auto& block : msg["content"])
+			{
+				if (block.is_object() && block.value("type", "") == "text")
+				{
+					if (!text.empty()) text += "\n\n";
+					text += block.value("text", "");
+				}
+			}
+		}
+		if (!text.empty())
+		{
+			if (!instructions.empty()) instructions += "\n\n";
+			instructions += text;
+		}
+	}
+	return instructions;
+}
+
+// 公共后处理：tools 转换、max_tokens→max_output_tokens、reasoning_effort→reasoning.effort、清理 thinking
+static void ApplyResponsesCommonFields(json& requestJson)
+{
+	// 转换 tools
+	if (requestJson.contains("tools") && requestJson["tools"].is_array())
+	{
+		requestJson["tools"] = ConvertToolsToResponsesFormat(requestJson["tools"]);
+	}
+
+	// 重命名 max_tokens → max_output_tokens
+	if (requestJson.contains("max_tokens"))
+	{
+		requestJson["max_output_tokens"] = requestJson["max_tokens"];
+		requestJson.erase("max_tokens");
+	}
+
+	// 移除 Chat Completions 专属字段
+	if (requestJson.contains("reasoning_effort"))
+	{
+		std::string effort = requestJson["reasoning_effort"].get<std::string>();
+		if (effort != "none")
+		{
+			// 设置 reasoning effort
+			// 注意：summary 字段可让服务端返回推理摘要的流式事件（如 response.reasoning_summary_text.delta），
+			//       但目前暂不发送 summary，因为部分网关支持不稳定，且当前不需要在聊天框中显示 reasoning 内容。
+			//       若后续需要开启，取消下方注释即可：
+			// requestJson["reasoning"] = { {"effort", effort}, {"summary", "concise"} };
+			requestJson["reasoning"] = { {"effort", effort} };
+		}
+		requestJson.erase("reasoning_effort");
+	}
+
+	// 清理可能残留的 Anthropic 风格 thinking 字段
+	if (requestJson.contains("thinking"))
+		requestJson.erase("thinking");
+}
+
 bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
 {
 	try
@@ -1653,8 +1748,11 @@ bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
 
 		json& messages = requestJson["messages"];
 		json input = json::array();
-		std::string instructions;
 
+		// 提取 instructions
+		std::string instructions = ExtractResponsesInstructions(messages);
+
+		// 完整历史模式：转换所有消息
 		for (const auto& msg : messages)
 		{
 			if (!msg.is_object())
@@ -1664,31 +1762,9 @@ bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
 
 			if (role == "system")
 			{
-				// 提取 system 消息内容到 instructions
-				if (msg.contains("content"))
-				{
-					std::string text;
-					if (msg["content"].is_string())
-						text = msg["content"].get<std::string>();
-					else if (msg["content"].is_array())
-					{
-						for (const auto& block : msg["content"])
-						{
-							if (block.is_object() && block.value("type", "") == "text")
-							{
-								if (!text.empty()) text += "\n\n";
-								text += block.value("text", "");
-							}
-						}
-					}
-					if (!text.empty())
-					{
-						if (!instructions.empty()) instructions += "\n\n";
-						instructions += text;
-					}
-				}
+				// 已提取到 instructions，跳过
 			}
-		else if (role == "user" || role == "assistant")
+			else if (role == "user" || role == "assistant")
 			{
 				json inputItem;
 				inputItem["role"] = role;
@@ -1790,41 +1866,127 @@ bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
 		requestJson["input"] = input;
 		requestJson.erase("messages");
 
-		// 转换 tools
-		if (requestJson.contains("tools") && requestJson["tools"].is_array())
-		{
-			requestJson["tools"] = ConvertToolsToResponsesFormat(requestJson["tools"]);
-		}
+		// 公共字段处理
+		ApplyResponsesCommonFields(requestJson);
 
-		// 重命名 max_tokens → max_output_tokens
-		if (requestJson.contains("max_tokens"))
-		{
-			requestJson["max_output_tokens"] = requestJson["max_tokens"];
-			requestJson.erase("max_tokens");
-		}
-
-		// 移除 Chat Completions 专属字段
-		if (requestJson.contains("reasoning_effort"))
-		{
-			std::string effort = requestJson["reasoning_effort"].get<std::string>();
-			if (effort != "none")
-			{
-				// 设置 reasoning effort
-				// 注意：summary 字段可让服务端返回推理摘要的流式事件（如 response.reasoning_summary_text.delta），
-				//       但目前暂不发送 summary，因为部分网关支持不稳定，且当前不需要在聊天框中显示 reasoning 内容。
-				//       若后续需要开启，取消下方注释即可：
-				// requestJson["reasoning"] = { {"effort", effort}, {"summary", "concise"} };
-				requestJson["reasoning"] = { {"effort", effort} };
-			}
-			requestJson.erase("reasoning_effort");
-		}
-
-		// 清理可能残留的 Anthropic 风格 thinking 字段
-		if (requestJson.contains("thinking"))
-			requestJson.erase("thinking");
-
-		// 不存储服务端对话
+		// 不存储服务端对话（完整历史模式无需 previous_response_id）
 		requestJson["store"] = false;
+
+		return true;
+	}
+	catch (const std::exception&)
+	{
+		return false;
+	}
+}
+
+bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson, const std::string& previousResponseId)
+{
+	try
+	{
+		if (!requestJson.contains("messages") || !requestJson["messages"].is_array())
+			return false;
+
+		json& messages = requestJson["messages"];
+		json input = json::array();
+
+		// 提取 instructions（续接模式也需要，previous_response_id 不恢复 instructions）
+		std::string instructions = ExtractResponsesInstructions(messages);
+
+		// 续接模式：仅发送本轮新增的 _current_turn 消息
+		// 服务端通过 previous_response_id 恢复历史上下文
+		for (const auto& msg : messages)
+		{
+			if (!msg.is_object())
+				continue;
+
+			// 只处理本轮新增的消息
+			if (!msg.value("_current_turn", false))
+				continue;
+
+			std::string role = msg.value("role", "");
+
+			if (role == "tool")
+			{
+				// 工具结果 → function_call_output
+				json fcOutput;
+				fcOutput["type"] = "function_call_output";
+				fcOutput["call_id"] = msg.value("tool_call_id", "");
+				if (msg.contains("content"))
+				{
+					if (msg["content"].is_string())
+						fcOutput["output"] = msg["content"].get<std::string>();
+					else if (msg["content"].is_array())
+					{
+						std::string text;
+						for (const auto& block : msg["content"])
+						{
+							if (block.is_object() && block.value("type", "") == "text")
+							{
+								if (!text.empty()) text += "\n";
+								text += block.value("text", "");
+							}
+						}
+						fcOutput["output"] = text;
+					}
+				}
+				input.push_back(fcOutput);
+			}
+			else if (role == "user")
+			{
+				// ReadMedia 图片 → user message (input_text + input_image)
+				json inputItem;
+				inputItem["role"] = "user";
+
+				if (msg.contains("content"))
+				{
+					if (msg["content"].is_string())
+					{
+						std::string text = msg["content"].get<std::string>();
+						if (!text.empty())
+						{
+							json contentArr = json::array();
+							json block;
+							block["type"] = "input_text";
+							block["text"] = text;
+							contentArr.push_back(block);
+							inputItem["content"] = contentArr;
+						}
+					}
+					else if (msg["content"].is_array())
+					{
+						json contentArr = json::array();
+						for (const auto& block : msg["content"])
+						{
+							if (!block.is_object())
+								continue;
+							json converted = ConvertContentBlockToResponses(block, false);
+							if (!converted.empty())
+								contentArr.push_back(converted);
+						}
+						if (!contentArr.empty())
+							inputItem["content"] = contentArr;
+					}
+				}
+				input.push_back(inputItem);
+			}
+		}
+
+		// 构建 Responses 请求
+		if (!instructions.empty())
+			requestJson["instructions"] = instructions;
+
+		requestJson["input"] = input;
+		requestJson.erase("messages");
+
+		// 续接模式：设置 previous_response_id，引用上一轮响应
+		requestJson["previous_response_id"] = previousResponseId;
+
+		// 公共字段处理
+		ApplyResponsesCommonFields(requestJson);
+
+		// 存储服务端对话，以便下一轮使用 previous_response_id
+		requestJson["store"] = true;
 
 		return true;
 	}

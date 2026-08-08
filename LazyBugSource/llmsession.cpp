@@ -229,6 +229,9 @@ void LlmSessionRequest::CommitMessages(json& messages, const LlmSessionSetting& 
 
 	for (int i = 0;i < entries.size();i++)
 	{
+		// 记录插入前位置，用于传递 _current_turn 标记
+		size_t markFrom = messages.size();
+
 		switch(entries[i].tp)
 		{
 			case LlmSessionRequest::Entry::User:
@@ -247,6 +250,16 @@ void LlmSessionRequest::CommitMessages(json& messages, const LlmSessionSetting& 
 		if(entries[i].cacheControl)
 		{
 			CommitCacheControl(messages,setting);
+		}
+
+		// 传递 isCurrentTurn 标记到 JSON（供 OpenAI Responses 续接模式使用）
+		if (entries[i].isCurrentTurn)
+		{
+			for (size_t j = markFrom; j < messages.size(); j++)
+			{
+				if (messages[j].is_object())
+					messages[j]["_current_turn"] = true;
+			}
 		}
 	}
 
@@ -906,6 +919,10 @@ void ParseLine(std::string& line, CLlmSession* session)
 	session->m_usage.inputToken_CacheWrite = (std::max)(session->m_usage.inputToken_CacheWrite, response.usage.prompt_tokens_cacheWrite);
 	session->m_usage.outputToken           = (std::max)(session->m_usage.outputToken,           response.usage.completion_tokens);
 	session->m_usage.fee                   = (std::max)(session->m_usage.fee,                   response.usage.cost);
+
+	// OpenAI Responses API: 捕获响应 ID（response.completed 事件的 chunk 中携带）
+	if (!response.id.empty())
+		session->m_responseId = response.id;
 }
 
 void ParseRawLine(std::string& line, CLlmSession* session)
@@ -1529,9 +1546,17 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	else if (settings.apiFormat==LlmApiFormat::Gemini_)
 		CLlmFormatter::ConvertLlmRequestToGeminiFormat(requestJson);
 	else if (settings.apiFormat==LlmApiFormat::OpenAIResponses)
-		CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(requestJson);
+	{
+		if (session->m_previousResponseId.empty())
+			CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(requestJson);
+		else
+			CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(requestJson, session->m_previousResponseId);
+	}
 	else 
 		CLlmFormatter::ConvertLlmRequestToOpenAiCompatibleFormat(requestJson, settings.apiFormat);
+
+	// 清理临时标记字段（如 _current_turn），确保不出现在最终请求中
+	CLlmFormatter::CleanupTempFields(requestJson);
 
     std::string requestBody = requestJson.dump();
 

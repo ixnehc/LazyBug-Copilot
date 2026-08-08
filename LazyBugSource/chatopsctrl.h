@@ -85,6 +85,8 @@ struct ChatOp
     int currentCompressionLevel;                   // 当前生效的压缩等级 (0 = 无压缩)
     std::map<int, std::string> compressedContents; // level -> 压缩后内容 (UTF-8)
 
+    bool isToolCallResultCurrentTurn = false;  // 标记该 tool result op 属于本轮新增（OpenAI Responses 续接模式使用）
+
     ChatOp() : type(Op_AddUserMessage),
                    checkpointId(FilesCheckpointUID_Invalid),
                    currentCompressionLevel(0) {}
@@ -218,7 +220,7 @@ public:
 
     // ── ToolCall Result ───────────────────────────────────────────────────
 
-    void AddToolCallResult(const std::string& jsonString, const std::string& jsonStringPartial = "", const std::string& jsonStringFullCompress = "");
+    void AddToolCallResult(const std::string& jsonString, const std::string& jsonStringPartial = "", const std::string& jsonStringFullCompress = "", bool markAsCurrentTurn = false);
 	void AddInterjectToLastToolCallResult(const std::string& interject);
 
     // ── User Interject ───────────────────────────────────────────────────

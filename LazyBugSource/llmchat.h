@@ -45,7 +45,9 @@ public:
 	void Clear();
 
 	// 请求问题，启动一个会话并立即返回
-	bool Request(const LlmSessionRequest &request, const LlmSessionSetting&setting);
+	// isUserMessage: true=新用户消息（清除 previousResponseId，完整历史重放）;
+	//                false=工具结果续接（沿用 previousResponseId）
+	bool Request(const LlmSessionRequest &request, const LlmSessionSetting&setting, bool isUserMessage = true);
 
 	// 发送embedding请求（异步），启动一个会话并立即返回
 	bool RequestEmbedding(const std::string& input, const LlmSessionSetting& setting);
@@ -62,4 +64,8 @@ private:
 
 	LlmSessionSetting m_setting;
 	std::vector<std::unique_ptr<CLlmSession>> m_discardedSessions;
+
+	// OpenAI Responses API: 跨会话持久化的上一轮响应 ID
+	// 用户消息时清空（开始新对话链），工具结果续接时沿用
+	std::string m_previousResponseId;
 };

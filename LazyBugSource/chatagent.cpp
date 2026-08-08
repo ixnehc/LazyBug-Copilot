@@ -467,7 +467,7 @@ bool CChatAgent::_DoRequest(const LlmSessionRequest& request, bool isUserMessage
 	setting.skillsDump = _skillsDump;
 
 	// 发起请求
-	return _llmChat.Request(request, setting);
+	return _llmChat.Request(request, setting, isUserMessage);
 }
 
 void CChatAgent::_FinishChat()

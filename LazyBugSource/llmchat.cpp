@@ -31,6 +31,9 @@ void CLlmChat::Clear()
 {
     std::lock_guard<std::mutex> lock(m_mutex);
 
+	// 清除 previousResponseId
+	m_previousResponseId.clear();
+
 	// 调用Interrupt()打断会话
     if (m_activeSession)
     {
@@ -44,7 +47,7 @@ void CLlmChat::Clear()
     }
 }
 
-bool CLlmChat::Request(const LlmSessionRequest& request, const LlmSessionSetting& setting)
+bool CLlmChat::Request(const LlmSessionRequest& request, const LlmSessionSetting& setting, bool isUserMessage)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     
@@ -55,9 +58,19 @@ bool CLlmChat::Request(const LlmSessionRequest& request, const LlmSessionSetting
     }
 
     m_setting = setting;
+
+    // 用户消息：开始新对话链，清除 previousResponseId
+    // 工具结果续接：沿用 previousResponseId
+    if (isUserMessage)
+    {
+        m_previousResponseId.clear();
+    }
     
     // 创建新会话
     m_activeSession = std::make_unique<CLlmSession>(setting);
+
+    // 将 previousResponseId 传递给 session，供 RequestThreadFunction 使用
+    m_activeSession->m_previousResponseId = m_previousResponseId;
     
     // 发送请求
     bool success = m_activeSession->Request(request);
@@ -141,6 +154,18 @@ bool CLlmChat::Process(LlmSessionOutput& output,bool interrupt)
         m_activeSession->GetTokenUsage(output.usage);
         m_activeSession->FetchEmbedding(output.embedding);
 
+		// OpenAI Responses API: 会话完成后，保存 response ID 供下一轮使用
+		// 仅在无错误时保存，避免错误响应的 ID 被用于续接
+		if (m_activeSession && !m_activeSession->HasError() && !m_activeSession->m_responseId.empty())
+		{
+			m_previousResponseId = m_activeSession->m_responseId;
+		}
+		else if (m_activeSession && m_activeSession->HasError())
+		{
+			// 出错时清除 previousResponseId，下一轮将回退到完整历史模式
+			m_previousResponseId.clear();
+		}
+
 		float calculatedFee = (m_setting.api.priceInputToken * (float)output.usage.inputToken_ 
 			+ m_setting.api.priceCacheRead * (float)output.usage.inputToken_CacheRead 
 			+ m_setting.api.priceCacheWrite * (float)output.usage.inputToken_CacheWrite) / 1000000.0f 
@@ -191,6 +216,9 @@ bool CLlmChat::Process(LlmSessionOutput& output,bool interrupt)
             
             // 清空活动会话
             m_activeSession.reset();
+
+			// 中断时清除 previousResponseId，下一轮将回退到完整历史模式
+			m_previousResponseId.clear();
             
             // 标记为完成（虽然是被停止的）
             output.isCompleted = true;

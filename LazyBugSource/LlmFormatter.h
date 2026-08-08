@@ -22,7 +22,11 @@ public:
 	static bool ProcessLlmResponseFromOpenAiCompatibleFormat(std::deque<std::string>& inputLines, std::vector<std::string>& outputLines, const LlmApi& api);
 
 	static bool ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson);
+	static bool ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson, const std::string& previousResponseId);
 	static bool ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::string>& inputLines, std::vector<std::string>& outputLines, const LlmApi& api);
+
+	// 清理请求 JSON 中的临时标记字段（如 _current_turn），所有格式转换完成后调用
+	static void CleanupTempFields(json& requestJson);
 
 };
 

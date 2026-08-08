@@ -202,7 +202,7 @@ void CChatTask::_SendToolCallResult(const char *result, const char* resultPartia
 	// 优先使用 chatOpsCtrl
 	if (_context->chatOpsCtrl)
 	{
-		_context->chatOpsCtrl->AddToolCallResult(jsonString, jsonStringPartial, jsonStringFullCompress);
+		_context->chatOpsCtrl->AddToolCallResult(jsonString, jsonStringPartial, jsonStringFullCompress, true);
 	}
 	
 	// 优先使用 chatAgent

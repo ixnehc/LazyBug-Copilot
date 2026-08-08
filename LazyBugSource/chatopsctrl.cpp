@@ -2433,7 +2433,7 @@ int CChatOpsCtrl::AddFileAttaches(const std::string& fileList, FilesCheckpointUI
 	return _ops.size() - 1;
 }
 
-void CChatOpsCtrl::AddToolCallResult(const std::string& jsonString, const std::string& jsonStringPartial, const std::string& jsonStringFullCompress)
+void CChatOpsCtrl::AddToolCallResult(const std::string& jsonString, const std::string& jsonStringPartial, const std::string& jsonStringFullCompress, bool markAsCurrentTurn)
 {
 	ChatOp op(ChatOp::Op_AddToolCallResult);
 	op.contentUtf8 = jsonString;
@@ -2445,6 +2445,7 @@ void CChatOpsCtrl::AddToolCallResult(const std::string& jsonString, const std::s
 	{
 		op.compressedContents[2] = jsonStringFullCompress;  // level 2 = Level_Full
 	}
+	op.isToolCallResultCurrentTurn = markAsCurrentTurn;
 	_AddOp(op);
 }
 
@@ -3152,6 +3153,8 @@ bool CChatOpsCtrl::MakeSessionRequest(LlmSessionRequest& request, int fileAttach
 			if (!effectiveContent.empty())
 			{
 				request.AddToolCallResult(effectiveContent.c_str());
+				if (op.isToolCallResultCurrentTurn)
+					request.MarkLastEntryCurrentTurn();
 			}
 			break;
 		}
@@ -3178,6 +3181,10 @@ bool CChatOpsCtrl::MakeSessionRequest(LlmSessionRequest& request, int fileAttach
 	extern bool IsPrompCachingEnabled();
 	if (IsPrompCachingEnabled())
 		request.AddCacheControl();
+
+	// 清空所有 op 的 isToolCallResultCurrentTurn 标记（一次性消费）
+	for (auto& op : _ops)
+		op.isToolCallResultCurrentTurn = false;
 
 	return true;
 }
