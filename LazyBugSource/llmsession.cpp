@@ -227,6 +227,8 @@ void LlmSessionRequest::CommitMessages(json& messages, const LlmSessionSetting& 
 	_ProcessReasoning(setting);//非Kimi,DeepSeek
 	_ProcessReasoning2(setting);//Kimi,DeepSeek
 
+	size_t firstCurrentTurnMarkFrom = (size_t)-1;
+
 	for (int i = 0;i < entries.size();i++)
 	{
 		// 记录插入前位置，用于传递 _current_turn 标记
@@ -252,15 +254,22 @@ void LlmSessionRequest::CommitMessages(json& messages, const LlmSessionSetting& 
 			CommitCacheControl(messages,setting);
 		}
 
-		// 传递 isCurrentTurn 标记到 JSON（供 OpenAI Responses 续接模式使用）
-		if (entries[i].isCurrentTurn)
+	// 传递 isCurrentTurn 标记到 JSON（供 OpenAI Responses 续接模式使用）
+	// 注意：_AppendToolResultsKeepImagesLast 可能将新的 tool result 插入到
+	// 之前 current turn 条目的图片消息之前（位置早于当前 markFrom），
+	// 因此需要记录第一个 isCurrentTurn 条目的 markFrom，后续条目从该位置开始标记，
+	// 确保所有本轮新增的消息（包括被插入到前面的）都被正确标记。
+	if (firstCurrentTurnMarkFrom == (size_t)-1 && entries[i].isCurrentTurn)
+		firstCurrentTurnMarkFrom = markFrom;
+
+	if (entries[i].isCurrentTurn && firstCurrentTurnMarkFrom != (size_t)-1)
+	{
+		for (size_t j = firstCurrentTurnMarkFrom; j < messages.size(); j++)
 		{
-			for (size_t j = markFrom; j < messages.size(); j++)
-			{
-				if (messages[j].is_object())
-					messages[j]["_current_turn"] = true;
-			}
+			if (messages[j].is_object())
+				messages[j]["_current_turn"] = true;
 		}
+	}
 	}
 
 	// 清理 ReadMedia 图片消息的临时标记
