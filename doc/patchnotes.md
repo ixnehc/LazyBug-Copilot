@@ -1,5 +1,12 @@
 ﻿# LazyBug Version History
 
+## Version 0.24.2
+
+- Support OpenAI Responses API
+- Showing detailed error message after API key verification failure
+
+---
+
 ## Version 0.24
 
 - Improved non-ASCII command compatibility for CLI tools
