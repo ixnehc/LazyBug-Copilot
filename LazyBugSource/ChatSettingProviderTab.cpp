@@ -269,7 +269,19 @@ bool CChatSettingProviderTab::HandleWebMessage(const std::string& action, const 
             _DeleteApi(utf8_to_widechar(name));
         }
     }
-    else if (action == "evaluateCompressSummarize")
+	else if (action == "reorderProviders")
+	{
+		if (jsonMsg.contains("orderedNames") && jsonMsg["orderedNames"].is_array())
+		{
+			std::vector<std::string> orderedNames;
+			for (const auto& name : jsonMsg["orderedNames"])
+				if (name.is_string())
+					orderedNames.push_back(name.get<std::string>());
+			g_llmLib.ReorderProviders(orderedNames);
+			_SaveLlmJson();
+		}
+	}
+	else if (action == "evaluateCompressSummarize")
     {
         if (jsonMsg.contains("apiName"))
         {

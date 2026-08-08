@@ -518,6 +518,74 @@ function setProviderData(providers) {
             }
         });
 
+        // ── Drag & Drop 排序 ──
+        header.draggable = true;
+
+        header.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', provider.name);
+            e.dataTransfer.effectAllowed = 'move';
+            providerDiv.classList.add('dragging');
+        });
+
+        header.addEventListener('dragend', () => {
+            providerDiv.classList.remove('dragging');
+            providersContainer.querySelectorAll('.provider-item').forEach(el => {
+                el.classList.remove('drag-before', 'drag-after');
+            });
+        });
+
+        providerDiv.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const rect = providerDiv.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            providerDiv.classList.remove('drag-before', 'drag-after');
+            if (e.clientY < midY) {
+                providerDiv.classList.add('drag-before');
+            } else {
+                providerDiv.classList.add('drag-after');
+            }
+        });
+
+        providerDiv.addEventListener('dragleave', () => {
+            providerDiv.classList.remove('drag-before', 'drag-after');
+        });
+
+        providerDiv.addEventListener('drop', (e) => {
+            e.preventDefault();
+            providerDiv.classList.remove('drag-before', 'drag-after');
+            const draggedName = e.dataTransfer.getData('text/plain');
+            if (!draggedName || draggedName === provider.name) return;
+
+            const rect = providerDiv.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+
+            // 在前端本地重排 DOM
+            const items = [...providersContainer.querySelectorAll('.provider-item')];
+            const draggedItem = items.find(el => {
+                const nameEl = el.querySelector('.provider-name');
+                return nameEl && nameEl.textContent === draggedName;
+            });
+            if (!draggedItem || draggedItem === providerDiv) return;
+
+            if (e.clientY < midY) {
+                providersContainer.insertBefore(draggedItem, providerDiv);
+            } else {
+                if (providerDiv.nextSibling) {
+                    providersContainer.insertBefore(draggedItem, providerDiv.nextSibling);
+                } else {
+                    providersContainer.appendChild(draggedItem);
+                }
+            }
+
+            // 发送新顺序到 C++
+            const orderedNames = [];
+            providersContainer.querySelectorAll('.provider-item .provider-name').forEach(span => {
+                orderedNames.push(span.textContent);
+            });
+            postMsg({ action: 'reorderProviders', orderedNames: orderedNames });
+        });
+
         const nameSection = document.createElement('div');
         nameSection.className = 'provider-name-section';
 

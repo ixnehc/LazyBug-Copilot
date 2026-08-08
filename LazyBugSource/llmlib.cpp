@@ -896,6 +896,36 @@ bool CLlmLib::DeleteApi(const std::string& name)
 	return true;
 }
 
+void CLlmLib::ReorderProviders(const std::vector<std::string>& orderedNames)
+{
+	std::vector<LlmApiProvider> reordered;
+	std::vector<bool> consumed(_providers.size(), false);
+
+	// 按 orderedNames 顺序收集
+	for (const auto& name : orderedNames)
+	{
+		for (size_t i = 0; i < _providers.size(); ++i)
+		{
+			if (!consumed[i] && _providers[i].name == name)
+			{
+				reordered.push_back(std::move(_providers[i]));
+				consumed[i] = true;
+				break;
+			}
+		}
+	}
+
+	// 收集不在 orderedNames 中的（保持原顺序）
+	for (size_t i = 0; i < _providers.size(); ++i)
+	{
+		if (!consumed[i])
+			reordered.push_back(std::move(_providers[i]));
+	}
+
+	_providers = std::move(reordered);
+	_version++;
+}
+
 LlmApi* CLlmLib::_FindApi(const char* apiName)
 {
 	for (int i = 0;i < _apis.size();i++)

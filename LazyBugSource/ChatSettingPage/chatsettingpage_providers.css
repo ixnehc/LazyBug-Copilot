@@ -180,6 +180,20 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
+/* Provider 拖拽排序样式 */
+.provider-item.dragging {
+    opacity: 0.4;
+    border: 1px dashed #777;
+}
+
+.provider-item.drag-before {
+    border-top: 2px solid var(--primary-color-hover);
+}
+
+.provider-item.drag-after {
+    border-bottom: 2px solid var(--primary-color-hover);
+}
+
 .provider-header {
     display: flex;
     justify-content: space-between;

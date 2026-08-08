@@ -205,6 +205,7 @@ public:
 	bool DeleteProvider(const LlmApiProviderTypeName& name); // 删除Provider
 	LlmApi* AddApi(const LlmApiProviderTypeName& providerName, const std::string& apiName); // 添加新API
 	bool DeleteApi(const std::string& name); // 删除API
+	void ReorderProviders(const std::vector<std::string>& orderedNames); // 按指定顺序重排Provider
 
 
 	// 检测ini文件是否变化，如有变化则重新加载，返回是否重新加载
