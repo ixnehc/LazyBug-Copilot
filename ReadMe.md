@@ -33,6 +33,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 - Support OpenAI Responses API
 - Showing detailed error message after API key verification failure
+- Support drag-and-drop sorting in the Provider list
 
 ## Version 0.24 Release Notes
 

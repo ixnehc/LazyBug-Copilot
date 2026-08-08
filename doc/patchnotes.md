@@ -4,6 +4,7 @@
 
 - Support OpenAI Responses API
 - Showing detailed error message after API key verification failure
+- Support drag-and-drop sorting in the Provider list
 
 ---
 

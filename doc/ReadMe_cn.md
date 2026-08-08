@@ -33,6 +33,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 - 支持 OpenAI Responses API
 - API key 验证失败后显示详细错误信息
+- Provider 列表内支持拖拽排序
 
 ## Version 0.24 更新说明
 
