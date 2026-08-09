@@ -821,7 +821,7 @@ function setProviderData(providers) {
                     postMsg({ action: 'updateProviderStoreResponses', providerName: provider.name, storeResponses: this.checked });
                 });
                 srToggle.appendChild(srCheckbox);
-                srToggle.appendChild(document.createTextNode('Store Responses'));
+                srToggle.appendChild(document.createTextNode('Store responses on server'));
                 srToggle.addEventListener('click', e => e.stopPropagation());
                 srToggle.addEventListener('mousedown', e => e.stopPropagation());
                 srRow.appendChild(srToggle);
