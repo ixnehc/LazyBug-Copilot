@@ -966,17 +966,12 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
     const withInputArea = isPending || isAccepted;
     
     if (isPending) {
-        // pending 状态：显示播放、禁止、白名单三个按钮
+        // pending 状态：显示播放、禁止按钮
         cliHeader.appendChild(createPlayButton(cliId));
         cliHeader.appendChild(createRejectButton(cliId));
-        cliHeader.appendChild(createWhitelistButton(cliId));
     } else if (isAccepted) {
-        // accepted 状态：显示停止、白名单按钮
+        // accepted 状态：显示停止按钮
         cliHeader.appendChild(createStopButton(cliId));
-        cliHeader.appendChild(createWhitelistButton(cliId));
-    } else {
-        // none 状态：只显示白名单按钮
-        cliHeader.appendChild(createWhitelistButton(cliId));
     }
     
     // 创建内容区域（pending 状态自动展开）
@@ -998,7 +993,7 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
 /**
  * 处理 CLI 按钮点击动作
  * @param {string} cliId - CLI 容器的 ID
- * @param {string} action - 动作类型（"accept", "reject", "whitelist"）
+ * @param {string} action - 动作类型（"accept", "reject", "stop"）
  */
 function onCliAction(cliId, action) {
     const container = document.getElementById(cliId);
@@ -1021,21 +1016,11 @@ function onCliAction(cliId, action) {
     updateCliButtonsByStatus(container, cliId, newStatus);
     
     // 发送消息到 C++
-    // accept 和 reject 直接发送给 CChatUi，whitelist 发送给 CChatDialogA
-    if (action === 'whitelist') {
-        // 白名单消息发送到 CChatDialogA
-        window.chrome.webview.postMessage({
-            action: 'cliWhitelist',
-            cliId: cliId
-        });
-    } else if (action !== 'whitelist') {
-        // accept, reject, stop 消息发送到 CChatUi
-        window.chrome.webview.postMessage({
-            action: 'cliStatusChange',
-            cliId: cliId,
-            cliStatus: action
-        });
-    }
+    window.chrome.webview.postMessage({
+        action: 'cliStatusChange',
+        cliId: cliId,
+        cliStatus: action
+    });
 }
 
 /**
@@ -1049,21 +1034,14 @@ function updateCliButtonsByStatus(container, cliId, status) {
     let playBtn = container.querySelector('.cli-play-button');
     let rejectBtn = container.querySelector('.cli-reject-button');
     let stopBtn = container.querySelector('.cli-stop-button');
-    let whitelistBtn = container.querySelector('.cli-whitelist-button');
     
     // 获取标题栏元素（类名是 cli-collapsible-header）
     const cliHeader = container.querySelector('.cli-collapsible-header');
     
-    // 确保白名单按钮存在
-    if (!whitelistBtn) {
-        whitelistBtn = createWhitelistButton(cliId);
-        cliHeader.appendChild(whitelistBtn);
-    }
-    
     // 根据状态显示/隐藏按钮
     switch (status) {
         case 'pending':
-            // Pending 状态：显示 Play、Reject、Whitelist
+            // Pending 状态：显示 Play、Reject
             if (!playBtn) {
                 playBtn = createPlayButton(cliId);
                 cliHeader.appendChild(playBtn);
@@ -1075,35 +1053,28 @@ function updateCliButtonsByStatus(container, cliId, status) {
             if (playBtn) playBtn.style.display = 'inline-block';
             if (rejectBtn) rejectBtn.style.display = 'inline-block';
             if (stopBtn) stopBtn.style.display = 'none';
-            if (whitelistBtn) whitelistBtn.style.display = 'inline-block';
             break;
             
         case 'accept':
         case 'accepted':
-            // Running 状态（Accept 后或白名单命令）：显示 Stop、Whitelist
+            // Running 状态：显示 Stop
             if (playBtn) playBtn.style.display = 'none';
             if (rejectBtn) rejectBtn.style.display = 'none';
             if (!stopBtn) {
                 stopBtn = createStopButton(cliId);
-                if (whitelistBtn && whitelistBtn.parentNode === cliHeader) {
-                    cliHeader.insertBefore(stopBtn, whitelistBtn);
-                } else {
-                    cliHeader.appendChild(stopBtn);
-                }
+                cliHeader.appendChild(stopBtn);
             }
             if (stopBtn) stopBtn.style.display = 'inline-block';
-            if (whitelistBtn) whitelistBtn.style.display = 'inline-block';
             break;
             
         case 'reject':
         case 'stop':
         case 'none':
         default:
-            // 完成/停止/初始状态：只显示 Whitelist
+            // 完成/停止/初始状态：不显示操作按钮
             if (playBtn) playBtn.style.display = 'none';
             if (rejectBtn) rejectBtn.style.display = 'none';
             if (stopBtn) stopBtn.style.display = 'none';
-            if (whitelistBtn) whitelistBtn.style.display = 'inline-block';
             break;
     }
 }
@@ -1157,23 +1128,6 @@ function createStopButton(cliId) {
         onCliAction(cliId, 'stop');
     };
     return stopBtn;
-}
-
-/**
- * 创建白名单按钮
- * @param {string} cliId - CLI 容器的 ID
- * @returns {HTMLElement} 白名单按钮元素
- */
-function createWhitelistButton(cliId) {
-    const whitelistBtn = document.createElement('span');
-    whitelistBtn.className = 'cli-action-button cli-whitelist-button';
-    whitelistBtn.innerHTML = '📋';
-    whitelistBtn.title = 'Edit Command Whitelist';
-    whitelistBtn.onclick = function(e) {
-        e.stopPropagation();
-        onCliAction(cliId, 'whitelist');
-    };
-    return whitelistBtn;
 }
 
 /**
@@ -1257,7 +1211,7 @@ function completeCliDisplay(cliId, exitCode) {
         inputArea.classList.add('hidden');
     }
     
-    // 根据状态更新按钮（CLI 完成后进入 none 状态，只显示白名单按钮）
+    // CLI 完成后进入 none 状态，隐藏操作按钮
     const container = document.getElementById(cliId);
     if (container) {
         container.setAttribute('data-status', 'none');

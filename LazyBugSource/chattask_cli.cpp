@@ -6,7 +6,6 @@
 #include "LlmLib.h"
 #include "ChatAgent.h"
 #include "ChatOpsCtrl.h"
-#include "CliWhitelist.h"
 #include "stringparser/stringparser.h"
 #include <sstream>
 #include <cstdio>
@@ -909,8 +908,6 @@ void CChatTask_CLI::Start()
 
 	_outputBufferSimple.SetHeadLimit(2000);
 
-	// 检查白名单，确定显示状态
-	g_cliWhitelist.UpdateReload();
 	CliDisplayStatus displayStatus = CliDisplayStatus::Pending;  // 默认需要用户确认
 	_isPending = true;
 

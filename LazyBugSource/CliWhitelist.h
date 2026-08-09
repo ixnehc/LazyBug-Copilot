@@ -31,5 +31,3 @@ private:
 	// 编译好的正则表达式列表
 	std::vector<std::regex> _compiledRegexes;
 };
-
-extern CCliWhitelist g_cliWhitelist;

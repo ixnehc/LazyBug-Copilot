@@ -17,8 +17,6 @@
 #include "Utils_Skill.h"
 #include "Utils_CliWhitelist.h"
 
-#include "CliWhitelist.h"
-
 #include "ReplaceChunks.h"
 
 #include "LlmLib.h"
@@ -522,9 +520,7 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 	_chatTaskMgrBg.Update();
 
 	g_llmLib.UpdateReload();
-
-	extern CCliWhitelist g_cliWhitelist;
-	g_cliWhitelist.UpdateReload();
+	 
 	 
 	_chatInput.Update();
 
@@ -849,16 +845,6 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 				status = McpStatus::Stop;
 			
 			_ui.SetMcpStatus(mcpId, status);
-		}
-	}
-	else if (action == "cliWhitelist")
-	{
-		// 处理 CLI 白名单按钮点击事件
-		if (jsonMsg.contains("cliId"))
-		{
-			std::wstring cliId = utf8_to_widechar(jsonMsg["cliId"].get<std::string>());
-			
-			_HandleCliWhitelist(cliId);
 		}
 	}
 	else if (action == "toggleFavorite")
@@ -1254,14 +1240,6 @@ void CChatDialogA::_HandleSettingMenuItemClicked(const std::wstring& itemName)
 		{
 			ShellExecuteA(NULL, "open", "explorer.exe", dbFolderPath, NULL, SW_SHOWNORMAL);
 		}
-	}
-	else if (itemName == L"cli_whitelist.ini")
-	{
-		// 打开 cli_whitelist.ini
-		Utils::EnsureCliWhitelists();
-		std::string filePath = std::string(Utils::GetDBRootFolder_utf8()) + "\\" + LAZYBUG_CLI_WHITELIST_FILENAME;
-		FileLocation loc;
-		GetFileLocator().Request(filePath.c_str(), loc);
 	}
 	else if (itemName == L"global_rules.md")
 	{
@@ -1825,15 +1803,6 @@ void CChatDialogA::_HandleMcpButtonClicked(const RECT& btnRect)
 {
 	// 弹出Mcps选择窗口
 	_chatMcpsTree.ShowWindow(btnRect);
-}
-
-void CChatDialogA::_HandleCliWhitelist(const std::wstring& cliId)
-{
-	Utils::EnsureCliWhitelists();
-
-    std::string filePath = std::string(Utils::GetDBRootFolder_utf8()) + "\\" + LAZYBUG_CLI_WHITELIST_FILENAME;
-    FileLocation loc;
-    GetFileLocator().Request(filePath.c_str(), loc);
 }
 
 void CChatDialogA::_UpdateFavoriteStatus()

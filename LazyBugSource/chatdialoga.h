@@ -197,8 +197,6 @@ protected:
 	void _HandleSkillButtonClicked(const RECT& btnRect);
 	void _HandleMcpButtonClicked(const RECT& btnRect);
 
-	// CLI 白名单处理
-	void _HandleCliWhitelist(const std::wstring& cliId);
 
 	// Symbol 链接相关处理
 	void _HandleQuerySymbolLocations(const std::wstring& messageId, const std::vector<std::wstring>& symbols);

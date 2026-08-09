@@ -3,8 +3,6 @@
 #include "Utils_CliWhitelist.h"
 #include "Utils.h"
 
-CCliWhitelist g_cliWhitelist;
-
 // 外部函数声明
 extern const char* GetCurModuleFolderPath_utf8();
 

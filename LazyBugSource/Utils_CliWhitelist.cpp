@@ -12,8 +12,6 @@
 extern const char* GetCurModuleFolderPath_utf8();
 extern const char* GetOpenedDBFolderPath_utf8();
 
-std::vector<std::string> g_cliWhitelist;
-
 namespace Utils
 {
 
