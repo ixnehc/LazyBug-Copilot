@@ -918,6 +918,9 @@ void CChatTask_CLI::Start()
 	std::string command;
 	if (_toolCall.GetStringParam("command", command))
 	{
+		// 读取 riskLevel 参数（required）
+		int riskLevel = 0;
+		_toolCall.GetIntParam("riskLevel", riskLevel);
 
 		// 获取描述参数（可选）
 		std::wstring wDesc;
@@ -928,20 +931,25 @@ void CChatTask_CLI::Start()
 			wDesc = utf8_to_widechar(desc);
 		}
 
-		if (_shellType == "cmd.exe" || _shellType == "bash.exe")
+		// 根据 riskLevel 决定 displayStatus
+		if (riskLevel <= 0)
 		{
-			if (g_cliWhitelist.Check(command.c_str()))
-			{
-				displayStatus = CliDisplayStatus::Accepted;  // 在白名单中，自动执行
-				_isPending = false;
-			}
+			// riskLevel 0: 只读操作，始终自动执行
+			displayStatus = CliDisplayStatus::Accepted;
+			_isPending = false;
+		}
+		else
+		{
+			// riskLevel 1 或 2: 需要用户确认
+			displayStatus = CliDisplayStatus::Pending;
+			_isPending = true;
 		}
 
-		// 创建 CLI display，传递 displayStatus 和 shellType
+		// 创建 CLI display，传递 displayStatus、shellType 和 riskLevel
 		if (_context && _context->chatOpsCtrl && _context->chatAgent)
 		{
 			std::wstring messageId = _context->chatAgent->GetCurrentAIMessageId();
-			_cliId = _context->chatOpsCtrl->AddCliDisplay(messageId, command, wDesc, displayStatus, _shellType);
+			_cliId = _context->chatOpsCtrl->AddCliDisplay(messageId, command, wDesc, displayStatus, _shellType, riskLevel);
 		}
 
 		// 如果不是 pending 状态，立即启动执行

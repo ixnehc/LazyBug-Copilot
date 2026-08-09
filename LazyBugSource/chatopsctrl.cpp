@@ -1459,12 +1459,13 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 
 	case ChatOp::Op_CliDisplay:
 	{
-		// 从 content 中解析出 command、output 和 shellType（兼容旧格式和新格式）
+		// 从 content 中解析出 command、output、shellType 和 riskLevel（兼容旧格式和新格式）
 		std::string command, output, shellType;
-		_ParseCliDisplayContent(op.contentUtf8, command, output, shellType);
+		int riskLevel = 0;
+		_ParseCliDisplayContent(op.contentUtf8, command, output, shellType, riskLevel);
 		
-		// 调用方法显示，传递 shellType（重放历史记录时使用 None 状态）
-		AddCliDisplay(op.messageId, command, op.title, CliDisplayStatus::None, shellType);
+		// 调用方法显示，传递 shellType 和 riskLevel（重放历史记录时使用 None 状态）
+		AddCliDisplay(op.messageId, command, op.title, CliDisplayStatus::None, shellType, riskLevel);
 		
 		// 如果有 output，再追加
 		if (!output.empty())
@@ -2578,12 +2579,14 @@ void CChatOpsCtrl::AddUserInterject(const std::wstring& messageId, const std::st
 void CChatOpsCtrl::_ParseCliDisplayContent(const std::string& content,
                                             std::string& cmd,
                                             std::string& output,
-                                            std::string& shellType) const
+                                            std::string& shellType,
+                                            int& riskLevel) const
 {
+	riskLevel = 0;  // 默认值
 	// 检查是否是 JSON 格式（以 '{' 开头）
 	if (!content.empty() && content[0] == '{')
 	{
-		// JSON 格式：{"cmd":"...", "output":"...", "shellType":"..."}
+		// JSON 格式：{"cmd":"...", "output":"...", "shellType":"...", "riskLevel":...}
 		try
 		{
 			json j = json::parse(content);
@@ -2599,6 +2602,10 @@ void CChatOpsCtrl::_ParseCliDisplayContent(const std::string& content,
 			if (j.contains("shellType"))
 			{
 				shellType = j["shellType"].get<std::string>();
+			}
+			if (j.contains("riskLevel"))
+			{
+				riskLevel = j["riskLevel"].get<int>();
 			}
 		}
 		catch (const json::parse_error&)
@@ -2636,11 +2643,12 @@ void CChatOpsCtrl::_ParseCliDisplayContent(const std::string& content,
 
 std::string CChatOpsCtrl::_BuildCliDisplayContent(const std::string& cmd,
                                                     const std::string& output,
-                                                    const std::string& shellType) const
+                                                    const std::string& shellType,
+                                                    int riskLevel) const
 {
 	try
 	{
-		// JSON 格式：{"cmd":"...", "output":"...", "shellType":"..."}
+		// JSON 格式：{"cmd":"...", "output":"...", "shellType":"...", "riskLevel":...}
 		json j;
 		j["cmd"] = cmd;
 		j["output"] = output;
@@ -2648,6 +2656,7 @@ std::string CChatOpsCtrl::_BuildCliDisplayContent(const std::string& cmd,
 		{
 			j["shellType"] = shellType;
 		}
+		j["riskLevel"] = riskLevel;
 		
 		return j.dump();
 	}
@@ -2724,7 +2733,7 @@ void CChatOpsCtrl::_ParseMcpDisplayContent(const std::string& content,
 }
 
 
-std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc, CliDisplayStatus displayStatus, const std::string& shellType)
+std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc, CliDisplayStatus displayStatus, const std::string& shellType, int riskLevel)
 {
 	if (command.empty())
 		return L"";
@@ -2735,12 +2744,12 @@ std::wstring CChatOpsCtrl::AddCliDisplay(const std::wstring& messageId, const st
 	// 通过 CChatUi 创建 CLI 显示
 	if (_ui)
 	{
-		_ui->AddCliDisplay(messageId, cliId, utf8_to_widechar(command), desc, displayStatus, utf8_to_widechar(shellType));
+		_ui->AddCliDisplay(messageId, cliId, utf8_to_widechar(command), desc, displayStatus, utf8_to_widechar(shellType), riskLevel);
 	}
 
-	// 记录操作，使用 JSON 格式存储 command、output 和 shellType
+	// 记录操作，使用 JSON 格式存储 command、output、shellType 和 riskLevel
 	ChatOp op(ChatOp::Op_CliDisplay);
-	op.contentUtf8 = _BuildCliDisplayContent(command, "", shellType);  // 初始时 output 为空，包含 shellType
+	op.contentUtf8 = _BuildCliDisplayContent(command, "", shellType, riskLevel);
 	op.title = desc;  // 存储描述信息在 title 字段
 	op.messageId = messageId;
 	_AddOp(op);
@@ -2772,13 +2781,14 @@ void CChatOpsCtrl::AppendOutputToLastCliDisplay(const std::wstring& messageId, c
 
 	// 解析现有的 content（兼容旧格式和新格式）
 	std::string cmd, output, shellType;
-	_ParseCliDisplayContent(lastCliOp->contentUtf8, cmd, output, shellType);
+	int riskLevel = 0;
+	_ParseCliDisplayContent(lastCliOp->contentUtf8, cmd, output, shellType, riskLevel);
 
 	// 追加新的 output
 	output += deltaOutput;
 
 	// 重新构建 JSON 格式的 content
-	lastCliOp->contentUtf8 = _BuildCliDisplayContent(cmd, output, shellType);
+	lastCliOp->contentUtf8 = _BuildCliDisplayContent(cmd, output, shellType, riskLevel);
 
 	if (_ui)
 	{

@@ -281,7 +281,7 @@ function setupWebViewMessageListener() {
                 
 // ====== CLI 显示相关 ======
                 case 'addCliDisplay':
-                    addCliDisplay(message.messageId, message.cliId, message.command, message.desc, message.status, message.shellType);
+                    addCliDisplay(message.messageId, message.cliId, message.command, message.desc, message.status, message.shellType, message.riskLevel);
                     break;
                 case 'appendCliOutput':
                     appendCliOutput(message.messageId, message.output);

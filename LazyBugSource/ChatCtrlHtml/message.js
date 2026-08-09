@@ -113,10 +113,7 @@ function appendToAIMessage(id, incrementalContent, isFinalChunk) {
     if (!messageContentElem) { console.error('AIMessage content element (.message-content) not found for append in:', id); return; }
 
     // 正文开始输出时删除 thinking 区域，并合并相邻的 exploring-group。
-    const thinkingContainers = messageContentElem.querySelectorAll('.ai-thinking-container');
-    thinkingContainers.forEach(container => container.remove());
-
-    _MergeAdjacentExploringGroups(messageContentElem);
+    _RemoveThinkingContainers(messageContentElem);
 
 
 
@@ -247,6 +244,21 @@ function _AlignAIThinkingToBottom(details) {
 }
 
 /**
+ * 移除消息中的所有 thinking 容器并合并相邻的 exploring-group。
+ * 当后续消息（正文、工具调用、CLI、MCP、Question 等）到达时调用。
+ * @param {HTMLElement} messageContentElem - 消息内容容器
+ * @param {boolean} mergeGroups - 是否合并相邻的 exploring-group，默认 true
+ */
+function _RemoveThinkingContainers(messageContentElem, mergeGroups) {
+    if (mergeGroups === undefined) mergeGroups = true;
+    const thinkingContainers = messageContentElem.querySelectorAll('.ai-thinking-container');
+    thinkingContainers.forEach(container => container.remove());
+    if (mergeGroups) {
+        _MergeAdjacentExploringGroups(messageContentElem);
+    }
+}
+
+/**
  * 合并 messageContentElem 中相邻的 exploring-group
  * 当中间隔的元素（如 thinking）被删除后，原本不连续的 exploring-group 变为相邻，需要合并
  */
@@ -351,6 +363,10 @@ function addToolCallMessageToAIMessage_Exploring(id, textContent) {
         countSpan.textContent = count;
     }
 
+    // 先添加 exploring message，再删除 thinking。这样 thinking 在添加时充当分隔符，
+    // 防止新消息错误合并到 thinking 之前的 exploring-group 中。
+    _RemoveThinkingContainers(messageContentElem, false);
+
     // 如果聊天窗口在底部附近，滚动到底部
     if (isNearBottom()) {
         scrollToBottom();
@@ -375,6 +391,9 @@ function addToolCallMessageToAIMessage_AddMcpServer(id, content) {
         console.error('AI Message content element not found for AddMcpServer:', id);
         return;
     }
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
 
     // 解析 JSON
     let name = 'Unknown';
@@ -512,6 +531,9 @@ function addUserInterjectToAIMessage(messageId, content) {
         console.error('AI Message content element not found for user interject:', messageId);
         return;
     }
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
 
     // 创建用户插话元素，使用 user-message 样式（右侧、用户消息背景色）
     const interjectElem = document.createElement('div');
@@ -864,7 +886,7 @@ function createCliInputArea(cliId) {
     return inputArea;
 }
 
-function addCliDisplay(messageId, cliId, command, desc, status = "none", shellType = "") {
+function addCliDisplay(messageId, cliId, command, desc, status = "none", shellType = "", riskLevel = 0) {
     const shouldScroll = isNearBottom();
     
     // 查找对应的 AI 消息元素
@@ -879,13 +901,22 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
         console.warn('Message content element not found for messageId:', messageId);
         return;
     }
-    
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
+
     // 创建新的 CLI 显示容器
     const cliContainer = document.createElement('div');
     cliContainer.className = 'cli-display-container';
     cliContainer.id = cliId;
     cliContainer.setAttribute('data-message-id', messageId);
     cliContainer.setAttribute('data-status', status);
+    cliContainer.setAttribute('data-risk-level', riskLevel);
+    
+    // risk_level 2: 添加危险标记 CSS class
+    if (riskLevel >= 2) {
+        cliContainer.classList.add('cli-risk-destructive');
+    }
     
     // 创建可折叠的标题栏
     const cliHeader = document.createElement('div');
@@ -920,6 +951,14 @@ function addCliDisplay(messageId, cliId, command, desc, status = "none", shellTy
     cliHeader.appendChild(expandIcon);
     cliHeader.appendChild(shellTypeLabel);
     cliHeader.appendChild(headerText);
+    
+    // risk_level 2: 在标题栏添加危险警告标签
+    if (riskLevel >= 2) {
+        const dangerLabel = document.createElement('span');
+        dangerLabel.className = 'cli-danger-label';
+        dangerLabel.textContent = '⚠ DESTRUCTIVE';
+        cliHeader.appendChild(dangerLabel);
+    }
     
     // 根据 status 添加不同的按钮和内容
     const isPending = (status === "pending");
@@ -1241,7 +1280,10 @@ function addQuestion(messageId, questionId, question, options, multiSelect) {
         console.warn('Message content element not found for messageId:', messageId);
         return;
     }
-    
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
+
     // 创建问题容器
     const questionContainer = document.createElement('div');
     questionContainer.className = 'question-container';
@@ -1434,7 +1476,10 @@ function addQuestionDisplay(messageId, question, answer) {
         console.warn('Message content element not found for messageId:', messageId);
         return;
     }
-    
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
+
     // 创建问题显示容器
     const displayContainer = document.createElement('div');
     displayContainer.className = 'question-display-container';
@@ -1600,7 +1645,10 @@ function addMcpDisplay(messageId, mcpId, mcpName, toolName, arguments, argsSumma
     
     const messageContentElem = messageElem.querySelector('.message-content');
     if (!messageContentElem) return;
-    
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
+
     // 解析参数摘要
     let parsedArgs = [];
     try {

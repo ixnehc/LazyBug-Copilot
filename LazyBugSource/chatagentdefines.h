@@ -61,7 +61,7 @@ public:
 	virtual void ClearCliInput() { }
 
 	// CLI Display 相关方法
-	virtual void AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::wstring& shellType = L"") { }
+	virtual void AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::wstring& shellType = L"", int riskLevel = 0) { }
 	virtual bool IsCliPending(const std::wstring& cliId) { return false; }
 	virtual void RemovePendingCli(const std::wstring& cliId) { }
 	virtual CliStatus GetCliStatus(const std::wstring& cliId) { return CliStatus::None; }

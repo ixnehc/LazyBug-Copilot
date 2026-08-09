@@ -232,7 +232,7 @@ public:
 
     // 添加 CLI 命令显示，返回 CLI ID
     // displayStatus: Pending=等待用户确认, Accepted=白名单自动执行, None=其他
-    std::wstring AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::string& shellType = "");
+    std::wstring AddCliDisplay(const std::wstring& messageId, const std::string& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::string& shellType = "", int riskLevel = 0);
     
     // 增量追加输出到最后的 CLI 显示
     void AppendOutputToLastCliDisplay(const std::wstring& messageId, const std::string& deltaOutput);
@@ -484,10 +484,12 @@ private:
 	void _ParseCliDisplayContent(const std::string& content,
 	                              std::string& cmd,
 	                              std::string& output,
-	                              std::string& shellType) const;
+	                              std::string& shellType,
+	                              int& riskLevel) const;
 	std::string _BuildCliDisplayContent(const std::string& cmd,
 	                                      const std::string& output,
-	                                      const std::string& shellType = "") const;
+	                                      const std::string& shellType = "",
+	                                      int riskLevel = 0) const;
 
 	void _ParseMcpDisplayContent(const std::string& content,
 	                              std::string& mcpName,

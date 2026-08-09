@@ -80,7 +80,7 @@ public:
 	void AddQuestionDisplay(const std::wstring& messageId, const std::wstring& question, const std::wstring& answer) override;
 
 	// CLI Display 方法 - 添加 CLI 命令显示
-	void AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::wstring& shellType = L"") override;
+	void AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc = L"", CliDisplayStatus displayStatus = CliDisplayStatus::None, const std::wstring& shellType = L"", int riskLevel = 0) override;
 	bool IsCliPending(const std::wstring& cliId) override;
 	void RemovePendingCli(const std::wstring& cliId) override;
 	CliStatus GetCliStatus(const std::wstring& cliId) override;

@@ -1073,7 +1073,7 @@ void CChatUi::ActivateCheckpointFileChange(const std::wstring& fileEditId)
 
 //====================== CLI Display 相关实现 ======================
 
-void CChatUi::AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc, CliDisplayStatus displayStatus, const std::wstring& shellType)
+void CChatUi::AddCliDisplay(const std::wstring& messageId, const std::wstring& cliId, const std::wstring& command, const std::wstring& desc, CliDisplayStatus displayStatus, const std::wstring& shellType, int riskLevel)
 {
 	if (command.empty() || cliId.empty())
 		return;
@@ -1110,13 +1110,14 @@ void CChatUi::AddCliDisplay(const std::wstring& messageId, const std::wstring& c
 		break;
 	}
 
-	// 构造 JSON 消息 - 发送 command、desc、cliId、status 和 shellType
+	// 构造 JSON 消息 - 发送 command、desc、cliId、status、shellType 和 riskLevel
 	std::wstring jsonMessage = L"{\"action\":\"addCliDisplay\",\"messageId\":\"" + safeMessageId +
 		L"\",\"cliId\":\"" + safeCliId +
 		L"\",\"command\":\"" + safeCommand +
 		L"\",\"desc\":\"" + safeDesc +
 		L"\",\"status\":\"" + statusStr +
-		L"\",\"shellType\":\"" + safeShellType + L"\"}";
+		L"\",\"shellType\":\"" + safeShellType +
+		L"\",\"riskLevel\":" + std::to_wstring(riskLevel) + L"}";
 
 	PostJsonMessage(jsonMessage);
 }

@@ -141,6 +141,12 @@
     font-family: 'Consolas', 'Courier New', monospace;
 }
 
+/* 危险级别容器样式（riskLevel >= 2） */
+.cli-risk-destructive {
+    border-color: #ff4444;
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.3);
+}
+
 /* 可折叠标题样式 */
 .cli-collapsible-header {
     background-color: #1a1a1a;
@@ -220,6 +226,18 @@
     font-weight: bold;
     font-size: 0.9em;
     flex: 1;
+}
+
+/* 危险标签样式 */
+.cli-danger-label {
+    font-weight: bold;
+    font-size: 0.7em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: #5a1a1a;
+    color: #ff4444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* Shell type 标签样式 */

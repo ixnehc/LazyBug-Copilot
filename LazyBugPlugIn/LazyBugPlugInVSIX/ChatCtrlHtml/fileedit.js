@@ -25,9 +25,8 @@ function createFileEditWindow(fileEditId, messageId, title, content, buttons, is
         return;
     }
 
-    // Find and remove any existing thinking containers
-    const thinkingContainers = contentElem.querySelectorAll('.ai-thinking-container');
-    thinkingContainers.forEach(container => container.remove());
+    // 删除 thinking 区域，并合并相邻的 exploring-group
+    _RemoveThinkingContainers(contentElem);
 
     const fileEditDiv = document.createElement('div');
     fileEditDiv.id = fileEditId;
@@ -616,6 +615,9 @@ function showFileEditProgressLabel(messageId, fileName, fullPath) {
         console.error('Message content element not found for progress label:', messageId);
         return;
     }
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
 
     // 检查是否已经存在进度标签
     const existingLabel = messageContentElem.querySelector('.file-edit-progress-label');

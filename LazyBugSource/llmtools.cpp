@@ -444,6 +444,7 @@ void CLlmTools::Init()
 	AddToolPara_String("desc", "A brief description of what this command does.", true);
 	AddToolPara_String("workingDir", "The working directory for the command execution. If not specified, uses the current directory.", false);
 	AddToolPara_Integer("maxOutput", "Maximum output bytes allowed (default: 16000). Exceeding bytes will be truncated", false);
+	AddToolPara_Integer("riskLevel", "Risk level of the command: 0=read-only (no modifications), 1=modifies but reversible, 2=destructive and irreversible.", true);
 	EndTool();
 
 	// 定义 CLI_Bash 工具
@@ -453,6 +454,7 @@ void CLlmTools::Init()
 	AddToolPara_String("desc", "A brief description of what this command does.", true);
 	AddToolPara_String("workingDir", "The working directory for the command execution. If not specified, uses the current directory.", false);
 	AddToolPara_Integer("maxOutput", "Maximum output bytes allowed (default: 16000). Exceeding bytes will be truncated", false);
+	AddToolPara_Integer("riskLevel", "Risk level of the command: 0=read-only (no modifications), 1=modifies but reversible, 2=destructive and irreversible.", true);
 	EndTool();
 
 	// 定义 CLI_RunScript 工具
@@ -462,6 +464,7 @@ void CLlmTools::Init()
 	AddToolPara_String("desc", "A brief description of what this script does.", true);
 	AddToolPara_String("workingDir", "The working directory for the script execution. If not specified, uses the current directory.", false);
 	AddToolPara_Integer("maxOutput", "Maximum output bytes allowed (default: 16000). Exceeding bytes will be truncated", false);
+	AddToolPara_Integer("riskLevel", "Risk level of the command: 0=read-only (no modifications), 1=modifies but reversible, 2=destructive and irreversible.", true);
 	EndTool();
 
 	// 定义 ReplaceInFile 工具
