@@ -50,6 +50,7 @@ const Lucene::String CSolutionIndexerImpl_Lucene::FIELD_PATH = L"path";
 const Lucene::String CSolutionIndexerImpl_Lucene::FIELD_CONTENT = L"content";
 const Lucene::String CSolutionIndexerImpl_Lucene::FIELD_FILENAME = L"filename";
 const Lucene::String CSolutionIndexerImpl_Lucene::FIELD_MTIME = L"mtime";
+const Lucene::String CSolutionIndexerImpl_Lucene::FIELD_LINECOUNT = L"linecount";
 
 // ==================== CSolutionIndexerImpl_Lucene 实现 ====================
 
@@ -270,6 +271,19 @@ void CSolutionIndexerImpl_Lucene::AddDocument(const std::string& lowerCasedFileP
 	doc->add(Lucene::newLucene<Lucene::Field>(FIELD_MTIME, mtimeW,
 		Lucene::Field::STORE_YES, Lucene::Field::INDEX_NO));
 
+	// 存储行数（统计换行符）
+	int lineCount = 1;
+	for (char c : content)
+	{
+		if (c == '\n')
+			lineCount++;
+	}
+	std::stringstream lineCountStream;
+	lineCountStream << lineCount;
+	Lucene::String lineCountW = ToLuceneString(lineCountStream.str());
+	doc->add(Lucene::newLucene<Lucene::Field>(FIELD_LINECOUNT, lineCountW,
+		Lucene::Field::STORE_YES, Lucene::Field::INDEX_NO));
+
 	// 提取文件名
 	size_t lastSlash = lowerCasedFilePath.find_last_of("/\\");
 	std::string fileName = (lastSlash != std::string::npos) ? lowerCasedFilePath.substr(lastSlash + 1) : lowerCasedFilePath;
@@ -453,6 +467,51 @@ time_t CSolutionIndexerImpl_Lucene::GetStoredMTime(Lucene::IndexReaderPtr reader
 	}
 
 	return 0;
+}
+
+int CSolutionIndexerImpl_Lucene::GetLineCount(const std::string& lowerCasedFilePath)
+{
+	if (!_indexWriter)
+		return -1;
+
+	if (HasPendingWork())
+		return -1;
+
+	try
+	{
+		// 提交所有待处理的更改
+		_indexWriter->commit();
+
+		Lucene::IndexReaderPtr reader;
+		if (!Lucene::IndexReader::indexExists(_directory))
+			return -1;
+
+		reader = Lucene::IndexReader::open(_directory, true);
+
+		Lucene::String lowerPathW = ToLuceneString(lowerCasedFilePath);
+		Lucene::TermPtr term = Lucene::newLucene<Lucene::Term>(FIELD_PATH, lowerPathW);
+		Lucene::TermDocsPtr termDocs = reader->termDocs(term);
+
+		int lineCount = -1;
+		if (termDocs->next())
+		{
+			Lucene::DocumentPtr doc = reader->document(termDocs->doc());
+			Lucene::String lineCountW = doc->get(FIELD_LINECOUNT);
+			if (!lineCountW.empty())
+			{
+				std::string lineCountStr = FromLuceneString(lineCountW);
+				lineCount = std::stoi(lineCountStr);
+			}
+		}
+
+		termDocs->close();
+		reader->close();
+		return lineCount;
+	}
+	catch (const Lucene::LuceneException&)
+	{
+		return -1;
+	}
 }
 
 void CSolutionIndexerImpl_Lucene::ProcessUpdateIfExists(const std::string& lowerCasedFilePath)

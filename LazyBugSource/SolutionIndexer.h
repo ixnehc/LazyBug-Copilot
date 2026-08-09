@@ -41,6 +41,7 @@ public:
 	virtual bool Open(const char* indexPath) = 0;
 	virtual void Close() = 0;
 	virtual bool Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive = false) = 0;
+	virtual int GetLineCount(const std::string& lowerCasedFilePath) = 0;
 
 	void QueueTask(const IndexingTask& task);
 	void StartWorkerThread();
@@ -114,6 +115,10 @@ public:
 	void UpdateIfExists(const char* lowerCasedFilePath);
 
 	bool Find(const char* key, int maxResult, FindInFileResults &results, bool caseInsensitive = false);
+
+	// 查询指定文件的总行数（基于索引中存储的信息）
+	// 返回行数；若文件不在索引中或旧索引无此字段，返回 -1
+	int GetLineCount(const char* lowerCasedFilePath);
 
 	bool IsIndexing() const	{ return _impl->HasPendingWork();	}
 	int GetPendingOpCount() const { return _impl->GetPendingOpCount(); }

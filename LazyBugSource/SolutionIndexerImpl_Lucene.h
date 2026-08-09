@@ -12,6 +12,7 @@ public:
 	bool Open(const char* indexPath) override;
 	void Close() override;
 	bool Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive = false) override;
+	int GetLineCount(const std::string& lowerCasedFilePath) override;
 
 protected:
 	bool IsReady() const override;
@@ -39,5 +40,6 @@ private:
 	static const Lucene::String FIELD_CONTENT;
 	static const Lucene::String FIELD_FILENAME;
 	static const Lucene::String FIELD_MTIME;
+	static const Lucene::String FIELD_LINECOUNT;
 };
 

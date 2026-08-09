@@ -310,6 +310,12 @@ time_t CSolutionIndexerImpl_Xapian::GetStoredMTime(const std::string& lowerCased
 	return 0;
 }
 
+int CSolutionIndexerImpl_Xapian::GetLineCount(const std::string& lowerCasedFilePath)
+{
+	// Xapian实现暂不支持行数查询
+	return -1;
+}
+
 void CSolutionIndexerImpl_Xapian::ProcessUpdateIfExists(const std::string& lowerCasedFilePath)
 {
 	try

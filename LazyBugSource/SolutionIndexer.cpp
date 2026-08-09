@@ -278,3 +278,10 @@ bool CSolutionIndexer::Find(const char* key, int maxResult, FindInFileResults& r
 {
 	return _impl->Find(key, maxResult, results, caseInsensitive);
 }
+
+int CSolutionIndexer::GetLineCount(const char* lowerCasedFilePath)
+{
+	if (!lowerCasedFilePath || lowerCasedFilePath[0] == '\0')
+		return -1;
+	return _impl->GetLineCount(lowerCasedFilePath);
+}

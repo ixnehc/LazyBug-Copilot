@@ -15,6 +15,7 @@ public:
 	void Close() override;
 	// TODO: 当 caseInsensitive=true 时，需要将原始 key 和小写 key 用 OP_OR 合并查询，并传给 FindMatchingLines
 	bool Find(const char* key, int maxResult, FindInFileResults& results, bool caseInsensitive = false) override;
+	int GetLineCount(const std::string& lowerCasedFilePath) override;
 
 protected:
 	bool IsReady() const override;
