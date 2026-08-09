@@ -76,6 +76,7 @@ private:
     void _UpdateProviderName(const std::wstring& oldName, const std::wstring& newName);
     void _UpdateProviderEndpoint(const std::wstring& providerName, const std::wstring& endpoint);
     void _UpdateProviderFormat(const std::wstring& providerName, const std::wstring& format);
+    void _UpdateProviderStoreResponses(const std::wstring& providerName, bool storeResponses);
     void _UpdateApiName(const std::wstring& oldName, const std::wstring& newName);
     void _UpdateApiField(const std::wstring& apiName, const std::wstring& field, const nlohmann::json& value);
     void _AddProvider(const std::wstring& name);

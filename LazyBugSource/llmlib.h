@@ -20,6 +20,7 @@ struct LlmApiProvider
 		, key("")
 		, status(Status::Unknown)
 		, format(LlmApiFormat::OpenAI_)
+		, storeResponses(false)
 	{
 
 	}
@@ -44,6 +45,7 @@ struct LlmApiProvider
 	std::string url;
 	std::string endpoint;
 	LlmApiFormat format;
+	bool storeResponses;  // OpenAI Responses 历史存储开关（使用 previous_response_id 避免重复发送历史）
 
 	//动态数据(不同用户的设置有可能会不一样)
 	std::string key;
@@ -198,6 +200,7 @@ public:
 	bool SetProviderName(const LlmApiProviderTypeName& oldName, const LlmApiProviderTypeName& newName);
 	bool SetProviderEndpoint(const LlmApiProviderTypeName& name, const std::string& endpoint);
 	bool SetProviderFormat(const LlmApiProviderTypeName& name, LlmApiFormat format);
+	bool SetProviderStoreResponses(const LlmApiProviderTypeName& name, bool storeResponses);
 	bool SetApiName(const std::string& oldName, const std::string& newName);
 	LlmApi* GetApiMutable(const std::string& apiName);
 	void SaveSettings(); // 保存设置到注册表

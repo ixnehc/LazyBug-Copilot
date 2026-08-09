@@ -1739,7 +1739,7 @@ static void ApplyResponsesCommonFields(json& requestJson)
 		requestJson.erase("thinking");
 }
 
-bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
+bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson, bool store)
 {
 	try
 	{
@@ -1869,8 +1869,9 @@ bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
 		// 公共字段处理
 		ApplyResponsesCommonFields(requestJson);
 
-		// 必须存储服务端对话，返回的 response.id 供后续续接请求的 previous_response_id 引用
-		requestJson["store"] = true;
+		// 根据 storeResponses 决定是否在服务端存储对话
+		if (store)
+			requestJson["store"] = true;
 
 		return true;
 	}
@@ -1880,7 +1881,7 @@ bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson)
 	}
 }
 
-bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson, const std::string& previousResponseId)
+bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson, const std::string& previousResponseId, bool store)
 {
 	try
 	{
@@ -1985,8 +1986,9 @@ bool CLlmFormatter::ConvertLlmRequestToOpenAIResponsesFormat(json& requestJson, 
 		// 公共字段处理
 		ApplyResponsesCommonFields(requestJson);
 
-		// 存储服务端对话，以便下一轮使用 previous_response_id
-		requestJson["store"] = true;
+		// 根据 storeResponses 决定是否在服务端存储对话
+		if (store)
+			requestJson["store"] = true;
 
 		return true;
 	}

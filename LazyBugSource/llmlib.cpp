@@ -162,6 +162,7 @@ void CLlmLib::_LoadLlmSessionSetting(LlmSessionSetting& setting, const LlmApi &a
 	setting.apiKey = provider ? provider->key : "";
 	setting.apiEndpoint_ = provider ? provider->endpoint : "";
 	setting.apiFormat = provider ? provider->format : LlmApiFormat::OpenAI_;
+	setting.storeResponses = provider ? provider->storeResponses : false;
 	setting.apiCacheControlType = GetApiCacheControlType(api.name);
 
 	// ReadMedia 仅在 Anthropic 和 Kimi 格式下可用，其他格式过滤掉
@@ -575,6 +576,19 @@ bool CLlmLib::SetProviderFormat(const LlmApiProviderTypeName& name, LlmApiFormat
 		if (p.name == name)
 		{
 			p.format = format;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CLlmLib::SetProviderStoreResponses(const LlmApiProviderTypeName& name, bool storeResponses)
+{
+	for (auto& p : _providers)
+	{
+		if (p.name == name)
+		{
+			p.storeResponses = storeResponses;
 			return true;
 		}
 	}

@@ -126,12 +126,13 @@ window.onClipboardData = function(text) {
         }
         const endpoint = (typeof setting.endpoint === 'string') ? setting.endpoint.trim() : '';
         const format = (typeof setting.format === 'string') ? setting.format.trim() : '';
+        const storeResponses = (typeof setting.storeResponses === 'boolean') ? setting.storeResponses : false;
         // 自动展开并标记待聚焦
         if (!expandedProviders.includes(newName)) {
             expandedProviders.push(newName);
         }
         pendingFocusProviderName = newName;
-        postMsg({ action: 'addProviderFromClipboard', name: newName, endpoint: endpoint, format: format });
+        postMsg({ action: 'addProviderFromClipboard', name: newName, endpoint: endpoint, format: format, storeResponses: storeResponses });
 
         // 粘贴成功反馈
         const addPasteBtn = document.querySelector('.add-paste-provider-btn');
@@ -265,6 +266,7 @@ window.onClipboardData = function(text) {
     const newName = setting.name.trim();
     const newEndpoint = (typeof setting.endpoint === 'string') ? setting.endpoint.trim() : '';
     const newFormat = (typeof setting.format === 'string') ? setting.format.trim() : '';
+    const newStoreResponses = (typeof setting.storeResponses === 'boolean') ? setting.storeResponses : undefined;
 
     // 更新 name（重复则跳过，不弹框）
     let effectiveName = provider.name;
@@ -282,6 +284,10 @@ window.onClipboardData = function(text) {
     // 更新 format
     if (newFormat !== (provider.format || '')) {
         postMsg({ action: 'updateProviderFormat', providerName: effectiveName, format: newFormat });
+    }
+    // 更新 storeResponses
+    if (newStoreResponses !== undefined && newStoreResponses !== (provider.storeResponses || false)) {
+        postMsg({ action: 'updateProviderStoreResponses', providerName: effectiveName, storeResponses: newStoreResponses });
     }
 
     pasteBtn.classList.add('pasted');
@@ -621,7 +627,8 @@ function setProviderData(providers) {
             const setting = {
                 name: provider.name,
                 endpoint: provider.endpoint,
-                format: provider.format
+                format: provider.format,
+                storeResponses: provider.storeResponses
             };
             const json = JSON.stringify(setting, null, 2);
             navigator.clipboard.writeText(json).then(() => {
@@ -791,11 +798,35 @@ function setProviderData(providers) {
             });
             formatSelect.addEventListener('change', function() {
                 postMsg({ action: 'updateProviderFormat', providerName: provider.name, format: this.value });
+                // 当 format 变化时，刷新以显示/隐藏 storeResponses 行
+                setProviderData(providers);
             });
             formatSelect.addEventListener('click', e => e.stopPropagation());
             formatSelect.addEventListener('mousedown', e => e.stopPropagation());
             formatRow.appendChild(formatSelect);
             expandedArea.appendChild(formatRow);
+
+            // Store Responses 开关行（仅 OpenAIResponses 格式显示）
+            if (provider.format === 'OpenAIResponses') {
+                const srRow = document.createElement('div');
+                srRow.className = 'provider-edit-row';
+                const srToggle = document.createElement('label');
+                srToggle.style.cssText = 'display:flex;align-items:center;cursor:pointer;gap:6px;margin-left:71px;font-size:0.78em;color:#888;';
+                const srCheckbox = document.createElement('input');
+                srCheckbox.type = 'checkbox';
+                srCheckbox.checked = provider.storeResponses === true;
+                srCheckbox.style.cssText = 'width:13px;height:13px;cursor:pointer;flex-shrink:0;';
+                srCheckbox.addEventListener('click', e => e.stopPropagation());
+                srCheckbox.addEventListener('change', function() {
+                    postMsg({ action: 'updateProviderStoreResponses', providerName: provider.name, storeResponses: this.checked });
+                });
+                srToggle.appendChild(srCheckbox);
+                srToggle.appendChild(document.createTextNode('Store Responses'));
+                srToggle.addEventListener('click', e => e.stopPropagation());
+                srToggle.addEventListener('mousedown', e => e.stopPropagation());
+                srRow.appendChild(srToggle);
+                expandedArea.appendChild(srRow);
+            }
 
             // Api Key行
             const keyRow = document.createElement('div');

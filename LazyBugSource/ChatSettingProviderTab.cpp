@@ -152,6 +152,15 @@ bool CChatSettingProviderTab::HandleWebMessage(const std::string& action, const 
             _UpdateProviderFormat(utf8_to_widechar(providerName), utf8_to_widechar(format));
         }
     }
+    else if (action == "updateProviderStoreResponses")
+    {
+        if (jsonMsg.contains("providerName") && jsonMsg.contains("storeResponses"))
+        {
+            std::string providerName = jsonMsg["providerName"];
+            bool storeResponses = jsonMsg["storeResponses"];
+            _UpdateProviderStoreResponses(utf8_to_widechar(providerName), storeResponses);
+        }
+    }
     else if (action == "updateApiName")
     {
         if (jsonMsg.contains("oldName") && jsonMsg.contains("newName"))
@@ -200,9 +209,14 @@ bool CChatSettingProviderTab::HandleWebMessage(const std::string& action, const 
                     else if (formatStr == "Kimi") format = LlmApiFormat::Kimi;
                     else if (formatStr == "GLM") format = LlmApiFormat::GLM;
                     else if (formatStr == "Minimax") format = LlmApiFormat::Minimax;
-                else if (formatStr == "DeepSeek") format = LlmApiFormat::DeepSeek;
-                else if (formatStr == "OpenAIResponses") format = LlmApiFormat::OpenAIResponses;
-                g_llmLib.SetProviderFormat(name, format);
+                    else if (formatStr == "DeepSeek") format = LlmApiFormat::DeepSeek;
+                    else if (formatStr == "OpenAIResponses") format = LlmApiFormat::OpenAIResponses;
+                    g_llmLib.SetProviderFormat(name, format);
+                }
+                if (jsonMsg.contains("storeResponses"))
+                {
+                    bool storeResponses = jsonMsg["storeResponses"];
+                    g_llmLib.SetProviderStoreResponses(name, storeResponses);
                 }
                 _SaveLlmJson();
                 _LoadProviderData();
@@ -505,6 +519,7 @@ void CChatSettingProviderTab::_SendProviderDataToWebView()
         jProvider["key"]         = p->key;
         jProvider["type"]        = p->name;
         jProvider["format"]      = formatToStr(p->format);
+        jProvider["storeResponses"] = p->storeResponses;
         jProvider["isAvailable"] = p->IsAvailable();
 
         json jApis = json::array();
@@ -641,6 +656,13 @@ void CChatSettingProviderTab::_UpdateProviderFormat(const std::wstring& provider
     else if (formatStr == "OpenAIResponses") format = LlmApiFormat::OpenAIResponses;
 
     if (g_llmLib.SetProviderFormat(providerName, format))
+        _SaveLlmJson();
+}
+
+void CChatSettingProviderTab::_UpdateProviderStoreResponses(const std::wstring& providerNameW, bool storeResponses)
+{
+    std::string providerName = widechar_to_utf8(providerNameW.c_str());
+    if (g_llmLib.SetProviderStoreResponses(providerName, storeResponses))
         _SaveLlmJson();
 }
 

@@ -43,9 +43,9 @@ struct LlmSessionSetting
 	std::vector<std::string> rulesFiles;
 	std::shared_ptr<const std::string> skillsDump;  // 预先 dump 好的 skills 字符串，由外部传入
 	int timeoutSeconds;      // 请求超时时间（秒）
-	bool enableResponsesContinuation;  // OpenAI Responses 续接模式开关（使用 previous_response_id 避免重复发送历史）
+	bool storeResponses;  // OpenAI Responses 历史存储开关（使用 previous_response_id 避免重复发送历史）
 
-	LlmSessionSetting() : timeoutSeconds(3000), enableResponsesContinuation(true)
+	LlmSessionSetting() : timeoutSeconds(3000), storeResponses(false)
 	{}
 };
 
