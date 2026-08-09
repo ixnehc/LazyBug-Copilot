@@ -112,12 +112,15 @@ function appendToAIMessage(id, incrementalContent, isFinalChunk) {
     const messageContentElem = messageElem.querySelector('.message-content');
     if (!messageContentElem) { console.error('AIMessage content element (.message-content) not found for append in:', id); return; }
 
-    // Find and remove any existing thinking containers
+    // 正文开始输出时删除 thinking 区域，并合并相邻的 exploring-group。
     const thinkingContainers = messageContentElem.querySelectorAll('.ai-thinking-container');
     thinkingContainers.forEach(container => container.remove());
 
-    // 删除 thinking 后，合并相邻的 exploring-group
     _MergeAdjacentExploringGroups(messageContentElem);
+
+
+
+
 
     let targetTextContainer;
     const lastChild = messageContentElem.lastElementChild;
@@ -170,31 +173,77 @@ function appendToAIMessage_Thinking(id, incrementalContent, isFinalChunk) {
     const messageContentElem = messageElem.querySelector('.message-content');
     if (!messageContentElem) { console.error('AIMessage content element (.message-content) not found for thinking append in:', id); return; }
 
-    let targetTextContainer;
-    const lastChild = messageContentElem.lastElementChild;
+    let thinkingContainer = messageContentElem.lastElementChild;
+    if (!thinkingContainer || !thinkingContainer.classList.contains('ai-thinking-container')) {
+        thinkingContainer = document.createElement('div');
+        thinkingContainer.className = 'ai-thinking-container';
 
-    if (!lastChild || !lastChild.classList.contains('ai-thinking-container')) {
-        targetTextContainer = document.createElement('div');
-        targetTextContainer.className = 'ai-thinking-container ai-thinking-content';
-        targetTextContainer.setAttribute('data-raw-content', '');
-        messageContentElem.appendChild(targetTextContainer);
-    } else {
-        targetTextContainer = lastChild;
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'ai-thinking-toggle';
+        toggle.textContent = '◎ Thinking...';
+        toggle.setAttribute('aria-expanded', 'false');
+
+        const details = document.createElement('div');
+        details.className = 'ai-thinking-details';
+        details.hidden = true;
+
+        const text = document.createElement('div');
+        text.className = 'ai-thinking-text ai-thinking-content';
+        text.setAttribute('data-raw-content', '');
+        details.appendChild(text);
+
+        toggle.addEventListener('click', () => {
+            const expanded = toggle.getAttribute('aria-expanded') === 'true';
+            toggle.setAttribute('aria-expanded', String(!expanded));
+            details.hidden = expanded;
+            thinkingContainer.classList.toggle('is-expanded', !expanded);
+            if (!expanded) {
+                _AlignAIThinkingToBottom(details);
+            }
+        });
+
+        thinkingContainer.appendChild(toggle);
+        thinkingContainer.appendChild(details);
+        messageContentElem.appendChild(thinkingContainer);
     }
 
-    let rawContent = targetTextContainer.getAttribute('data-raw-content') || '';
+    const details = thinkingContainer.querySelector('.ai-thinking-details');
+    const text = thinkingContainer.querySelector('.ai-thinking-text');
+    let rawContent = text.getAttribute('data-raw-content') || '';
     rawContent += incrementalContent;
-    targetTextContainer.setAttribute('data-raw-content', rawContent);
+    text.setAttribute('data-raw-content', rawContent);
+    text.textContent = rawContent;
 
-    // thinking 消息直接显示文本，不进行 markdown 渲染
-    targetTextContainer.textContent = rawContent;
+    // 不产生内部滚动条；内容超出最大高度时始终显示最新的底部内容。
+    _AlignAIThinkingToBottom(details);
 
     if (isFinalChunk) {
-        /* Optional: targetTextContainer.removeAttribute('data-raw-content'); */
+        /* thinking 内容保留在 DOM 中，正文开始输出时由 appendToAIMessage 删除。 */
     }
     if (shouldScroll) {
         scrollToBottom();
     }
+}
+
+/**
+ * 将 thinking 内容的底部对齐到固定高度的显示区域底部。
+ * thinking 默认收起，收起状态不需要计算位移。
+ */
+function _AlignAIThinkingToBottom(details) {
+    if (!details || details.hidden) {
+        return;
+    }
+
+    const text = details.querySelector('.ai-thinking-text');
+    if (!text) {
+        return;
+    }
+
+    const overflow = text.scrollHeight > details.clientHeight;
+    details.classList.toggle('has-overflow', overflow);
+    const offset = Math.max(0, text.scrollHeight - details.clientHeight);
+    text.style.transform = `translateY(-${offset}px)`;
 }
 
 /**
