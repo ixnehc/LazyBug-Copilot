@@ -96,6 +96,8 @@ void SearchFileResult::Save(CDataPacket& dp) const
 	{
 		// 保存文件路径
 		dp.Data_WriteString(fileInfo.filePath);
+		// 保存行数
+		dp.Data_NextDword() = (DWORD)fileInfo.lineCount;
 	}
 }
 
@@ -114,6 +116,8 @@ void SearchFileResult::Load(CDataPacket& dp)
 
 		// 读取文件路径
 		dp.Data_ReadString(fileInfo.filePath);
+		// 读取行数
+		fileInfo.lineCount = (int)dp.Data_NextDword();
 
 		fileInfos.push_back(fileInfo);
 	}

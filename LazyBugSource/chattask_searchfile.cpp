@@ -184,6 +184,12 @@ void CChatTask_SearchFile::_ThreadFunc()
 			for (const auto& fileInfo : kr.results.fileInfos)
 			{
 				resultStr += fileInfo.filePath;
+				if (fileInfo.lineCount > 0)
+				{
+					resultStr += " (totally ";
+					resultStr += std::to_string(fileInfo.lineCount);
+					resultStr += " lines)";
+				}
 				resultStr += "\n";
 			}
 			

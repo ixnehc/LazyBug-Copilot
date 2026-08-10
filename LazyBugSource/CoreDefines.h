@@ -252,7 +252,7 @@ struct SearchFileResult
 	struct FileInfo
 	{
 		std::string filePath;
-
+		int lineCount = -1;     // 文件总行数，-1 表示未知
 	};
 
 	std::vector<FileInfo> fileInfos;

@@ -824,6 +824,7 @@ void CSolutionDBServer::_SearchFile(const SolutionDBMsg_SearchFile& request, Sol
 		{
 			SearchFileResult::FileInfo resultFileInfo;
 			resultFileInfo.filePath = fileInfo.filePath;
+			resultFileInfo.lineCount = db->GetSolutionIndexer().GetLineCount(fileInfo.lowerCasedFilePath.c_str());
 			result.results.fileInfos.push_back(std::move(resultFileInfo));
 			count++;
 		}
@@ -855,10 +856,11 @@ void CSolutionDBServer::_SearchFile(const SolutionDBMsg_SearchFile& request, Sol
 					matched = lowerPath.find(lowerKeyword) != std::string::npos;
 				}
 				
-				if (matched)
+			if (matched)
 				{
 					SearchFileResult::FileInfo resultFileInfo;
 					resultFileInfo.filePath = filePath;
+					resultFileInfo.lineCount = db->GetSolutionIndexer().GetLineCount(lowerPath.c_str());
 					result.results.fileInfos.push_back(std::move(resultFileInfo));
 					count++;
 				}
