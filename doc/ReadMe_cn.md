@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI 编程助手扩展
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.24.2-blue)](patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.25-blue)](patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](../LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -29,11 +29,9 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 ---
 
-## Version 0.24.2 更新说明
+## Version 0.25 更新说明
 
-- 支持 OpenAI Responses API
-- API key 验证失败后显示详细错误信息
-- Provider 列表内支持拖拽排序
+- 不再支持 `cli_whitelist.txt`，改为根据 CLI 命令的风险等级提示用户确认
 
 ## Version 0.24 更新说明
 

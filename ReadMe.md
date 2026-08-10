@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI Coding Assistant Extension
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.24.2-blue)](doc/patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.25-blue)](doc/patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -29,11 +29,9 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 ---
 
-## Version 0.24.2 Release Notes
+## Version 0.25 Release Notes
 
-- Support OpenAI Responses API
-- Showing detailed error message after API key verification failure
-- Support drag-and-drop sorting in the Provider list
+- No longer supports `cli_whitelist.txt`; CLI commands now prompt for user confirmation based on risk level
 
 ## Version 0.24 Release Notes
 

@@ -1,5 +1,11 @@
 ﻿# LazyBug Version History
 
+## Version 0.25
+
+- No longer supports `cli_whitelist.txt`; CLI commands now prompt for user confirmation based on risk level
+
+---
+
 ## Version 0.24.2
 
 - Support OpenAI Responses API
