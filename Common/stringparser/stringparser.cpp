@@ -1852,3 +1852,17 @@ bool OmitFullPath(std::string& fullPath)
 // 	
 // 	return relativePath;
 // }
+
+int CountLines(const std::string& content)
+{
+	if (content.empty())
+		return 0;
+
+	int lineCount = 1;
+	for (char c : content)
+	{
+		if (c == '\n')
+			lineCount++;
+	}
+	return lineCount;
+}

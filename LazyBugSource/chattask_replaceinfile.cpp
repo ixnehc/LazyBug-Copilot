@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include "Utils.h"
+#include "stringparser/stringparser.h"
 #include <sstream>
 #include <vector>
 
@@ -93,16 +94,8 @@ std::string SimplifyLines(const std::string& lines, int keepLines = 20)
 		}
 	}
 	
+	
 	return result;
-}
-
-// 辅助函数：计算内容行数
-int CountLines(const std::string& content)
-{
-	if (content.empty())
-		return 0;
-	std::vector<std::string> lines = SplitLines(content);
-	return static_cast<int>(lines.size());
 }
 
 // 辅助函数：计算两个字符串的相似度（使用编辑距离）

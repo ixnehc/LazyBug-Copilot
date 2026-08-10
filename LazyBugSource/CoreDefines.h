@@ -200,6 +200,7 @@ struct FindInFileResults
 	{
 		std::string filePath;
 		std::vector<FileLineInfo> lineInfos;
+		int lineCount = -1; // 该文件的总行数，-1表示未知
 	};
 
 	std::vector<FileInfo> fileInfos;

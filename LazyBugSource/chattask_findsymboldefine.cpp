@@ -220,7 +220,8 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 				int end = loc.lineRange.end + 1 + 10;
 				if (start < 0)
 					start = 0;
-				if (Utils::GetFilePartIntoUTF8(loc.filePath.c_str(), start, end, codeContent, codingFmt))
+				int dummyLineCount;
+				if (Utils::GetFilePartIntoUTF8(loc.filePath.c_str(), start, end, codeContent, codingFmt, dummyLineCount))
 				{
 					resultStr += "Code:\n";
 					resultStr += codeContent;
@@ -233,7 +234,7 @@ void CChatTask_FindSymbolDefine::_ThreadFunc()
 				int endSimple = loc.lineRange.end + 1 + 1;
 				if (startSimple < 0)
 					startSimple = 0;
-				if (Utils::GetFilePartIntoUTF8(loc.filePath.c_str(), startSimple, endSimple, codeContentSimple, codingFmt))
+				if (Utils::GetFilePartIntoUTF8(loc.filePath.c_str(), startSimple, endSimple, codeContentSimple, codingFmt, dummyLineCount))
 				{
 					resultStrSimple += "Code:\n";
 					resultStrSimple += _MakeSimplifiedCode(codeContentSimple);

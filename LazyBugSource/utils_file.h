@@ -46,7 +46,7 @@ extern bool GetFileContentIntoUTF8(const char* path, std::vector<BYTE>& content,
 extern bool GetFileContentIntoUTF8(const wchar_t* path, std::string& content, FileContentCodingFormat &codingFmt);
 extern bool SetFileContentFromUTF8(const char* path, const std::vector<BYTE>& content, FileContentCodingFormat codingFmt);
 extern bool SetFileContentFromUTF8(const char* path, const std::string& content, FileContentCodingFormat codingFmt);
-extern bool GetFilePartIntoUTF8(const char* path, int startLine, int endLine, std::string& content, FileContentCodingFormat& codingFmt);//返回[startLine,endLine]的内容,为0-base的行号
+extern bool GetFilePartIntoUTF8(const char* path, int startLine, int endLine, std::string& content, FileContentCodingFormat& codingFmt, int& totalLineCount);//返回[startLine,endLine]的内容,为0-base的行号,totalLineCount返回文件总行数
 extern bool LoadFileContent(const char* path, std::vector<BYTE>& content);
 extern bool LoadFileContent(const char* path, std::string& content);
 extern bool SaveFileContent(const char* path, const std::string& content);

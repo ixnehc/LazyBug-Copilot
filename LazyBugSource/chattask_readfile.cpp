@@ -6,6 +6,8 @@
 
 #include "LlmLib.h"
 
+#include "stringparser/stringparser.h"
+
 #include <sstream>
 
 // 辅助函数：生成简化版代码内容（只保留前20行）
@@ -142,16 +144,21 @@ void CChatTask_ReadFile::_ThreadFunc()
 	std::string fileContent;
 	Utils::FileContentCodingFormat codingFmt;
 	bool readSuccess = false;
+	int totalLineCount = -1;
 	
 	if (endLine == -1)
 	{
 		// 如果没有指定结束行，读取整个文件
 		readSuccess = Utils::GetFileContentIntoUTF8(filePath.c_str(), fileContent, codingFmt);
+		if (readSuccess)
+		{
+			totalLineCount = CountLines(fileContent);
+		}
 	}
 	else
 	{
 		// 读取指定行范围的内容
-		readSuccess = Utils::GetFilePartIntoUTF8(filePath.c_str(), startLine - 1, endLine - 1, fileContent, codingFmt);
+		readSuccess = Utils::GetFilePartIntoUTF8(filePath.c_str(), startLine - 1, endLine - 1, fileContent, codingFmt, totalLineCount);
 	}
 	
 	// 再次检查是否被中断
@@ -174,13 +181,15 @@ void CChatTask_ReadFile::_ThreadFunc()
 	int simpleStartLine = startLine;
 	int simpleEndLine = startLine;
 	
-	// 构建行号范围描述
-	std::string lineRangeStr;
+	// 构建行号范围描述（用于message和header）
+	std::string lineRangeStr;   // 带括号,用于message: " (lines 10-50)"
+	std::string lineRangeRaw;   // 无括号,用于header: "lines 10-50"
 	if (endLine != -1)
 	{
 		std::ostringstream oss;
-		oss << " (lines " << startLine << "-" << endLine << ")";
-		lineRangeStr = oss.str();
+		oss << startLine << "-" << endLine;
+		lineRangeRaw = "lines " + oss.str();
+		lineRangeStr = " (" + lineRangeRaw + ")";
 	}
 	
 	if (!readSuccess)
@@ -199,14 +208,50 @@ void CChatTask_ReadFile::_ThreadFunc()
 		}
 		else
 		{
-			resultStr = fileContent;
-			int simpleLineCount = 0;
-			resultStrSimple = _MakeSimplifiedCode(fileContent, simpleLineCount);
-			messageStr = "Successfully read file: \"" + filePath + "\"" + lineRangeStr;
+			// 构建头部说明行
+			std::string header;
+			if (!lineRangeRaw.empty())
+			{
+				header += lineRangeRaw + " of " + filePath;
+			}
+			else
+			{
+				header += "Content of " + filePath;
+			}
+			if (totalLineCount > 0)
+			{
+				header += " (totally " + std::to_string(totalLineCount) + " lines)";
+			}
+			header += ":\n";
 			
-			// 计算 simple result 的实际行范围
+			resultStr = header + fileContent;
+			
+			// 生成简化版内容，并计算实际行范围
+			int simpleLineCount = 0;
+			std::string simpleContent = _MakeSimplifiedCode(fileContent, simpleLineCount);
 			simpleStartLine = startLine;
 			simpleEndLine = startLine + simpleLineCount - 1;
+			
+			// 构建simple result的头部（反映实际行范围）
+			std::string simpleHeader;
+			if (simpleLineCount > 0)
+			{
+				std::ostringstream oss;
+				oss << "lines " << simpleStartLine << "-" << simpleEndLine;
+				simpleHeader = oss.str() + " of " + filePath;
+			}
+			else
+			{
+				simpleHeader = "Content of " + filePath;
+			}
+			if (totalLineCount > 0)
+			{
+				simpleHeader += " (totally " + std::to_string(totalLineCount) + " lines)";
+			}
+			simpleHeader += ":\n";
+			
+			resultStrSimple = simpleHeader + simpleContent;
+			messageStr = "Successfully read file: \"" + filePath + "\"" + lineRangeStr;
 		}
 	}
 	

@@ -158,6 +158,9 @@ extern void StrSafeCopy(char *dest,const char *src,DWORD sz);
 extern DWORD CalcHashCode(const char *str);
 extern DWORD CalcHashCodeReverse(const char *str);
 
+// 统计文本字符串中的行数（以 \n 计数，空字符串返回 0）
+extern int CountLines(const std::string& content);
+
 extern const char *MakeShortStr(const char *str,DWORD nLen);
 
 

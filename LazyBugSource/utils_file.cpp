@@ -1031,10 +1031,11 @@ bool SetFileContentFromUTF8(const char* path, const std::string& content, FileCo
 	return WriteFileFromUTF8(path, byteContent, codingFmt);
 }
 
-bool GetFilePartIntoUTF8(const char* path, int startLine, int endLine, std::string& content, FileContentCodingFormat& codingFmt)
+bool GetFilePartIntoUTF8(const char* path, int startLine, int endLine, std::string& content, FileContentCodingFormat& codingFmt, int& totalLineCount)
 {
 	content.clear();
 	codingFmt = FileContentCodingFormat::None;
+	totalLineCount = -1;
 
 	// 参数验证
 	if (!path || *path == '\0' || startLine < 0 || endLine < 0 || startLine > endLine)
@@ -1052,6 +1053,7 @@ bool GetFilePartIntoUTF8(const char* path, int startLine, int endLine, std::stri
 	// 使用SplitLines分割文件内容为行
 	std::vector<std::string> lines;
 	SplitLines(fullContent, lines);
+	totalLineCount = (int)lines.size();
 
 	// 检查行号范围是否有效
 	if (startLine >= (int)lines.size())

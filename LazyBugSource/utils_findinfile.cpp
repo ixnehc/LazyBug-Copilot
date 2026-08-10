@@ -14,6 +14,7 @@
 #include "Utils.h"
 #include "datapacket/DataPacket.h"
 #include "stringparser/stringparser.h"
+#include "stringparser/stringparser.h"
 #include <sys/stat.h>
 #include <string>
 
@@ -293,6 +294,9 @@ int FindMatchingLines(const std::string& filePath, const std::string& key,
 		keyPtr = &keyLower;
 	}
 
+	// 计算文件总行数
+	int totalLineCount = CountLines(content);
+
 	while (std::getline(stream, line) && addedCount < maxLines)
 	{
 			++lineNumber;
@@ -329,6 +333,16 @@ int FindMatchingLines(const std::string& filePath, const std::string& key,
 			}
 
 			++pos; // 继续搜索下一个位置
+		}
+	}
+
+	// 填入文件总行数
+	for (auto& fi : results.fileInfos)
+	{
+		if (fi.filePath == filePath)
+		{
+			fi.lineCount = totalLineCount;
+			break;
 		}
 	}
 
@@ -389,7 +403,12 @@ void DumpFindInFileResult(const char* key, const FindInFileResults& results, std
 			break;
 
 		resultString += "--------------------\n";
-		resultString += "File: " + fileInfo.filePath + "\n";
+		resultString += "File: " + fileInfo.filePath;
+		if (fileInfo.lineCount > 0)
+		{
+			resultString += " (totally " + std::to_string(fileInfo.lineCount) + " lines)";
+		}
+		resultString += "\n";
 		resultString += "Matched Lines: " + std::to_string(fileInfo.lineInfos.size()) + "\n";
 		resultString += "--------------------\n";
 
@@ -465,6 +484,7 @@ void BuildFindInFilesResultJson(nlohmann::json& j, const std::unordered_map<std:
 		{
 			nlohmann::json fileItem;
 			fileItem["filePath"] = fileInfo.filePath;
+			fileItem["lineCount"] = fileInfo.lineCount;
 			fileItem["matchedLines"] = fileInfo.lineInfos.size();
 			fileItem["lines"] = nlohmann::json::array();
 
@@ -550,6 +570,7 @@ void DumpFindInFileResultsFromJson(nlohmann::json& j, std::string& outText)
 		{
 			FindInFileResults::FileInfo fi;
 			fi.filePath = fileItem.value("filePath", "");
+			fi.lineCount = fileItem.value("lineCount", -1);
 
 			if (fileItem.contains("lines") && fileItem["lines"].is_array())
 			{
@@ -627,7 +648,13 @@ void DumpFindInFileSimpleResultsFromJson(nlohmann::json& j, std::string& outText
 		for (const auto& fileItem : resultItem["files"])
 		{
 			std::string filePath = fileItem.value("filePath", "");
-			outText += "File: " + filePath + "\n";
+			int lineCount = fileItem.value("lineCount", -1);
+			outText += "File: " + filePath;
+			if (lineCount > 0)
+			{
+				outText += " (totally " + std::to_string(lineCount) + " lines)";
+			}
+			outText += "\n";
 			outText += "Lines: ";
 
 			if (fileItem.contains("lines") && fileItem["lines"].is_array())

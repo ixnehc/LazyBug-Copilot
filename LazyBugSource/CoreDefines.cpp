@@ -18,6 +18,9 @@ void FindInFileResults::Save(CDataPacket& dp) const
 		// 保存文件路径
 		dp.Data_WriteString(fileInfo.filePath);
 
+		// 保存总行数
+		dp.Data_NextInt() = fileInfo.lineCount;
+
 		// 保存该文件中的行信息数量
 		DWORD lineCount = (DWORD)fileInfo.lineInfos.size();
 		dp.Data_NextDword() = lineCount;
@@ -52,6 +55,9 @@ void FindInFileResults::Load(CDataPacket& dp)
 
 		// 读取文件路径
 		dp.Data_ReadString(fileInfo.filePath);
+
+		// 读取总行数
+		fileInfo.lineCount = dp.Data_NextInt();
 
 		// 读取该文件中的行信息数量
 		DWORD lineCount = dp.Data_NextDword();

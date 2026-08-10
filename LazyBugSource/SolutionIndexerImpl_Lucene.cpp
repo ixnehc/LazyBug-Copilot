@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "utils_findinfile.h"
 #include "SolutionDB.h"
+#include "stringparser/stringparser.h"
 
 #include <sstream>
 #include <algorithm>
@@ -272,12 +273,7 @@ void CSolutionIndexerImpl_Lucene::AddDocument(const std::string& lowerCasedFileP
 		Lucene::Field::STORE_YES, Lucene::Field::INDEX_NO));
 
 	// 存储行数（统计换行符）
-	int lineCount = 1;
-	for (char c : content)
-	{
-		if (c == '\n')
-			lineCount++;
-	}
+	int lineCount = CountLines(content);
 	std::stringstream lineCountStream;
 	lineCountStream << lineCount;
 	Lucene::String lineCountW = ToLuceneString(lineCountStream.str());
@@ -417,7 +413,7 @@ bool CSolutionIndexerImpl_Lucene::Find(const char* key, int maxResult, FindInFil
 			std::string fileContent;
 			if (Utils::GetFileContentIntoUTF8(lowerCasedFilePath.c_str(), fileContent, codingFmt))
 			{
-			currentCount += Utils::FindMatchingLines(lowerCasedFilePath, key, fileContent, results, maxResult - currentCount, caseInsensitive);
+				currentCount += Utils::FindMatchingLines(lowerCasedFilePath, key, fileContent, results, maxResult - currentCount, caseInsensitive);
 			}
 		}
 
