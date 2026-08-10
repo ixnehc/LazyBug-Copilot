@@ -297,6 +297,8 @@ void CChatTask_FindInFiles::_ThreadFunc()
 	
 	bool hasAnyResult = totalMatchesAll > 0;
 	
+	std::string ciNote = caseInsensitive ? " (case-insensitive)" : "";
+	
 	if (keywords.size() == 1)
 	{
 		// 单个关键字的显示格式
@@ -304,14 +306,14 @@ void CChatTask_FindInFiles::_ThreadFunc()
 		const std::string& kw = resultsMap.begin()->first;
 		if (results.fileInfos.empty())
 		{
-			_threadMessage = "Found 0 match(es) for keyword \"" + kw + "\" in files!";
+			_threadMessage = "Found 0 match(es) for keyword \"" + kw + "\" in files!" + ciNote;
 		}
 		else
 		{
 			size_t totalMatches = results.GetTotalResults();
 			size_t fileCount = results.fileInfos.size();
 			_threadMessage = "Found " + std::to_string(totalMatches) + " match(es) for keyword \"" + kw + 
-			                 "\" in " + std::to_string(fileCount) + " file(s)!";
+			                 "\" in " + std::to_string(fileCount) + " file(s)!" + ciNote;
 		}
 	}
 	else
@@ -319,12 +321,12 @@ void CChatTask_FindInFiles::_ThreadFunc()
 		// 多个关键字的显示格式
 		if (!hasAnyResult)
 		{
-			_threadMessage = "Found 0 match(es) for keyword(s) " + keywordsDisplay + " in files!";
+			_threadMessage = "Found 0 match(es) for keyword(s) " + keywordsDisplay + " in files!" + ciNote;
 		}
 		else
 		{
 			_threadMessage = "Found total " + std::to_string(totalMatchesAll) + " match(es) for keyword(s) " + keywordsDisplay + 
-			                 " in " + std::to_string(totalFilesAll) + " file(s)!";
+			                 " in " + std::to_string(totalFilesAll) + " file(s)!" + ciNote;
 		}
 	}
 	
