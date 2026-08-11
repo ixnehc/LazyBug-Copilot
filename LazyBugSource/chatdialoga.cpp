@@ -238,7 +238,8 @@ BOOL CChatDialogA::OnInitDialog()
 		{
 			_chatInput.SetInputContent_(content);
 		}
-		// 初始化输入提示开关按钮状态
+		// 初始化输入提示开关按钮状态（从Registry加载持久化状态）
+		_inputHintEnabled = (g_reg.ReadInt("InputHint", "Enabled", 0) != 0);
 		_chatInput.SetInputHintToggleButtonState(_inputHintEnabled);
 	});
 
@@ -285,6 +286,7 @@ BOOL CChatDialogA::OnInitDialog()
 	// 设置输入提示开关按钮点击回调
 	_chatInput.SetInputHintToggleCallback([this](bool enabled) {
 		_inputHintEnabled = enabled;
+		g_reg.WriteInt("InputHint", "Enabled", enabled ? 1 : 0);
 		_chatInput.SetInputHintToggleButtonState(_inputHintEnabled);
 	});
 
