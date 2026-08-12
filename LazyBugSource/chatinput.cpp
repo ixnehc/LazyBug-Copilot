@@ -1278,14 +1278,40 @@ bool CChatInput::HandlePaste()
 							std::string fileName = GetFileName(filePathUtf8.c_str());
 							std::wstring fileNameW = utf8_to_widechar(fileName.c_str());
 
-							std::wstring rangeStr;
-							if (startLine == endLine)
+						std::wstring rangeStr;
+							bool isSingleLine = (startLine == endLine);
+							if (isSingleLine)
 								rangeStr = L":" + std::to_wstring(startLine);
 							else
 								rangeStr = L":" + std::to_wstring(startLine) + L"-" + std::to_wstring(endLine);
 
 							std::wstring displayText = fileNameW + rangeStr;
 							std::wstring dataStr = filePathW + rangeStr;
+
+						// 读取首行内容，用 | 拼入 dataStr
+							{
+								std::string firstLine;
+								Utils::FileContentCodingFormat codingFmt;
+								int totalLineCount = 0;
+								int lineIdx = startLine - 1; // GetFilePartIntoUTF8 使用 0-based 行号
+								if (Utils::GetFilePartIntoUTF8(filePathUtf8.c_str(), lineIdx, lineIdx, firstLine, codingFmt, totalLineCount))
+								{
+									// trim
+									size_t first = firstLine.find_first_not_of(" \t\r\n");
+									if (first != std::string::npos)
+									{
+										size_t last = firstLine.find_last_not_of(" \t\r\n");
+										firstLine = firstLine.substr(first, last - first + 1);
+										// 截断过长行
+										const size_t maxLen = 120;
+										if (firstLine.length() > maxLen)
+											firstLine = firstLine.substr(0, maxLen);
+										dataStr += L"|" + utf8_to_widechar(firstLine.c_str());
+										if (!isSingleLine)
+											dataStr += L" ...";
+									}
+								}
+							}
 
 							InsertInlineTag(displayText, L"file", dataStr);
 						}
