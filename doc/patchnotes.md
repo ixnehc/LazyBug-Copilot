@@ -3,7 +3,7 @@
 ## Version 0.25
 
 - No longer supports `cli_whitelist.txt`; CLI commands now prompt for user confirmation based on risk level
-- Multi-line text copied in the text editor is pasted into the chat input as a quote
+- Multi-line text copied in the text editor is pasted into the chat input as a reference
 - Right-click in the chat content window to quickly scroll to the previous/next conversation message
 
 ---
