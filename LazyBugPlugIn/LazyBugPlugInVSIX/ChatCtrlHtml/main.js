@@ -146,6 +146,61 @@ function setupGlobalEvents() {
             }
         }, 50); // 50ms 防抖
     });
+
+    // 右键滚动：上半部分 -> 前一个 session 开始处，下半部分 -> 后一个 session 结束处
+    document.addEventListener('contextmenu', (e) => {
+        const container = document.getElementById('chat-container');
+        if (!container) return;
+
+        // 检查右键点是否在 chat-container 内
+        const rect = container.getBoundingClientRect();
+        if (e.clientX < rect.left || e.clientX > rect.right ||
+            e.clientY < rect.top || e.clientY > rect.bottom) {
+            return;
+        }
+
+        e.preventDefault(); // 阻止浏览器默认右键菜单
+
+        const midY = rect.top + rect.height / 2;
+        const SCROLL_MARGIN = 80; // 目标位置上下留出的边距（像素）
+
+        if (e.clientY < midY) {
+            // 上半部分：向上滚动到前一个 session 开始处（最近的 user-message）
+            const messages = container.querySelectorAll('.message.user-message');
+            let target = null;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (messages[i].offsetTop < container.scrollTop - 1) {
+                    target = messages[i];
+                    break;
+                }
+            }
+            if (target) {
+                smoothScrollTo(Math.max(0, target.offsetTop - SCROLL_MARGIN));
+            } else {
+                smoothScrollTo(0); // fallback: 滚动到顶部
+            }
+        } else {
+            // 下半部分：向下滚动到后一个 session 结束处（最近的 ai-message 底部）
+            const messages = container.querySelectorAll('.message.ai-message');
+            const visibleBottom = container.scrollTop + container.clientHeight;
+            let target = null;
+            for (let i = 0; i < messages.length; i++) {
+                const offsetBottom = messages[i].offsetTop + messages[i].offsetHeight;
+                if (offsetBottom > visibleBottom + 1) {
+                    target = messages[i];
+                    break;
+                }
+            }
+            if (target) {
+                const targetBottom = target.offsetTop + target.offsetHeight;
+                const visibleHeight = container.clientHeight;
+                smoothScrollTo(Math.max(0, targetBottom - visibleHeight + SCROLL_MARGIN));
+            } else {
+                // fallback: 滚动到底部
+                smoothScrollTo(Math.max(0, container.scrollHeight - container.clientHeight));
+            }
+        }
+    });
 }
 
 /**

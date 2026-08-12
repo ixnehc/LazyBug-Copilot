@@ -23,6 +23,39 @@ function scrollToBottom() {
     }, 0);
 }
 
+/**
+ * 缓动滚动聊天容器到指定位置（easeInOutCubic）
+ * @param {number} targetTop - 目标 scrollTop
+ * @param {number} duration - 动画时长（毫秒），默认 300
+ */
+function smoothScrollTo(targetTop, duration = 300) {
+    const container = document.getElementById('chat-container');
+    if (!container) return;
+
+    const startTop = container.scrollTop;
+    const distance = targetTop - startTop;
+    if (Math.abs(distance) < 1) return;
+
+    const startTime = performance.now();
+
+    function easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function step(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeInOutCubic(progress);
+        container.scrollTop = startTop + distance * easedProgress;
+
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+
 // ====== 代码块处理工具函数 ======
 
 /**
