@@ -1173,9 +1173,34 @@ void CChatDialogA::_HandleInlineTagClicked(const std::wstring& id, const std::ws
 		return;
 	}
 
-	// file / image 等类型：直接打开路径
+	// file / image 等类型：直接打开路径（file 类型可能带行号范围"
 	if (path.empty())
 		return;
+
+	if (type == L"file")
+	{
+		// path 末尾可能附带了行号，格式: "D:\\path\\foo.cpp:10" 或 "D:\\path\\foo.cpp:10-25"
+		std::wstring actualPath = path;
+		int lineNum = 0;
+		size_t lastColon = path.rfind(L':');
+		if (lastColon != std::wstring::npos && lastColon > 1)
+		{
+			std::wstring suffix = path.substr(lastColon + 1);
+			size_t dashPos = suffix.find(L'-');
+			try {
+				lineNum = std::stoi(dashPos != std::wstring::npos ? suffix.substr(0, dashPos) : suffix);
+				actualPath = path.substr(0, lastColon);
+			}
+			catch (...) {}
+		}
+
+		std::string filePath = widechar_to_utf8(actualPath.c_str());
+		FileLocation loc;
+		if (lineNum > 0)
+			loc.lineLoc.line = (WORD)(lineNum - 1); // 1-based → 0-based
+		GetFileLocator().Request(filePath.c_str(), loc);
+		return;
+	}
 
 	std::string filePath = widechar_to_utf8(path.c_str());
 	FileLocation loc;

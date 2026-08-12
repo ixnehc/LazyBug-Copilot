@@ -6,6 +6,8 @@
 
 #include "Utils.h"
 
+#include "CommandFilter.h"
+
 PackageState g_ps;
 
 void CLazyBugPlugInPackage::_InitState(IServiceProvider* pServiceProvider)
@@ -28,11 +30,27 @@ void CLazyBugPlugInPackage::_InitState(IServiceProvider* pServiceProvider)
 
 		if (g_ps.pRDTEventsListener)
 			g_ps.pRDTEventsListener->AddRef();
+
+		// 监听文本视图创建，给每个编辑器视图安装复制引用过滤器
+		CComObject<CTextViewCreationListener>::CreateInstance(&g_ps.pTextViewCreationListener);
+		if (g_ps.pTextViewCreationListener)
+		{
+			g_ps.pTextViewCreationListener->AddRef();
+			if (g_ps.pTextManager)
+				g_ps.pTextViewCreationListener->Advise(g_ps.pTextManager);
+		}
 	}
 }
 
 void CLazyBugPlugInPackage::_ClearState()
 {
+	if (g_ps.pTextViewCreationListener != nullptr)
+	{
+		g_ps.pTextViewCreationListener->Unadvise();
+		g_ps.pTextViewCreationListener->Release();
+		g_ps.pTextViewCreationListener = nullptr;
+	}
+
 	if (g_ps.pRDTEventsListener != nullptr)
 	{
 		g_ps.pRDTEventsListener->Release();

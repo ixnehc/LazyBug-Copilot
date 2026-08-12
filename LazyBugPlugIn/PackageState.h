@@ -8,6 +8,8 @@
 
 #include "RDTEventsListener.h"
 
+class CTextViewCreationListener;
+
 struct PackageState
 {
 	PackageState()
@@ -15,6 +17,7 @@ struct PackageState
 		dwSolutionEventsCookie = VSCOOKIE_NIL;
 		requestDetachFileChange = false;
 		pRDTEventsListener = NULL;
+		pTextViewCreationListener = NULL;
 	}
 	CComPtr<IServiceProvider>pServiceProvider;
 	CComPtr < IVsUIShellOpenDocument> pUIShellOpenDocument;
@@ -25,6 +28,8 @@ struct PackageState
 	VSCOOKIE dwSolutionEventsCookie; 
 
 	CComObject<CRDTEventsListener>* pRDTEventsListener;
+
+	CComObject<CTextViewCreationListener>* pTextViewCreationListener;
 
 	bool requestDetachFileChange;
 

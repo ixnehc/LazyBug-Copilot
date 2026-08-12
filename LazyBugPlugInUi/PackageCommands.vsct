@@ -67,6 +67,9 @@
       <Group guid="guidLazyBugPlugInCmdSet" id="LazyBugTabGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
       </Group>
+      <Group guid="guidLazyBugPlugInCmdSet" id="LazyBugCodeWinGroup" priority="0x0600">
+        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
+      </Group>
     </Groups>
     
     <!--Buttons section. -->
@@ -84,7 +87,6 @@
 
       <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugChat" priority="0x0100" type="Button">
         <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
-        <Icon guid="guidImages" id="bmpPic2" />
         <Strings>
           <ButtonText>LazyBug Chat</ButtonText>
         </Strings>
@@ -92,7 +94,6 @@
 
       <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugAddFileRef" priority="0x0100" type="Button">
         <Parent guid="guidLazyBugPlugInCmdSet" id="LazyBugSolutionGroup"/>
-        <Icon guid="guidImages" id="bmpPic2" /> 
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -103,7 +104,6 @@
       <!-- 跨项目多选 -->
       <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugAddFileRef" priority="0x0100" type="Button">
         <Parent guid="guidLazyBugPlugInCmdSet" id="LazyBugMultiSelectGroup"/>
-        <Icon guid="guidImages" id="bmpPic2" />
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -114,7 +114,6 @@
       <!-- 同项目多选 -->
       <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugAddFileRef" priority="0x0100" type="Button">
         <Parent guid="guidLazyBugPlugInCmdSet" id="LazyBugCrossProjItemGroup"/>
-        <Icon guid="guidImages" id="bmpPic2" />
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>DefaultInvisible</CommandFlag>
         <Strings>
@@ -124,9 +123,15 @@
 
       <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugAddTabFileRef" priority="0x0100" type="Button">
         <Parent guid="guidLazyBugPlugInCmdSet" id="LazyBugTabGroup"/>
-        <Icon guid="guidImages" id="bmpPic2" />
         <Strings>
           <ButtonText>Add to LazyBug Chat</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugCopySelectionInfo" priority="0x0100" type="Button">
+        <Parent guid="guidLazyBugPlugInCmdSet" id="LazyBugCodeWinGroup"/>
+        <Strings>
+          <ButtonText>Copy Reference(LazyBug)</ButtonText>
         </Strings>
       </Button>
 

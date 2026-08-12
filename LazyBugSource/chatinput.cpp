@@ -1251,6 +1251,52 @@ bool CChatInput::HandlePaste()
 	}
 	else
 	{
+		// 优先检查自定义 LazyBug 引用格式
+		static UINT cfLazyBugRef = RegisterClipboardFormatW(L"LazyBugSelectionRef");
+		if (IsClipboardFormatAvailable(cfLazyBugRef))
+		{
+			HANDLE hData = GetClipboardData(cfLazyBugRef);
+			if (hData != NULL)
+			{
+				WCHAR* pData = (WCHAR*)GlobalLock(hData);
+				if (pData != NULL)
+				{
+					std::string utf8Text = widechar_to_utf8(pData);
+					GlobalUnlock(hData);
+
+					try
+					{
+						nlohmann::json refJson = nlohmann::json::parse(utf8Text);
+						if (refJson.contains("file") && refJson.contains("startLine") && refJson.contains("endLine")
+							&& refJson["file"].is_string() && refJson["startLine"].is_number() && refJson["endLine"].is_number())
+						{
+							std::string filePathUtf8 = refJson["file"].get<std::string>();
+							int startLine = refJson["startLine"].get<int>();
+							int endLine = refJson["endLine"].get<int>();
+
+							std::wstring filePathW = utf8_to_widechar(filePathUtf8.c_str());
+							std::string fileName = GetFileName(filePathUtf8.c_str());
+							std::wstring fileNameW = utf8_to_widechar(fileName.c_str());
+
+							std::wstring rangeStr;
+							if (startLine == endLine)
+								rangeStr = L":" + std::to_wstring(startLine);
+							else
+								rangeStr = L":" + std::to_wstring(startLine) + L"-" + std::to_wstring(endLine);
+
+							std::wstring displayText = fileNameW + rangeStr;
+							std::wstring dataStr = filePathW + rangeStr;
+
+							InsertInlineTag(displayText, L"file", dataStr);
+						}
+					}
+					catch (const nlohmann::json::exception&) {}
+				}
+			}
+			CloseClipboard();
+			return true;
+		}
+
 		// 检查剪贴板是否有文本格式（可能是文件路径）
 		BOOL hasUnicodeText = IsClipboardFormatAvailable(CF_UNICODETEXT);
 		BOOL hasAnsiText = IsClipboardFormatAvailable(CF_TEXT);
