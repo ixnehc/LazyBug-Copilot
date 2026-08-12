@@ -155,7 +155,6 @@ public:
 // 		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugChangelists, NULL, CommandHandler::ExecHandler(&OnChangelists))
 		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugAddFileRef, NULL, CommandHandler::ExecHandler(&OnLazyBugAddFileRef))
 		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugAddTabFileRef, NULL, CommandHandler::ExecHandler(&OnLazyBugAddTabFileRef))
-		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugCopySelectionInfo, NULL, CommandHandler::ExecHandler(&OnLazyBugCopySelectionInfo))
 		VSL_END_VSCOMMAND_MAP()
 
 
@@ -215,67 +214,6 @@ public:
 	}
 
 	// Command handler for Copy Selection Info
-	void OnLazyBugCopySelectionInfo(CommandHandler* pSender, DWORD flags, VARIANT* pIn, VARIANT* pOut)
-	{
-		extern PackageState g_ps;
-		if (!g_ps.pTextManager) return;
-
-		CComPtr<IVsTextView> pView;
-		if (FAILED(g_ps.pTextManager->GetActiveView(FALSE, NULL, &pView)) || !pView)
-			return;
-
-		// 获取选中范围
-		long iStartLine = 0, iStartIndex = 0, iEndLine = 0, iEndIndex = 0;
-		if (FAILED(pView->GetSelection(&iStartLine, &iStartIndex, &iEndLine, &iEndIndex)))
-			return;
-
-		// 获取文件路径
-		CComPtr<IVsTextLines> pBuffer;
-		if (FAILED(pView->GetBuffer(&pBuffer)) || !pBuffer)
-			return;
-
-		CComQIPtr<IPersistFileFormat> pPersistFileFormat(pBuffer);
-		if (!pPersistFileFormat)
-			return;
-
-		LPOLESTR pszFilename = NULL;
-		DWORD formatIndex = 0;
-		if (FAILED(pPersistFileFormat->GetCurFile(&pszFilename, &formatIndex)) || !pszFilename)
-			return;
-
-		CString strPath(pszFilename);
-		::CoTaskMemFree(pszFilename);
-
-		// 使用 nlohmann/json 生成合法的 JSON 字符串
-		CT2CA pszUtf8(strPath, CP_UTF8);
-		nlohmann::json j;
-		j["file"] = (const char*)pszUtf8;
-		j["startLine"] = iStartLine + 1;
-		j["endLine"] = iEndLine + 1;
-		std::string jsonStr = j.dump();
-
-		// 打开剪贴板并写入
-		if (OpenClipboard(NULL))
-		{
-			EmptyClipboard();
-
-			int wideLen = MultiByteToWideChar(CP_UTF8, 0, jsonStr.c_str(), -1, NULL, 0);
-			HGLOBAL hGlob = GlobalAlloc(GMEM_MOVEABLE, wideLen * sizeof(WCHAR));
-			if (hGlob)
-			{
-				WCHAR* pWide = (WCHAR*)GlobalLock(hGlob);
-				if (pWide)
-				{
-					MultiByteToWideChar(CP_UTF8, 0, jsonStr.c_str(), -1, pWide, wideLen);
-					GlobalUnlock(hGlob);
-				}
-				SetClipboardData(CF_UNICODETEXT, hGlob);
-			}
-
-			CloseClipboard();
-		}
-	}
-
 	// Command handler for LazyBug Add File Ref
 	void OnLazyBugAddFileRef(CommandHandler* pSender, DWORD flags, VARIANT* pIn, VARIANT* pOut)
 	{

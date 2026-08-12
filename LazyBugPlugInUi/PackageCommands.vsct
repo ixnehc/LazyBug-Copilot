@@ -67,9 +67,6 @@
       <Group guid="guidLazyBugPlugInCmdSet" id="LazyBugTabGroup" priority="0x0600">
         <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_EZDOCWINTAB"/>
       </Group>
-      <Group guid="guidLazyBugPlugInCmdSet" id="LazyBugCodeWinGroup" priority="0x0600">
-        <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_CODEWIN"/>
-      </Group>
     </Groups>
     
     <!--Buttons section. -->
@@ -125,13 +122,6 @@
         <Parent guid="guidLazyBugPlugInCmdSet" id="LazyBugTabGroup"/>
         <Strings>
           <ButtonText>Add to LazyBug Chat</ButtonText>
-        </Strings>
-      </Button>
-
-      <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugCopySelectionInfo" priority="0x0100" type="Button">
-        <Parent guid="guidLazyBugPlugInCmdSet" id="LazyBugCodeWinGroup"/>
-        <Strings>
-          <ButtonText>Copy Reference(LazyBug)</ButtonText>
         </Strings>
       </Button>
 

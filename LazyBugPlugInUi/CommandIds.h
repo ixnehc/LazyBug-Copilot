@@ -20,7 +20,6 @@
 #define LazyBugTabGroup         0x1023
 #define LazyBugMultiSelectGroup    0x1024
 #define LazyBugCrossProjItemGroup  0x1025
-#define LazyBugCodeWinGroup       0x1026
 
 ///////////////////////////////////////////////////////////////////////////////
 // Command IDs
@@ -30,7 +29,6 @@
 #define LazyBugChangelists 0x102
 #define LazyBugAddFileRef 0x103
 #define LazyBugAddTabFileRef 0x104
-#define LazyBugCopySelectionInfo 0x105
 
 
 ///////////////////////////////////////////////////////////////////////////////
