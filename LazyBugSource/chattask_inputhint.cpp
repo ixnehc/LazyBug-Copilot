@@ -14,6 +14,9 @@
 
 extern const char* GetOpenedDBFolderPath_utf8();
 
+const CChatTask_InputHint::InputHintFormat CChatTask_InputHint::kInputHintFormat =
+	CChatTask_InputHint::InputHintFormat::Separator;
+
 CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion)
 {
 	_originalInputContent = Utils::BuildInputContent(content);
@@ -72,8 +75,6 @@ void CChatTask_InputHint::_Fail(const std::string& reason)
 		_context->chatDialogA->HideHint();
 	_status = TaskStatus::Failure;
 }
-
-
 
 std::string CChatTask_InputHint::_CollectChatContextFromOps()
 {
@@ -181,7 +182,9 @@ void CChatTask_InputHint::Start()
 bool CChatTask_InputHint::_StartInputHintSession()
 {
 	LlmSessionSetting setting;
-	if (!g_llmLib.LoadLlmSetting(setting, _apiName, false, "chatrules_inputhint"))
+	const char* ruleName = (kInputHintFormat == InputHintFormat::Json)
+		? "chatrules_inputhint_json" : "chatrules_inputhint";
+	if (!g_llmLib.LoadLlmSetting(setting, _apiName, false, ruleName))
 		return false;
 
 	setting.api.tools.clear();
@@ -344,17 +347,9 @@ void CChatTask_InputHint::_ProcessInputHintSession()
 
 	if (!_resultText.empty())
 	{
-		// 解析 LLM 返回: old~~||~~new
-		const std::string separator = "~~||~~";
-		size_t sepPos = _resultText.find(separator);
-		if (sepPos != std::string::npos)
+		std::wstring oldW, newW;
+		if (_ExtractOldNew(_resultText, oldW, newW))
 		{
-			std::string oldUtf8 = _resultText.substr(0, sepPos);
-			std::string newUtf8 = _resultText.substr(sepPos + separator.size());
-
-			std::wstring oldW = utf8_to_widechar(oldUtf8);
-			std::wstring newW = utf8_to_widechar(newUtf8);
-
 			// 删除 LLM 可能残留的光标标记
 			static const wchar_t caretMarker = L'\x2038';
 			auto removeCaret = [](std::wstring& s) {
@@ -406,6 +401,69 @@ void CChatTask_InputHint::_ProcessInputHintSession()
 	}
 
 	_inputHintFinished = true;
+}
+
+bool CChatTask_InputHint::_ExtractOldNew(const std::string& result, std::wstring& oldW, std::wstring& newW)
+{
+	if (kInputHintFormat == InputHintFormat::Separator)
+	{
+		// 现有解析: old~~||~~new
+		const std::string separator = "~~||~~";
+		size_t sepPos = result.find(separator);
+		if (sepPos == std::string::npos)
+			return false;
+		oldW = utf8_to_widechar(result.substr(0, sepPos));
+		newW = utf8_to_widechar(result.substr(sepPos + separator.size()));
+		return true;
+	}
+
+	// JSON 解析: {"old":"...", "new":"..."}
+	std::string text = result;
+	// 去掉可能包裹的 markdown 代码围栏(```json ... ```)
+	auto stripCodeFence = [](std::string s) -> std::string {
+		size_t b = s.find_first_not_of(" \t\r\n");
+		if (b == std::string::npos)
+			return "";
+		size_t e = s.find_last_not_of(" \t\r\n");
+		s = s.substr(b, e - b + 1);
+		if (s.rfind("```", 0) == 0)
+		{
+			size_t nl = s.find('\n');
+			if (nl != std::string::npos)
+				s = s.substr(nl + 1);
+			size_t lastFence = s.rfind("```");
+			if (lastFence != std::string::npos)
+				s = s.substr(0, lastFence);
+		}
+		b = s.find_first_not_of(" \t\r\n");
+		e = s.find_last_not_of(" \t\r\n");
+		if (b == std::string::npos)
+			return "";
+		return s.substr(b, e - b + 1);
+		};
+	text = stripCodeFence(text);
+
+	try
+	{
+		json j = json::parse(text);
+		if (!j.is_object())
+			return false;
+		auto itOld = j.find("old");
+		auto itNew = j.find("new");
+		if (itOld == j.end() || itNew == j.end())
+			return false;
+
+		std::string oldUtf8 = itOld->is_string() ? itOld->get<std::string>() : itOld->dump();
+		std::string newUtf8 = itNew->is_string() ? itNew->get<std::string>() : itNew->dump();
+
+		oldW = utf8_to_widechar(oldUtf8);
+		newW = utf8_to_widechar(newUtf8);
+		return true;
+	}
+	catch (...)
+	{
+		return false;
+	}
 }
 
 void CChatTask_InputHint::_ProcessCheckCompleteSession()

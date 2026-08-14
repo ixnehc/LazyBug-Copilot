@@ -7,6 +7,15 @@ class CChatTask_InputHint : public CChatTask
 public:
     CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion);
 
+    // 补全结果解析方式: 分隔符字串 或 JSON
+    enum class InputHintFormat
+    {
+        Separator,  // 现有: old~~||~~new
+        Json        // 新增: {"old":"...","new":"..."}
+    };
+    // 切换新旧解析方式: 修改此常量即可(默认保持旧行为)
+    static const InputHintFormat kInputHintFormat;
+
     const char* GetType() override { return "InputHint"; }
     void Start() override;
     void Update() override;
@@ -23,6 +32,8 @@ private:
     bool _StartCheckCompleteSession();
     // 处理 inputhint(补全) 会话的输出, 完成后填充 _pendingNewDiff/_pendingOldDiff 等
     void _ProcessInputHintSession();
+    // 从 LLM 原始返回文本中提取 (old, new), 根据 kInputHintFormat 选择解析方式
+    bool _ExtractOldNew(const std::string& result, std::wstring& oldW, std::wstring& newW);
     // 处理 checkcomplete(完整性判断) 会话的输出
     void _ProcessCheckCompleteSession();
     // 两个请求都完成后, 决定是显示还是隐藏补全提示
