@@ -70,7 +70,7 @@
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Retail|x64'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -131,9 +131,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;_USRDLL;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;LazyBugPlugInControls_EXPORT;VS_EXTENSION;GUILIB_IGNORE_IMPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include;..\extlib\directxtex\x64-windows-static\include</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -141,8 +141,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>..\extlib\curl\lib;..\extlib\LLVM\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcurl.lib;Wldap32.lib;ws2_32.lib;crypt32.lib;tree-sitter.lib;tree-sitter-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\extlib\curl\lib;..\extlib\LLVM\lib;..\extlib\treesitter\lib;..\extlib\directxtex\x64-windows-static\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl_mt.lib;Wldap32.lib;ws2_32.lib;crypt32.lib;tree-sitter.lib;tree-sitter-cpp.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -163,7 +163,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;_USRDLL;CURL_STATICLIB;_CRT_SECURE_NO_WARNINGS;LazyBugPlugInControls_EXPORT;VS_EXTENSION;GUILIB_IGNORE_IMPORT;LAZYBUG_RETAIL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>stdh.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\common;..\extlib\LLVM\include;..\extlib\curl\include;..\extlib\nlohmann_jason;..\Interfaces;..\Proj_GuiLib;..\extlib\treesitter\include;..\extlib\directxtex\x64-windows-static\include</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>/execution-charset:utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -173,8 +173,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>.\LazyBugPlugInControls.def</ModuleDefinitionFile>
-      <AdditionalLibraryDirectories>..\extlib\curl\lib;..\extlib\LLVM\lib;..\extlib\treesitter\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libcurl_mt.lib;Wldap32.lib;ws2_32.lib;crypt32.lib;tree-sitter.lib;tree-sitter-cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\extlib\curl\lib;..\extlib\LLVM\lib;..\extlib\treesitter\lib;..\extlib\directxtex\x64-windows-static\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcurl_mt.lib;Wldap32.lib;ws2_32.lib;crypt32.lib;tree-sitter.lib;tree-sitter-cpp.lib;DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
