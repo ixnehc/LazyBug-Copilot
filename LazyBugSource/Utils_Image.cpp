@@ -321,12 +321,24 @@ static bool SaveGdiplusBitmapToBase64(Gdiplus::Bitmap* pBitmap, bool asJpeg, std
 	return StreamToBase64(pStream, outContent);
 }
 
-// 使用 DirectXTex 解码 DDS，返回 Gdiplus::Bitmap（以 Image 基类指针返回）
+// 使用 DirectXTex 解码 DDS/TGA，返回 Gdiplus::Bitmap（以 Image 基类指针返回）
 Gdiplus::Image* LoadImageWithDirectXTex(const std::wstring& imagePath)
 {
 	DirectX::TexMetadata metadata = {};
 	DirectX::ScratchImage sourceImage;
-	HRESULT hr = DirectX::LoadFromDDSFile(imagePath.c_str(), DirectX::DDS_FLAGS_NONE, &metadata, sourceImage);
+	std::string utf8Path = widechar_to_utf8(imagePath.c_str());
+	std::string ext = GetFileSuffix(utf8Path);
+	StringLower(ext);
+
+	HRESULT hr = E_FAIL;
+	if (ext == "dds")
+	{
+		hr = DirectX::LoadFromDDSFile(imagePath.c_str(), DirectX::DDS_FLAGS_NONE, &metadata, sourceImage);
+	}
+	else if (ext == "tga")
+	{
+		hr = DirectX::LoadFromTGAFile(imagePath.c_str(), &metadata, sourceImage);
+	}
 	if (FAILED(hr) || sourceImage.GetImageCount() == 0)
 		return nullptr;
 
@@ -437,9 +449,9 @@ bool LoadImageIntoBase64(const char* path, int maxWidth, int maxHeight, std::str
 	HRESULT hr = srcImage.Load(path);
 	if (FAILED(hr))
 	{
-		// CImage 解码失败时，使用 DirectXTex 处理 DDS。
+		// CImage 解码失败时，使用 DirectXTex 处理 DDS/TGA。
 		Gdiplus::Image* pDirectXTexImage = nullptr;
-		if (ext == "dds")
+		if (ext == "dds" || ext == "tga")
 			pDirectXTexImage = LoadImageWithDirectXTex(wPath);
 
 		if (pDirectXTexImage)
@@ -792,6 +804,23 @@ bool GetImageSize(const char* path, int& width, int& height)
 	}
 
 	fclose(f);
+
+	// 对于 TGA，使用 DirectXTex 获取尺寸；CImage/GDI+ 通常不支持 TGA。
+	std::string imageExt = GetFileSuffix(std::string(path));
+	StringLower(imageExt);
+	if (imageExt == "tga")
+	{
+		DirectX::TexMetadata metadata = {};
+		DirectX::ScratchImage image;
+		std::wstring wPath = utf8_to_widechar(path);
+		if (SUCCEEDED(DirectX::LoadFromTGAFile(wPath.c_str(), &metadata, image)))
+		{
+			width = static_cast<int>(metadata.width);
+			height = static_cast<int>(metadata.height);
+			if (width > 0 && height > 0)
+				return true;
+		}
+	}
 
 	// 对于未通过文件头解析的格式（bmp, gif, tiff, ico 等），使用 CImage 解码获取尺寸
 	{

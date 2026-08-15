@@ -75,8 +75,8 @@ bool CChatInputImageTip::IsSupportedImageFormat(const std::wstring& filePath)
 	ext = ext.substr(dotPos + 1);
 	std::transform(ext.begin(), ext.end(), ext.begin(), ::towlower);
 
-	// 支持 png, jpg, jpeg, webp
-	return (ext == L"png" || ext == L"jpg" || ext == L"jpeg" || ext == L"webp" || ext == L"bmp" || ext == L"gif" || ext == L"ico" || ext == L"dds");
+	// 支持 png, jpg, jpeg, webp, bmp, gif, ico, dds, tga
+	return (ext == L"png" || ext == L"jpg" || ext == L"jpeg" || ext == L"webp" || ext == L"bmp" || ext == L"gif" || ext == L"ico" || ext == L"dds" || ext == L"tga");
 }
 
 bool CChatInputImageTip::LoadImage(const std::wstring& imagePath)
@@ -111,7 +111,7 @@ bool CChatInputImageTip::LoadImage(const std::wstring& imagePath)
 	fileSize.HighPart = fileAttrs.nFileSizeHigh;
 	_currentFileSize = fileSize.QuadPart;
 
-	// 使用 GDI+ 加载图片；DDS 等格式由 DirectXTex 单独处理。
+	// 使用 GDI+ 加载图片；DDS/TGA 等格式由 DirectXTex 单独处理。
 	_pImage = Image::FromFile(imagePath.c_str());
 
 	if (_pImage == nullptr || _pImage->GetLastStatus() != Ok)
@@ -122,14 +122,14 @@ bool CChatInputImageTip::LoadImage(const std::wstring& imagePath)
 			_pImage = nullptr;
 		}
 		
-		// GDI+ 无法加载时，仅对 DDS 使用 DirectXTex 解码。
+		// GDI+ 无法加载时，对 DDS/TGA 使用 DirectXTex 解码。
 		std::wstring ext = imagePath;
 		size_t dotPos = ext.find_last_of(L'.');
 		if (dotPos != std::wstring::npos)
 		{
 			ext = ext.substr(dotPos + 1);
 			std::transform(ext.begin(), ext.end(), ext.begin(), ::towlower);
-			if (ext == L"dds")
+			if (ext == L"dds" || ext == L"tga")
 				_pImage = Utils::LoadImageWithDirectXTex(imagePath);
 		}
 		

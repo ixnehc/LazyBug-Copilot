@@ -18,6 +18,7 @@ const char* CChatTask_ReadMedia::_GetMimeType(const std::string& ext)
 	if (ext == "tiff" || ext == "tif") return "image/tiff";
 	if (ext == "ico")  return "image/x-icon";
 	if (ext == "dds")  return "image/x-dds";
+	if (ext == "tga")  return "image/x-tga";
 	// 未来扩展视频:
 	// if (ext == "mp4")  return "video/mp4";
 	// if (ext == "avi")  return "video/x-msvideo";
@@ -97,7 +98,7 @@ void CChatTask_ReadMedia::_ThreadFunc()
 	if (!_IsSupportedImage(ext))
 	{
 		std::lock_guard<std::mutex> lock(_resultMutex);
-		_threadResult = "Error: Unsupported media format: '" + ext + "'. Currently supported image formats: jpg, jpeg, png, webp, bmp, gif, tiff, ico, dds";
+		_threadResult = "Error: Unsupported media format: '" + ext + "'. Currently supported image formats: jpg, jpeg, png, webp, bmp, gif, tiff, ico, dds, tga";
 		_threadMessage = "ReadMedia: unsupported format \"" + ext + "\"";
 		_threadSuccess = false;
 		_threadFinished = true;
