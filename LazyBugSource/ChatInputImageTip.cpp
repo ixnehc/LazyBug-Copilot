@@ -75,8 +75,8 @@ bool CChatInputImageTip::IsSupportedImageFormat(const std::wstring& filePath)
 	ext = ext.substr(dotPos + 1);
 	std::transform(ext.begin(), ext.end(), ext.begin(), ::towlower);
 
-	// 支持 png, jpg, jpeg, webp, bmp, gif, ico, dds, tga
-	return (ext == L"png" || ext == L"jpg" || ext == L"jpeg" || ext == L"webp" || ext == L"bmp" || ext == L"gif" || ext == L"ico" || ext == L"dds" || ext == L"tga");
+	// 支持 png, jpg, jpeg, webp, bmp, gif, tif, tiff, ico, dds, tga
+	return (ext == L"png" || ext == L"jpg" || ext == L"jpeg" || ext == L"webp" || ext == L"bmp" || ext == L"gif" || ext == L"tif" || ext == L"tiff" || ext == L"ico" || ext == L"dds" || ext == L"tga");
 }
 
 bool CChatInputImageTip::LoadImage(const std::wstring& imagePath)
