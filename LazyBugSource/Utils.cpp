@@ -265,7 +265,7 @@ bool IsImageFile(const char* filePath)
 // 	};
 	static const char* IMAGE_EXTENSIONS[] =
 	{
-		"jpg", "jpeg", "png", "webp"
+		"jpg", "jpeg", "png", "webp", "bmp", "gif", "tif", "tiff", "ico", "dds"
 	};
 
 	// 使用 GetFileSuffix 获取文件后缀

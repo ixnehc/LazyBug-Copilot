@@ -1825,16 +1825,9 @@ std::wstring CChatInput::_BuildImgSrc(const std::wstring& type, const std::wstri
 
 	std::string localPath = widechar_to_utf8(data.c_str());
 	std::string base64Content;
-	if (Utils::LoadImageThumbnailIntoBase64(localPath.c_str(), 256, 64, base64Content) && !base64Content.empty())
+	std::string mimeType;
+	if (Utils::LoadImageIntoBase64(localPath.c_str(), 256, 64, base64Content, mimeType) && !base64Content.empty())
 	{
-		// 根据文件扩展名确定 MIME 类型
-		std::string suffix = GetFileSuffix(localPath);
-		StringLower(suffix);
-		std::string mimeType = "image/png";
-		if (suffix == "jpg" || suffix == "jpeg") mimeType = "image/jpeg";
-		// 		else if (suffix == "webp")               mimeType = "image/webp";
-		// 		else if (suffix == "gif")                mimeType = "image/gif";
-
 		return utf8_to_widechar(
 			("data:" + mimeType + ";base64," + base64Content).c_str());
 	}

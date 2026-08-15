@@ -3045,29 +3045,19 @@ bool CChatOpsCtrl::MakeSessionRequest(LlmSessionRequest& request, int fileAttach
 
 			for (const auto& filePath : attachFilePathes)
 			{
-				// 检查是否为图片文件
+			// 检查是否为图片文件
 				if (Utils::IsImageFile(filePath.c_str()))
 				{
-					// 读取图片为 base64
+					// 读取图片为 base64（自动转换不支持的格式为 PNG/JPEG）
 					std::string base64Data;
-					if (Utils::GetFileContentIntoBase64(filePath.c_str(), base64Data))
+					std::string mimeType;
+					if (Utils::LoadImageIntoBase64(filePath.c_str(), 0, 0, base64Data, mimeType))
 					{
 						// 添加文件说明文字
 						std::string message = u8"Here is the current content of image\"";
 						message += filePath;
 						message += u8"\":\n";
 						request.AddUserMessage(message.c_str());
-
-						// 根据 extension 确定 mimeType
-						std::string mimeType = "image/jpeg";
-						std::string ext = GetFileSuffix(filePath);
-						StringLower(ext);
-						if (ext == "png") mimeType = "image/png";
-						else if (ext == "gif") mimeType = "image/gif";
-						else if (ext == "webp") mimeType = "image/webp";
-						else if (ext == "bmp") mimeType = "image/bmp";
-						else if (ext == "tiff" || ext == "tif") mimeType = "image/tiff";
-						else if (ext == "svg") mimeType = "image/svg+xml";
 
 						request.AddUserMessageOfImage(base64Data.c_str(), mimeType.c_str());
 					}

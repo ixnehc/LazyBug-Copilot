@@ -429,7 +429,7 @@ void CLlmTools::Init()
 	// 定义 ReadMedia 工具
 	BeginTool(LlmToolType::ReadMedia, "ReadMedia");
 	AppendToolDesc("Read an image file and return it as a base64-encoded data URI. This allows the assistant to view the image content.");
-	AppendToolDesc(" Currently supports image formats: jpg, jpeg, png, webp, bmp, gif.");
+	AppendToolDesc(" Currently supports image formats: jpg, jpeg, png, webp, bmp, gif, tiff, ico, dds.");
 //	AppendToolDesc(" (Video support planned for future extension: mp4, avi, mkv, mov, webm)");
 	AddToolPara_String("filePath", "The full path of the image file to read.", true);
 	AddToolPara_Integer("maxWidth", "Maximum width of the read image (default: 256). Only effective when maxHeight is also specified.", false);

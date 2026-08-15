@@ -15,6 +15,9 @@ const char* CChatTask_ReadMedia::_GetMimeType(const std::string& ext)
 	if (ext == "webp") return "image/webp";
 	if (ext == "bmp")  return "image/bmp";
 	if (ext == "gif")  return "image/gif";
+	if (ext == "tiff" || ext == "tif") return "image/tiff";
+	if (ext == "ico")  return "image/x-icon";
+	if (ext == "dds")  return "image/x-dds";
 	// 未来扩展视频:
 	// if (ext == "mp4")  return "video/mp4";
 	// if (ext == "avi")  return "video/x-msvideo";
@@ -26,7 +29,7 @@ const char* CChatTask_ReadMedia::_GetMimeType(const std::string& ext)
 
 bool CChatTask_ReadMedia::_IsSupportedImage(const std::string& ext)
 {
-	return (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "webp" || ext == "bmp" || ext == "gif");
+	return _GetMimeType(ext) != nullptr;
 }
 
 
@@ -91,11 +94,10 @@ void CChatTask_ReadMedia::_ThreadFunc()
 	std::string ext = GetFileSuffix(filePath);
 	StringLower(ext);
 
-	const char* mimeType = _GetMimeType(ext);
-	if (!mimeType)
+	if (!_IsSupportedImage(ext))
 	{
 		std::lock_guard<std::mutex> lock(_resultMutex);
-		_threadResult = "Error: Unsupported media format: '" + ext + "'. Currently supported image formats: jpg, jpeg, png, webp, bmp, gif";
+		_threadResult = "Error: Unsupported media format: '" + ext + "'. Currently supported image formats: jpg, jpeg, png, webp, bmp, gif, tiff, ico, dds";
 		_threadMessage = "ReadMedia: unsupported format \"" + ext + "\"";
 		_threadSuccess = false;
 		_threadFinished = true;
@@ -125,9 +127,14 @@ void CChatTask_ReadMedia::_ThreadFunc()
 		return;
 	}
 
-	// 读取完整图片的 base64
+	// 读取图片为 base64（自动转换不支持的格式为 PNG/JPEG）
 	std::string fullBase64;
-	bool readSuccess = Utils::GetFileContentIntoBase64(filePath.c_str(), fullBase64);
+	std::string fullMime;
+	bool readSuccess = Utils::LoadImageIntoBase64(
+		filePath.c_str(),
+		hasMaxSize ? maxWidth : 0,
+		hasMaxSize ? maxHeight : 0,
+		fullBase64, fullMime);
 
 	// 再次检查是否被中断
 	if (_shouldStop)
@@ -164,7 +171,7 @@ void CChatTask_ReadMedia::_ThreadFunc()
 		Utils::GetImageSize(filePath.c_str(), imgWidth, imgHeight);
 
 		// 构建 content block 数组（text + image_url）
-		auto buildImageResult = [&](const std::string& base64) -> std::string
+		auto buildImageResult = [&](const std::string& base64, const std::string& mime) -> std::string
 		{
 			nlohmann::json arr = nlohmann::json::array();
 
@@ -175,31 +182,21 @@ void CChatTask_ReadMedia::_ThreadFunc()
 
 			nlohmann::json imageBlock;
 			imageBlock["type"] = "image_url";
-			imageBlock["image_url"]["url"] = "data:" + std::string(mimeType) + ";base64," + base64;
+			imageBlock["image_url"]["url"] = "data:" + mime + ";base64," + base64;
 			arr.push_back(imageBlock);
 
 			return arr.dump();
 		};
 
-		// 全尺寸结果：若指定了 maxWidth/maxHeight，将图片限制在该尺寸内
-		if (hasMaxSize)
-		{
-			std::string constrainedBase64;
-			if (Utils::LoadImageThumbnailIntoBase64(filePath.c_str(), maxWidth, maxHeight, constrainedBase64) && !constrainedBase64.empty())
-				resultStr = buildImageResult(constrainedBase64);
-			else
-				resultStr = buildImageResult(fullBase64);
-		}
-		else
-		{
-			resultStr = buildImageResult(fullBase64);
-		}
+		// 全尺寸结果
+		resultStr = buildImageResult(fullBase64, fullMime);
 
 		// Simple result: 始终生成固定小缩略图用作 partial
 		{
 			std::string thumbBase64;
-			if (Utils::LoadImageThumbnailIntoBase64(filePath.c_str(), 256, 256, thumbBase64) && !thumbBase64.empty())
-				resultStrSimple = buildImageResult(thumbBase64);
+			std::string thumbMime;
+			if (Utils::LoadImageIntoBase64(filePath.c_str(), 256, 256, thumbBase64, thumbMime) && !thumbBase64.empty())
+				resultStrSimple = buildImageResult(thumbBase64, thumbMime);
 			else
 				resultStrSimple = resultStr.substr(0, std::min<size_t>(resultStr.size(), 512));
 		}

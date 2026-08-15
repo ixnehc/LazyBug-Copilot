@@ -6,6 +6,8 @@
 #include <gdiplus.h>
 #include <stdio.h>
 #include <cstdint>
+#include <cstring>
+#include <DirectXTex.h>
 
 #pragma comment(lib, "gdiplus.lib")
 
@@ -240,7 +242,368 @@ bool LoadImageThumbnailIntoBase64(const char* path, int maxWidth, int maxHeight,
 	return true;
 }
 
-// 辅助函数：计算HBITMAP的哈希值（用于重复检测）
+// ---- 图片编码辅助函数 ----
+
+// 获取 GDI+ 编码器 CLSID
+static int GetEncoderClsid(const wchar_t* format, CLSID* pClsid)
+{
+	UINT num = 0, size = 0;
+	Gdiplus::GetImageEncodersSize(&num, &size);
+	if (size == 0)
+		return -1;
+
+	std::vector<BYTE> buffer(size);
+	Gdiplus::ImageCodecInfo* pEncoders = reinterpret_cast<Gdiplus::ImageCodecInfo*>(buffer.data());
+	Gdiplus::GetImageEncoders(num, size, pEncoders);
+
+	for (UINT i = 0; i < num; i++)
+	{
+		if (wcscmp(pEncoders[i].MimeType, format) == 0)
+		{
+			*pClsid = pEncoders[i].Clsid;
+			return (int)i;
+		}
+	}
+	return -1;
+}
+
+// 将 IStream 内容读取并编码为 base64
+static bool StreamToBase64(IStream* pStream, std::string& outContent)
+{
+	STATSTG statstg;
+	if (FAILED(pStream->Stat(&statstg, STATFLAG_DEFAULT)))
+	{
+		pStream->Release();
+		return false;
+	}
+
+	LARGE_INTEGER li = { 0 };
+	if (FAILED(pStream->Seek(li, STREAM_SEEK_SET, NULL)))
+	{
+		pStream->Release();
+		return false;
+	}
+
+	size_t dataSize = (size_t)statstg.cbSize.QuadPart;
+	std::vector<BYTE> imageData(dataSize);
+	ULONG bytesRead = 0;
+	HRESULT hrRead = pStream->Read(imageData.data(), (ULONG)dataSize, &bytesRead);
+	pStream->Release();
+
+	if (FAILED(hrRead) || bytesRead != dataSize)
+		return false;
+
+	Base64Encode(outContent, imageData.data(), dataSize);
+	return true;
+}
+
+// 将 Gdiplus::Bitmap 保存为 base64（JPEG 或 PNG）
+static bool SaveGdiplusBitmapToBase64(Gdiplus::Bitmap* pBitmap, bool asJpeg, std::string& outContent)
+{
+	if (!pBitmap)
+		return false;
+
+	CLSID clsid;
+	const wchar_t* mime = asJpeg ? L"image/jpeg" : L"image/png";
+	if (GetEncoderClsid(mime, &clsid) < 0)
+		return false;
+
+	IStream* pStream = nullptr;
+	if (FAILED(CreateStreamOnHGlobal(NULL, TRUE, &pStream)) || !pStream)
+		return false;
+
+	if (pBitmap->Save(pStream, &clsid, nullptr) != Gdiplus::Ok)
+	{
+		pStream->Release();
+		return false;
+	}
+
+	return StreamToBase64(pStream, outContent);
+}
+
+// 使用 DirectXTex 解码 DDS，返回 Gdiplus::Bitmap（以 Image 基类指针返回）
+Gdiplus::Image* LoadImageWithDirectXTex(const std::wstring& imagePath)
+{
+	DirectX::TexMetadata metadata = {};
+	DirectX::ScratchImage sourceImage;
+	HRESULT hr = DirectX::LoadFromDDSFile(imagePath.c_str(), DirectX::DDS_FLAGS_NONE, &metadata, sourceImage);
+	if (FAILED(hr) || sourceImage.GetImageCount() == 0)
+		return nullptr;
+
+	// DDS 常见格式分两类：
+	// - BC1/BC2/BC3/BC4/BC5/BC6H/BC7 等压缩格式：必须先用 Decompress 解压。
+	// - R8G8B8A8/B8G8R8A8 等普通像素格式：用 Convert 转换格式即可。
+	DirectX::ScratchImage workingImage;
+	if (DirectX::IsCompressed(metadata.format))
+	{
+		hr = DirectX::Decompress(
+			sourceImage.GetImages(),
+			sourceImage.GetImageCount(),
+			metadata,
+			DXGI_FORMAT_B8G8R8A8_UNORM,
+			workingImage);
+	}
+	else
+	{
+		hr = DirectX::Convert(
+			sourceImage.GetImages(),
+			sourceImage.GetImageCount(),
+			metadata,
+			DXGI_FORMAT_B8G8R8A8_UNORM,
+			DirectX::TEX_FILTER_DEFAULT,
+			0.0f,
+			workingImage);
+	}
+	if (FAILED(hr) || workingImage.GetImageCount() == 0)
+		return nullptr;
+
+	const DirectX::Image* image = workingImage.GetImages();
+	if (!image || image->width == 0 || image->height == 0 || !image->pixels)
+		return nullptr;
+
+	Gdiplus::Bitmap* bitmap = new Gdiplus::Bitmap(
+		static_cast<INT>(image->width),
+		static_cast<INT>(image->height),
+		PixelFormat32bppARGB);
+	if (!bitmap || bitmap->GetLastStatus() != Gdiplus::Ok)
+	{
+		delete bitmap;
+		return nullptr;
+	}
+
+	Gdiplus::BitmapData bitmapData = {};
+	Gdiplus::Rect rect(0, 0, static_cast<INT>(image->width), static_cast<INT>(image->height));
+	if (bitmap->LockBits(&rect, Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &bitmapData) != Gdiplus::Ok)
+	{
+		delete bitmap;
+		return nullptr;
+	}
+
+	const size_t rowBytes = static_cast<size_t>(image->width) * 4;
+	for (size_t y = 0; y < image->height; ++y)
+	{
+		memcpy(
+			static_cast<BYTE*>(bitmapData.Scan0) + y * bitmapData.Stride,
+			image->pixels + y * image->rowPitch,
+			rowBytes);
+	}
+	bitmap->UnlockBits(&bitmapData);
+	return bitmap;
+}
+
+// ---- LoadImageIntoBase64 ----
+
+bool LoadImageIntoBase64(const char* path, int maxWidth, int maxHeight, std::string& content, std::string& mimeType)
+{
+	content.clear();
+	mimeType.clear();
+
+	if (!path || *path == '\0')
+		return false;
+
+	std::string ext = GetFileSuffix(std::string(path));
+	StringLower(ext);
+
+	// 判断是否为 LLM 原生支持的格式（可直接传原始字节）
+	auto isNativelySupported = [](const std::string& ext) -> bool {
+		return ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "webp" || ext == "gif";
+	};
+
+	// 仅对原生格式返回对应 mime，其余格式转换后统一为 PNG/JPEG
+	auto getNativeMime = [](const std::string& ext) -> const char* {
+		if (ext == "jpg" || ext == "jpeg") return "image/jpeg";
+		if (ext == "png")  return "image/png";
+		if (ext == "webp") return "image/webp";
+		if (ext == "gif")  return "image/gif";
+		return nullptr;
+	};
+
+	bool needResize = (maxWidth > 0 && maxHeight > 0);
+
+	// 原生支持且不需要缩放：直接返回原始字节
+	if (isNativelySupported(ext) && !needResize)
+	{
+		if (GetFileContentIntoBase64(path, content))
+		{
+			mimeType = getNativeMime(ext);
+			return true;
+		}
+		return false;
+	}
+
+	// 需要解码（用于缩放或格式转换）
+	CImage srcImage;
+	std::wstring wPath = utf8_to_widechar(path);
+	HRESULT hr = srcImage.Load(path);
+	if (FAILED(hr))
+	{
+		// CImage 解码失败时，使用 DirectXTex 处理 DDS。
+		Gdiplus::Image* pDirectXTexImage = nullptr;
+		if (ext == "dds")
+			pDirectXTexImage = LoadImageWithDirectXTex(wPath);
+
+		if (pDirectXTexImage)
+		{
+			Gdiplus::Bitmap* bitmap = static_cast<Gdiplus::Bitmap*>(pDirectXTexImage);
+			int imageWidth = bitmap->GetWidth();
+			int imageHeight = bitmap->GetHeight();
+			bool actuallyResize = false;
+			double scale = 1.0;
+			if (needResize)
+			{
+				double scaleX = (double)maxWidth / imageWidth;
+				double scaleY = (double)maxHeight / imageHeight;
+				scale = (scaleX < scaleY) ? scaleX : scaleY;
+				actuallyResize = (scale < 1.0);
+			}
+
+			bool outputJpeg = (ext == "jpg" || ext == "jpeg");
+			bool converted = false;
+			if (actuallyResize)
+			{
+				int destWidth = (int)(imageWidth * scale);
+				int destHeight = (int)(imageHeight * scale);
+				if (destWidth < 1) destWidth = 1;
+				if (destHeight < 1) destHeight = 1;
+
+				Gdiplus::Bitmap destBitmap(destWidth, destHeight, PixelFormat32bppPARGB);
+				Gdiplus::Graphics graphics(&destBitmap);
+				graphics.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+				if (graphics.DrawImage(bitmap, 0, 0, destWidth, destHeight) == Gdiplus::Ok)
+					converted = SaveGdiplusBitmapToBase64(&destBitmap, outputJpeg, content);
+			}
+			else
+			{
+				converted = SaveGdiplusBitmapToBase64(bitmap, outputJpeg, content);
+			}
+
+			delete pDirectXTexImage;
+			if (converted)
+			{
+				mimeType = outputJpeg ? "image/jpeg" : "image/png";
+				return true;
+			}
+		}
+
+		// 解码失败时，如果是原生格式，仍退回直接返回原始字节。
+		if (isNativelySupported(ext))
+		{
+			if (GetFileContentIntoBase64(path, content))
+			{
+				mimeType = getNativeMime(ext);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	int srcWidth = srcImage.GetWidth();
+	int srcHeight = srcImage.GetHeight();
+	if (srcWidth <= 0 || srcHeight <= 0)
+		return false;
+
+	// 判断是否真的需要缩放
+	bool actuallyResize = false;
+	double scale = 1.0;
+	if (needResize)
+	{
+		double scaleX = (double)maxWidth / srcWidth;
+		double scaleY = (double)maxHeight / srcHeight;
+		scale = (scaleX < scaleY) ? scaleX : scaleY;
+		actuallyResize = (scale < 1.0);
+	}
+
+	// 不需要缩放且原生支持：直接返回原始字节
+	if (!actuallyResize && isNativelySupported(ext))
+	{
+		if (GetFileContentIntoBase64(path, content))
+		{
+			mimeType = getNativeMime(ext);
+			return true;
+		}
+		return false;
+	}
+
+	// 需要重新编码（缩放或格式转换）
+	// jpg/jpeg 源 → 输出 JPEG；其余 → 输出 PNG
+	bool outputJpeg = (ext == "jpg" || ext == "jpeg");
+
+	// 辅助 lambda：将 CImage 保存到 base64
+	auto saveImageToBase64 = [](CImage& img, bool asJpeg, std::string& outContent) -> bool
+	{
+		IStream* pStream = nullptr;
+		HRESULT hrStream = CreateStreamOnHGlobal(NULL, TRUE, &pStream);
+		if (FAILED(hrStream) || pStream == nullptr)
+			return false;
+
+		HRESULT hrSave = img.Save(pStream, asJpeg ? Gdiplus::ImageFormatJPEG : Gdiplus::ImageFormatPNG);
+		if (FAILED(hrSave))
+		{
+			pStream->Release();
+			return false;
+		}
+
+		STATSTG statstg;
+		if (FAILED(pStream->Stat(&statstg, STATFLAG_DEFAULT)))
+		{
+			pStream->Release();
+			return false;
+		}
+
+		LARGE_INTEGER li = { 0 };
+		if (FAILED(pStream->Seek(li, STREAM_SEEK_SET, NULL)))
+		{
+			pStream->Release();
+			return false;
+		}
+
+		size_t dataSize = (size_t)statstg.cbSize.QuadPart;
+		std::vector<BYTE> imageData(dataSize);
+		ULONG bytesRead = 0;
+		HRESULT hrRead = pStream->Read(imageData.data(), (ULONG)dataSize, &bytesRead);
+		pStream->Release();
+
+		if (FAILED(hrRead) || bytesRead != dataSize)
+			return false;
+
+		Base64Encode(outContent, imageData.data(), dataSize);
+		return true;
+	};
+
+	if (actuallyResize)
+	{
+		int destWidth = (int)(srcWidth * scale);
+		int destHeight = (int)(srcHeight * scale);
+		if (destWidth < 1) destWidth = 1;
+		if (destHeight < 1) destHeight = 1;
+
+		CImage destImage;
+		if (!destImage.Create(destWidth, destHeight, 32, 0))
+			return false;
+
+		HDC hDestDC = destImage.GetDC();
+		HDC hSrcDC = srcImage.GetDC();
+		int oldStretchMode = SetStretchBltMode(hDestDC, HALFTONE);
+		BOOL bltResult = srcImage.StretchBlt(hDestDC, 0, 0, destWidth, destHeight, SRCCOPY);
+		SetStretchBltMode(hDestDC, oldStretchMode);
+		srcImage.ReleaseDC();
+		destImage.ReleaseDC();
+
+		if (!bltResult)
+			return false;
+
+		if (!saveImageToBase64(destImage, outputJpeg, content))
+			return false;
+	}
+	else
+	{
+		if (!saveImageToBase64(srcImage, outputJpeg, content))
+			return false;
+	}
+
+	mimeType = outputJpeg ? "image/jpeg" : "image/png";
+	return true;
+}
 static std::string CalculateBitmapHash(HBITMAP hBitmap)
 {
 	// 获取位图信息
@@ -418,7 +781,30 @@ bool GetImageSize(const char* path, int& width, int& height)
 		}
 	}
 
+	// 4. 检查 DDS (Magic: "DDS ")
+	if (bytes_read >= 20 && buf[0] == 'D' && buf[1] == 'D' && buf[2] == 'S' && buf[3] == ' ')
+	{
+		// DDS 头：偏移 12 = dwHeight, 偏移 16 = dwWidth（小端 uint32）
+		height = buf[12] | (buf[13] << 8) | (buf[14] << 16) | (buf[15] << 24);
+		width  = buf[16] | (buf[17] << 8) | (buf[18] << 16) | (buf[19] << 24);
+		fclose(f);
+		return true;
+	}
+
 	fclose(f);
+
+	// 对于未通过文件头解析的格式（bmp, gif, tiff, ico 等），使用 CImage 解码获取尺寸
+	{
+		CImage img;
+		if (SUCCEEDED(img.Load(path)))
+		{
+			width = img.GetWidth();
+			height = img.GetHeight();
+			if (width > 0 && height > 0)
+				return true;
+		}
+	}
+
 	return false;
 }
 

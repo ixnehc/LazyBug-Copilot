@@ -1,12 +1,10 @@
 ﻿#include "stdh.h"
 #include "ChatInputImageTip.h"
+#include "utils_image.h"
 
 #include <algorithm>
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
-
-#include <wincodec.h>
-#pragma comment(lib, "windowscodecs.lib")
 
 using namespace Gdiplus;
 
@@ -78,59 +76,7 @@ bool CChatInputImageTip::IsSupportedImageFormat(const std::wstring& filePath)
 	std::transform(ext.begin(), ext.end(), ext.begin(), ::towlower);
 
 	// 支持 png, jpg, jpeg, webp
-	return (ext == L"png" || ext == L"jpg" || ext == L"jpeg" || ext == L"webp" || ext == L"bmp" || ext == L"gif" || ext == L"ico");
-}
-
-namespace {
-	Gdiplus::Image* LoadImageWithWIC(const std::wstring& imagePath) {
-		IWICImagingFactory* pFactory = nullptr;
-		HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFactory));
-		if (FAILED(hr)) return nullptr;
-
-		IWICBitmapDecoder* pDecoder = nullptr;
-		hr = pFactory->CreateDecoderFromFilename(imagePath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pDecoder);
-		if (FAILED(hr)) {
-			pFactory->Release();
-			return nullptr;
-		}
-
-		IWICBitmapFrameDecode* pFrame = nullptr;
-		hr = pDecoder->GetFrame(0, &pFrame);
-		if (FAILED(hr)) {
-			pDecoder->Release();
-			pFactory->Release();
-			return nullptr;
-		}
-
-		IWICFormatConverter* pConverter = nullptr;
-		hr = pFactory->CreateFormatConverter(&pConverter);
-		Gdiplus::Bitmap* pBitmap = nullptr;
-		if (SUCCEEDED(hr)) {
-			hr = pConverter->Initialize(pFrame, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.f, WICBitmapPaletteTypeCustom);
-			if (SUCCEEDED(hr)) {
-				UINT width = 0, height = 0;
-				pConverter->GetSize(&width, &height);
-				pBitmap = new Gdiplus::Bitmap(width, height, PixelFormat32bppPARGB);
-				Gdiplus::BitmapData bitmapData;
-				Gdiplus::Rect rect(0, 0, width, height);
-				if (pBitmap->LockBits(&rect, Gdiplus::ImageLockModeWrite, PixelFormat32bppPARGB, &bitmapData) == Gdiplus::Ok) {
-					pConverter->CopyPixels(nullptr, bitmapData.Stride, bitmapData.Stride * height, (BYTE*)bitmapData.Scan0);
-					pBitmap->UnlockBits(&bitmapData);
-				}
-				else {
-					delete pBitmap;
-					pBitmap = nullptr;
-				}
-			}
-			pConverter->Release();
-		}
-
-		pFrame->Release();
-		pDecoder->Release();
-		pFactory->Release();
-
-		return pBitmap;
-	}
+	return (ext == L"png" || ext == L"jpg" || ext == L"jpeg" || ext == L"webp" || ext == L"bmp" || ext == L"gif" || ext == L"ico" || ext == L"dds");
 }
 
 bool CChatInputImageTip::LoadImage(const std::wstring& imagePath)
@@ -165,7 +111,7 @@ bool CChatInputImageTip::LoadImage(const std::wstring& imagePath)
 	fileSize.HighPart = fileAttrs.nFileSizeHigh;
 	_currentFileSize = fileSize.QuadPart;
 
-	// 使用 GDI+ 加载图片，如果失败（如 WebP），尝试使用 WIC 回退加载
+	// 使用 GDI+ 加载图片；DDS 等格式由 DirectXTex 单独处理。
 	_pImage = Image::FromFile(imagePath.c_str());
 
 	if (_pImage == nullptr || _pImage->GetLastStatus() != Ok)
@@ -176,8 +122,16 @@ bool CChatInputImageTip::LoadImage(const std::wstring& imagePath)
 			_pImage = nullptr;
 		}
 		
-		// 尝试用 WIC 加载 (支持 WebP 等 GDI+ 不原生支持的格式，依赖系统是否安装 WebP 扩展)
-		_pImage = LoadImageWithWIC(imagePath);
+		// GDI+ 无法加载时，仅对 DDS 使用 DirectXTex 解码。
+		std::wstring ext = imagePath;
+		size_t dotPos = ext.find_last_of(L'.');
+		if (dotPos != std::wstring::npos)
+		{
+			ext = ext.substr(dotPos + 1);
+			std::transform(ext.begin(), ext.end(), ext.begin(), ::towlower);
+			if (ext == L"dds")
+				_pImage = Utils::LoadImageWithDirectXTex(imagePath);
+		}
 		
 		if (_pImage == nullptr || _pImage->GetLastStatus() != Ok)
 		{
