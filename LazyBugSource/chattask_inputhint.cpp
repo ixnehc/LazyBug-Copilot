@@ -15,7 +15,7 @@
 extern const char* GetOpenedDBFolderPath_utf8();
 
 const CChatTask_InputHint::InputHintFormat CChatTask_InputHint::kInputHintFormat =
-	CChatTask_InputHint::InputHintFormat::Separator;
+	CChatTask_InputHint::InputHintFormat::Json;
 
 CChatTask_InputHint::CChatTask_InputHint(const std::wstring& content, const std::string& apiName, int caretTokenPos, const CRect& anchorRect, int contentVersion)
 {
@@ -91,6 +91,7 @@ std::string CChatTask_InputHint::_CollectChatContextFromOps()
 
 	std::string result;
 	const int MAX_LEN = 8000;
+	const std::string kEllipsis = "...";
 	std::unordered_set<std::wstring> seenStreamingIds;
 
 	for (int i = startIdx; i >= 0; i--)
@@ -122,9 +123,21 @@ std::string CChatTask_InputHint::_CollectChatContextFromOps()
 		if (!result.empty())
 			entry += "\n";
 
-		// 超出总量限制则停止收集，但不会截断单条消息
-		if ((int)(entry.size() + result.size()) > MAX_LEN)
+		// 单条消息过长时不再整体放弃，而是截断并在前面加上 "..."
+		int remaining = MAX_LEN - (int)result.size();
+		if ((int)entry.size() > remaining)
+		{
+			const int suffixLen = result.empty() ? 0 : 1; // 末尾换行分隔符
+			int budget = remaining - (int)kEllipsis.size() - (int)prefix.size() - suffixLen;
+			if (budget <= 0)
+				break;
+
+			entry = prefix + kEllipsis + pContent->substr(pContent->size() - (size_t)budget);
+			if (!result.empty())
+				entry += "\n";
+			result = entry + result;
 			break;
+		}
 
 		result = entry + result;
 	}
