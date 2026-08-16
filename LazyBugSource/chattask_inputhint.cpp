@@ -132,7 +132,11 @@ std::string CChatTask_InputHint::_CollectChatContextFromOps()
 			if (budget <= 0)
 				break;
 
-			entry = prefix + kEllipsis + pContent->substr(pContent->size() - (size_t)budget);
+			size_t start = pContent->size() - (size_t)budget;
+			// 跳过 UTF-8 续字节(10xxxxxx)，确保截断在合法字符边界
+			while (start < pContent->size() && ((*pContent)[start] & 0xC0) == 0x80)
+				start++;
+			entry = prefix + kEllipsis + pContent->substr(start);
 			if (!result.empty())
 				entry += "\n";
 			result = entry + result;

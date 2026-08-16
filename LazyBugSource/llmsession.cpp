@@ -1567,7 +1567,19 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	// 清理临时标记字段（如 _current_turn），确保不出现在最终请求中
 	CLlmFormatter::CleanupTempFields(requestJson);
 
-    std::string requestBody = requestJson.dump();
+    std::string requestBody;
+	try
+	{
+		requestBody = requestJson.dump();
+	}
+	catch (const std::exception& e)
+	{
+		std::lock_guard<std::mutex> lock(session->m_mutex);
+		session->m_hasError = true;
+		session->m_errorMessage = std::string("Failed to dump request JSON: ") + e.what();
+		session->m_isCompleted = true;
+		return;
+	}
 
 	{
 		std::lock_guard<std::mutex> lock(g_requestsMutex);
