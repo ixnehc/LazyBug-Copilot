@@ -34,6 +34,12 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 - Added image format support for DDS, TGA, TIFF
 - Fixed an issue where the input hint sometimes failed to work
 
+## Version 0.25 Release Notes
+
+- No longer supports `cli_whitelist.txt`; CLI commands now prompt for user confirmation based on risk level
+- Multi-line text copied in the text editor is pasted into the chat input as a reference
+- Right-click in the chat content window to quickly scroll to the previous/next conversation message
+
 _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
 ---

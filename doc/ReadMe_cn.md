@@ -34,6 +34,12 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 - 新增图片格式支持 DDS、TGA、TIFF
 - 修复了 input hint 有时会失效的问题
 
+## Version 0.25 更新说明
+
+- 不再支持 `cli_whitelist.txt`，改为根据 CLI 命令的风险等级提示用户确认
+- 在文本编辑器内复制的多行文本将以引用方式粘贴到聊天输入框
+- 聊天内容窗口内按右键快速滚动到上一条/下一条对话内容
+
 _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 
 ---
