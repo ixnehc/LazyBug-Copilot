@@ -47,11 +47,11 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 ## Core Features
 
 - **Multi-Turn Intelligent Chat** — Markdown-based chat content. Session history stored per VS solution.
-- **Session Management** — Switch between historical sessions, one-click rollback to any previous state, session favorites management, and cost statistics per session.
+- **Session Management** — Switch between historical sessions, session favorites management, and cost statistics per session.
 - **Symbol Link Recognition** — Clickable symbol links in the chat window for quick navigation to definitions.
-- **Smart Code Editing** — AI directly modifies project files with multi-file support, before/after Diff View, modification tracking, undo/redo , and file backup.
-- **Automatic Code Database** — Automatically builds a code database from all files in your solution with incremental updates.
-- **Codebase Search** — Fast text search for ultra-large projects (million-line scale). Significantly faster than ripgrep, especially in large codebases. 
+- **Smart Code Editing** — AI directly modifies project files with multi-file support, before/after Diff View, modification tracking, one click undo/redo, and file backup.
+- **Automatic Code Database** — Automatically builds a code database from all files in your solution, automatically monitors file changes and updates incrementally.
+- **Codebase Search** — Fast text search for ultra-large projects (million-line scale). Significantly faster than ripgrep. In large projects, search time can be reduced from tens of seconds to less than 100ms.
 - **Symbol Search** — Fast symbol search for C/C++/C#/JavaScript/Java/Python/TypeScript codes. Works out of the box — no LSP configuration required.
 
 - **Watch Folder** — Add arbitrary folders to the workspace for exploring with glob, grep, and find symbol operations. Ideal for referencing external code/data without adding them to your solution.
@@ -70,7 +70,7 @@ _See [patchnotes.md](doc/patchnotes.md) for full version history._
 
 </div>
 
-- **Image Attachment** — Paste images directly into the chat input to send to vision-capable LLMs.
+- **Image Attachment** — Paste images directly into the chat input to send to vision-capable LLMs. Supports jpg, png, webp, gif, dds, tga, tiff and other file formats.
 
 <div align="center">
 
