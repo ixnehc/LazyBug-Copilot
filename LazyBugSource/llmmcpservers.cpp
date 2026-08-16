@@ -2,6 +2,7 @@
 #include "LlmMcpServers.h"
 #include "LlmMcps.h"
 #include "stringparser/stringparser.h"
+#include "Utils_File.h"
 #include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
@@ -1012,12 +1013,12 @@ void CLlmMcpServers::LoadToolsToMcps()
 				{
 					mcp.tools = server.tools;
 					mcp.toolsLoaded = true;
-					mcp.lastError = server.output;
+					Utils::ConvertStringIntoUtf8(server.output, mcp.lastError);
 				}
 				else if (st == State::Failed)
 				{
 					mcp.toolsLoaded = false;
-					mcp.lastError = server.output;
+					Utils::ConvertStringIntoUtf8(server.output, mcp.lastError);
 				}
 				else // Starting
 				{
@@ -1038,7 +1039,7 @@ bool CLlmMcpServers::GetServerStateByUid(WUID uid, State& outState, std::string&
 
 	const Server& server = *it->second;
 	outState = server.state.load();
-	outOutput = server.output;
+	Utils::ConvertStringIntoUtf8(server.output, outOutput);
 	if (outTools)
 		*outTools = server.tools;
 	return true;

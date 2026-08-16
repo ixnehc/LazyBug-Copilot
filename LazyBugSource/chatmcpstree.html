@@ -787,15 +787,15 @@
             }
 
             // ========= 事件 =========
-            // 鼠标悬停显示tip（仅tool节点）
-            row.addEventListener('mouseenter', (e) => {
+            // 鼠标悬停在tool名字上时显示tip（仅tool节点）
+            label.addEventListener('mouseenter', (e) => {
                 if (_isTool) {
                     showMcpTip(e, node);
                 }
             });
 
-            // 鼠标离开隐藏tip
-            row.addEventListener('mouseleave', (e) => {
+            // 鼠标离开tool名字时隐藏tip
+            label.addEventListener('mouseleave', (e) => {
                 if (_isTool) {
                     hideMcpTip();
                 }

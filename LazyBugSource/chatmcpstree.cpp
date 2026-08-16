@@ -519,8 +519,22 @@ struct McpTreeNode
 	std::unordered_set<std::string> disabledTools;
 };
 
-// 递归将树节点转换为JSON对象，rootType从根节点向下传播
-static nlohmann::json _McpNodeToJson(const McpTreeNode& node, const std::string& rootType = "")
+// 尝试dump一个JSON，成功返回true（用于跳过含非法UTF-8的节点）
+static bool _TryDumpJson(const nlohmann::json& j)
+{
+	try
+	{
+		(void)j.dump();
+		return true;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}
+
+// 递归将树节点转换为JSON并加入jsonArray，dump失败则跳过该节点，rootType从根节点向下传播
+static void _AddMcpNodeToJson(nlohmann::json& jsonArray, const McpTreeNode& node, const std::string& rootType = "")
 {
 	nlohmann::json j;
 	j["name"] = node.name;
@@ -543,7 +557,14 @@ static nlohmann::json _McpNodeToJson(const McpTreeNode& node, const std::string&
 		j["uid"] = std::to_string(node.uid);
 		if (node.isDynamic)
 			j["isDynamic"] = true;
+	}
 
+	// 在添加children之前，先判断节点自身字段能否dump，失败则跳过该节点
+	if (!_TryDumpJson(j))
+		return;
+
+	if (node.isLeaf)
+	{
 		// 添加tools子节点
 		j["children"] = nlohmann::json::array();
 		for (const auto& tool : node.tools)
@@ -559,7 +580,8 @@ static nlohmann::json _McpNodeToJson(const McpTreeNode& node, const std::string&
 			toolNode["uid"] = std::to_string(node.uid);
 			if (node.isDynamic)
 				toolNode["isDynamic"] = true;
-			j["children"].push_back(toolNode);
+			if (_TryDumpJson(toolNode))
+				j["children"].push_back(std::move(toolNode));
 		}
 	}
 	else if (!node.children.empty())
@@ -578,10 +600,10 @@ static nlohmann::json _McpNodeToJson(const McpTreeNode& node, const std::string&
 		});
 
 		for (const auto* child : childrenVec)
-			j["children"].push_back(_McpNodeToJson(*child, rootType));
+			_AddMcpNodeToJson(j["children"], *child, rootType);
 	}
 
-	return j;
+	jsonArray.push_back(std::move(j));
 }
 
 // 将路径按'\\'拆分
@@ -773,9 +795,9 @@ std::wstring CChatMcpsTree::_BuildMcpTreeJson()
 	// 构建顶层JSON数组（Dynamic在最上面，无子节点则不显示）
 	nlohmann::json jsonArr = nlohmann::json::array();
 	if (!rootDynamic.children.empty())
-		jsonArr.push_back(_McpNodeToJson(rootDynamic, "Dynamic"));
-	jsonArr.push_back(_McpNodeToJson(rootGlobal, "Global"));
-	jsonArr.push_back(_McpNodeToJson(rootProject, "Project"));
+		_AddMcpNodeToJson(jsonArr, rootDynamic, "Dynamic");
+	_AddMcpNodeToJson(jsonArr, rootGlobal, "Global");
+	_AddMcpNodeToJson(jsonArr, rootProject, "Project");
 
 	std::string utf8Json = jsonArr.dump();
 	return utf8_to_widechar(utf8Json);
