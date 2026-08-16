@@ -1,5 +1,12 @@
 ﻿# LazyBug Version History
 
+## Version 0.25.1
+
+- Added image format support for DDS, TGA, TIFF
+- Fixed an issue where the input hint sometimes failed to work
+
+---
+
 ## Version 0.25
 
 - No longer supports `cli_whitelist.txt`; CLI commands now prompt for user confirmation based on risk level

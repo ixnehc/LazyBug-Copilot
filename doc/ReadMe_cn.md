@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI 编程助手扩展
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.25-blue)](patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.25.1-blue)](patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](../LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -29,11 +29,10 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 ---
 
-## Version 0.25 更新说明
+## Version 0.25.1 更新说明
 
-- 不再支持 `cli_whitelist.txt`，改为根据 CLI 命令的风险等级提示用户确认
-- 在文本编辑器内复制的多行文本将以引用方式粘贴到聊天输入框
-- 聊天内容窗口内按右键快速滚动到上一条/下一条对话内容
+- 新增图片格式支持 DDS、TGA、TIFF
+- 修复了 input hint 有时会失效的问题
 
 _完整版本历史请参见 [patchnotes.md](patchnotes.md)_
 
