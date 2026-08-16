@@ -67,7 +67,11 @@ void InputHintContext::UpdateFromOps(const CChatOpsCtrl& opsCtrl)
                 break;
 
             const size_t budget = remaining - kEllipsis.size() - std::strlen(prefix) - suffixLength;
-            entry = std::string(prefix) + kEllipsis + content->substr(content->size() - budget);
+            size_t start = content->size() - budget;
+            // 跳过 UTF-8 续字节(10xxxxxx)，确保截断在合法字符边界
+            while (start < content->size() && ((*content)[start] & 0xC0) == 0x80)
+                ++start;
+            entry = std::string(prefix) + kEllipsis + content->substr(start);
             if (!result.empty())
                 entry += "\n";
 
