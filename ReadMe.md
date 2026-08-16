@@ -33,6 +33,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 - Added image format support for DDS, TGA, TIFF
 - Fixed an issue where the input hint sometimes failed to work
+- Improved compatibility with MCP server settings
 
 ## Version 0.25 Release Notes
 

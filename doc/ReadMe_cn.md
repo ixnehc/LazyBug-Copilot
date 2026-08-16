@@ -33,6 +33,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 - 新增图片格式支持 DDS、TGA、TIFF
 - 修复了 input hint 有时会失效的问题
+- 提高了对 MCP 服务器设置的兼容性
 
 ## Version 0.25 更新说明
 

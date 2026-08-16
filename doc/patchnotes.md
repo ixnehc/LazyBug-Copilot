@@ -4,6 +4,7 @@
 
 - Added image format support for DDS, TGA, TIFF
 - Fixed an issue where the input hint sometimes failed to work
+- Improved compatibility with MCP server settings
 
 ---
 
