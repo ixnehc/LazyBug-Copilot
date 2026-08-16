@@ -298,6 +298,15 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 		return false;
 	}
 
+	// 工作目录 (提前计算, 供后续 SearchPathW 和 CreateProcessW 共用)
+	std::wstring wWorkingDir;
+	LPCWSTR lpCurrentDirectory = NULL;
+	if (!server.connect.workingDir.empty())
+	{
+		wWorkingDir = utf8_to_widechar(server.connect.workingDir);
+		lpCurrentDirectory = wWorkingDir.c_str();
+	}
+
 	// 2. 构建命令行
 	// 注意: 不能无差别地给每个参数加引号。例如 cmd 的开关 "/c" 一旦被引号
 	// 包裹成 "/c", cmd.exe 就不会将其识别为开关, 导致后续命令解析错乱
@@ -308,6 +317,52 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 	{
 		cmdLine += " ";
 		cmdLine += arg;
+	}
+
+	// 2.5 如果 command 实际是 .cmd/.bat 脚本 (如 npx.cmd),
+	//     需要通过 "cmd /c" 启动。因为 CreateProcessW 不会查 PATHEXT,
+	//     只追加 .exe, 找不到 npx.exe 就会失败。
+	//     注意: 不能用 SearchPathW(.., NULL, NULL, ..) 搜索, 因为它会优先
+	//     匹配到无扩展名的同名文件 (如 nodejs 目录下的 npx shell 脚本),
+	//     而不是 npx.cmd。因此必须显式指定 .cmd / .bat 扩展名来搜索。
+	{
+		std::wstring wCommand = utf8_to_widechar(server.connect.command);
+		bool needCmdWrapper = false;
+
+		// 先检查 command 本身是否已带 .cmd/.bat 扩展名
+		{
+			size_t dotPos = wCommand.rfind(L'.');
+			if (dotPos != std::wstring::npos)
+			{
+				std::wstring ext = wCommand.substr(dotPos);
+				if (_wcsicmp(ext.c_str(), L".cmd") == 0 || _wcsicmp(ext.c_str(), L".bat") == 0)
+					needCmdWrapper = true;
+			}
+		}
+
+		// 如果 command 本身没有 .cmd/.bat 扩展名, 显式用 .cmd / .bat 搜索
+		if (!needCmdWrapper)
+		{
+			wchar_t foundPath[MAX_PATH] = { 0 };
+			for (const wchar_t* ext : { L".cmd", L".bat" })
+			{
+				DWORD found = 0;
+				// 优先在工作目录中查找
+				if (!wWorkingDir.empty())
+					found = SearchPathW(wWorkingDir.c_str(), wCommand.c_str(), ext, MAX_PATH, foundPath, nullptr);
+				// 再在标准搜索路径 (PATH) 中查找
+				if (found == 0)
+					found = SearchPathW(NULL, wCommand.c_str(), ext, MAX_PATH, foundPath, nullptr);
+				if (found > 0)
+				{
+					needCmdWrapper = true;
+					break;
+				}
+			}
+		}
+
+		if (needCmdWrapper)
+			cmdLine = "cmd /c " + cmdLine;
 	}
 
 	// 3. 构建环境块
@@ -368,15 +423,6 @@ bool CLlmMcpServers::_CreateServer(Server& server, HANDLE hCancel)
 
 	// 命令行转为宽字符
 	std::wstring wCmdLine = utf8_to_widechar(cmdLine);
-
-	// 工作目录 (如果配置了)
-	std::wstring wWorkingDir;
-	LPCWSTR lpCurrentDirectory = NULL;
-	if (!server.connect.workingDir.empty())
-	{
-		wWorkingDir = utf8_to_widechar(server.connect.workingDir);
-		lpCurrentDirectory = wWorkingDir.c_str();
-	}
 
 	// 5. 创建进程
 	if (!CreateProcessW(
