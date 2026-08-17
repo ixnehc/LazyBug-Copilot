@@ -287,7 +287,7 @@ void CChatSettingDirWatchTab::_ScanWorker(Entry* entry)
     std::string rootPath = entry->config.directoryPath;
     bool recursive = entry->config.recursive;
 
-    // 使用栈进行遍历（非递归或用栈模拟递归）
+    // 使用栈进行遍历（非递归或用栈模拟递归），路径统一以 UTF-8 存储
     std::vector<std::string> dirs;
     dirs.push_back(rootPath);
 
@@ -296,10 +296,10 @@ void CChatSettingDirWatchTab::_ScanWorker(Entry* entry)
         std::string currentDir = dirs.back();
         dirs.pop_back();
 
-        std::string searchPath = currentDir + "\\*";
+        std::wstring searchPath = utf8_to_widechar(currentDir) + L"\\*";
 
-        WIN32_FIND_DATAA fd;
-        HANDLE hFind = FindFirstFileA(searchPath.c_str(), &fd);
+        WIN32_FIND_DATAW fd;
+        HANDLE hFind = FindFirstFileW(searchPath.c_str(), &fd);
         if (hFind == INVALID_HANDLE_VALUE)
             continue;
 
@@ -311,20 +311,21 @@ void CChatSettingDirWatchTab::_ScanWorker(Entry* entry)
             if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
             {
                 // 跳过 . 和 ..
-                if (strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0)
+                if (wcscmp(fd.cFileName, L".") != 0 && wcscmp(fd.cFileName, L"..") != 0)
                 {
                     if (recursive)
-                        dirs.push_back(currentDir + "\\" + fd.cFileName);
+                        dirs.push_back(currentDir + "\\" + widechar_to_utf8(fd.cFileName));
                 }
             }
             else
             {
                 // 提取后缀（小写，不含点号）
-                const char* dot = strrchr(fd.cFileName, '.');
-                if (dot && dot[1] != '\0')
+                const wchar_t* dot = wcsrchr(fd.cFileName, L'.');
+                if (dot && dot[1] != L'\0')
                 {
-                    std::string ext = dot + 1;  // 跳过点号
-                    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+                    std::wstring extW = dot + 1;  // 跳过点号
+                    std::transform(extW.begin(), extW.end(), extW.begin(), ::towlower);
+                    std::string ext = widechar_to_utf8(extW.c_str());
 
                     {
                         std::lock_guard<std::mutex> lock(entry->mtx);
@@ -333,7 +334,7 @@ void CChatSettingDirWatchTab::_ScanWorker(Entry* entry)
                     }
                 }
             }
-        } while (FindNextFileA(hFind, &fd) && !entry->scanAbort);
+        } while (FindNextFileW(hFind, &fd) && !entry->scanAbort);
 
         FindClose(hFind);
     }
