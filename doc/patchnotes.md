@@ -1,5 +1,11 @@
 ﻿# LazyBug Version History
 
+## Version 0.25.2
+
+- Fixed an error in the cache rate calculation for the Responses API
+
+---
+
 ## Version 0.25.1
 
 - Added image format support for DDS, TGA, TIFF
