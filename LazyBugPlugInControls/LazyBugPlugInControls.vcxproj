@@ -431,6 +431,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\InputHintContext.cpp" />
     <ClCompile Include="..\LazyBugSource\inputhintwindow.cpp" />
     <ClCompile Include="..\LazyBugSource\LlmChat.cpp" />
     <ClCompile Include="..\LazyBugSource\LlmFormatter.cpp" />
@@ -586,6 +587,7 @@
     <ClInclude Include="..\LazyBugSource\ChatTask_InputHint2.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint3.h" />
     <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h" />
+    <ClInclude Include="..\LazyBugSource\InputHintContext.h" />
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h" />
     <ClInclude Include="..\LazyBugSource\PinyinLib.h" />
     <ClInclude Include="..\LazyBugSource\Utils_InputHint.h" />

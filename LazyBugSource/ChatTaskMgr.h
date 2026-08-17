@@ -29,6 +29,9 @@ class IChatUi;
 // 前置声明 SymbolLinkItem 结构体
 struct SymbolLinkItem;
 
+// 前置声明 InputHintContext（输入补全上下文）
+struct InputHintContext;
+
 // 常量定义
 const size_t MAX_LLMCHAT_POOL_SIZE = 10;
 
@@ -44,6 +47,7 @@ struct ChatTaskContext
 		chatAgent = nullptr;
 		chatUi = nullptr;
 		chatDialogA = nullptr;
+		inputHintCtx = nullptr;
 	}
 
 	CChatAgent* chatAgent;
@@ -53,6 +57,9 @@ struct ChatTaskContext
 	CChatFileWriter* fileWriter;
 	CChatSettingPage* chatSettingPage;
 	CChatDialogA* chatDialogA;
+
+	// 输入补全上下文（由 CChatDialogA 持有并实时更新）
+	InputHintContext* inputHintCtx;
 };
 
 enum class TaskStatus

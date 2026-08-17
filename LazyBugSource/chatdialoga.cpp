@@ -352,6 +352,7 @@ BOOL CChatDialogA::OnInitDialog()
 		ctx.chatUi = &_ui;
 		ctx.chatOpsCtrl = &_agent.GetOpsCtrl();
 		ctx.chatDialogA = this;
+		ctx.inputHintCtx = &_inputHintCtx;
  		_chatTaskMgrBg.Init(ctx);
 	}
 
@@ -1754,6 +1755,10 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 	{
 		_chatInput.GetWindowRect(&anchorRect);
 	}
+
+	// 更新 InputHint 上下文（先于任务提交，保证 task 读取到最新输入与聊天上下文）
+	_inputHintCtx.UpdateInput(content, caretPos);
+	_inputHintCtx.UpdateFromOps(_agent.GetOpsCtrl());
 
 	_chatTaskMgrBg.AddTask_InputHint(content, inputHintApi, anchorRect, caretPos, _chatInput.GetContentVersion());
 	//_chatTaskMgrBg.AddTask_InputHint2(content, inputHintApi, anchorRect, caretPos);

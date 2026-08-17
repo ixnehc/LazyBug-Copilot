@@ -24,7 +24,6 @@ public:
 
 private:
     void _Fail(const std::string& reason = "");
-    std::string _CollectChatContextFromOps();
 
     // 启动 inputhint(补全)会话, 返回 true 表示成功发送请求
     bool _StartInputHintSession();
@@ -39,13 +38,15 @@ private:
     // 两个请求都完成后, 决定是显示还是隐藏补全提示
     void _TryFinalize();
 
-    std::string              _chatContext;
     Utils::InputContent      _originalInputContent;
     Utils::InputContent      _newInputContent;
     int                      _caretPlainPos;   // 光标在 _originalInputContent.plainContent 中的字符位置(-1 表示无效)
     std::string              _apiName;
     std::string              _resultText;
     std::wstring             _inputWithCaret;  // 发送给 LLM 的带光标标记的内容
+    std::wstring             _caretLine;       // 光标所在行(含光标标记, 来自 InputHintContext)
+    std::wstring             _beforeCaretLines;// 光标行之前的行(来自 InputHintContext)
+    std::wstring             _afterCaretLines; // 光标行之后的行(来自 InputHintContext)
     bool                     _hasStartedRequest;
     bool                     _requestInterrupt;
 

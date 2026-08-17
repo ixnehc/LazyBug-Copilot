@@ -29,6 +29,7 @@
 #include "ChatTokenStats.h"
 
 #include "InputHintWindow.h"
+#include "InputHintContext.h"
 
 #include "McpUpdater.h"
 
@@ -231,6 +232,7 @@ protected:
 
 	// ── 输入自动补全 ──
 	CInputHintWindow _inputHintWindow;
+	InputHintContext _inputHintCtx;
 	bool _inputHintEnabled = false;
 	bool _isInputComposing = false;
 

@@ -5,9 +5,8 @@
 #include "ChatOpsCtrl.h"
 #include "ChatDialogA.h"
 #include "utils_file.h"
+#include "InputHintContext.h"
 #include <fstream>
-#include <sstream>
-#include <unordered_set>
 #include <algorithm>
 #include <cctype>
 
@@ -76,79 +75,6 @@ void CChatTask_InputHint::_Fail(const std::string& reason)
 	_status = TaskStatus::Failure;
 }
 
-std::string CChatTask_InputHint::_CollectChatContextFromOps()
-{
-	if (!_context || !_context->chatOpsCtrl)
-		return "";
-
-	const std::vector<ChatOp>& ops = _context->chatOpsCtrl->GetOps();
-
-	// 从 disable 边界开始往前找（跳过被 disabled 的消息）
-	int disableAfterIndex = _context->chatOpsCtrl->GetDisableAfterIndex();
-	int startIdx = disableAfterIndex - 1;
-	if (startIdx >= (int)ops.size())
-		startIdx = (int)ops.size() - 1;
-
-	std::string result;
-	const int MAX_LEN = 8000;
-	const std::string kEllipsis = "...";
-	std::unordered_set<std::wstring> seenStreamingIds;
-
-	for (int i = startIdx; i >= 0; i--)
-	{
-		const ChatOp& op = ops[i];
-		std::string prefix;
-		const std::string* pContent = nullptr;
-
-		if (op.type == ChatOp::Op_AddUserMessage)
-		{
-			prefix = "User: ";
-			pContent = &op.contentUtf8;
-		}
-		else if (op.type == ChatOp::Op_AddStreamingAIMessage)
-		{
-			if (op.contentUtf8.empty())
-				continue;
-			if (!seenStreamingIds.insert(op.messageId).second)
-				continue;
-			prefix = "Assistant: ";
-			pContent = &op.contentUtf8;
-		}
-		else
-		{
-			continue;
-		}
-
-		std::string entry = prefix + *pContent;
-		if (!result.empty())
-			entry += "\n";
-
-		// 单条消息过长时不再整体放弃，而是截断并在前面加上 "..."
-		int remaining = MAX_LEN - (int)result.size();
-		if ((int)entry.size() > remaining)
-		{
-			const int suffixLen = result.empty() ? 0 : 1; // 末尾换行分隔符
-			int budget = remaining - (int)kEllipsis.size() - (int)prefix.size() - suffixLen;
-			if (budget <= 0)
-				break;
-
-			size_t start = pContent->size() - (size_t)budget;
-			// 跳过 UTF-8 续字节(10xxxxxx)，确保截断在合法字符边界
-			while (start < pContent->size() && ((*pContent)[start] & 0xC0) == 0x80)
-				start++;
-			entry = prefix + kEllipsis + pContent->substr(start);
-			if (!result.empty())
-				entry += "\n";
-			result = entry + result;
-			break;
-		}
-
-		result = entry + result;
-	}
-
-	return result;
-}
-
 void CChatTask_InputHint::Start()
 {
 	if (_apiName.empty())
@@ -163,16 +89,30 @@ void CChatTask_InputHint::Start()
 		return;
 	}
 
-	// 在 task 内收集上下文
-	_chatContext = _CollectChatContextFromOps();
-
-	// 在光标位置插入光标符号(仅用于提示 LLM 补全位置, 不属于实际输入内容)
-	std::wstring inputWithCaret = _originalInputContent.plainContent;
-	if (_caretPlainPos >= 0 && _caretPlainPos <= (int)inputWithCaret.size())
+	// 从 InputHintContext 获取已维护好的聊天上下文与输入快照
+	InputHintContext* ctx = (_context ? _context->inputHintCtx : nullptr);
+	if (ctx)
 	{
-		inputWithCaret.insert((size_t)_caretPlainPos, L"\x2038");
+		_caretPlainPos = ctx->GetCaretPlainPos();
+		_caretLine = ctx->GetCaretLine();
+		_beforeCaretLines = ctx->GetBeforeCaretLines();
+		_afterCaretLines = ctx->GetAfterCaretLines();
 	}
-	_inputWithCaret = inputWithCaret;
+	else
+	{
+		// 兜底: context 未接线时退回用原始输入生成光标行(含光标标记)
+		_caretLine = _originalInputContent.plainContent;
+		if (_caretPlainPos >= 0 && _caretPlainPos <= (int)_caretLine.size())
+			_caretLine.insert((size_t)_caretPlainPos, L"\x2038");
+	}
+
+	// 拼接完整带光标标记的输入文本(用于日志/调试)
+	_inputWithCaret.clear();
+	if (!_beforeCaretLines.empty())
+		_inputWithCaret += _beforeCaretLines + L"\n";
+	_inputWithCaret += _caretLine;
+	if (!_afterCaretLines.empty())
+		_inputWithCaret += L"\n" + _afterCaretLines;
 
 	// 同时(无先后)启动两个独立请求
 	bool hintStarted = _StartInputHintSession();
@@ -210,66 +150,34 @@ bool CChatTask_InputHint::_StartInputHintSession()
 	LlmSessionRequest request;
 
 	std::string userMsg;
-	if (!_chatContext.empty())
+	const std::string* chatOpsContent = nullptr;
+	if (_context && _context->inputHintCtx)
+		chatOpsContent = &_context->inputHintCtx->GetChatOpsContent();
+
+	if (chatOpsContent && !chatOpsContent->empty())
 	{
 		userMsg += "Recent chat context:\n";
-		userMsg += _chatContext;
+		userMsg += *chatOpsContent;
 		userMsg += "\n\n";
 	}
 
-	// 将 _inputWithCaret 按行拆分, 找到包含光标标记 ‸ 的行
-	// 仅将光标行作为"待补全输入"提交; 其余行按前后分区作为上下文, 不参与输出
-	std::wstring caretLine;
-	std::vector<std::wstring> linesBefore, linesAfter;
-	bool foundCaret = false;
-
-	const std::wstring& text = _inputWithCaret;
-	size_t lineStart = 0;
-	for (size_t i = 0; i <= text.size(); ++i)
-	{
-		if (i == text.size() || text[i] == L'\n')
-		{
-			std::wstring line = text.substr(lineStart, i - lineStart);
-			bool hasCaret = (line.find(L'\x2038') != std::wstring::npos);
-			if (!foundCaret && hasCaret)
-			{
-				caretLine = line;
-				foundCaret = true;
-			}
-			else if (!foundCaret)
-			{
-				linesBefore.push_back(line);
-			}
-			else
-			{
-				linesAfter.push_back(line);
-			}
-			lineStart = i + 1;
-		}
-	}
-
-	// 光标行无标记则回退到完整内容(不应发生)
-	if (caretLine.empty())
-		caretLine = _inputWithCaret;
-
-	if (!linesBefore.empty())
+	// 使用 InputHintContext 维护好的三部分(光标行 + 光标前行 + 光标后行)
+	if (!_beforeCaretLines.empty())
 	{
 		userMsg += "Lines before current line (for context only, do NOT modify):\n";
-		for (const auto& line : linesBefore)
-			userMsg += widechar_to_utf8(line.c_str()) + "\n";
+		userMsg += widechar_to_utf8(_beforeCaretLines.c_str()) + "\n";
 		userMsg += "\n";
 	}
 
-	if (!linesAfter.empty())
+	if (!_afterCaretLines.empty())
 	{
 		userMsg += "Lines after current line (for context only, do NOT modify):\n";
-		for (const auto& line : linesAfter)
-			userMsg += widechar_to_utf8(line.c_str()) + "\n";
+		userMsg += widechar_to_utf8(_afterCaretLines.c_str()) + "\n";
 		userMsg += "\n";
 	}
 
 	userMsg += "User's partial input:\n";
-	userMsg += widechar_to_utf8(caretLine.c_str());
+	userMsg += widechar_to_utf8(_caretLine.c_str());
 
 	request.AddUserMessage(userMsg.c_str());
 	request.isStreaming = true;
@@ -574,7 +482,6 @@ void CChatTask_InputHint::_TryFinalize()
 			checkCompleteState = "complete";
 
 		nlohmann::ordered_json j;
-		j["context"] = _chatContext;
 		j["originalContent"] = widechar_to_utf8(_inputWithCaret.c_str());
 		j["originalRaw"] = _resultText;
 		j["originalResult"] = widechar_to_utf8(_newInputContent.plainContent.c_str());

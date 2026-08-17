@@ -2114,7 +2114,11 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::
 					std::string respId;
 					if (event.contains("response") && event["response"].is_object())
 					{
-						respId = event["response"].value("id", "");
+					respId = event["response"].value("id", "");
+					// 去除 OpenRouter 路由后缀（:: 之后的部分），仅保留真正的 response ID
+					size_t respIdPos = respId.find("::");
+					if (respIdPos != std::string::npos)
+						respId = respId.substr(0, respIdPos);
 						if (event["response"].contains("output") && event["response"]["output"].is_array())
 						{
 							for (const auto& item : event["response"]["output"])
@@ -2252,8 +2256,16 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::
 					}
 				}
 
+				// 去除 OpenRouter 路由后缀（:: 之后的部分），仅保留真正的 response ID
+				std::string nonStreamRespId = resp.value("id", "");
+				{
+					size_t pos = nonStreamRespId.find("::");
+					if (pos != std::string::npos)
+						nonStreamRespId = nonStreamRespId.substr(0, pos);
+				}
+
 				json chunk;
-				chunk["id"] = resp.value("id", "");
+				chunk["id"] = nonStreamRespId;
 				chunk["object"] = "chat.completion";
 				chunk["created"] = resp.value("created_at", 0);
 				chunk["model"] = resp.value("model", "");
