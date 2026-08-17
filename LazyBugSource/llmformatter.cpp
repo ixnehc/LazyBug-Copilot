@@ -2114,17 +2114,13 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::
 					std::string respId;
 					if (event.contains("response") && event["response"].is_object())
 					{
-					respId = event["response"].value("id", "");
-					// 去除 OpenRouter 路由后缀（:: 之后的部分），仅保留真正的 response ID
-					size_t respIdPos = respId.find("::");
-					if (respIdPos != std::string::npos)
-						respId = respId.substr(0, respIdPos);
+						respId = event["response"].value("id", "");
 						if (event["response"].contains("output") && event["response"]["output"].is_array())
 						{
 							for (const auto& item : event["response"]["output"])
 							{
 								if (item.is_object() && item.value("type", "") == "function_call")
-								{
+								{ 
 									hasToolCalls = true;
 									break;
 								}
@@ -2146,20 +2142,24 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::
 					{
 						const auto& respUsage = event["response"]["usage"];
 						json usage;
-						usage["prompt_tokens"] = respUsage.value("input_tokens", 0);
-						usage["completion_tokens"] = respUsage.value("output_tokens", 0);
-						usage["total_tokens"] = usage["prompt_tokens"].get<int>() + usage["completion_tokens"].get<int>();
+						const int inputTokens = respUsage.value("input_tokens", 0);
+						int cachedReadTokens = 0;
 						if (respUsage.contains("input_tokens_details"))
 						{
 							const auto& details = respUsage["input_tokens_details"];
-							// 优先使用 cached_read_tokens，回退到 cached_tokens
-							int cached = 0;
+							// 优先使用 cached_read_tokens，回退到 cached_tokens。
 							if (details.contains("cached_read_tokens"))
-								cached = details.value("cached_read_tokens", 0);
+								cachedReadTokens = details.value("cached_read_tokens", 0);
 							else if (details.contains("cached_tokens"))
-								cached = details.value("cached_tokens", 0);
-							usage["prompt_tokens_cacheRead"] = cached;
+								cachedReadTokens = details.value("cached_tokens", 0);
 						}
+
+						// Responses API 的 input_tokens 已包含缓存读取 token；内部 inputToken_ 约定为未缓存输入，
+						// 因此必须扣除 cachedReadTokens，避免 UI 缓存率和费用重复计算缓存部分。
+						usage["prompt_tokens"] = (std::max)(0, inputTokens - cachedReadTokens);
+						usage["prompt_tokens_cacheRead"] = cachedReadTokens;
+						usage["completion_tokens"] = respUsage.value("output_tokens", 0);
+						usage["total_tokens"] = inputTokens + usage["completion_tokens"].get<int>();
 						chunk["usage"] = usage;
 					}
 				}
@@ -2256,16 +2256,8 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::
 					}
 				}
 
-				// 去除 OpenRouter 路由后缀（:: 之后的部分），仅保留真正的 response ID
-				std::string nonStreamRespId = resp.value("id", "");
-				{
-					size_t pos = nonStreamRespId.find("::");
-					if (pos != std::string::npos)
-						nonStreamRespId = nonStreamRespId.substr(0, pos);
-				}
-
 				json chunk;
-				chunk["id"] = nonStreamRespId;
+				chunk["id"] = resp.value("id", "");
 				chunk["object"] = "chat.completion";
 				chunk["created"] = resp.value("created_at", 0);
 				chunk["model"] = resp.value("model", "");
@@ -2282,20 +2274,23 @@ bool CLlmFormatter::ProcessLlmResponseFromOpenAIResponsesFormat(std::deque<std::
 				{
 					const auto& respUsage = resp["usage"];
 					json usage;
-					usage["prompt_tokens"] = respUsage.value("input_tokens", 0);
+					const int inputTokens = respUsage.value("input_tokens", 0);
+					int cachedReadTokens = 0;
+					if (respUsage.contains("input_tokens_details"))
+					{
+						const auto& details = respUsage["input_tokens_details"];
+						if (details.contains("cached_read_tokens"))
+							cachedReadTokens = details.value("cached_read_tokens", 0);
+						else if (details.contains("cached_tokens"))
+							cachedReadTokens = details.value("cached_tokens", 0);
+					}
+
+					// Responses API 的 input_tokens 已包含缓存读取 token；内部 inputToken_ 约定为未缓存输入。
+					usage["prompt_tokens"] = (std::max)(0, inputTokens - cachedReadTokens);
+					usage["prompt_tokens_cacheRead"] = cachedReadTokens;
 					usage["completion_tokens"] = respUsage.value("output_tokens", 0);
-					usage["total_tokens"] = usage["prompt_tokens"].get<int>() + usage["completion_tokens"].get<int>();
-				if (respUsage.contains("input_tokens_details"))
-				{
-					const auto& details = respUsage["input_tokens_details"];
-					int cached = 0;
-					if (details.contains("cached_read_tokens"))
-						cached = details.value("cached_read_tokens", 0);
-					else if (details.contains("cached_tokens"))
-						cached = details.value("cached_tokens", 0);
-					usage["prompt_tokens_cacheRead"] = cached;
-				}
-				chunk["usage"] = usage;
+					usage["total_tokens"] = inputTokens + usage["completion_tokens"].get<int>();
+					chunk["usage"] = usage;
 				}
 
 				outputLines.push_back("data: " + chunk.dump());
