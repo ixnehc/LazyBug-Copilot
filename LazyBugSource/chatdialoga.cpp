@@ -1761,8 +1761,6 @@ void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caret
 	_inputHintCtx.UpdateFromOps(_agent.GetOpsCtrl());
 
 	_chatTaskMgrBg.AddTask_InputHint(content, inputHintApi, anchorRect, caretPos, _chatInput.GetContentVersion());
-	//_chatTaskMgrBg.AddTask_InputHint2(content, inputHintApi, anchorRect, caretPos);
-	//_chatTaskMgrBg.AddTask_InputHint3(content, inputHintApi, anchorRect, caretPos);
 }
 
 bool CChatDialogA::_CanShowHint()
@@ -1818,8 +1816,6 @@ void CChatDialogA::_HandleContentVersionIncreased(int contentVersion)
 	// 内容版本号递增：用户通过 beforeinput 或 selectionchange 产生了新内容
 	// 无条件中断所有 hint task 并隐藏 hint
 	_chatTaskMgrBg.InterruptTaskType("InputHint");
-	_chatTaskMgrBg.InterruptTaskType("InputHint2");
-	_chatTaskMgrBg.InterruptTaskType("InputHint3");
 	_inputHintWindow.HideHint();
 }
 

@@ -376,8 +376,6 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_FindInFiles.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_FindSymbolDefine.cpp" />
     <ClCompile Include="..\LazyBugSource\chattask_inputhint.cpp" />
-    <ClCompile Include="..\LazyBugSource\ChatTask_InputHint2.cpp" />
-    <ClCompile Include="..\LazyBugSource\chattask_inputhint3.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Mcp.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_QueryFinish.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Question.cpp" />
@@ -584,8 +582,6 @@
     <ClInclude Include="..\LazyBugSource\ChatSettingProviderTab.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
-    <ClInclude Include="..\LazyBugSource\ChatTask_InputHint2.h" />
-    <ClInclude Include="..\LazyBugSource\chattask_inputhint3.h" />
     <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h" />
     <ClInclude Include="..\LazyBugSource\InputHintContext.h" />
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h" />

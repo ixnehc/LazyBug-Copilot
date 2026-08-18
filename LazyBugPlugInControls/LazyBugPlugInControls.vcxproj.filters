@@ -587,12 +587,6 @@
     <ClCompile Include="..\LazyBugSource\inputhintwindow.cpp">
       <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
     </ClCompile>
-    <ClCompile Include="..\LazyBugSource\ChatTask_InputHint2.cpp">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
-    </ClCompile>
-    <ClCompile Include="..\LazyBugSource\chattask_inputhint3.cpp">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
-    </ClCompile>
     <ClCompile Include="..\LazyBugSource\PinyinLib.cpp">
       <Filter>Core\PinyinLib</Filter>
     </ClCompile>
@@ -1210,12 +1204,6 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h">
       <Filter>GUI\ChatDialog\ChatInput\InputHintWindow</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LazyBugSource\ChatTask_InputHint2.h">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LazyBugSource\chattask_inputhint3.h">
-      <Filter>GUI\ChatDialog\ChatTaskMgr\ChatTask_InputHint</Filter>
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\PinyinLib.h">
       <Filter>Core\PinyinLib</Filter>
