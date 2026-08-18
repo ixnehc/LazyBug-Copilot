@@ -1028,6 +1028,8 @@ bool CSymbolDB::GetSymbolLineRanges(StringIndex filePathIndex,
                                     std::vector<SymbolRangeInfo>& outRanges,
                                     time_t& outParsedTime) const
 {
+	outRanges.clear();
+
 	std::shared_lock<std::shared_mutex> lock(_symbolMutex);
 	auto it = _fileSymbolDefines.find(filePathIndex);
 	if (it == _fileSymbolDefines.end())

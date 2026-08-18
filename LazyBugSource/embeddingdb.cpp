@@ -124,8 +124,12 @@ void CEmbeddingFiles::Save(std::unordered_map<FilePathKey, CFileChunks>& fileChu
 
 	for (int i = 0; i < ARRAY_SIZE(_buckets); i++)
 	{
-		if (!_buckets[i].isDirty || bucketData[i].empty())
+		if (!_buckets[i].isDirty)
 			continue;
+
+		char bucketFileName[32];
+		snprintf(bucketFileName, sizeof(bucketFileName), "bucket_%02d.dat", i);
+		std::string bucketPath = _folderPath + "\\_embedding\\" + bucketFileName;
 
 		std::vector<BYTE> buf;
 		DP_BeginSave(dp, buf);
@@ -136,10 +140,6 @@ void CEmbeddingFiles::Save(std::unordered_map<FilePathKey, CFileChunks>& fileChu
 				fc->Save(dp);
 		}
 		DP_EndSave()
-
-			char bucketFileName[32];
-		snprintf(bucketFileName, sizeof(bucketFileName), "bucket_%02d.dat", i);
-		std::string bucketPath = _folderPath + "\\_embedding\\" + bucketFileName;
 
 		Utils::SaveFileContent(bucketPath.c_str(), buf);
 		_buckets[i].isDirty = false;
