@@ -34,6 +34,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 - 修复了 Responses API 的 cache rate 计算错误
 - 修复了 api key verifying 会随机失败的 bug
 - 修复了当 watch folder 目录下存在非 ascii 字符文件名后缀时，会 crash 的 bug
+- 更新了默认的 provider 列表（OpenAI 默认使用 Responses API，添加了 LMStudio 和 Ollama）
 
 ## Version 0.25.1 更新说明
 

@@ -34,6 +34,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 - Fixed an error in the cache rate calculation for the Responses API
 - Fixed a bug where API key verification randomly failed
 - Fixed a crash when a watch folder contains files with non-ASCII characters in the filename extension
+- Updated the default provider list (OpenAI now uses the Responses API by default; added LMStudio and Ollama)
 
 ## Version 0.25.1 Release Notes
 
