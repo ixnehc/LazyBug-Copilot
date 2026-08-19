@@ -19,6 +19,7 @@ CChatTask_VerifyLlmApiProvider::CChatTask_VerifyLlmApiProvider(const LlmApiProvi
 {
 	_providerTypeName = providerTypeName;
 	_hasStartedRequest = false;
+	_requestInterrupt = false;
 }
 
 bool CChatTask_VerifyLlmApiProvider::DependsOn(CChatTask* task0)

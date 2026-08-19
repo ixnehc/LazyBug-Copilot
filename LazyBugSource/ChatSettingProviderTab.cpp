@@ -604,10 +604,11 @@ void CChatSettingProviderTab::_UpdateProviderKey(const std::wstring& providerTyp
             g_llmLib.SaveSettings();
         }
 
+        _SendCastSheetDataToWebView();
+        _SendProviderDataToWebView();
+
         if (needValidate && _taskMgr)
             _taskMgr->AddTask_VerifyLlmApiProvider(providerTypeName);
-
-        _SendCastSheetDataToWebView();
     }
     catch (...)
     {
@@ -857,6 +858,7 @@ void CChatSettingProviderTab::EndValidatingProvider(const LlmApiProviderTypeName
     }
 
     _SendCastSheetDataToWebView();
+    _SendProviderDataToWebView();
 }
 
 void CChatSettingProviderTab::_SendCapabilityStatusToWebView()

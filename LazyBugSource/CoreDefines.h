@@ -3,7 +3,7 @@
 #include <functional>
 
 // 启用 Embedding DB 功能
-#define USE_EMBEDDING_DB
+//#define USE_EMBEDDING_DB
 
 
 typedef int StringIndex;
