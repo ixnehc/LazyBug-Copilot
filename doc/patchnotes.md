@@ -3,6 +3,8 @@
 ## Version 0.25.2
 
 - Fixed an error in the cache rate calculation for the Responses API
+- Fixed a bug where API key verification randomly failed
+- Fixed a crash when a watch folder contains files with non-ASCII characters in the filename extension
 
 ---
 

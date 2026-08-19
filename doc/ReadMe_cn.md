@@ -32,6 +32,8 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 ## Version 0.25.2 更新说明
 
 - 修复了 Responses API 的 cache rate 计算错误
+- 修复了 api key verifying 会随机失败的 bug
+- 修复了当 watch folder 目录下存在非 ascii 字符文件名后缀时，会 crash 的 bug
 
 ## Version 0.25.1 更新说明
 
