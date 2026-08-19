@@ -1398,8 +1398,8 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 		}
 	}
 
-	// 	if (settings.api.providerTypeName!="Ubisoft LiteLLM")
-	// 		requestJson["usage"] = {	{"include", true}	};
+// 	if (settings.api.providerTypeName!="Ubisoft LiteLLM")
+// 		requestJson["usage"] = {	{"include", true}	};
 
 		// 添加 stream 参数
 	if (request.isStreaming)
