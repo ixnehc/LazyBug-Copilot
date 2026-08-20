@@ -232,6 +232,7 @@ CEmbeddingDB::CEmbeddingDB()
 	_cursorCheckEmb.filePath = StringIndex_Null;
 	_updateThreadRunning = false;
 	_resetThreadLoop = false;
+	_disableTime = 0;
 }
 
 void CEmbeddingDB::Init(const char* folderPath,
@@ -370,6 +371,10 @@ void CEmbeddingDB::SetModelParam(const EmbedModelParam& modelParam)
 {
 	SetModelName(modelParam._modelName.c_str());
 	_generator.SetModelParam(modelParam);
+
+	_disableTime.store(0);
+	_resetThreadLoop.store(true);
+	_updateCV.notify_all();
 }
 
 // ---- 激活管理 ----
@@ -629,7 +634,7 @@ void CEmbeddingDB::_UpdateThreadProc()
 			EmbedResult result;
 			while (_generator.FetchResult(result))
 			{
-				if (result.success)
+				if (result.success && result.modelName == _modelName)
 				{
 					// generator 返回完整的 CFileChunks，直接替换
 					{
@@ -639,7 +644,7 @@ void CEmbeddingDB::_UpdateThreadProc()
 						{
 							it->second._chunks = std::move(result.chunks);
 							it->second._genTime = result.symbolParseTime;
-							it->second._modelName = _modelName;
+							it->second._modelName = result.modelName;
 							_files.SetDirty(result.key);
 						}
 					}
@@ -650,8 +655,39 @@ void CEmbeddingDB::_UpdateThreadProc()
 				if (_NeedResetThreadLoop())
 					break;
 			}
-			if (_NeedResetThreadLoop())
+		if (_NeedResetThreadLoop())
+			continue;
+		}
+
+		// ---- 失活检查: generator 不可用时暂停提交, 冷却后重激活 ----
+		if (!_generator.IsEnabled())
+		{
+			if (_disableTime.load() == 0)
+				_disableTime.store(time(nullptr));
+
+			time_t elapsed = time(nullptr) - _disableTime.load();
+
+			if (elapsed >= REENABLE_INTERVAL_SEC)
+			{
+				_generator.ReEnable();
+				_disableTime.store(0);
 				continue;
+			}
+
+			// 冷却中: 等待剩余时间, 但可被 SetModelParam / ActivateFile 唤醒
+			int waitMs = (int)(REENABLE_INTERVAL_SEC - elapsed) * 1000;
+			if (waitMs < 100) waitMs = 100;
+
+			std::unique_lock<std::mutex> lock(_updateMutex);
+			_updateCV.wait_for(lock, std::chrono::milliseconds(waitMs), [this]
+			{
+				return _NeedResetThreadLoop();
+			});
+			continue;
+		}
+		else
+		{
+			_disableTime.store(0);
 		}
 
 		// 轮询检查过期文件，提交构建请求到 generator

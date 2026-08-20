@@ -151,6 +151,10 @@ private:
 	std::atomic<bool>       _updateThreadRunning;
 	std::atomic<bool>       _resetThreadLoop;
 
+	// 失活冷却: generator 失活后等待 REENABLE_INTERVAL_SEC 秒再重激活
+	static constexpr int    REENABLE_INTERVAL_SEC = 30;
+	std::atomic<time_t>     _disableTime;            // 0 = 未失活
+
 	FilePathKey _cursorCheckEmb;  // 轮询游标
 
 	// ---- embedding 生成线程池 ----

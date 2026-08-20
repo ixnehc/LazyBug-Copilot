@@ -31,6 +31,7 @@ CEmbeddingGenerator::CEmbeddingGenerator()
 	_threadPriority   = ThreadPriority::LOWEST;
 	_activeCount      = 0;
 	_nextRequestId    = 1;
+	_enable           = true;
 }
 
 CEmbeddingGenerator::~CEmbeddingGenerator()
@@ -47,6 +48,7 @@ void CEmbeddingGenerator::Init(const EmbedModelParam& modelParam,
 	_modelParam     = modelParam;
 	_threadPriority = priority;
 	_running         = true;
+	_enable          = true;
 
 	for (int i = 0; i < numThreads; i++)
 	{
@@ -68,8 +70,23 @@ void CEmbeddingGenerator::Init(const EmbedModelParam& modelParam,
 
 void CEmbeddingGenerator::SetModelParam(const EmbedModelParam& modelParam)
 {
-	std::lock_guard<std::mutex> lock(_modelParamMutex);
-	_modelParam = modelParam;
+	{
+		std::lock_guard<std::mutex> lock(_modelParamMutex);
+		_modelParam = modelParam;
+	}
+
+	// 模型参数有效时恢复激活状态
+	if (modelParam.IsValid())
+	{
+		_enable.store(true);
+		_requestCV.notify_all();
+	}
+}
+
+void CEmbeddingGenerator::ReEnable()
+{
+	_enable.store(true);
+	_requestCV.notify_all();
 }
 
 
@@ -100,6 +117,7 @@ void CEmbeddingGenerator::Close()
 
 	_activeCount   = 0;
 	_nextRequestId = 1;
+	_enable        = true;
 	_modelParam = EmbedModelParam();
 }
 
@@ -109,6 +127,23 @@ bool CEmbeddingGenerator::Request(EmbedRequest& request)
 		return false;
 
 	request.requestId = _nextRequestId.fetch_add(1);
+
+	// 失活状态: 直接塞入失败结果, 不入请求队列
+	if (!_enable.load())
+	{
+		EmbedResult result;
+		result.key       = request.key;
+		result.requestId = request.requestId;
+		result.success   = false;
+		{
+			std::lock_guard<std::mutex> lock(_modelParamMutex);
+			result.modelName = _modelParam._modelName;
+		}
+
+		std::lock_guard<std::mutex> lock(_resultMutex);
+		_resultQueue.push_back(std::move(result));
+		return true;
+	}
 
 	{
 		std::lock_guard<std::mutex> lock(_requestMutex);
@@ -141,6 +176,11 @@ int CEmbeddingGenerator::GetActiveCount() const
 	return _activeCount.load();
 }
 
+bool CEmbeddingGenerator::IsEnabled() const
+{
+	return _enable.load();
+}
+
 // ---- 工作线程 ----
 
 void CEmbeddingGenerator::_WorkerThread()
@@ -163,7 +203,21 @@ void CEmbeddingGenerator::_WorkerThread()
 			_requestQueue.pop_front();
 		}
 
-		EmbedResult result = _ProcessRequest(request);
+		EmbedResult result;
+
+		if (_enable.load())
+			result = _ProcessRequest(request);
+		else
+		{
+			// 失活状态: 直接返回失败结果
+			result.key       = request.key;
+			result.requestId = request.requestId;
+			result.success   = false;
+			{
+				std::lock_guard<std::mutex> lock(_modelParamMutex);
+				result.modelName = _modelParam._modelName;
+			}
+		}
 
 		{
 			std::lock_guard<std::mutex> lock(_resultMutex);
@@ -290,17 +344,37 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 		textsToEmbed.push_back(std::move(content));
 	}
 
-	// 7. 调用 embedding API
+	// 7. 调用 embedding API（带重试）
 	if (!textsToEmbed.empty())
 	{
-		std::vector<std::vector<float>> modelEmbeddings;
-		if (_CallEmbeddingApi(textsToEmbed, modelEmbeddings))
+		// 在此点加锁拷贝 modelParam, 确保 result.modelName 与实际使用的一致
+		EmbedModelParam modelParam;
 		{
-			for (size_t i = 0; i < newChunks.size() && i < modelEmbeddings.size(); i++)
-				newChunks[i]._embeddings = std::move(modelEmbeddings[i]);
+			std::lock_guard<std::mutex> lock(_modelParamMutex);
+			modelParam = _modelParam;
 		}
-		else
-			return result;
+		result.modelName = modelParam._modelName;
+
+		bool apiOk = false;
+		for (int retry = 0; retry < MAX_RETRIES && _enable.load(); retry++)
+		{
+			std::vector<std::vector<float>> modelEmbeddings;
+			if (_CallEmbeddingApi(modelParam, textsToEmbed, modelEmbeddings))
+			{
+				for (size_t i = 0; i < newChunks.size() && i < modelEmbeddings.size(); i++)
+					newChunks[i]._embeddings = std::move(modelEmbeddings[i]);
+				apiOk = true;
+				break;
+			}
+		}
+
+		if (!apiOk)
+		{
+			// 重试耗尽: 标记整个 generator 为失活
+			_enable.store(false);
+			_requestCV.notify_all();
+			return result;   // success = false
+		}
 	}
 
 	result.chunks  = std::move(newChunks);
@@ -311,20 +385,14 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 
 // ---- Embedding API 调用 ----
 
-bool CEmbeddingGenerator::_CallEmbeddingApi(const std::vector<std::string>& texts,
+bool CEmbeddingGenerator::_CallEmbeddingApi(const EmbedModelParam& modelParam,
+                                            const std::vector<std::string>& texts,
                                             std::vector<std::vector<float>>& outEmbeddings)
 {
 	outEmbeddings.clear();
 
 	if (texts.empty())
 		return true;
-
-	// 拷贝一份 modelParam，避免长时间持锁
-	EmbedModelParam modelParam;
-	{
-		std::lock_guard<std::mutex> lock(_modelParamMutex);
-		modelParam = _modelParam;
-	}
 
 	if (!modelParam.IsValid())
 		return false;
@@ -365,6 +433,11 @@ bool CEmbeddingGenerator::_CallEmbeddingApi(const std::vector<std::string>& text
 	if (modelParam._timeoutSeconds > 0)
 		curl_easy_setopt(curl, CURLOPT_TIMEOUT, modelParam._timeoutSeconds);
 
+	// 进度回调: 失活时中止 curl 传输
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, &CEmbeddingGenerator::_CurlProgressCb);
+	curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
+
 	CURLcode res = curl_easy_perform(curl);
 
 	curl_slist_free_all(headers);
@@ -402,6 +475,14 @@ bool CEmbeddingGenerator::_CallEmbeddingApi(const std::vector<std::string>& text
 	catch (...) {}
 
 	return false;
+}
+
+// ---- curl 进度回调 ----
+
+int CEmbeddingGenerator::_CurlProgressCb(void* userp, double, double, double, double)
+{
+	auto* self = static_cast<CEmbeddingGenerator*>(userp);
+	return self->_enable.load() ? 0 : 1;   // 非0 → curl 立即中止传输
 }
 
 // ---- Hash ----
