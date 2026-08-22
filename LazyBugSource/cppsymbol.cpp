@@ -390,7 +390,7 @@ void CSymbolDB::Init(const char* folderPath, CProjSettingLib& projSettingLib)
 	_initTime = GetAbsTick();
 	_files.Init(folderPath);
 
-	_debugTotalParsed = 0;
+	_parseVersion = 0;
 	_debugLastParsedTime = 0;
 
 	if (true)
@@ -1211,8 +1211,9 @@ void CSymbolDB::ProcessParseResult(const ParseResult& result)
 				mainFileDefines->_parsedTime = Utils::GetCurFileTimeT();
 
 			mainFileDefines->_pchTime = result.pchTime;
-			_files.SetDirty(mainFileDefines->_filePath);
+		_files.SetDirty(mainFileDefines->_filePath);
 		}
+		_parseVersion.fetch_add(1, std::memory_order_relaxed);
 		return;
 	}
 
@@ -1291,7 +1292,7 @@ void CSymbolDB::ProcessParseResult(const ParseResult& result)
 
 			// 更新该文件的时间戳
 			pFileDefines->_parsedTime = fileTime;
-			_debugTotalParsed++;
+			_parseVersion.fetch_add(1, std::memory_order_relaxed);
 			_debugLastParsedTime = GetAbsTick();
 		}
 	}

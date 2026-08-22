@@ -5,6 +5,7 @@
 #include "stringparser/stringparser.h"
 
 #include <set>
+#include <algorithm>
 #include <curl/curl.h>
 
 // 用于 curl 写回调的上下文
@@ -19,6 +20,74 @@ static size_t _EmbedWriteCallback(void* contents, size_t size, size_t nmemb, voi
 	EmbedApiResponse* response = static_cast<EmbedApiResponse*>(userp);
 	response->data.append(static_cast<char*>(contents), totalSize);
 	return totalSize;
+}
+
+// ============================================================================
+// Segment — 文件中的一个行区间 [start, end)
+// ============================================================================
+struct Segment { int start; int end; bool isTarget; };
+
+// ============================================================================
+// BuildSegmentsFromSymbols
+// 从指定类型 symbol 的 range 生成独立 segment，并补全文件剩余部分为 complement segment
+// - 每个 _kind ∈ targetKinds 的 symbol range 直接作为一个 segment（不合并，即便重叠/相邻）
+// - 文件中去除这些 segment 后的剩余部分也生成 complement segment
+// - 输出按 start 升序排列，可能包含重叠的 segment
+// ============================================================================
+static void BuildSegmentsFromSymbols(
+    const std::vector<SymbolRangeInfo>& symbolRanges,
+    int totalLines,
+    const std::set<SymbolKind>& targetKinds,
+    std::vector<Segment>& outSegments)
+{
+	outSegments.clear();
+
+	// 1. 收集 + 裁剪 target range
+	std::vector<std::pair<int, int>> targetRanges;
+	for (const auto& info : symbolRanges)
+	{
+		if (targetKinds.find(info._kind) == targetKinds.end())
+			continue;
+
+		int s = (int)info._lineRange.start;
+		int e = (int)info._lineRange.end;
+		if (s >= e)
+			continue;
+		if (s < 0) s = 0;
+		if (e > totalLines) e = totalLines;
+		if (s >= e)
+			continue;
+
+		// 单行的 Method 跳过（太短，不值得单独 embedding）
+		if (info._kind == SymbolKind::Method && e - s <= 1)
+			continue;
+
+		targetRanges.push_back({s, e});
+	}
+
+	// 2. 每个 target range 直接输出为 segment（不合并）
+	for (const auto& r : targetRanges)
+		outSegments.push_back({r.first, r.second, true});
+
+	// 3. 输出 complement segment（排序后跟踪 prev 即可，无需显式合并）
+	{
+		std::vector<std::pair<int, int>> sortedRanges = targetRanges;
+		std::sort(sortedRanges.begin(), sortedRanges.end());
+
+		int prev = 0;
+		for (const auto& r : sortedRanges)
+		{
+			if (r.first > prev)
+				outSegments.push_back({prev, r.first, false});
+			prev = (std::max)(prev, r.second);
+		}
+		if (prev < totalLines)
+			outSegments.push_back({prev, totalLines, false});
+	}
+
+	// 4. 按 start 排序
+	std::sort(outSegments.begin(), outSegments.end(),
+	          [](const Segment& a, const Segment& b) { return a.start < b.start; });
 }
 
 // ============================================================================
@@ -237,7 +306,7 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 	result.requestId = request.requestId;
 	result.success   = false;
 
-	constexpr int MAX_LINES_PER_CHUNK = 100;
+	constexpr size_t MAX_BYTES_PER_CHUNK = 8192;
 
 	// 1. 读取整个文件并拆分为行
 	std::string fileContent;
@@ -254,97 +323,101 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 	if (currentModifyTime == 0 || currentModifyTime != request.symbolParseTime)
 		return result;
 
-	// 3. 收集切割点（来自 symbol range 的 start/end，加上文件首尾）
-	std::set<int> splitPoints;
-	splitPoints.insert(0);
-	splitPoints.insert(totalLines);
-
-	for (const auto& info : request.symbolRanges)
-	{
-		int s = (int)info._lineRange.start;
-		int e = (int)info._lineRange.end;
-		if (s >= e)
-			continue;
-		if (s < 0) s = 0;
-		if (e > totalLines) e = totalLines;
-		splitPoints.insert(s);
-		splitPoints.insert(e);
-	}
-
-	// 4. 根据切割点生成 segments（原子分段，不可再拆分）
-	struct Segment { int start; int end; };
+	// 3. 生成 segments：特定类型 symbol 的 range 各自独立成段，文件剩余部分生成 complement segment
+	static const std::set<SymbolKind> TARGET_KINDS = {
+		SymbolKind::Class, SymbolKind::Struct, SymbolKind::Enum,
+		SymbolKind::Function, SymbolKind::Method,
+		SymbolKind::Constructor, SymbolKind::Destructor
+	};
 	std::vector<Segment> segments;
-	{
-		auto it = splitPoints.begin();
-		int prev = *it;
-		for (++it; it != splitPoints.end(); ++it)
-		{
-			int cur = *it;
-			if (cur > prev)
-				segments.push_back({prev, cur});
-			prev = cur;
-		}
-	}
+	BuildSegmentsFromSymbols(request.symbolRanges, totalLines, TARGET_KINDS, segments);
 
-	// 5. 将 segments 打包成 chunks（遵守 MAX_LINES_PER_CHUNK，不拆分 segment）
+	// 4. 每个 segment 生成 chunk + 构建内容文本，跳过空白 chunk
+	//    - target segment：超限时截断尾部（单 chunk）
+	//    - complement segment：超限时拆分为多个 chunk
 	std::vector<CEmbeddingChunk> newChunks;
-	{
-		int chunkStart = -1;
-		int chunkEnd   = -1;
-		int chunkLines = 0;
-
-		auto flushChunk = [&]()
-		{
-			if (chunkStart < 0)
-				return;
-			CEmbeddingChunk chunk;
-			chunk._startLine = chunkStart;
-			chunk._endLine   = chunkEnd;
-			newChunks.push_back(std::move(chunk));
-			chunkStart = -1;
-			chunkLines = 0;
-		};
-
-		for (const auto& seg : segments)
-		{
-			int segLines = seg.end - seg.start;
-
-			if (chunkStart >= 0 && chunkLines + segLines > MAX_LINES_PER_CHUNK)
-				flushChunk();
-
-			if (chunkStart < 0)
-			{
-				chunkStart = seg.start;
-				chunkEnd   = seg.end;
-				chunkLines = segLines;
-			}
-			else
-			{
-				chunkEnd   = seg.end;
-				chunkLines += segLines;
-			}
-		}
-		flushChunk();
-	}
-
-	// 6. 为每个 chunk 构建内容文本、计算 hash，并收集待 embedding 的文本
 	std::vector<std::string> textsToEmbed;
-	textsToEmbed.reserve(newChunks.size());
 
-	for (auto& chunk : newChunks)
-	{
-		std::string content;
-		for (int i = chunk._startLine; i < chunk._endLine; i++)
+	auto isBlank = [](const std::string& s) -> bool {
+		for (unsigned char c : s)
 		{
-			if (i > chunk._startLine)
-				content += "\n";
-			content += lines[i];
+			if (c != ' ' && c != '\t' && c != '\n' && c != '\r')
+				return false;
 		}
+		return true;
+	};
+
+	auto flushChunk = [&](std::string& content, int startLine, int endLine) {
+		if (isBlank(content))
+		{
+			content.clear();
+			return;
+		}
+		CEmbeddingChunk chunk;
+		chunk._startLine   = startLine;
+		chunk._endLine     = endLine;
 		chunk._contentHash = _ComputeHash(content);
+		newChunks.push_back(std::move(chunk));
 		textsToEmbed.push_back(std::move(content));
+		content.clear();
+	};
+
+	for (const auto& seg : segments)
+	{
+		if (seg.start >= seg.end)
+			continue;
+
+		if (seg.isTarget)
+		{
+			// target segment：逐行追加，超限时截断尾部
+			std::string content;
+			int lastLine = seg.start;
+			for (int i = seg.start; i < seg.end; i++)
+			{
+				size_t addSize = (content.empty() ? 0 : 1) + lines[i].size();
+				if (content.size() + addSize > MAX_BYTES_PER_CHUNK)
+				{
+					if (content.empty())
+					{
+						// 首行即超限 — 仍包含该行
+						content += lines[i];
+						lastLine = i + 1;
+					}
+					break;
+				}
+				if (!content.empty())
+					content += "\n";
+				content += lines[i];
+				lastLine = i + 1;
+			}
+			if (!content.empty())
+				flushChunk(content, seg.start, lastLine);
+		}
+		else
+		{
+			// complement segment：逐行追加，超限时 flush 后开启新 chunk
+			std::string content;
+			int chunkStart = seg.start;
+			int lastLine   = seg.start;
+			for (int i = seg.start; i < seg.end; i++)
+			{
+				size_t addSize = (content.empty() ? 0 : 1) + lines[i].size();
+				if (!content.empty() && content.size() + addSize > MAX_BYTES_PER_CHUNK)
+				{
+					flushChunk(content, chunkStart, lastLine);
+					chunkStart = i;
+				}
+				if (!content.empty())
+					content += "\n";
+				content += lines[i];
+				lastLine = i + 1;
+			}
+			if (!content.empty())
+				flushChunk(content, chunkStart, lastLine);
+		}
 	}
 
-	// 7. 调用 embedding API（带重试）
+	// 6. 调用 embedding API（带重试）
 	if (!textsToEmbed.empty())
 	{
 		// 在此点加锁拷贝 modelParam, 确保 result.modelName 与实际使用的一致
@@ -402,7 +475,7 @@ bool CEmbeddingGenerator::_CallEmbeddingApi(const EmbedModelParam& modelParam,
 	if (!embedEndpoint.empty() && embedEndpoint.back() == '/')
 		embedEndpoint.pop_back();
 	// 只有当结尾不是 "/embeddings" 时才添加
-	if (embedEndpoint.size() < 12 || embedEndpoint.substr(embedEndpoint.size() - 12) != "/embeddings")
+	if (embedEndpoint.size() < 11 || embedEndpoint.compare(embedEndpoint.size() - 11, 11, "/embeddings") != 0)
 		embedEndpoint += "/embeddings";
 
 	// 构造请求 JSON

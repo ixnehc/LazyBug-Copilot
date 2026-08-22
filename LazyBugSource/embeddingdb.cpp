@@ -113,6 +113,15 @@ bool CEmbeddingFiles::VerifyVersion()
 
 void CEmbeddingFiles::Save(std::unordered_map<FilePathKey, CFileChunks>& fileChunks)
 {
+	// 无 dirty bucket 时直接返回,避免空闲轮询每 100ms 空写 ver.txt
+	bool anyDirty = false;
+	for (int i = 0; i < ARRAY_SIZE(_buckets); i++)
+	{
+		if (_buckets[i].isDirty) { anyDirty = true; break; }
+	}
+	if (!anyDirty)
+		return;
+
 	std::vector<std::vector<CFileChunks*>> bucketData(ARRAY_SIZE(_buckets));
 
 	for (auto& pair : fileChunks)
@@ -253,6 +262,9 @@ void CEmbeddingDB::Init(const char* folderPath,
 		_modelName = modelParam._modelName;
 	_files.Init(folderPath);
 
+	// 同步初始版本号
+	_SyncSymbolDbVersion();
+
 	_generator.Init(modelParam, 4, ThreadPriority::LOWEST);
 }
 
@@ -347,6 +359,10 @@ void CEmbeddingDB::SetDeltaContent(
 			++it;
 		}
 	}
+
+	// 文件集已变更: 唤醒更新线程立即扫描(updated 文件依赖 SymbolDB 重解析后的 _parsedTime)
+	_resetThreadLoop.store(true);
+	_updateCV.notify_all();
 }
 
 const char* CEmbeddingDB::GetModelName() const
@@ -414,30 +430,6 @@ void CEmbeddingDB::ActivateFile(const char* filePath)
 
 // ---- embedding 读写 ----
 
-bool CEmbeddingDB::GetChunkEmbeddings(const FilePathKey& key,
-	std::vector<std::vector<float>>& outEmbeddings) const
-{
-	std::shared_lock<std::shared_mutex> lock(_mutex);
-
-	auto it = _fileChunks.find(key);
-	if (it == _fileChunks.end())
-		return false;
-
-	const CFileChunks& fc = it->second;
-	outEmbeddings.clear();
-	outEmbeddings.reserve(fc._chunks.size());
-
-	for (const CEmbeddingChunk& chunk : fc._chunks)
-	{
-		if (!chunk._embeddings.empty())
-			outEmbeddings.push_back(chunk._embeddings);
-		else
-			outEmbeddings.push_back({});  // 尚未生成
-	}
-
-	return true;
-}
-
 bool CEmbeddingDB::HasPendingChunks(const FilePathKey& key) const
 {
 	std::shared_lock<std::shared_mutex> lock(_mutex);
@@ -457,63 +449,8 @@ bool CEmbeddingDB::HasPendingChunks(const FilePathKey& key) const
 
 // ---- 相似度查询 ----
 
-void CEmbeddingDB::QuerySimilar(const FilePathKey& key,
-	int topK, std::vector<SimilarResult>& results) const
-{
-	results.clear();
-
-	// 获取目标文件的所有 embedding
-	std::vector<std::vector<float>> queryVecs;
-	if (!GetChunkEmbeddings(key, queryVecs))
-		return;
-
-	// 收集所有候选 embedding
-	struct Candidate
-	{
-		FilePathKey fileKey;
-		int         chunkIdx;
-		float       similarity;
-	};
-
-	std::shared_lock<std::shared_mutex> lock(_mutex);
-
-	for (const auto& filePair : _fileChunks)
-	{
-		const FilePathKey& fkey = filePair.first;
-		if (fkey == key)
-			continue;  // 跳过自己
-
-		const CFileChunks& fc = filePair.second;
-		for (int ci = 0; ci < (int)fc._chunks.size(); ci++)
-		{
-			const auto& emb = fc._chunks[ci]._embeddings;
-			if (emb.empty())
-				continue;
-
-			// 与 query 的每个 embedding 比较，取最大相似度
-			float bestSim = 0;
-			for (const auto& qv : queryVecs)
-			{
-				if (qv.empty()) continue;
-				float sim = _CosineSimilarity(qv, emb);
-				if (sim > bestSim) bestSim = sim;
-			}
-
-			results.push_back({ fkey, ci, bestSim });
-		}
-	}
-
-	// 按相似度降序排序
-	std::sort(results.begin(), results.end(),
-		[](const SimilarResult& a, const SimilarResult& b)
-	{ return a.similarity > b.similarity; });
-
-	if ((int)results.size() > topK)
-		results.resize(topK);
-}
-
 void CEmbeddingDB::QuerySimilar(const std::vector<float>& queryVec,
-	int topK, std::vector<SimilarResult>& results) const
+	const std::string& modelName, int topK, std::vector<SimilarResult>& results) const
 {
 	results.clear();
 	if (queryVec.empty())
@@ -525,6 +462,8 @@ void CEmbeddingDB::QuerySimilar(const std::vector<float>& queryVec,
 	{
 		const FilePathKey& fkey = filePair.first;
 		const CFileChunks& fc = filePair.second;
+		if (fc._modelName != modelName)
+			continue;
 
 		for (int ci = 0; ci < (int)fc._chunks.size(); ci++)
 		{
@@ -623,17 +562,20 @@ void CEmbeddingDB::_UpdateThreadProc()
 	while (_updateThreadRunning.load())
 	{
 		_resetThreadLoop = false;
+		_SyncSymbolDbVersion();
 
 		bool isAnyAction = false;
 
 		// Fetch embedding results from generator thread pool
 		if (true)
 		{
-			const AbsTick budgetDur = 20;
+			const AbsTick budgetDur = 2000;
 			AbsTick startFetch = GetAbsTick();
 			EmbedResult result;
 			while (_generator.FetchResult(result))
 			{
+				// 每个结果对应一次已提交的请求，无论成功与否都解除 pending 标记
+				_pendingKeys.erase(result.key);
 				if (result.success && result.modelName == _modelName)
 				{
 					// generator 返回完整的 CFileChunks，直接替换
@@ -693,7 +635,7 @@ void CEmbeddingDB::_UpdateThreadProc()
 		// 轮询检查过期文件，提交构建请求到 generator
 		if (true)
 		{
-			const AbsTick budgetDur = 2000000000000;
+			const AbsTick budgetDur = 5000;
 			AbsTick startT = GetAbsTick();
 
 			std::shared_lock<std::shared_mutex> lock(_mutex);
@@ -712,31 +654,42 @@ void CEmbeddingDB::_UpdateThreadProc()
 				if (GetAbsTick() > startT + budgetDur)
 					break;
 
+				// 在途请求过多: 停止本轮检测,直接结束,下轮再继续
+				if (_generator.GetActiveCount() >= MAX_EMBED_ACTIVE)
+					break;
+
 				const FilePathKey& key = cursorIt->first;
 
-				time_t parsedTime = _CheckOutOfDate(key);
-				if (parsedTime != 0)
+				// 已在途的 key 不必再查过期，直接跳过提交
+				if (_pendingKeys.count(key) == 0)
 				{
-					// 准备请求：从 SymbolDB 获取 symbol 行范围
-					EmbedRequest request;
-					request.key = key;
-					request.filePath = _GetRealFilePath(key);
-					request.oldChunks = cursorIt->second._chunks;
+					time_t parsedTime = _CheckOutOfDate(key);
+					if (parsedTime != 0)
+					{
+						// 准备请求：从 SymbolDB 获取 symbol 行范围
+						EmbedRequest request;
+						request.key = key;
+						request.filePath = _GetRealFilePath(key);
+						request.oldChunks = cursorIt->second._chunks;
 
-					if (!_GetSymbolRanges(key, request.symbolRanges, request.symbolParseTime))
-					{
-						// 获取 symbol range 失败（文件可能已被删除或解析有问题），
-						// 直接设空 chunks 并标记为已生成，避免反复重试
-						cursorIt->second._chunks.clear();
-						cursorIt->second._genTime = parsedTime;
-						cursorIt->second._modelName = _modelName;
-						_files.SetDirty(key);
-						isAnyAction = true;
-					}
-					else
-					{
-						_generator.Request(request);
-						isAnyAction = true;
+						if (!_GetSymbolRanges(key, request.symbolRanges, request.symbolParseTime))
+						{
+							// 获取 symbol range 失败（文件可能已被删除或解析有问题），
+							// 直接设空 chunks 并标记为已生成，避免反复重试
+							cursorIt->second._chunks.clear();
+							cursorIt->second._genTime = parsedTime;
+							cursorIt->second._modelName = _modelName;
+							_files.SetDirty(key);
+							isAnyAction = true;
+						}
+						else
+						{
+							// 标记为 pending，避免在结果返回前重复提交
+							_pendingKeys.insert(key);
+							if (!_generator.Request(request))
+								_pendingKeys.erase(key);   // 提交被拒绝（generator 已关闭），撤销 pending
+							isAnyAction = true;
+						}
 					}
 				}
 
@@ -761,9 +714,9 @@ void CEmbeddingDB::_UpdateThreadProc()
 		Save();
 
 		std::unique_lock<std::mutex> lock(_updateMutex);
-		_updateCV.wait_for(lock, std::chrono::milliseconds(100), [this]
+		_updateCV.wait_for(lock, std::chrono::milliseconds(SYMBOL_POLL_INTERVAL_MS), [this]
 		{
-			return _NeedResetThreadLoop();
+			return _NeedResetThreadLoop() || _IsSymbolDbChanged();
 		});
 	}
 }
@@ -775,6 +728,23 @@ bool CEmbeddingDB::_NeedResetThreadLoop()
 	if (_resetThreadLoop.load())
 		return true;
 	return false;
+}
+
+bool CEmbeddingDB::_IsSymbolDbChanged() const
+{
+	if (_cppSymbolDB && _cppSymbolDB->GetParseVersion() != _lastCppParseVersion)
+		return true;
+	if (_tsSymbolDB && _tsSymbolDB->GetParseVersion() != _lastTsParseVersion)
+		return true;
+	return false;
+}
+
+void CEmbeddingDB::_SyncSymbolDbVersion()
+{
+	if (_cppSymbolDB)
+		_lastCppParseVersion = _cppSymbolDB->GetParseVersion();
+	if (_tsSymbolDB)
+		_lastTsParseVersion = _tsSymbolDB->GetParseVersion();
 }
 
 // ---- 轮询 ----

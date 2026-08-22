@@ -160,6 +160,7 @@ namespace TreeSitterSymbol
 			_initTime = 0;
 			_updateThreadRunning = false;
 			_resetThreadLoop = false;
+			_parseVersion = 0;
 		}
 
 		//用于保存到nameIndexer的symbol数据,要和NameIndexData大小一致
@@ -197,6 +198,9 @@ namespace TreeSitterSymbol
 		bool GetSymbolLineRanges(StringIndex filePathIndex,
 		                         std::vector<SymbolRangeInfo>& outRanges,
 		                         time_t& outParsedTime) const;
+
+		// 获取当前解析版本号（每次 ProcessParseResult 成功写入后递增）
+		uint64_t GetParseVersion() const { return _parseVersion.load(std::memory_order_relaxed); }
 
 		// 获取和设置脏标记
 
@@ -281,7 +285,7 @@ namespace TreeSitterSymbol
 		std::condition_variable _updateCV;
 		std::atomic<bool> _updateThreadRunning;
 		std::atomic<bool> _resetThreadLoop;
-		std::atomic<int> _debugTotalParsed;
+		std::atomic<uint64_t> _parseVersion;           // 解析版本号，每次 ProcessParseResult 成功写入后递增
 		AbsTick _debugLastParsedTime;
 
 		LogFile _logFile;

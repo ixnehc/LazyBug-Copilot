@@ -111,7 +111,7 @@ public:
 
 	LlmToolCall _toolCall;
 };
-
+   
 class CChatTaskMgr
 {
 public:
@@ -148,7 +148,7 @@ public:
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, CompressSummarizeMode mode = CompressSummarizeMode::Normal);
 	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);
 
-	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls);
+	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls); 
 
 	// 获取任务统计信息
 	size_t GetPendingTaskCount() const { return _pending.size(); }

@@ -95,10 +95,6 @@ public:
 	// 只有被激活且在 solution 中的文件才生成/维护 embedding
 	void ActivateFile(const char* filePath);
 
-	// ---- embedding 读写 ----
-	bool GetChunkEmbeddings(const FilePathKey& key,
-	                        std::vector<std::vector<float>>& outEmbeddings) const;
-
 	// 检查指定文件是否还有未生成的 embedding
 	bool HasPendingChunks(const FilePathKey& key) const;
 
@@ -110,12 +106,9 @@ public:
 		float       similarity;   // [0, 1]
 	};
 
-	// 查询与指定文件(所有chunk)最相似的 topK 个 chunk
-	void QuerySimilar(const FilePathKey& key,
-	                  int topK, std::vector<SimilarResult>& results) const;
-
 	// 用给定向量查询最相似的 topK 个 chunk
 	void QuerySimilar(const std::vector<float>& queryVec,
+	                  const std::string& modelName,
 	                  int topK, std::vector<SimilarResult>& results) const;
 
 	// ---- 工具方法 ----
@@ -155,7 +148,24 @@ private:
 	static constexpr int    REENABLE_INTERVAL_SEC = 30;
 	std::atomic<time_t>     _disableTime;            // 0 = 未失活
 
+	// 在途请求上限: 超过则停止本轮提交,避免 generator 请求队列无限增长
+	static constexpr int    MAX_EMBED_ACTIVE = 8;
+
+	// SymbolDB 版本号轮询间隔: 仅做两次原子读,开销极小,用于检测解析完成
+	static constexpr int    SYMBOL_POLL_INTERVAL_MS = 200;
+
 	FilePathKey _cursorCheckEmb;  // 轮询游标
+
+	// 已提交给 generator 但尚未拿到结果的去重集合
+	// （仅在 _UpdateThreadProc 中访问，无需加锁）
+	std::unordered_set<FilePathKey> _pendingKeys;
+
+	// SymbolDB 解析版本号: 对比判断是否有新解析完成，有变化才重新开始循环
+	// （仅在 _UpdateThreadProc 中访问，无需加锁）
+	uint64_t _lastCppParseVersion = 0;
+	uint64_t _lastTsParseVersion  = 0;
+	bool _IsSymbolDbChanged() const;  // 对比两个 SymbolDB 当前版本与上次记录值
+	void _SyncSymbolDbVersion();     // 将两个 SymbolDB 当前版本写入 _last*ParseVersion
 
 	// ---- embedding 生成线程池 ----
 	CEmbeddingGenerator _generator;
