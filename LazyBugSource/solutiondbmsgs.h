@@ -36,6 +36,9 @@ enum class SolutionDBMsgType
 
 	RequestClearDB,
 	ClearDBDone,
+
+	QuerySimilarByVector,
+	SimilarChunks,
 	//XXXXX: more SolutionDB message
 };
 
@@ -544,6 +547,80 @@ public:
 	{
 		dp.Data_ReadSimple(success);
 		dp.Data_ReadString(dbFolderPath);
+	}
+};
+
+
+struct SolutionDBMsg_QuerySimilarByVector : public PipeMsg
+{
+public:
+	std::string dbFolderPath;
+	std::vector<float> queryVec;
+	int topK = 5;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::QuerySimilarByVector; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteString(dbFolderPath);
+		DP_WriteVector(dp, queryVec);
+		dp.Data_WriteSimple(topK);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadString(dbFolderPath);
+		DP_ReadVector(dp, queryVec);
+		dp.Data_ReadSimple(topK);
+	}
+};
+
+struct SolutionDBMsg_SimilarChunks : public PipeMsg
+{
+public:
+	struct Chunk
+	{
+		std::string filePath;
+		int         startLine;
+		int         endLine;
+		float       similarity;
+		time_t      fileTime;  // 该 chunk 来源文件的最后修改时间
+	};
+
+	std::vector<Chunk> chunks;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::SimilarChunks; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		int count = (int)chunks.size();
+		dp.Data_WriteSimple(count);
+		for (const auto& chunk : chunks)
+		{
+			dp.Data_WriteString(chunk.filePath);
+			dp.Data_WriteSimple(chunk.startLine);
+			dp.Data_WriteSimple(chunk.endLine);
+			dp.Data_WriteSimple(chunk.similarity);
+			dp.Data_WriteSimple(chunk.fileTime);
+		}
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		chunks.clear();
+		int count;
+		dp.Data_ReadSimple(count);
+		chunks.reserve(count);
+		for (int i = 0; i < count; i++)
+		{
+			Chunk chunk;
+			dp.Data_ReadString(chunk.filePath);
+			dp.Data_ReadSimple(chunk.startLine);
+			dp.Data_ReadSimple(chunk.endLine);
+			dp.Data_ReadSimple(chunk.similarity);
+			dp.Data_ReadSimple(chunk.fileTime);
+			chunks.push_back(std::move(chunk));
+		}
 	}
 };
 

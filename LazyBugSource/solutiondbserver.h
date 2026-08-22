@@ -40,6 +40,7 @@ private:
 	void _SearchFile(const SolutionDBMsg_SearchFile& request, SolutionDBMsg_SearchFileResult& result);
 	void _SetEmbeddingModel(const SolutionDBMsg_SetEmbeddingModel& request, SolutionDBMsg_EmbeddingModelSet& response);
 	void _ActivateFiles(const SolutionDBMsg_ActivateFiles& request, SolutionDBMsg_ActivateFilesResult& response);
+	void _QuerySimilarByVector(const SolutionDBMsg_QuerySimilarByVector& request, SolutionDBMsg_SimilarChunks& response);
 
 	HANDLE _hRequestPipe;
 	HANDLE _hResponsePipe;

@@ -288,6 +288,17 @@ void CSolutionDBServer::Run()
 					SendMessage(response, requestId);
 				}
 
+				if (msgType == SolutionDBMsgType::QuerySimilarByVector)
+				{
+					auto* request = static_cast<SolutionDBMsg_QuerySimilarByVector*>(msg.get());
+					if (request)
+					{
+						SolutionDBMsg_SimilarChunks response;
+						_QuerySimilarByVector(*request, response);
+						SendMessage(response, requestId);
+					}
+				}
+
 			});
 
 			// 分离线程，让它独立运行
@@ -913,6 +924,31 @@ void CSolutionDBServer::_ActivateFiles(const SolutionDBMsg_ActivateFiles& reques
 #endif
 
 	response.success = true;
+}
+
+
+void CSolutionDBServer::_QuerySimilarByVector(const SolutionDBMsg_QuerySimilarByVector& request, SolutionDBMsg_SimilarChunks& response)
+{
+	CSolutionDB* db = g_solutionDBs.Obtain(request.dbFolderPath.c_str());
+	if (!db)
+		return;
+
+#ifdef USE_EMBEDDING_DB
+	std::vector<CEmbeddingDB::SimilarResult> results;
+	db->_embeddingDB.QuerySimilar(request.queryVec, db->_embeddingDB.GetModelName(), request.topK, results);
+
+	response.chunks.reserve(results.size());
+	for (const auto& r : results)
+	{
+		SolutionDBMsg_SimilarChunks::Chunk chunk;
+		chunk.filePath = r.filePath;
+		chunk.startLine = r.range.first;
+		chunk.endLine = r.range.second;
+		chunk.similarity = r.similarity;
+		chunk.fileTime = r.genTime;
+		response.chunks.push_back(std::move(chunk));
+	}
+#endif
 }
 
 

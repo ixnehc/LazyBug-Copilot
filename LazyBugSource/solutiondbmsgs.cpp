@@ -41,6 +41,10 @@ PipeMsgPtr CreateSolutionDBMsg(PipeMsgType type)
 		return std::make_unique<SolutionDBMsg_RequestClearDB>();
 	case SolutionDBMsgType::ClearDBDone:
 		return std::make_unique<SolutionDBMsg_ClearDBDone>();
+	case SolutionDBMsgType::QuerySimilarByVector:
+		return std::make_unique<SolutionDBMsg_QuerySimilarByVector>();
+	case SolutionDBMsgType::SimilarChunks:
+		return std::make_unique<SolutionDBMsg_SimilarChunks>();
 	//XXXXX: more SolutionDB message
 	default:
 		always_assert(false);

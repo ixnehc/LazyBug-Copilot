@@ -310,3 +310,16 @@ void SolutionDB_SearchFile(const char* dbFolderPath, const char* keyword, int ma
 	msg.WaitAndFetch(result);
 }
 
+void SolutionDB_QuerySimilarByVector(const char* dbFolderPath, const std::vector<float>& queryVec, int topK, SolutionDBMsg_SimilarChunks& result)
+{
+	SolutionDBMsg_QuerySimilarByVector request;
+	request.dbFolderPath = dbFolderPath;
+	request.queryVec = queryVec;
+	request.topK = topK;
+
+	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
+
+	msg.WaitAndFetch(result);
+}
+
+
