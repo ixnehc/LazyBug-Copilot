@@ -458,9 +458,17 @@ void CEmbeddingDB::QuerySimilar(const std::vector<float>& queryVec,
 
 	std::shared_lock<std::shared_mutex> lock(_mutex);
 
+	// 先收集轻量中间结果，避免排序时拷贝字符串
+	struct Candidate
+	{
+		const CFileChunks* fc;
+		int                chunkIndex;
+		float              similarity;
+	};
+	std::vector<Candidate> candidates;
+
 	for (const auto& filePair : _fileChunks)
 	{
-		const FilePathKey& fkey = filePair.first;
 		const CFileChunks& fc = filePair.second;
 		if (fc._modelName != modelName)
 			continue;
@@ -472,16 +480,29 @@ void CEmbeddingDB::QuerySimilar(const std::vector<float>& queryVec,
 				continue;
 
 			float sim = _CosineSimilarity(queryVec, emb);
-			results.push_back({ fkey, ci, sim });
+			candidates.push_back({ &fc, ci, sim });
 		}
 	}
 
-	std::sort(results.begin(), results.end(),
-		[](const SimilarResult& a, const SimilarResult& b)
+	// 按相似度降序排序
+	std::sort(candidates.begin(), candidates.end(),
+		[](const Candidate& a, const Candidate& b)
 	{ return a.similarity > b.similarity; });
 
-	if ((int)results.size() > topK)
-		results.resize(topK);
+	// 截断到 topK
+	if ((int)candidates.size() > topK)
+		candidates.resize(topK);
+
+	// 仅对 topK 个结果构造完整 SimilarResult
+	results.reserve(candidates.size());
+	for (const auto& c : candidates)
+	{
+		const auto& chunk = c.fc->_chunks[c.chunkIndex];
+		std::string filePath;
+		GetStr(c.fc->_key, filePath);
+		results.push_back({ std::move(filePath),
+			{ chunk._startLine, chunk._endLine }, c.fc->_genTime, c.similarity });
+	}
 }
 
 // ---- 工具方法 ----

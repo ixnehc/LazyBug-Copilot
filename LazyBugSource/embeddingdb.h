@@ -101,9 +101,10 @@ public:
 	// ---- 相似度查询（仅在已激活文件中搜索） ----
 	struct SimilarResult
 	{
-		FilePathKey key;
-		int         chunkIndex;
-		float       similarity;   // [0, 1]
+		std::string           filePath;
+		std::pair<int, int>   range;        // [startLine, endLine)
+		time_t                genTime;      // 生成时间
+		float                 similarity;   // [0, 1]
 	};
 
 	// 用给定向量查询最相似的 topK 个 chunk
