@@ -450,7 +450,7 @@ bool CEmbeddingDB::HasPendingChunks(const FilePathKey& key) const
 // ---- 相似度查询 ----
 
 void CEmbeddingDB::QuerySimilar(const std::vector<float>& queryVec,
-	const std::string& modelName, int topK, std::vector<SimilarResult>& results) const
+	const std::string& modelName, int topK, std::vector<EmbeddingSimilarChunk>& results) const
 {
 	results.clear();
 	if (queryVec.empty())
@@ -493,7 +493,7 @@ void CEmbeddingDB::QuerySimilar(const std::vector<float>& queryVec,
 	if ((int)candidates.size() > topK)
 		candidates.resize(topK);
 
-	// 仅对 topK 个结果构造完整 SimilarResult
+	// 仅对 topK 个结果构造完整 EmbeddingSimilarChunk
 	results.reserve(candidates.size());
 	for (const auto& c : candidates)
 	{

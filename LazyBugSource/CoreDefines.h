@@ -1,6 +1,9 @@
 ﻿#pragma once
 
 #include <functional>
+#include <string>
+#include <utility>
+#include <ctime>
 
 // 启用 Embedding DB 功能
 #define USE_EMBEDDING_DB
@@ -292,4 +295,13 @@ enum class Language
 	Css,
 	Html,
 	// 可扩展更多语言...
+};
+
+// Embedding 相似度查询结果
+struct EmbeddingSimilarChunk
+{
+	std::string           filePath;
+	std::pair<int, int>   range;        // [startLine, endLine)
+	time_t                genTime;      // 生成时间
+	float                 similarity;   // [0, 1]
 };

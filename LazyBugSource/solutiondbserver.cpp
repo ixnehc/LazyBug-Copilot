@@ -934,7 +934,7 @@ void CSolutionDBServer::_QuerySimilarByVector(const SolutionDBMsg_QuerySimilarBy
 		return;
 
 #ifdef USE_EMBEDDING_DB
-	std::vector<CEmbeddingDB::SimilarResult> results;
+	std::vector<EmbeddingSimilarChunk> results;
 	db->_embeddingDB.QuerySimilar(request.queryVec, db->_embeddingDB.GetModelName(), request.topK, results);
 
 	response.chunks.reserve(results.size());

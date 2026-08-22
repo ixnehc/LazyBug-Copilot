@@ -99,18 +99,11 @@ public:
 	bool HasPendingChunks(const FilePathKey& key) const;
 
 	// ---- 相似度查询（仅在已激活文件中搜索） ----
-	struct SimilarResult
-	{
-		std::string           filePath;
-		std::pair<int, int>   range;        // [startLine, endLine)
-		time_t                genTime;      // 生成时间
-		float                 similarity;   // [0, 1]
-	};
 
 	// 用给定向量查询最相似的 topK 个 chunk
 	void QuerySimilar(const std::vector<float>& queryVec,
 	                  const std::string& modelName,
-	                  int topK, std::vector<SimilarResult>& results) const;
+	                  int topK, std::vector<EmbeddingSimilarChunk>& results) const;
 
 	// ---- 工具方法 ----
 	void GetStr(const FilePathKey& key, std::string& ret) const;
