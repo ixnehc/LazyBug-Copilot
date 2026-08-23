@@ -520,6 +520,27 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 	if (stopWorking)
 		_chatInput.HideStopButton();
 
+	// EmbeddingQuery debounce 触发
+	if (_embeddingQueryPending)
+	{
+		std::string embeddingApi = g_llmLib.GetEmbeddingApi();
+		if (!embeddingApi.empty() && embeddingApi != EMBEDDING_API_DISABLE)
+		{
+			AbsTick elapsed = GetAbsTick() - _lastInputChangeTick;
+			if (elapsed >= 300)
+			{
+				if (!_chatTaskMgrBg.IsTaskTypeRunning("EmbeddingQuery"))
+					_chatTaskMgrBg.AddTask_EmbeddingQuery(embeddingApi);
+				_embeddingQueryPending = false;
+			}
+		}
+		else
+		{
+			// embedding 未启用, 清除 pending
+			_embeddingQueryPending = false;
+		}
+	}
+
 	_chatTaskMgrBg.Update();
 
 	g_llmLib.UpdateReload();
@@ -1707,6 +1728,10 @@ void CChatDialogA::_UpdateContextUsage()
 
 void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing, const RECT& caretScreenRect)
 {
+	// 记录输入变化时间戳, 用于 EmbeddingQuery debounce
+	_lastInputChangeTick = GetAbsTick();
+	_embeddingQueryPending = true;
+
 	_inputHistory.OnModifyCurrent(content);
 
 	// 更新 IME composition 状态

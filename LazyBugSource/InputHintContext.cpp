@@ -186,6 +186,7 @@ void InputHintContext::Clear()
     _afterCaretLines.clear();
     _caretTokenPos = -1;
     _caretPlainPos = -1;
+    _similarChunks.clear();
 }
 
 
@@ -223,5 +224,15 @@ int InputHintContext::GetCaretTokenPos() const
 int InputHintContext::GetCaretPlainPos() const
 {
     return _caretPlainPos;
+}
+
+void InputHintContext::SetSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks)
+{
+    _similarChunks = std::move(chunks);
+}
+
+const std::vector<EmbeddingSimilarChunk>& InputHintContext::GetSimilarChunks() const
+{
+    return _similarChunks;
 }
 

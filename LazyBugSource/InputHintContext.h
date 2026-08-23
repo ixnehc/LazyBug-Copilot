@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+#include "CoreDefines.h"
 
 class CChatOpsCtrl;
 
@@ -25,6 +27,9 @@ public:
     // 清空上下文中保存的所有数据。
     void Clear();
 
+    // 设置 embedding 相似代码片段查询结果。
+    void SetSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks);
+
     const std::string& GetChatOpsContent() const;
     uint32_t GetChatOpsContentVersion() const;
 
@@ -34,6 +39,8 @@ public:
 
     int GetCaretTokenPos() const;
     int GetCaretPlainPos() const;
+
+    const std::vector<EmbeddingSimilarChunk>& GetSimilarChunks() const;
 
 
 private:
@@ -54,6 +61,9 @@ private:
     // 输入控件坐标系中的光标位置，以及 plainContent 坐标系中的光标位置。
     int _caretTokenPos = -1;
     int _caretPlainPos = -1;
+
+    // embedding 相似代码片段查询结果（由 CChatTask_EmbeddingQuery 写入）。
+    std::vector<EmbeddingSimilarChunk> _similarChunks;
 
 
 };
