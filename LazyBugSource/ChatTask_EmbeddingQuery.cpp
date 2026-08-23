@@ -103,6 +103,9 @@ void CChatTask_EmbeddingQuery::Start()
 
 	setting.api.tools.clear();
 
+	// 记录模型名，用于后续 QuerySimilar 匹配
+	_modelName = setting.api.model;
+
 	// 发送异步 embedding 请求
 	if (!_llmChats[0]->RequestEmbedding(_queryText, setting))
 	{
@@ -168,7 +171,7 @@ void CChatTask_EmbeddingQuery::Update()
 		}
 
 		SolutionDBMsg_SimilarChunks result;
-		SolutionDB_QuerySimilarByVector(dbFolderPath, _embedding, 5, result);
+		SolutionDB_QuerySimilarByVector(dbFolderPath, _embedding, _modelName.c_str(), 5, result);
 
 		// 转换为 EmbeddingSimilarChunk 并写入 InputHintContext
 		std::vector<EmbeddingSimilarChunk> chunks;

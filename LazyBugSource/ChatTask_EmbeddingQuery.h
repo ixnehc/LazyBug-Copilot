@@ -29,6 +29,7 @@ private:
 	std::string _BuildQueryText();
 
 	std::string             _embeddingApiName;
+	std::string             _modelName;
 	std::string             _queryText;
 	std::vector<float>      _embedding;
 	Phase                   _phase = Phase::Embedding;

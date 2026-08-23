@@ -26,5 +26,5 @@ extern void SolutionDB_SearchFile(const char* dbFolderPath, const char* keyword,
 extern SolutionDBMsg_EmbeddingModelSet SolutionDB_SetEmbeddingModel(const char* dbFolderPath, const EmbedModelParam& modelParam);
 extern SolutionDBMsg_ActivateFilesResult SolutionDB_ActivateFiles(const char* dbFolderPath, const std::vector<std::string>& filePaths);
 
-extern void SolutionDB_QuerySimilarByVector(const char* dbFolderPath, const std::vector<float>& queryVec, int topK, SolutionDBMsg_SimilarChunks& result);
+extern void SolutionDB_QuerySimilarByVector(const char* dbFolderPath, const std::vector<float>& queryVec, const char* modelName, int topK, SolutionDBMsg_SimilarChunks& result);
 

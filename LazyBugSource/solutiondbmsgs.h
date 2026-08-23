@@ -556,6 +556,7 @@ struct SolutionDBMsg_QuerySimilarByVector : public PipeMsg
 public:
 	std::string dbFolderPath;
 	std::vector<float> queryVec;
+	std::string modelName;  // 查询使用的 embedding 模型名
 	int topK = 5;
 
 	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::QuerySimilarByVector; }
@@ -564,6 +565,7 @@ public:
 	{
 		dp.Data_WriteString(dbFolderPath);
 		DP_WriteVector(dp, queryVec);
+		dp.Data_WriteString(modelName);
 		dp.Data_WriteSimple(topK);
 	}
 
@@ -571,6 +573,7 @@ public:
 	{
 		dp.Data_ReadString(dbFolderPath);
 		DP_ReadVector(dp, queryVec);
+		dp.Data_ReadString(modelName);
 		dp.Data_ReadSimple(topK);
 	}
 };
