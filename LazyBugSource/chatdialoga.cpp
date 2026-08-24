@@ -520,7 +520,7 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 	if (stopWorking)
 		_chatInput.HideStopButton();
 
-	// EmbeddingQuery debounce 触发
+	// InputEmbeddingQuery debounce 触发
 	if (_embeddingQueryPending)
 	{
 		std::string embeddingApi = g_llmLib.GetEmbeddingApi();
@@ -529,8 +529,8 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 			AbsTick elapsed = GetAbsTick() - _lastInputChangeTick;
 			if (elapsed >= 300)
 			{
-				if (!_chatTaskMgrBg.IsTaskTypeRunning("EmbeddingQuery"))
-					_chatTaskMgrBg.AddTask_EmbeddingQuery(embeddingApi);
+				if (!_chatTaskMgrBg.IsTaskTypeRunning("InputEmbeddingQuery"))
+					_chatTaskMgrBg.AddTask_InputEmbeddingQuery(embeddingApi);
 				_embeddingQueryPending = false;
 			}
 		}
@@ -1728,7 +1728,7 @@ void CChatDialogA::_UpdateContextUsage()
 
 void CChatDialogA::_OnInputContentChanged(const std::wstring& content, int caretPos, bool isComposing, const RECT& caretScreenRect)
 {
-	// 记录输入变化时间戳, 用于 EmbeddingQuery debounce
+	// 记录输入变化时间戳, 用于 InputEmbeddingQuery debounce
 	_lastInputChangeTick = GetAbsTick();
 	_embeddingQueryPending = true;
 

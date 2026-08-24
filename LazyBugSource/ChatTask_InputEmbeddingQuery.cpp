@@ -1,11 +1,12 @@
 #include "stdh.h"
-#include "ChatTask_EmbeddingQuery.h"
+#include "ChatTask_InputEmbeddingQuery.h"
 
 #include "LlmChat.h"
 #include "LlmLib.h"
 #include "InputHintContext.h"
 #include "SolutionDBAPI.h"
 #include "SolutionDBMsgs.h"
+#include "Utils_File.h"
 
 #include <algorithm>
 #include <cstring>
@@ -15,18 +16,18 @@ extern std::string widechar_to_utf8(const wchar_t* str);
 extern const char* GetOpenedDBFolderPath_utf8();
 
 
-CChatTask_EmbeddingQuery::CChatTask_EmbeddingQuery(const std::string& embeddingApiName)
+CChatTask_InputEmbeddingQuery::CChatTask_InputEmbeddingQuery(const std::string& embeddingApiName)
 {
 	_embeddingApiName = embeddingApiName;
 }
 
-void CChatTask_EmbeddingQuery::_Fail(const std::string& reason)
+void CChatTask_InputEmbeddingQuery::_Fail(const std::string& reason)
 {
 	(void)reason;
 	_status = TaskStatus::Failure;
 }
 
-std::string CChatTask_EmbeddingQuery::_BuildQueryText()
+std::string CChatTask_InputEmbeddingQuery::_BuildQueryText()
 {
 	if (!_context || !_context->inputHintCtx)
 		return "";
@@ -77,7 +78,7 @@ std::string CChatTask_EmbeddingQuery::_BuildQueryText()
 	return queryText;
 }
 
-void CChatTask_EmbeddingQuery::Start()
+void CChatTask_InputEmbeddingQuery::Start()
 {
 	if (!_context || !_context->inputHintCtx)
 	{
@@ -118,7 +119,7 @@ void CChatTask_EmbeddingQuery::Start()
 	_status = TaskStatus::Running;
 }
 
-void CChatTask_EmbeddingQuery::Update()
+void CChatTask_InputEmbeddingQuery::Update()
 {
 	if (_llmChats.empty())
 		return;
@@ -173,27 +174,65 @@ void CChatTask_EmbeddingQuery::Update()
 		SolutionDBMsg_SimilarChunks result;
 		SolutionDB_QuerySimilarByVector(dbFolderPath, _embedding, _modelName.c_str(), 5, result);
 
-		// 转换为 EmbeddingSimilarChunk 并写入 InputHintContext
-		std::vector<EmbeddingSimilarChunk> chunks;
-		chunks.reserve(result.chunks.size());
+		// 读取每个 chunk 的文件内容并拼接为文本，按行数限制总量
+		const int kMaxTotalLines = 200;
+		int remainingLines = kMaxTotalLines;
+		std::string similarText;
+
 		for (const auto& c : result.chunks)
 		{
-			EmbeddingSimilarChunk chunk;
-			chunk.filePath = c.filePath;
-			chunk.range = { c.startLine, c.endLine };
-			chunk.genTime = c.fileTime;
-			chunk.similarity = c.similarity;
-			chunks.push_back(std::move(chunk));
+			if (remainingLines <= 0)
+				break;
+
+			// 检查文件是否在 embedding 生成后被修改过，若不匹配则跳过
+			time_t curFileTime = Utils::GetFileTimeT(c.filePath.c_str());
+			if (curFileTime != c.fileTime)
+				continue;
+
+			// range 是 [startLine, endLine)，GetFilePartIntoUTF8 接受闭区间 [start, end]
+			int startLine = c.startLine;
+			int endLine = c.endLine - 1;
+			if (endLine < startLine)
+				endLine = startLine;
+
+			// 超过剩余行数限制时截断行范围
+			int chunkLines = endLine - startLine + 1;
+			if (chunkLines > remainingLines)
+			{
+				endLine = startLine + remainingLines - 1;
+				chunkLines = remainingLines;
+			}
+
+			Utils::FileContentCodingFormat codingFmt;
+			int totalLineCount = 0;
+			std::string chunkContent;
+
+			if (!Utils::GetFilePartIntoUTF8(c.filePath.c_str(), startLine, endLine, chunkContent, codingFmt, totalLineCount))
+				continue;
+
+			remainingLines -= chunkLines;
+
+			// 格式: [File: path Lstart-end similarity: 0.xx]\n<content>\n\n
+			char header[512];
+			std::snprintf(header, sizeof(header),
+				"[File: %s L%d-L%d similarity: %.2f]\n",
+				c.filePath.c_str(), startLine, endLine + 1, c.similarity);
+
+			std::string entry = header;
+			entry += chunkContent;
+			entry += "\n\n";
+
+			similarText += entry;
 		}
 
-		_context->inputHintCtx->SetSimilarChunks(std::move(chunks));
+		_context->inputHintCtx->SetSimilarChunks(std::move(similarText));
 
 		_phase = Phase::Done;
 		_status = TaskStatus::Success;
 	}
 }
 
-void CChatTask_EmbeddingQuery::Interrupt()
+void CChatTask_InputEmbeddingQuery::Interrupt()
 {
 	_requestInterrupt = true;
 	_status = TaskStatus::Failure;

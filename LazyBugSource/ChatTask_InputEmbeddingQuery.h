@@ -4,12 +4,12 @@
 #include <string>
 #include <vector>
 
-class CChatTask_EmbeddingQuery : public CChatTask
+class CChatTask_InputEmbeddingQuery : public CChatTask
 {
 public:
-	CChatTask_EmbeddingQuery(const std::string& embeddingApiName);
+	CChatTask_InputEmbeddingQuery(const std::string& embeddingApiName);
 
-	const char* GetType() override { return "EmbeddingQuery"; }
+	const char* GetType() override { return "InputEmbeddingQuery"; }
 	void Start() override;
 	void Update() override;
 	void Interrupt() override;

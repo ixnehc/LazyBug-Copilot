@@ -236,7 +236,7 @@ protected:
 	bool _inputHintEnabled = false;
 	bool _isInputComposing = false;
 
-	// EmbeddingQuery debounce
+	// InputEmbeddingQuery debounce
 	AbsTick _lastInputChangeTick = 0;
 	bool    _embeddingQueryPending = false;
 
