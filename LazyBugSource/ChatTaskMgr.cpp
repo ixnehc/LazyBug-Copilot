@@ -761,9 +761,9 @@ void CChatTaskMgr::AddTask_InputEmbeddingQuery(const std::string& embeddingApiNa
 	_AddTask(task);
 }
 
-void CChatTaskMgr::AddTask_HistoryEmbeddingQuery(const std::string& apiName)
+void CChatTaskMgr::AddTask_HistoryEmbeddingQuery(const std::string& apiName, const std::string& embeddingApiName)
 {
-	CChatTask_HistoryEmbeddingQuery* task = new CChatTask_HistoryEmbeddingQuery(apiName);
+	CChatTask_HistoryEmbeddingQuery* task = new CChatTask_HistoryEmbeddingQuery(apiName, embeddingApiName);
 	_AddTask(task);
 }
 

@@ -148,7 +148,7 @@ public:
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, CompressSummarizeMode mode = CompressSummarizeMode::Normal);
 	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);
 	void AddTask_InputEmbeddingQuery(const std::string& embeddingApiName);
-	void AddTask_HistoryEmbeddingQuery(const std::string& apiName);
+	void AddTask_HistoryEmbeddingQuery(const std::string& apiName, const std::string& embeddingApiName);
 
 	void UpdateToolCalls(std::vector<LlmToolCall>& toolCalls); 
 

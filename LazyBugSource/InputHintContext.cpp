@@ -187,7 +187,7 @@ void InputHintContext::Clear()
     _caretTokenPos = -1;
     _caretPlainPos = -1;
     _similarChunksText.clear();
-    _historyQueryPlanText.clear();
+    _historySimilarChunksText.clear();
 }
 
 
@@ -237,13 +237,13 @@ const std::string& InputHintContext::GetSimilarChunks() const
     return _similarChunksText;
 }
 
-void InputHintContext::SetHistoryQueryPlan(std::string text)
+void InputHintContext::SetHistorySimilarChunks(std::string text)
 {
-    _historyQueryPlanText = std::move(text);
+    _historySimilarChunksText = std::move(text);
 }
 
-const std::string& InputHintContext::GetHistoryQueryPlan() const
+const std::string& InputHintContext::GetHistorySimilarChunks() const
 {
-    return _historyQueryPlanText;
+    return _historySimilarChunksText;
 }
 

@@ -552,10 +552,12 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 			if (!_inputHintCtx.GetChatOpsContent().empty())
 			{
 				std::string inputHintApi = g_llmLib.GetInputHintApi();
-				if (!inputHintApi.empty() && inputHintApi != INPUTHINT_API_DISABLE)
+				std::string embeddingApi = g_llmLib.GetEmbeddingApi();
+				if (!inputHintApi.empty() && inputHintApi != INPUTHINT_API_DISABLE
+					&& !embeddingApi.empty() && embeddingApi != EMBEDDING_API_DISABLE)
 				{
 					if (!_chatTaskMgrBg.IsTaskTypeRunning("HistoryEmbeddingQuery"))
-						_chatTaskMgrBg.AddTask_HistoryEmbeddingQuery(inputHintApi);
+						_chatTaskMgrBg.AddTask_HistoryEmbeddingQuery(inputHintApi, embeddingApi);
 				}
 			}
 		}
