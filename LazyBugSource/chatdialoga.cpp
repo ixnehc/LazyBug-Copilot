@@ -541,6 +541,26 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 		}
 	}
 
+	// HistoryEmbeddingQuery 触发: 当 agent 空闲且 ops 版本变化时立即触发
+	_inputHintCtx.UpdateFromOps(_agent.GetOpsCtrl());
+	if (!_agent.IsWorking())
+	{
+		DWORD curOpsVer = _inputHintCtx.GetChatOpsContentVersion();
+		if (curOpsVer != _lastHistoryQueryOpsVersion)
+		{
+			_lastHistoryQueryOpsVersion = curOpsVer;
+			if (!_inputHintCtx.GetChatOpsContent().empty())
+			{
+				std::string inputHintApi = g_llmLib.GetInputHintApi();
+				if (!inputHintApi.empty() && inputHintApi != INPUTHINT_API_DISABLE)
+				{
+					if (!_chatTaskMgrBg.IsTaskTypeRunning("HistoryEmbeddingQuery"))
+						_chatTaskMgrBg.AddTask_HistoryEmbeddingQuery(inputHintApi);
+				}
+			}
+		}
+	}
+
 	_chatTaskMgrBg.Update();
 
 	g_llmLib.UpdateReload();

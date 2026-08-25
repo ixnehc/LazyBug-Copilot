@@ -240,6 +240,9 @@ protected:
 	AbsTick _lastInputChangeTick = 0;
 	bool    _embeddingQueryPending = false;
 
+	// HistoryEmbeddingQuery: ops 版本追踪
+	DWORD    _lastHistoryQueryOpsVersion = 0;
+
 	bool _CanShowHint();
 	void _UpdateHideHint();
 

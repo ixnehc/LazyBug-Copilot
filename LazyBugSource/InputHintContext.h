@@ -28,6 +28,9 @@ public:
     // 设置 embedding 相似代码片段查询结果（已拼接好的文本）。
     void SetSimilarChunks(std::string text);
 
+    // 设置 HistoryEmbeddingQuery 中 LLM 生成的检索 query 计划（原始 JSON 文本）。
+    void SetHistoryQueryPlan(std::string text);
+
     const std::string& GetChatOpsContent() const;
     uint32_t GetChatOpsContentVersion() const;
 
@@ -39,6 +42,7 @@ public:
     int GetCaretPlainPos() const;
 
     const std::string& GetSimilarChunks() const;
+    const std::string& GetHistoryQueryPlan() const;
 
 
 private:
@@ -62,6 +66,9 @@ private:
 
     // embedding 相似代码片段拼接文本（由 CChatTask_InputEmbeddingQuery 写入）。
     std::string _similarChunksText;
+
+    // HistoryEmbeddingQuery 中 LLM 生成的检索 query 计划（原始 JSON 文本）。
+    std::string _historyQueryPlanText;
 
 
 };
