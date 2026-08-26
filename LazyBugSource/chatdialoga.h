@@ -102,6 +102,7 @@ public:
 	// 输入自动补全
 	void ShowHint(const RECT& anchorRect, const Utils::DiffedInputContent& newDiff, const Utils::DiffedInputContent& oldDiff, const Utils::InputContent& newFullContent, int applyCaretTokenPos = -1, const Utils::GhostContent& ghostContent = Utils::GhostContent{}, int contentVersion = 0);
 	void HideHint();
+	bool IsInputAssociationEnabled() const { return _inputAssociationEnabled; }
 
 	// 更新设置菜单按钮状态（根据是否有打开的数据库文件夹）
 	void UpdateSettingMenuButton();
@@ -234,6 +235,7 @@ protected:
 	CInputHintWindow _inputHintWindow;
 	InputHintContext _inputHintCtx;
 	bool _inputHintEnabled = false;
+	bool _inputAssociationEnabled = true;
 	bool _isInputComposing = false;
 
 	// InputEmbeddingQuery debounce

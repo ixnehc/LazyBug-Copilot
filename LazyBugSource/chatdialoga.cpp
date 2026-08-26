@@ -241,6 +241,9 @@ BOOL CChatDialogA::OnInitDialog()
 		// 初始化输入提示开关按钮状态（从Registry加载持久化状态）
 		_inputHintEnabled = (g_reg.ReadInt("InputHint", "Enabled", 0) != 0);
 		_chatInput.SetInputHintToggleButtonState(_inputHintEnabled);
+		// 初始化联想开关按钮状态（从Registry加载持久化状态）
+		_inputAssociationEnabled = (g_reg.ReadInt("InputHint", "AssociationEnabled", 1) != 0);
+		_chatInput.SetInputAssociationToggleButtonState(_inputAssociationEnabled);
 	});
 
 	// 设置Page Up/Page Down按键回调
@@ -288,6 +291,13 @@ BOOL CChatDialogA::OnInitDialog()
 		_inputHintEnabled = enabled;
 		g_reg.WriteInt("InputHint", "Enabled", enabled ? 1 : 0);
 		_chatInput.SetInputHintToggleButtonState(_inputHintEnabled);
+	});
+
+	// 设置联想开关按钮点击回调
+	_chatInput.SetInputAssociationToggleCallback([this](bool enabled) {
+		_inputAssociationEnabled = enabled;
+		g_reg.WriteInt("InputHint", "AssociationEnabled", enabled ? 1 : 0);
+		_chatInput.SetInputAssociationToggleButtonState(_inputAssociationEnabled);
 	});
 
 	// 创建Skills弹出窗口

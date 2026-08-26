@@ -599,6 +599,17 @@ HRESULT CChatInput::InitializeWebView()
 									}
 								}
 							}
+							else if (action == "inputAssociationToggleClicked")
+							{
+								if (jsonMsg.contains("enabled") && jsonMsg["enabled"].is_boolean())
+								{
+									bool enabled = jsonMsg["enabled"].get<bool>();
+									if (_inputAssociationToggleCallback)
+									{
+										_inputAssociationToggleCallback(enabled);
+									}
+								}
+							}
 							else if (action == "openLogFile")
 							{
 								if (jsonMsg.contains("path") && jsonMsg["path"].is_string())
@@ -725,6 +736,7 @@ void CChatInput::Update()
 	_imageTipWindow.Update();
 	
 	UpdateInputHintButton();
+	UpdateInputAssociationButton();
 }
 
 
@@ -814,6 +826,11 @@ void CChatInput::SetInputHintToggleCallback(InputHintToggleCallback callback)
 	_inputHintToggleCallback = callback;
 }
 
+void CChatInput::SetInputAssociationToggleCallback(InputAssociationToggleCallback callback)
+{
+	_inputAssociationToggleCallback = callback;
+}
+
 void CChatInput::SetTabCallback(InputTabCallback callback)
 {
 	_tabCallback = callback;
@@ -862,6 +879,41 @@ void CChatInput::UpdateInputHintButton()
 
 	nlohmann::json j;
 	j["action"] = "updateInputHintButton";
+	j["available"] = available;
+	j["disabled"] = !available;
+	j["tooltip"] = tooltip;
+	_PostWebMessageAsJson(utf8_to_widechar(j.dump()));
+}
+
+void CChatInput::SetInputAssociationToggleButtonState(bool enabled)
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring jsonMessage = L"{\"action\":\"setInputAssociationToggleButtonState\",\"enabled\":";
+	jsonMessage += (enabled ? L"true" : L"false");
+	jsonMessage += L"}";
+	_PostWebMessageAsJson(jsonMessage);
+}
+
+void CChatInput::UpdateInputAssociationButton()
+{
+	if (!_IsReady())
+		return;
+
+	std::string apiName = g_llmLib.GetEmbeddingApi();
+	if (apiName == _inputAssociationApiName)
+		return;
+
+	_inputAssociationApiName = apiName;
+
+	bool available = !apiName.empty() && apiName != EMBEDDING_API_DISABLE;
+	std::string tooltip = available
+		? "Toggle Input Association (" + apiName + ")"
+		: "No embedding API configured";
+
+	nlohmann::json j;
+	j["action"] = "updateInputAssociationButton";
 	j["available"] = available;
 	j["disabled"] = !available;
 	j["tooltip"] = tooltip;

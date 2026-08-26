@@ -101,6 +101,16 @@ function processNativeMessage(data) {
                 window.updateInputHintButton(data.available, data.disabled, data.tooltip);
             }
             break;
+        case 'setInputAssociationToggleButtonState':
+            if (window.setInputAssociationToggleButtonState) {
+                window.setInputAssociationToggleButtonState(data.enabled !== false);
+            }
+            break;
+        case 'updateInputAssociationButton':
+            if (window.updateInputAssociationButton) {
+                window.updateInputAssociationButton(data.available, data.disabled, data.tooltip);
+            }
+            break;
     }
 }
 

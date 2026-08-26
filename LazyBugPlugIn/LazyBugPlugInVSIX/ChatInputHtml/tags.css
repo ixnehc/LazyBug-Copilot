@@ -154,6 +154,11 @@
     border-color: var(--primary-color);
 }
 
+/* 两个相邻的输入提示/联想按钮：第二个不需要再向右推 */
+.input-hint-toggle-button + .input-hint-toggle-button {
+    margin-left: 0;
+}
+
 .input-hint-toggle-button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -173,6 +178,8 @@
 .input-hint-toggle-icon-disable {
     width: 18px;
     height: 18px;
+    font-size: 18px;
+    line-height: 1;
     opacity: 0.6;
 }
 .input-hint-toggle-icon-enable {

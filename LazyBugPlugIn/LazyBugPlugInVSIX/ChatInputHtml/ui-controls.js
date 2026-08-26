@@ -503,6 +503,39 @@ function handleInputHintToggleClick() {
     }
 }
 
+// 设置联想开关按钮状态
+function setInputAssociationToggleButtonState(enabled) {
+    const button = document.getElementById('inputAssociationToggleButton');
+    if (button) {
+        if (enabled) {
+            button.classList.add('enabled');
+        } else {
+            button.classList.remove('enabled');
+        }
+    }
+}
+
+// 更新联想按钮（C++侧每帧调用，仅在Embedding API名称变化时触发）
+function updateInputAssociationButton(available, disabled, tooltip) {
+    const button = document.getElementById('inputAssociationToggleButton');
+    if (button) {
+        button.disabled = disabled;
+        button.title = tooltip;
+    }
+}
+
+// 处理联想开关按钮点击
+function handleInputAssociationToggleClick() {
+    const button = document.getElementById('inputAssociationToggleButton');
+    if (button) {
+        const isCurrentlyEnabled = button.classList.contains('enabled');
+        sendMessageToNative({
+            action: 'inputAssociationToggleClicked',
+            enabled: !isCurrentlyEnabled
+        });
+    }
+}
+
 // 导出到全局
 window.updateToolButtons = updateToolButtons;
 window.createToolButtonElement = createToolButtonElement;
@@ -529,3 +562,6 @@ window.hideCompressSummarizeTip = hideCompressSummarizeTip;
 window.setInputHintToggleButtonState = setInputHintToggleButtonState;
 window.handleInputHintToggleClick = handleInputHintToggleClick;
 window.updateInputHintButton = updateInputHintButton;
+window.setInputAssociationToggleButtonState = setInputAssociationToggleButtonState;
+window.handleInputAssociationToggleClick = handleInputAssociationToggleClick;
+window.updateInputAssociationButton = updateInputAssociationButton;

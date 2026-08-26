@@ -189,6 +189,12 @@ function initializeEventListeners() {
         inputHintToggleButton.addEventListener('click', handleInputHintToggleClick);
     }
 
+    // 联想开关按钮点击
+    const inputAssociationToggleButton = document.getElementById('inputAssociationToggleButton');
+    if (inputAssociationToggleButton) {
+        inputAssociationToggleButton.addEventListener('click', handleInputAssociationToggleClick);
+    }
+
     // Stop按钮点击
     if (stopButton) {
         stopButton.addEventListener('click', handleStopClick);

@@ -162,8 +162,13 @@ bool CChatTask_InputHint::_StartInputHintSession()
 	}
 
 	// 从 InputHintContext 读取合并后的相似代码上下文(输入 embedding + 历史 embedding)
+	// 仅在“联想”开关打开时启用
 	std::string similarChunksText;
-	if (_context && _context->inputHintCtx)
+	bool associationEnabled = true;
+	if (_context && _context->chatDialogA)
+		associationEnabled = _context->chatDialogA->IsInputAssociationEnabled();
+
+	if (associationEnabled && _context && _context->inputHintCtx)
 		similarChunksText = _context->inputHintCtx->GetMergedSimilarChunksText();
 
 	if (!similarChunksText.empty())
