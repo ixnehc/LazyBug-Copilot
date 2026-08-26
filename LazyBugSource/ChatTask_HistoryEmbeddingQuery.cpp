@@ -4,13 +4,12 @@
 #include "LlmChat.h"
 #include "LlmLib.h"
 #include "InputHintContext.h"
+#include "CoreDefines.h"
 #include "LlmSession.h"
 #include "SolutionDBAPI.h"
 #include "SolutionDBMsgs.h"
-#include "Utils_File.h"
 
 #include <algorithm>
-#include <cstring>
 
 // 声明外部函数
 extern const char* GetOpenedDBFolderPath_utf8();
@@ -27,7 +26,7 @@ void CChatTask_HistoryEmbeddingQuery::_Fail(const std::string& reason)
 {
 	(void)reason;
 	if (_context && _context->inputHintCtx)
-		_context->inputHintCtx->SetHistorySimilarChunks(std::string());
+		_context->inputHintCtx->SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk>());
 	_status = TaskStatus::Failure;
 }
 
@@ -214,78 +213,20 @@ void CChatTask_HistoryEmbeddingQuery::_MergeAndFormatChunks()
 		return;
 	}
 
-	// 按 (filePath, startLine, endLine) 排序后去重，保留最高 similarity
-	std::sort(_allChunks.begin(), _allChunks.end(), [](const auto& a, const auto& b) {
-		if (a.filePath != b.filePath) return a.filePath < b.filePath;
-		if (a.startLine != b.startLine) return a.startLine < b.startLine;
-		if (a.endLine != b.endLine) return a.endLine < b.endLine;
-		return a.similarity > b.similarity;
-	});
-
-	std::vector<SolutionDBMsg_SimilarChunks::Chunk> deduped;
+	// 将累积的 chunks 转换为 EmbeddingSimilarChunk 并写入 InputHintContext
+	std::vector<EmbeddingSimilarChunk> chunks;
+	chunks.reserve(_allChunks.size());
 	for (const auto& c : _allChunks)
 	{
-		if (!deduped.empty())
-		{
-			const auto& last = deduped.back();
-			if (last.filePath == c.filePath && last.startLine == c.startLine && last.endLine == c.endLine)
-				continue;
-		}
-		deduped.push_back(c);
+		EmbeddingSimilarChunk esc;
+		esc.filePath = c.filePath;
+		esc.range = { c.startLine, c.endLine };
+		esc.genTime = c.fileTime;
+		esc.similarity = c.similarity;
+		chunks.push_back(std::move(esc));
 	}
 
-	// 按 similarity 降序排序
-	std::sort(deduped.begin(), deduped.end(), [](const auto& a, const auto& b) {
-		return a.similarity > b.similarity;
-	});
-
-	// 逐 chunk 校验文件时间并拼接，按行数限制总量
-	const int kMaxTotalLines = 200;
-	int remainingLines = kMaxTotalLines;
-	std::string similarText;
-
-	for (const auto& c : deduped)
-	{
-		if (remainingLines <= 0)
-			break;
-
-		// 检查文件是否在 embedding 生成后被修改过
-		time_t curFileTime = Utils::GetFileTimeT(c.filePath.c_str());
-		if (curFileTime != c.fileTime)
-			continue;
-
-		// range 是 [startLine, endLine)，GetFilePartIntoUTF8 接受闭区间 [start, end]
-		int startLine = c.startLine;
-		int endLine = c.endLine - 1;
-		if (endLine < startLine)
-			endLine = startLine;
-
-		int chunkLines = endLine - startLine + 1;
-		if (chunkLines > remainingLines)
-		{
-			endLine = startLine + remainingLines - 1;
-			chunkLines = remainingLines;
-		}
-
-		Utils::FileContentCodingFormat codingFmt;
-		int totalLineCount = 0;
-		std::string chunkContent;
-		if (!Utils::GetFilePartIntoUTF8(c.filePath.c_str(), startLine, endLine, chunkContent, codingFmt, totalLineCount))
-			continue;
-
-		remainingLines -= chunkLines;
-
-		char header[512];
-		std::snprintf(header, sizeof(header),
-			"[File: %s L%d-L%d similarity: %.2f]\n",
-			c.filePath.c_str(), startLine, endLine + 1, c.similarity);
-
-		similarText += header;
-		similarText += chunkContent;
-		similarText += "\n\n";
-	}
-
-	_context->inputHintCtx->SetHistorySimilarChunks(std::move(similarText));
+	_context->inputHintCtx->SetHistorySimilarChunks(std::move(chunks));
 
 	_phase = Phase::Done;
 	_status = TaskStatus::Success;

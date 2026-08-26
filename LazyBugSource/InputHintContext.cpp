@@ -2,9 +2,12 @@
 #include "InputHintContext.h"
 #include "ChatOpsCtrl.h"
 #include "Utils_InputHint.h"
+#include "Utils_File.h"
 
 #include <cstring>
 #include <unordered_set>
+#include <algorithm>
+#include <cstdio>
 
 
 
@@ -186,8 +189,8 @@ void InputHintContext::Clear()
     _afterCaretLines.clear();
     _caretTokenPos = -1;
     _caretPlainPos = -1;
-    _similarChunksText.clear();
-    _historySimilarChunksText.clear();
+    _inputChunks.clear();
+    _historyChunks.clear();
 }
 
 
@@ -227,23 +230,100 @@ int InputHintContext::GetCaretPlainPos() const
     return _caretPlainPos;
 }
 
-void InputHintContext::SetSimilarChunks(std::string text)
+void InputHintContext::SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks)
 {
-    _similarChunksText = std::move(text);
+    _inputChunks = std::move(chunks);
 }
 
-const std::string& InputHintContext::GetSimilarChunks() const
+void InputHintContext::SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk> chunks)
 {
-    return _similarChunksText;
+    _historyChunks = std::move(chunks);
 }
 
-void InputHintContext::SetHistorySimilarChunks(std::string text)
+std::string InputHintContext::GetMergedSimilarChunksText() const
 {
-    _historySimilarChunksText = std::move(text);
-}
+    // 合并两个来源的 chunks
+    std::vector<EmbeddingSimilarChunk> all;
+    all.reserve(_inputChunks.size() + _historyChunks.size());
+    for (const auto& c : _inputChunks)
+        all.push_back(c);
+    for (const auto& c : _historyChunks)
+        all.push_back(c);
 
-const std::string& InputHintContext::GetHistorySimilarChunks() const
-{
-    return _historySimilarChunksText;
+    if (all.empty())
+        return std::string();
+
+    // 按 (filePath, range.first, range.second) 排序后去重，保留最高 similarity
+    std::sort(all.begin(), all.end(), [](const auto& a, const auto& b) {
+        if (a.filePath != b.filePath) return a.filePath < b.filePath;
+        if (a.range.first != b.range.first) return a.range.first < b.range.first;
+        if (a.range.second != b.range.second) return a.range.second < b.range.second;
+        return a.similarity > b.similarity;
+    });
+
+    std::vector<EmbeddingSimilarChunk> deduped;
+    for (const auto& c : all)
+    {
+        if (!deduped.empty())
+        {
+            const auto& last = deduped.back();
+            if (last.filePath == c.filePath && last.range == c.range)
+                continue;
+        }
+        deduped.push_back(c);
+    }
+
+    // 按 similarity 降序排序
+    std::sort(deduped.begin(), deduped.end(), [](const auto& a, const auto& b) {
+        return a.similarity > b.similarity;
+    });
+
+    // 逐 chunk 校验文件时间并拼接，按行数限制总量
+    const int kMaxTotalLines = 200;
+    int remainingLines = kMaxTotalLines;
+    std::string similarText;
+
+    for (const auto& c : deduped)
+    {
+        if (remainingLines <= 0)
+            break;
+
+        // 检查文件是否在 embedding 生成后被修改过
+        time_t curFileTime = Utils::GetFileTimeT(c.filePath.c_str());
+        if (curFileTime != c.genTime)
+            continue;
+
+        // range 是 [startLine, endLine)，GetFilePartIntoUTF8 接受闭区间 [start, end]
+        int startLine = c.range.first;
+        int endLine = c.range.second - 1;
+        if (endLine < startLine)
+            endLine = startLine;
+
+        int chunkLines = endLine - startLine + 1;
+        if (chunkLines > remainingLines)
+        {
+            endLine = startLine + remainingLines - 1;
+            chunkLines = remainingLines;
+        }
+
+        Utils::FileContentCodingFormat codingFmt;
+        int totalLineCount = 0;
+        std::string chunkContent;
+        if (!Utils::GetFilePartIntoUTF8(c.filePath.c_str(), startLine, endLine, chunkContent, codingFmt, totalLineCount))
+            continue;
+
+        remainingLines -= chunkLines;
+
+        char header[512];
+        std::snprintf(header, sizeof(header),
+            "[File: %s L%d-L%d similarity: %.2f]\n",
+            c.filePath.c_str(), startLine, endLine + 1, c.similarity);
+
+        similarText += header;
+        similarText += chunkContent;
+        similarText += "\n\n";
+    }
+
+    return similarText;
 }
 

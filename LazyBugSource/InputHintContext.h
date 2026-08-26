@@ -2,6 +2,9 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+
+#include "CoreDefines.h"
 
 class CChatOpsCtrl;
 
@@ -25,11 +28,11 @@ public:
     // 清空上下文中保存的所有数据。
     void Clear();
 
-    // 设置 embedding 相似代码片段查询结果（已拼接好的文本）。
-    void SetSimilarChunks(std::string text);
+    // 设置基于输入内容的 embedding 相似代码片段查询结果。
+    void SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks);
 
-    // 设置基于聊天历史的 embedding 相似代码片段查询结果（已拼接好的文本）。
-    void SetHistorySimilarChunks(std::string text);
+    // 设置基于聊天历史的 embedding 相似代码片段查询结果。
+    void SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk> chunks);
 
     const std::string& GetChatOpsContent() const;
     uint32_t GetChatOpsContentVersion() const;
@@ -41,8 +44,8 @@ public:
     int GetCaretTokenPos() const;
     int GetCaretPlainPos() const;
 
-    const std::string& GetSimilarChunks() const;
-    const std::string& GetHistorySimilarChunks() const;
+    // 合并两个来源的 chunks，去重后按行数限制拼接为文本。
+    std::string GetMergedSimilarChunksText() const;
 
 
 private:
@@ -64,11 +67,11 @@ private:
     int _caretTokenPos = -1;
     int _caretPlainPos = -1;
 
-    // embedding 相似代码片段拼接文本（由 CChatTask_InputEmbeddingQuery 写入）。
-    std::string _similarChunksText;
+    // embedding 相似代码片段（由 CChatTask_InputEmbeddingQuery 写入）。
+    std::vector<EmbeddingSimilarChunk> _inputChunks;
 
-    // 基于聊天历史的 embedding 相似代码片段拼接文本（由 CChatTask_HistoryEmbeddingQuery 写入）。
-    std::string _historySimilarChunksText;
+    // 基于聊天历史的 embedding 相似代码片段（由 CChatTask_HistoryEmbeddingQuery 写入）。
+    std::vector<EmbeddingSimilarChunk> _historyChunks;
 
 
 };

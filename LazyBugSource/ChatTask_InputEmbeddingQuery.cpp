@@ -4,12 +4,11 @@
 #include "LlmChat.h"
 #include "LlmLib.h"
 #include "InputHintContext.h"
+#include "CoreDefines.h"
 #include "SolutionDBAPI.h"
 #include "SolutionDBMsgs.h"
-#include "Utils_File.h"
 
 #include <algorithm>
-#include <cstring>
 
 // 声明外部函数
 extern std::string widechar_to_utf8(const wchar_t* str);
@@ -24,6 +23,8 @@ CChatTask_InputEmbeddingQuery::CChatTask_InputEmbeddingQuery(const std::string& 
 void CChatTask_InputEmbeddingQuery::_Fail(const std::string& reason)
 {
 	(void)reason;
+	if (_context && _context->inputHintCtx)
+		_context->inputHintCtx->SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk>());
 	_status = TaskStatus::Failure;
 }
 
@@ -174,58 +175,20 @@ void CChatTask_InputEmbeddingQuery::Update()
 		SolutionDBMsg_SimilarChunks result;
 		SolutionDB_QuerySimilarByVector(dbFolderPath, _embedding, _modelName.c_str(), 5, result);
 
-		// 读取每个 chunk 的文件内容并拼接为文本，按行数限制总量
-		const int kMaxTotalLines = 200;
-		int remainingLines = kMaxTotalLines;
-		std::string similarText;
-
+		// 将 chunk 转换为 EmbeddingSimilarChunk 并写入 InputHintContext
+		std::vector<EmbeddingSimilarChunk> chunks;
+		chunks.reserve(result.chunks.size());
 		for (const auto& c : result.chunks)
 		{
-			if (remainingLines <= 0)
-				break;
-
-			// 检查文件是否在 embedding 生成后被修改过，若不匹配则跳过
-			time_t curFileTime = Utils::GetFileTimeT(c.filePath.c_str());
-			if (curFileTime != c.fileTime)
-				continue;
-
-			// range 是 [startLine, endLine)，GetFilePartIntoUTF8 接受闭区间 [start, end]
-			int startLine = c.startLine;
-			int endLine = c.endLine - 1;
-			if (endLine < startLine)
-				endLine = startLine;
-
-			// 超过剩余行数限制时截断行范围
-			int chunkLines = endLine - startLine + 1;
-			if (chunkLines > remainingLines)
-			{
-				endLine = startLine + remainingLines - 1;
-				chunkLines = remainingLines;
-			}
-
-			Utils::FileContentCodingFormat codingFmt;
-			int totalLineCount = 0;
-			std::string chunkContent;
-
-			if (!Utils::GetFilePartIntoUTF8(c.filePath.c_str(), startLine, endLine, chunkContent, codingFmt, totalLineCount))
-				continue;
-
-			remainingLines -= chunkLines;
-
-			// 格式: [File: path Lstart-end similarity: 0.xx]\n<content>\n\n
-			char header[512];
-			std::snprintf(header, sizeof(header),
-				"[File: %s L%d-L%d similarity: %.2f]\n",
-				c.filePath.c_str(), startLine, endLine + 1, c.similarity);
-
-			std::string entry = header;
-			entry += chunkContent;
-			entry += "\n\n";
-
-			similarText += entry;
+			EmbeddingSimilarChunk esc;
+			esc.filePath = c.filePath;
+			esc.range = { c.startLine, c.endLine };
+			esc.genTime = c.fileTime;
+			esc.similarity = c.similarity;
+			chunks.push_back(std::move(esc));
 		}
 
-		_context->inputHintCtx->SetSimilarChunks(std::move(similarText));
+		_context->inputHintCtx->SetInputSimilarChunks(std::move(chunks));
 
 		_phase = Phase::Done;
 		_status = TaskStatus::Success;
