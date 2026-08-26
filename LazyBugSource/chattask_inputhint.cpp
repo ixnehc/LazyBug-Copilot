@@ -161,6 +161,18 @@ bool CChatTask_InputHint::_StartInputHintSession()
 		userMsg += "\n\n";
 	}
 
+	// 从 InputHintContext 读取合并后的相似代码上下文(输入 embedding + 历史 embedding)
+	std::string similarChunksText;
+	if (_context && _context->inputHintCtx)
+		similarChunksText = _context->inputHintCtx->GetMergedSimilarChunksText();
+
+	if (!similarChunksText.empty())
+	{
+		userMsg += "Relevant code context:\n";
+		userMsg += similarChunksText;
+		userMsg += "\n";
+	}
+
 	// 使用 InputHintContext 维护好的三部分(光标行 + 光标前行 + 光标后行)
 	if (!_beforeCaretLines.empty())
 	{
