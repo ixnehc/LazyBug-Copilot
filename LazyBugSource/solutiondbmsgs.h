@@ -3,6 +3,7 @@
 #include "PipeMsg.h"
 #include <string>
 #include <memory>
+#include <stdint.h>
 
 #include "CppSymbolDefines.h"
 
@@ -39,6 +40,9 @@ enum class SolutionDBMsgType
 
 	QuerySimilarByVector,
 	SimilarChunks,
+
+	GetEmbeddingDBVersion,
+	EmbeddingDBVersion,
 	//XXXXX: more SolutionDB message
 };
 
@@ -622,8 +626,50 @@ public:
 			dp.Data_ReadSimple(chunk.endLine);
 			dp.Data_ReadSimple(chunk.similarity);
 			dp.Data_ReadSimple(chunk.fileTime);
-			chunks.push_back(std::move(chunk));
+		chunks.push_back(std::move(chunk));
 		}
+	}
+};
+
+struct SolutionDBMsg_GetEmbeddingDBVersion : public PipeMsg
+{
+public:
+	std::string dbFolderPath;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::GetEmbeddingDBVersion; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteString(dbFolderPath);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadString(dbFolderPath);
+	}
+};
+
+struct SolutionDBMsg_EmbeddingDBVersion : public PipeMsg
+{
+public:
+	bool success = false;
+	std::string dbFolderPath;
+	uint64_t version = 0;  // CEmbeddingDB 的 chunk 数据版本号
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::EmbeddingDBVersion; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteSimple(success);
+		dp.Data_WriteString(dbFolderPath);
+		dp.Data_WriteSimple(version);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadSimple(success);
+		dp.Data_ReadString(dbFolderPath);
+		dp.Data_ReadSimple(version);
 	}
 };
 

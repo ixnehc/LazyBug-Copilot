@@ -299,6 +299,17 @@ void CSolutionDBServer::Run()
 					}
 				}
 
+				if (msgType == SolutionDBMsgType::GetEmbeddingDBVersion)
+				{
+					auto* request = static_cast<SolutionDBMsg_GetEmbeddingDBVersion*>(msg.get());
+					if (request)
+					{
+						SolutionDBMsg_EmbeddingDBVersion response;
+						_GetEmbeddingDBVersion(*request, response);
+						SendMessage(response, requestId);
+					}
+				}
+
 			});
 
 			// 分离线程，让它独立运行
@@ -949,6 +960,23 @@ void CSolutionDBServer::_QuerySimilarByVector(const SolutionDBMsg_QuerySimilarBy
 		response.chunks.push_back(std::move(chunk));
 	}
 #endif
+}
+
+void CSolutionDBServer::_GetEmbeddingDBVersion(const SolutionDBMsg_GetEmbeddingDBVersion& request, SolutionDBMsg_EmbeddingDBVersion& response)
+{
+	response.dbFolderPath = request.dbFolderPath;
+
+	CSolutionDB* db = g_solutionDBs.Obtain(request.dbFolderPath.c_str());
+	if (!db)
+	{
+		response.success = false;
+		return;
+	}
+
+#ifdef USE_EMBEDDING_DB
+	response.version = db->_embeddingDB.GetVersion();
+#endif
+	response.success = true;
 }
 
 

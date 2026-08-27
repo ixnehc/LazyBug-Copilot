@@ -45,6 +45,10 @@ PipeMsgPtr CreateSolutionDBMsg(PipeMsgType type)
 		return std::make_unique<SolutionDBMsg_QuerySimilarByVector>();
 	case SolutionDBMsgType::SimilarChunks:
 		return std::make_unique<SolutionDBMsg_SimilarChunks>();
+	case SolutionDBMsgType::GetEmbeddingDBVersion:
+		return std::make_unique<SolutionDBMsg_GetEmbeddingDBVersion>();
+	case SolutionDBMsgType::EmbeddingDBVersion:
+		return std::make_unique<SolutionDBMsg_EmbeddingDBVersion>();
 	//XXXXX: more SolutionDB message
 	default:
 		always_assert(false);

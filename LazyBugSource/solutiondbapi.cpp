@@ -323,4 +323,17 @@ void SolutionDB_QuerySimilarByVector(const char* dbFolderPath, const std::vector
 	msg.WaitAndFetch(result);
 }
 
+SolutionDBMsg_EmbeddingDBVersion SolutionDB_GetEmbeddingDBVersion(const char* dbFolderPath)
+{
+	SolutionDBMsg_GetEmbeddingDBVersion request;
+	request.dbFolderPath = dbFolderPath;
+
+	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
+
+	SolutionDBMsg_EmbeddingDBVersion result;
+	msg.WaitAndFetch(result);
+
+	return std::move(result);
+}
+
 

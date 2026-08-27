@@ -28,3 +28,5 @@ extern SolutionDBMsg_ActivateFilesResult SolutionDB_ActivateFiles(const char* db
 
 extern void SolutionDB_QuerySimilarByVector(const char* dbFolderPath, const std::vector<float>& queryVec, const char* modelName, int topK, SolutionDBMsg_SimilarChunks& result);
 
+extern SolutionDBMsg_EmbeddingDBVersion SolutionDB_GetEmbeddingDBVersion(const char* dbFolderPath);
+
