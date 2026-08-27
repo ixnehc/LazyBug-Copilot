@@ -24,7 +24,7 @@ void CChatTask_InputEmbeddingQuery::_Fail(const std::string& reason)
 {
 	(void)reason;
 	if (_context && _context->inputHintCtx)
-		_context->inputHintCtx->SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk>());
+		_context->inputHintCtx->SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk>(), 0);
 	_status = TaskStatus::Failure;
 }
 
@@ -172,6 +172,9 @@ void CChatTask_InputEmbeddingQuery::Update()
 			return;
 		}
 
+		SolutionDBMsg_EmbeddingDBVersion versionResult = SolutionDB_GetEmbeddingDBVersion(dbFolderPath);
+		uint64_t embeddingDBVersion = versionResult.success ? versionResult.version : 0;
+
 		SolutionDBMsg_SimilarChunks result;
 		SolutionDB_QuerySimilarByVector(dbFolderPath, _embedding, _modelName.c_str(), 5, result);
 
@@ -188,7 +191,7 @@ void CChatTask_InputEmbeddingQuery::Update()
 			chunks.push_back(std::move(esc));
 		}
 
-		_context->inputHintCtx->SetInputSimilarChunks(std::move(chunks));
+		_context->inputHintCtx->SetInputSimilarChunks(std::move(chunks), embeddingDBVersion);
 
 		_phase = Phase::Done;
 		_status = TaskStatus::Success;

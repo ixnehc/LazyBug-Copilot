@@ -48,6 +48,7 @@ private:
 	int        _currentQueryIndex = 0;
 	std::vector<float> _currentEmbedding;
 	std::vector<SolutionDBMsg_SimilarChunks::Chunk> _allChunks;
+	uint64_t _embeddingDBVersion = 0;  // 第一次执行 QuerySimilar 前记录的 embedding db 版本号
 	Phase      _phase = Phase::PlanQueries;
 	bool       _hasStartedRequest = false;
 	bool       _requestInterrupt = false;

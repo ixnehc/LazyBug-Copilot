@@ -202,7 +202,9 @@ void InputHintContext::Clear()
     _caretTokenPos = -1;
     _caretPlainPos = -1;
     _inputChunks.clear();
+    _inputChunksVersion = 0;
     _historyChunks.clear();
+    _historyChunksVersion = 0;
 }
 
 void InputHintContext::Init(const std::string& solutionDBFolder)
@@ -271,6 +273,16 @@ uint64_t InputHintContext::GetEmbeddingDBVersion() const
     return _embeddingDBVersion.load(std::memory_order_relaxed);
 }
 
+uint64_t InputHintContext::GetInputChunksVersion() const
+{
+    return _inputChunksVersion;
+}
+
+uint64_t InputHintContext::GetHistoryChunksVersion() const
+{
+    return _historyChunksVersion;
+}
+
 const std::wstring& InputHintContext::GetCaretLine() const
 {
     return _caretLine;
@@ -297,14 +309,16 @@ int InputHintContext::GetCaretPlainPos() const
     return _caretPlainPos;
 }
 
-void InputHintContext::SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks)
+void InputHintContext::SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks, uint64_t embeddingDBVersion)
 {
     _inputChunks = std::move(chunks);
+    _inputChunksVersion = embeddingDBVersion;
 }
 
-void InputHintContext::SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk> chunks)
+void InputHintContext::SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk> chunks, uint64_t embeddingDBVersion)
 {
     _historyChunks = std::move(chunks);
+    _historyChunksVersion = embeddingDBVersion;
 }
 
 std::string InputHintContext::GetMergedSimilarChunksText() const

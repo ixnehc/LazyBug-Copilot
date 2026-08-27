@@ -26,7 +26,7 @@ void CChatTask_HistoryEmbeddingQuery::_Fail(const std::string& reason)
 {
 	(void)reason;
 	if (_context && _context->inputHintCtx)
-		_context->inputHintCtx->SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk>());
+		_context->inputHintCtx->SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk>(), 0);
 	_status = TaskStatus::Failure;
 }
 
@@ -190,6 +190,13 @@ void CChatTask_HistoryEmbeddingQuery::_ExecuteSimilarityQuery()
 		return;
 	}
 
+	// 只在第一次进入 QuerySimilar 时记录一次 embedding db 版本号
+	if (_currentQueryIndex == 0)
+	{
+		SolutionDBMsg_EmbeddingDBVersion versionResult = SolutionDB_GetEmbeddingDBVersion(dbFolderPath);
+		_embeddingDBVersion = versionResult.success ? versionResult.version : 0;
+	}
+
 	SolutionDBMsg_SimilarChunks result;
 	SolutionDB_QuerySimilarByVector(dbFolderPath, _currentEmbedding, _embeddingModelName.c_str(), 5, result);
 
@@ -226,7 +233,7 @@ void CChatTask_HistoryEmbeddingQuery::_MergeAndFormatChunks()
 		chunks.push_back(std::move(esc));
 	}
 
-	_context->inputHintCtx->SetHistorySimilarChunks(std::move(chunks));
+	_context->inputHintCtx->SetHistorySimilarChunks(std::move(chunks), _embeddingDBVersion);
 
 	_phase = Phase::Done;
 	_status = TaskStatus::Success;

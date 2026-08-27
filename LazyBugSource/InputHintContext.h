@@ -39,15 +39,19 @@ public:
     void Init(const std::string& solutionDBFolder);
 
     // 设置基于输入内容的 embedding 相似代码片段查询结果。
-    void SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks);
+    // embeddingDBVersion 为查询执行前的 embedding db 版本号。
+    void SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks, uint64_t embeddingDBVersion);
 
     // 设置基于聊天历史的 embedding 相似代码片段查询结果。
-    void SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk> chunks);
+    // embeddingDBVersion 为查询执行前的 embedding db 版本号。
+    void SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk> chunks, uint64_t embeddingDBVersion);
 
     const std::string& GetChatOpsContent() const;
     uint32_t GetChatOpsContentVersion() const;
     const std::string& GetSolutionDBFolder() const;
     uint64_t GetEmbeddingDBVersion() const;
+    uint64_t GetInputChunksVersion() const;
+    uint64_t GetHistoryChunksVersion() const;
 
     const std::wstring& GetCaretLine() const;
     const std::wstring& GetBeforeCaretLines() const;
@@ -97,9 +101,13 @@ private:
 
     // embedding 相似代码片段（由 CChatTask_InputEmbeddingQuery 写入）。
     std::vector<EmbeddingSimilarChunk> _inputChunks;
+    // 生成 _inputChunks 时的 embedding db 版本号。
+    uint64_t _inputChunksVersion = 0;
 
     // 基于聊天历史的 embedding 相似代码片段（由 CChatTask_HistoryEmbeddingQuery 写入）。
     std::vector<EmbeddingSimilarChunk> _historyChunks;
+    // 生成 _historyChunks 时的 embedding db 版本号。
+    uint64_t _historyChunksVersion = 0;
 
 
 };
