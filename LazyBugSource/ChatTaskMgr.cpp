@@ -403,6 +403,19 @@ void CChatTaskMgr::Interrupt()
 	}
 }
 
+void CChatTaskMgr::InterruptAndFlush()
+{
+	Interrupt();
+
+	static const size_t kMaxIterations = 10;
+	for (size_t i = 0; i < kMaxIterations && IsRunning(); ++i)
+	{
+		Update();
+	}
+}
+
+
+
 void CChatTaskMgr::AddTask_FastApply(const std::string& filePath, const std::string& updateContent, const std::wstring& fileEditId)
 {
 	CChatTask_FastApply* task = new CChatTask_FastApply(filePath, updateContent, fileEditId);

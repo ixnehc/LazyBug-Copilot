@@ -125,6 +125,8 @@ public:
 	
 	// 中断所有任务
 	void Interrupt();
+	// 中断所有任务，并持续更新直到所有任务结束
+	void InterruptAndFlush();
 	
 	// 添加特定类型的任务
 	void AddTask_FastApply(const std::string& filePath, const std::string& updateContent,const std::wstring &fileEditId);

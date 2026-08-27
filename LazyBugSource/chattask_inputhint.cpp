@@ -255,7 +255,7 @@ void CChatTask_InputHint::_ProcessInputHintSession()
 
 	if (!_llmChats[0]->HasActiveSession())
 	{
-		if (_hasStartedRequest)
+		if (_hasStartedRequest || _requestInterrupt)
 			_Fail("LLM session ended unexpectedly");
 		return;
 	}

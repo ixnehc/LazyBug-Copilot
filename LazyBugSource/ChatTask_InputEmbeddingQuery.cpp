@@ -157,7 +157,7 @@ void CChatTask_InputEmbeddingQuery::Update()
 				}
 			}
 		}
-		else if (_hasStartedRequest)
+		else if (_hasStartedRequest || _requestInterrupt)
 		{
 			_Fail("No response from embedding API");
 			return;
@@ -165,6 +165,12 @@ void CChatTask_InputEmbeddingQuery::Update()
 	}
 	else if (_phase == Phase::Query)
 	{
+		if (_requestInterrupt)
+		{
+			_Fail("Interrupted");
+			return;
+		}
+
 		const char* dbFolderPath = GetOpenedDBFolderPath_utf8();
 		if (!dbFolderPath || dbFolderPath[0] == '\0')
 		{
@@ -200,6 +206,6 @@ void CChatTask_InputEmbeddingQuery::Update()
 
 void CChatTask_InputEmbeddingQuery::Interrupt()
 {
+	// 只置中断标记，保持 Running 状态，让后续 Update() 走完收尾流程（清理会话并结束任务）
 	_requestInterrupt = true;
-	_status = TaskStatus::Failure;
 }

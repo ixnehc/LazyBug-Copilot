@@ -154,6 +154,12 @@ bool CChatTask_HistoryEmbeddingQuery::_ProcessPlanQueriesResponse(const std::str
 
 void CChatTask_HistoryEmbeddingQuery::_StartEmbeddingRequest()
 {
+	if (_requestInterrupt)
+	{
+		_Fail("Interrupted");
+		return;
+	}
+
 	LlmSessionSetting setting;
 	if (!g_llmLib.LoadLlmSetting(setting, _embeddingApiName, false, nullptr))
 	{
@@ -179,7 +185,7 @@ void CChatTask_HistoryEmbeddingQuery::_ExecuteSimilarityQuery()
 {
 	if (_requestInterrupt)
 	{
-		_phase = Phase::Done;
+		_Fail("Interrupted");
 		return;
 	}
 
@@ -216,7 +222,7 @@ void CChatTask_HistoryEmbeddingQuery::_MergeAndFormatChunks()
 {
 	if (_requestInterrupt)
 	{
-		_phase = Phase::Done;
+		_Fail("Interrupted");
 		return;
 	}
 
@@ -257,7 +263,7 @@ void CChatTask_HistoryEmbeddingQuery::Update()
 	{
 		if (!_llmChats[0]->HasActiveSession())
 		{
-			if (_hasStartedRequest)
+			if (_hasStartedRequest || _requestInterrupt)
 				_Fail("LLM session ended unexpectedly");
 			return;
 		}
@@ -359,6 +365,6 @@ void CChatTask_HistoryEmbeddingQuery::Update()
 
 void CChatTask_HistoryEmbeddingQuery::Interrupt()
 {
+	// 只置中断标记，保持 Running 状态，让后续 Update() 走完收尾流程（清理会话并结束任务）
 	_requestInterrupt = true;
-	_status = TaskStatus::Failure;
 }

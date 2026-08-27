@@ -758,6 +758,7 @@ void CChatDialogA::_UpdateLoadChatCtrl()
 		_mcpUpdater.Reset();
 
 		_ShutdownAgent();
+		_chatTaskMgrBg.InterruptAndFlush();
 
 		_inputHintCtx.Clear();
 		_inputHintCtx.Init(dbFolderPath);
@@ -980,6 +981,7 @@ void CChatDialogA::_UpdateSwitchChat()
 	if (_requestSwitchChat.chatFileName == L"newchat")
 	{
 		_ShutdownAgent();
+		_chatTaskMgrBg.InterruptAndFlush();
 
 		_inputHintCtx.Clear();
 		_inputHintCtx.Init(GetOpenedDBFolderPath_utf8());
@@ -1008,6 +1010,7 @@ void CChatDialogA::_UpdateSwitchChat()
 	if (!dbFolderPath.empty())
 	{
 		_ShutdownAgent();
+		_chatTaskMgrBg.InterruptAndFlush();
 
 		_inputHintCtx.Clear();
 		_inputHintCtx.Init(dbFolderPath);
