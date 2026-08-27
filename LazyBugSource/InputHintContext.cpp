@@ -3,12 +3,19 @@
 #include "ChatOpsCtrl.h"
 #include "Utils_InputHint.h"
 #include "Utils_File.h"
+#include "SolutionDBAPI.h"
 
 #include <cstring>
 #include <unordered_set>
 #include <algorithm>
 #include <cstdio>
 
+
+
+InputHintContext::~InputHintContext()
+{
+    _StopVersionThread();
+}
 
 
 void InputHintContext::UpdateFromOps(const CChatOpsCtrl& opsCtrl)
@@ -182,6 +189,11 @@ void InputHintContext::UpdateInput(const std::wstring& fullContent, int newCaret
 
 void InputHintContext::Clear()
 {
+    _StopVersionThread();
+
+    _solutionDBFolder.clear();
+    _embeddingDBVersion.store(0, std::memory_order_relaxed);
+
     _chatOpsContentVersion = 0;
     _chatOpsContent.clear();
     _caretLine.clear();
@@ -193,6 +205,51 @@ void InputHintContext::Clear()
     _historyChunks.clear();
 }
 
+void InputHintContext::Init(const std::string& solutionDBFolder)
+{
+    _solutionDBFolder = solutionDBFolder;
+    _StartVersionThread();
+}
+
+
+void InputHintContext::_StartVersionThread()
+{
+    if (_versionThreadRunning.load())
+        return;
+
+    _versionThreadRunning.store(true);
+    _versionThread = std::thread(&InputHintContext::_VersionThreadProc, this);
+}
+
+void InputHintContext::_StopVersionThread()
+{
+    if (!_versionThreadRunning.load())
+        return;
+
+    _versionThreadRunning.store(false);
+    _versionCv.notify_all();
+
+    if (_versionThread.joinable())
+        _versionThread.join();
+}
+
+void InputHintContext::_VersionThreadProc()
+{
+    while (_versionThreadRunning.load())
+    {
+        if (!_solutionDBFolder.empty())
+        {
+            SolutionDBMsg_EmbeddingDBVersion result = SolutionDB_GetEmbeddingDBVersion(_solutionDBFolder.c_str());
+            if (result.success)
+                _embeddingDBVersion.store(result.version, std::memory_order_relaxed);
+        }
+
+        std::unique_lock<std::mutex> lock(_versionCvMutex);
+        _versionCv.wait_for(lock, std::chrono::milliseconds(500), [this]() {
+            return !_versionThreadRunning.load();
+        });
+    }
+}
 
 const std::string& InputHintContext::GetChatOpsContent() const
 {
@@ -202,6 +259,16 @@ const std::string& InputHintContext::GetChatOpsContent() const
 uint32_t InputHintContext::GetChatOpsContentVersion() const
 {
     return _chatOpsContentVersion;
+}
+
+const std::string& InputHintContext::GetSolutionDBFolder() const
+{
+    return _solutionDBFolder;
+}
+
+uint64_t InputHintContext::GetEmbeddingDBVersion() const
+{
+    return _embeddingDBVersion.load(std::memory_order_relaxed);
 }
 
 const std::wstring& InputHintContext::GetCaretLine() const

@@ -3,6 +3,11 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <atomic>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
 
 #include "CoreDefines.h"
 
@@ -17,6 +22,8 @@ class CChatOpsCtrl;
 struct InputHintContext
 {
 public:
+    ~InputHintContext();
+
     // 根据当前 ops 全量更新聊天上下文。
     // 如果 ops 版本未变化，实现时可直接跳过重建。
     void UpdateFromOps(const CChatOpsCtrl& opsCtrl);
@@ -28,6 +35,9 @@ public:
     // 清空上下文中保存的所有数据。
     void Clear();
 
+    // 初始化上下文对应的 solutionDB 文件夹路径。
+    void Init(const std::string& solutionDBFolder);
+
     // 设置基于输入内容的 embedding 相似代码片段查询结果。
     void SetInputSimilarChunks(std::vector<EmbeddingSimilarChunk> chunks);
 
@@ -36,6 +46,8 @@ public:
 
     const std::string& GetChatOpsContent() const;
     uint32_t GetChatOpsContentVersion() const;
+    const std::string& GetSolutionDBFolder() const;
+    uint64_t GetEmbeddingDBVersion() const;
 
     const std::wstring& GetCaretLine() const;
     const std::wstring& GetBeforeCaretLines() const;
@@ -49,11 +61,27 @@ public:
 
 
 private:
+    void _StartVersionThread();
+    void _StopVersionThread();
+    void _VersionThreadProc();
+
     // 最近一次全量生成 _chatOpsContent 所对应的 CChatOpsCtrl 版本。
     uint32_t _chatOpsContentVersion = 0;
 
     // 从当前有效聊天记录中提取出的聊天操作内容。
     std::string _chatOpsContent;
+
+    // 对应的 solutionDB 文件夹路径（由 Init 设置）。
+    std::string _solutionDBFolder;
+
+    // CEmbeddingDB 的 chunk 数据版本号（由后台线程周期更新）。
+    std::atomic<uint64_t> _embeddingDBVersion{0};
+
+    // 后台版本查询线程（每 0.5s 调用 SolutionDB_GetEmbeddingDBVersion）。
+    std::thread _versionThread;
+    std::atomic<bool> _versionThreadRunning{false};
+    std::mutex _versionCvMutex;
+    std::condition_variable _versionCv;
 
     // 当前输入框内容按光标拆分后的三部分：
     //   _caretLine        光标所在行（含光标标记 \x2038）

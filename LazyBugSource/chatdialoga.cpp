@@ -745,6 +745,9 @@ void CChatDialogA::_UpdateLoadChatCtrl()
 
 		_ShutdownAgent();
 
+		_inputHintCtx.Clear();
+		_inputHintCtx.Init(dbFolderPath);
+
 		_chatInput.ClearTags();
 
 		std::string fileName = _chatHistory.GetRecentFileName();
@@ -964,6 +967,9 @@ void CChatDialogA::_UpdateSwitchChat()
 	{
 		_ShutdownAgent();
 
+		_inputHintCtx.Clear();
+		_inputHintCtx.Init(GetOpenedDBFolderPath_utf8());
+
 		// 清空输入框
 		_inputHistory.OnSendCurrent();
 		_chatInput.SetInputContent_(_inputHistory.GetCurrentContent());
@@ -988,6 +994,10 @@ void CChatDialogA::_UpdateSwitchChat()
 	if (!dbFolderPath.empty())
 	{
 		_ShutdownAgent();
+
+		_inputHintCtx.Clear();
+		_inputHintCtx.Init(dbFolderPath);
+
 		_InitAgent(fileName.c_str());
 
 		_LoadChatInputTagsFromChatCtrl();
