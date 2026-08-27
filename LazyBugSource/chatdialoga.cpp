@@ -516,8 +516,13 @@ void CChatDialogA::OnDestroy()
 extern std::wstring utf8_to_widechar(const std::string& utf8_str);
 void CChatDialogA::_UpdateInputEmbeddingQuery()
 {
+	// 已有 chunks 但版本过期时，跳过 debounce 强制刷新一次
+	uint64_t chunksVer = _inputHintCtx.GetInputChunksVersion();
+	uint64_t dbVer = _inputHintCtx.GetEmbeddingDBVersion();
+	bool forceRefresh = (chunksVer != 0 && chunksVer != dbVer);
+
 	// InputEmbeddingQuery debounce 触发
-	if (!_embeddingQueryPending)
+	if (!forceRefresh && !_embeddingQueryPending)
 		return;
 
 	std::string embeddingApi = g_llmLib.GetEmbeddingApi();
@@ -528,9 +533,12 @@ void CChatDialogA::_UpdateInputEmbeddingQuery()
 		return;
 	}
 
-	AbsTick elapsed = GetAbsTick() - _lastInputChangeTick;
-	if (elapsed < 300)
-		return;
+	if (!forceRefresh)
+	{
+		AbsTick elapsed = GetAbsTick() - _lastInputChangeTick;
+		if (elapsed < 300)
+			return;
+	}
 
 	if (!_chatTaskMgrBg.IsTaskTypeRunning("InputEmbeddingQuery"))
 		_chatTaskMgrBg.AddTask_InputEmbeddingQuery(embeddingApi);
@@ -545,7 +553,13 @@ void CChatDialogA::_UpdateHistoryEmbeddingQuery()
 		return;
 
 	DWORD curOpsVer = _inputHintCtx.GetChatOpsContentVersion();
-	if (curOpsVer == _lastHistoryQueryOpsVersion)
+
+	// 已有 chunks 但版本过期时，跳过 ops 版本检测强制刷新一次
+	uint64_t chunksVer = _inputHintCtx.GetHistoryChunksVersion();
+	uint64_t dbVer = _inputHintCtx.GetEmbeddingDBVersion();
+	bool forceRefresh = (chunksVer != 0 && chunksVer != dbVer);
+
+	if (curOpsVer == _lastHistoryQueryOpsVersion && !forceRefresh)
 		return;
 
 	_lastHistoryQueryOpsVersion = curOpsVer;
