@@ -278,6 +278,8 @@ void CEmbeddingDB::Clear()
 	if (true)
 	{
 		std::unique_lock<std::shared_mutex> lock(_mutex);
+		if (!_fileChunks.empty())
+			++_version;  // 清空数据,版本号递增
 		_fileChunks.clear();
 		_files.SetAllDirty();
 	}
@@ -315,6 +317,7 @@ void CEmbeddingDB::SetContent(const CSolutionFiles& files)
 			{
 				_files.SetDirty(it->first);
 				it = _fileChunks.erase(it);
+				++_version;  // 文件被移除,chunk 数据已变化
 			}
 			else
 			{
@@ -353,6 +356,7 @@ void CEmbeddingDB::SetDeltaContent(
 		{
 			_files.SetDirty(it->first);
 			it = _fileChunks.erase(it);
+			++_version;  // 文件被移除,chunk 数据已变化
 		}
 		else
 		{
@@ -507,6 +511,11 @@ void CEmbeddingDB::QuerySimilar(const std::vector<float>& queryVec,
 
 // ---- 工具方法 ----
 
+uint64_t CEmbeddingDB::GetVersion() const
+{
+	return _version.load(std::memory_order_relaxed);
+}
+
 void CEmbeddingDB::GetStr(const FilePathKey& key, std::string& ret) const
 {
 	if (key.dbType == SymbolDBType::CppSymbol)
@@ -609,6 +618,7 @@ void CEmbeddingDB::_UpdateThreadProc()
 							it->second._genTime = result.symbolParseTime;
 							it->second._modelName = result.modelName;
 							_files.SetDirty(result.key);
+							++_version;  // 真实生成 chunks 回写,版本号递增
 						}
 					}
 				}
@@ -701,6 +711,7 @@ void CEmbeddingDB::_UpdateThreadProc()
 							cursorIt->second._genTime = parsedTime;
 							cursorIt->second._modelName = _modelName;
 							_files.SetDirty(key);
+							++_version;  // chunks 被置空,数据已变化
 							isAnyAction = true;
 						}
 						else
