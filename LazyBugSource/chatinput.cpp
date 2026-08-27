@@ -15,7 +15,7 @@
 #include <shellapi.h>
 #include <atlimage.h>
 
-
+ 
 BEGIN_MESSAGE_MAP(CChatInput, CWnd)
 	ON_WM_SIZE()
 	ON_WM_CREATE()

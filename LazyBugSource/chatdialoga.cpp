@@ -519,7 +519,7 @@ void CChatDialogA::_UpdateInputEmbeddingQuery()
 	// 已有 chunks 但版本过期时，跳过 debounce 强制刷新一次
 	uint64_t chunksVer = _inputHintCtx.GetInputChunksVersion();
 	uint64_t dbVer = _inputHintCtx.GetEmbeddingDBVersion();
-	bool forceRefresh = (chunksVer != 0 && chunksVer != dbVer);
+	bool forceRefresh = (chunksVer != dbVer);
 
 	// InputEmbeddingQuery debounce 触发
 	if (!forceRefresh && !_embeddingQueryPending)
@@ -557,7 +557,7 @@ void CChatDialogA::_UpdateHistoryEmbeddingQuery()
 	// 已有 chunks 但版本过期时，跳过 ops 版本检测强制刷新一次
 	uint64_t chunksVer = _inputHintCtx.GetHistoryChunksVersion();
 	uint64_t dbVer = _inputHintCtx.GetEmbeddingDBVersion();
-	bool forceRefresh = (chunksVer != 0 && chunksVer != dbVer);
+	bool forceRefresh = (chunksVer != dbVer);
 
 	if (curOpsVer == _lastHistoryQueryOpsVersion && !forceRefresh)
 		return;
