@@ -247,6 +247,8 @@ protected:
 
 	bool _CanShowHint();
 	void _UpdateHideHint();
+	void _UpdateInputEmbeddingQuery();
+	void _UpdateHistoryEmbeddingQuery();
 
 };
 

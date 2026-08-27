@@ -514,6 +514,52 @@ void CChatDialogA::OnDestroy()
 
 
 extern std::wstring utf8_to_widechar(const std::string& utf8_str);
+void CChatDialogA::_UpdateInputEmbeddingQuery()
+{
+	// InputEmbeddingQuery debounce 触发
+	if (!_embeddingQueryPending)
+		return;
+
+	std::string embeddingApi = g_llmLib.GetEmbeddingApi();
+	if (embeddingApi.empty() || embeddingApi == EMBEDDING_API_DISABLE)
+	{
+		// embedding 未启用, 清除 pending
+		_embeddingQueryPending = false;
+		return;
+	}
+
+	AbsTick elapsed = GetAbsTick() - _lastInputChangeTick;
+	if (elapsed < 300)
+		return;
+
+	if (!_chatTaskMgrBg.IsTaskTypeRunning("InputEmbeddingQuery"))
+		_chatTaskMgrBg.AddTask_InputEmbeddingQuery(embeddingApi);
+	_embeddingQueryPending = false;
+}
+
+void CChatDialogA::_UpdateHistoryEmbeddingQuery()
+{
+	// HistoryEmbeddingQuery 触发: 当 agent 空闲且 ops 版本变化时立即触发
+	_inputHintCtx.UpdateFromOps(_agent.GetOpsCtrl());
+	if (_agent.IsWorking())
+		return;
+
+	DWORD curOpsVer = _inputHintCtx.GetChatOpsContentVersion();
+	if (curOpsVer == _lastHistoryQueryOpsVersion)
+		return;
+
+	_lastHistoryQueryOpsVersion = curOpsVer;
+
+	std::string inputHintApi = g_llmLib.GetInputHintApi();
+	std::string embeddingApi = g_llmLib.GetEmbeddingApi();
+	if (inputHintApi.empty() || inputHintApi == INPUTHINT_API_DISABLE
+		|| embeddingApi.empty() || embeddingApi == EMBEDDING_API_DISABLE)
+		return;
+
+	if (!_chatTaskMgrBg.IsTaskTypeRunning("HistoryEmbeddingQuery"))
+		_chatTaskMgrBg.AddTask_HistoryEmbeddingQuery(inputHintApi, embeddingApi);
+}
+
 void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 {
 	_checkpointsFileChange.SetCheckpoints(GetCheckpoints());
@@ -530,46 +576,8 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 	if (stopWorking)
 		_chatInput.HideStopButton();
 
-	// InputEmbeddingQuery debounce 触发
-	if (_embeddingQueryPending)
-	{
-		std::string embeddingApi = g_llmLib.GetEmbeddingApi();
-		if (!embeddingApi.empty() && embeddingApi != EMBEDDING_API_DISABLE)
-		{
-			AbsTick elapsed = GetAbsTick() - _lastInputChangeTick;
-			if (elapsed >= 300)
-			{
-				if (!_chatTaskMgrBg.IsTaskTypeRunning("InputEmbeddingQuery"))
-					_chatTaskMgrBg.AddTask_InputEmbeddingQuery(embeddingApi);
-				_embeddingQueryPending = false;
-			}
-		}
-		else
-		{
-			// embedding 未启用, 清除 pending
-			_embeddingQueryPending = false;
-		}
-	}
-
-	// HistoryEmbeddingQuery 触发: 当 agent 空闲且 ops 版本变化时立即触发
-	_inputHintCtx.UpdateFromOps(_agent.GetOpsCtrl());
-	if (!_agent.IsWorking())
-	{
-		DWORD curOpsVer = _inputHintCtx.GetChatOpsContentVersion();
-		if (curOpsVer != _lastHistoryQueryOpsVersion)
-		{
-			_lastHistoryQueryOpsVersion = curOpsVer;
-
-			std::string inputHintApi = g_llmLib.GetInputHintApi();
-			std::string embeddingApi = g_llmLib.GetEmbeddingApi();
-			if (!inputHintApi.empty() && inputHintApi != INPUTHINT_API_DISABLE
-				&& !embeddingApi.empty() && embeddingApi != EMBEDDING_API_DISABLE)
-			{
-				if (!_chatTaskMgrBg.IsTaskTypeRunning("HistoryEmbeddingQuery"))
-					_chatTaskMgrBg.AddTask_HistoryEmbeddingQuery(inputHintApi, embeddingApi);
-			}
-		}
-	}
+	_UpdateInputEmbeddingQuery();
+	_UpdateHistoryEmbeddingQuery();
 
 	_chatTaskMgrBg.Update();
 
