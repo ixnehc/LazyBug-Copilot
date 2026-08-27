@@ -53,28 +53,28 @@ std::string CChatTask_InputEmbeddingQuery::_BuildQueryText()
 	std::string queryText = widechar_to_utf8(inputPlain.c_str());
 
 	// 2. 从 chatOpsContent 中提取最近一条用户消息
-	const std::string& chatOps = ctx->GetChatOpsContent();
-	if (!chatOps.empty())
-	{
-		// 反向查找最后一个 "User: "
-		const std::string marker = "User: ";
-		size_t userPos = chatOps.rfind(marker);
-		if (userPos != std::string::npos)
-		{
-			size_t msgStart = userPos + marker.size();
-			size_t nlPos = chatOps.find('\n', msgStart);
-			std::string lastUserMsg = (nlPos == std::string::npos)
-				? chatOps.substr(msgStart)
-				: chatOps.substr(msgStart, nlPos - msgStart);
-
-			// 若该消息非输入纯文本的子串，则追加
-			if (!lastUserMsg.empty() && queryText.find(lastUserMsg) == std::string::npos)
-			{
-				queryText += "\n";
-				queryText += lastUserMsg;
-			}
-		}
-	}
+// 	const std::string& chatOps = ctx->GetChatOpsContent();
+// 	if (!chatOps.empty())
+// 	{
+// 		// 反向查找最后一个 "User: "
+// 		const std::string marker = "User: ";
+// 		size_t userPos = chatOps.rfind(marker);
+// 		if (userPos != std::string::npos)
+// 		{
+// 			size_t msgStart = userPos + marker.size();
+// 			size_t nlPos = chatOps.find('\n', msgStart);
+// 			std::string lastUserMsg = (nlPos == std::string::npos)
+// 				? chatOps.substr(msgStart)
+// 				: chatOps.substr(msgStart, nlPos - msgStart);
+// 
+// 			// 若该消息非输入纯文本的子串，则追加
+// 			if (!lastUserMsg.empty() && queryText.find(lastUserMsg) == std::string::npos)
+// 			{
+// 				queryText += "\n";
+// 				queryText += lastUserMsg;
+// 			}
+// 		}
+// 	}
 
 	return queryText;
 }
