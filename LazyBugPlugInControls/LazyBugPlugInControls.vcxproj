@@ -375,6 +375,8 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_FastApply.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_FindInFiles.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_FindSymbolDefine.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_HistoryEmbeddingQuery.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_InputEmbeddingQuery.cpp" />
     <ClCompile Include="..\LazyBugSource\chattask_inputhint.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_Mcp.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_QueryFinish.cpp" />
@@ -581,6 +583,8 @@
     <ClInclude Include="..\LazyBugSource\chatsettingdirwatchtab.h" />
     <ClInclude Include="..\LazyBugSource\ChatSettingProviderTab.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_HistoryEmbeddingQuery.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_InputEmbeddingQuery.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
     <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h" />
     <ClInclude Include="..\LazyBugSource\InputHintContext.h" />
