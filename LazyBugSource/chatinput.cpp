@@ -736,7 +736,6 @@ void CChatInput::Update()
 	_imageTipWindow.Update();
 	
 	UpdateInputHintButton();
-	UpdateInputAssociationButton();
 }
 
 
@@ -885,39 +884,15 @@ void CChatInput::UpdateInputHintButton()
 	_PostWebMessageAsJson(utf8_to_widechar(j.dump()));
 }
 
-void CChatInput::SetInputAssociationToggleButtonState(bool enabled)
+void CChatInput::SetInputAssociationIndicatorState(bool enabled)
 {
 	if (!_IsReady())
 		return;
 
-	std::wstring jsonMessage = L"{\"action\":\"setInputAssociationToggleButtonState\",\"enabled\":";
+	std::wstring jsonMessage = L"{\"action\":\"setInputAssociationIndicatorState\",\"enabled\":";
 	jsonMessage += (enabled ? L"true" : L"false");
 	jsonMessage += L"}";
 	_PostWebMessageAsJson(jsonMessage);
-}
-
-void CChatInput::UpdateInputAssociationButton()
-{
-	if (!_IsReady())
-		return;
-
-	std::string apiName = g_llmLib.GetEmbeddingApi();
-	if (apiName == _inputAssociationApiName)
-		return;
-
-	_inputAssociationApiName = apiName;
-
-	bool available = !apiName.empty() && apiName != EMBEDDING_API_DISABLE;
-	std::string tooltip = available
-		? "Toggle Input Association (" + apiName + ")"
-		: "No embedding API configured";
-
-	nlohmann::json j;
-	j["action"] = "updateInputAssociationButton";
-	j["available"] = available;
-	j["disabled"] = !available;
-	j["tooltip"] = tooltip;
-	_PostWebMessageAsJson(utf8_to_widechar(j.dump()));
 }
 
 // 调整WebView大小

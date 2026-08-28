@@ -187,12 +187,10 @@ function initializeEventListeners() {
     const inputHintToggleButton = document.getElementById('inputHintToggleButton');
     if (inputHintToggleButton) {
         inputHintToggleButton.addEventListener('click', handleInputHintToggleClick);
-    }
-
-    // 联想开关按钮点击
-    const inputAssociationToggleButton = document.getElementById('inputAssociationToggleButton');
-    if (inputAssociationToggleButton) {
-        inputAssociationToggleButton.addEventListener('click', handleInputAssociationToggleClick);
+        inputHintToggleButton.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+            handleInputHintToggleContextMenu();
+        });
     }
 
     // Stop按钮点击

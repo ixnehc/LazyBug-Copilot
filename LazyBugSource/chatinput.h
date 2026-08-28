@@ -98,11 +98,8 @@ public:
     // 更新输入提示按钮（每帧调用，API名称变化时更新按钮可用性和tooltip）
     void UpdateInputHintButton();
     
-    // 设置联想开关按钮状态
-    void SetInputAssociationToggleButtonState(bool enabled);
-    
-    // 更新联想按钮（每帧调用，Embedding API名称变化时更新按钮可用性和tooltip）
-    void UpdateInputAssociationButton();
+    // 设置联想功能指示圆点状态
+    void SetInputAssociationIndicatorState(bool enabled);
     
     // 获取WebView2环境和核心WebView
     ICoreWebView2* GetCoreWebView2() { return _webView; }
@@ -324,9 +321,6 @@ private:
     
     // 缓存的 InputHint API 名称，用于检测变化
     std::string _inputHintApiName;
-    
-    // 缓存的 Embedding API 名称，用于检测变化
-    std::string _inputAssociationApiName;
     
     // 脚本执行回调映射
     std::map<int, std::function<void(const std::wstring&)>> _scriptCallbacks;

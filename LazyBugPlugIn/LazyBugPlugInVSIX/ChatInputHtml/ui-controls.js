@@ -503,32 +503,23 @@ function handleInputHintToggleClick() {
     }
 }
 
-// 设置联想开关按钮状态
-function setInputAssociationToggleButtonState(enabled) {
-    const button = document.getElementById('inputAssociationToggleButton');
+// 设置联想功能指示圆点状态
+function setInputAssociationIndicatorState(enabled) {
+    const button = document.getElementById('inputHintToggleButton');
     if (button) {
         if (enabled) {
-            button.classList.add('enabled');
+            button.classList.add('association-enabled');
         } else {
-            button.classList.remove('enabled');
+            button.classList.remove('association-enabled');
         }
     }
 }
 
-// 更新联想按钮（C++侧每帧调用，仅在Embedding API名称变化时触发）
-function updateInputAssociationButton(available, disabled, tooltip) {
-    const button = document.getElementById('inputAssociationToggleButton');
+// 处理输入提示按钮右键点击（切换联想功能）
+function handleInputHintToggleContextMenu() {
+    const button = document.getElementById('inputHintToggleButton');
     if (button) {
-        button.disabled = disabled;
-        button.title = tooltip;
-    }
-}
-
-// 处理联想开关按钮点击
-function handleInputAssociationToggleClick() {
-    const button = document.getElementById('inputAssociationToggleButton');
-    if (button) {
-        const isCurrentlyEnabled = button.classList.contains('enabled');
+        const isCurrentlyEnabled = button.classList.contains('association-enabled');
         sendMessageToNative({
             action: 'inputAssociationToggleClicked',
             enabled: !isCurrentlyEnabled
@@ -562,6 +553,5 @@ window.hideCompressSummarizeTip = hideCompressSummarizeTip;
 window.setInputHintToggleButtonState = setInputHintToggleButtonState;
 window.handleInputHintToggleClick = handleInputHintToggleClick;
 window.updateInputHintButton = updateInputHintButton;
-window.setInputAssociationToggleButtonState = setInputAssociationToggleButtonState;
-window.handleInputAssociationToggleClick = handleInputAssociationToggleClick;
-window.updateInputAssociationButton = updateInputAssociationButton;
+window.setInputAssociationIndicatorState = setInputAssociationIndicatorState;
+window.handleInputHintToggleContextMenu = handleInputHintToggleContextMenu;
