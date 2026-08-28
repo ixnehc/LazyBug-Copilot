@@ -695,7 +695,23 @@ void CChatDialogA::_BrowseInputHistory(bool isPrev)
 
 	if (isFound)
 	{
-		_chatInput.SetInputContent_(_inputHistory.GetCurrentContent());
+		const std::wstring& newContent = _inputHistory.GetCurrentContent();
+		_chatInput.SetInputContent_(newContent);
+
+		// 同步 InputHint 上下文（光标定位到末尾），并触发 InputEmbeddingQuery 重新查询
+		const Utils::InputContent inputContent = Utils::BuildInputContent(newContent);
+		int endTokenPos = 0;
+		size_t plainPos = 0;
+		for (const auto& seg : inputContent.tagSegments)
+		{
+			endTokenPos += static_cast<int>(seg.startPos - plainPos) + 1; // tag 前的普通字符 + 该 tag(1 token)
+			plainPos = seg.endPos;
+		}
+		endTokenPos += static_cast<int>(inputContent.plainContent.size() - plainPos);
+
+		_inputHintCtx.UpdateInput(newContent, endTokenPos);
+		_lastInputChangeTick = GetAbsTick();
+		_embeddingQueryPending = true;
 	}
 }
 

@@ -176,6 +176,17 @@ bool CChatTask_InputHint::_StartInputHintSession()
 		userMsg += "Relevant code context:\n";
 		userMsg += similarChunksText;
 		userMsg += "\n";
+
+		// 输出相似代码块日志
+		const char* dbPath = GetOpenedDBFolderPath_utf8();
+		std::string logDir = std::string(dbPath) + "\\_log";
+		Utils::EnsureFolder(logDir.c_str());
+		std::ofstream ofs;
+		if (Utils::OpenOFStream(ofs, (logDir + "\\inputhint_similarchunks.txt").c_str()))
+		{
+			ofs << similarChunksText;
+			ofs.close();
+		}
 	}
 
 	// 使用 InputHintContext 维护好的三部分(光标行 + 光标前行 + 光标后行)
@@ -473,23 +484,14 @@ void CChatTask_InputHint::_TryFinalize()
 			_context->chatDialogA->HideHint();
 	}
 
-	// 保存请求与结果到 recent.json（此时 inputhint 和 checkcomplete 结果均已就绪）
+	// 保存请求与结果到 inputhint.json（此时 inputhint 和 checkcomplete 结果均已就绪）
 	if (!_requestInterrupt && !_resultText.empty())
 	{
 		const char* dbPath = GetOpenedDBFolderPath_utf8();
-		std::string rawDir = std::string(dbPath) + "\\_log\\InputHint\\raw";
-		Utils::EnsureFolder(rawDir.c_str());
+		std::string logDir = std::string(dbPath) + "\\_log";
+		Utils::EnsureFolder(logDir.c_str());
 
-		std::wstring wDir = utf8_to_widechar(rawDir);
-
-		// 滚动保留最近 5 条记录: recent4.json → 删除, recent3.json → recent4.json, ...
-		DeleteFileW((wDir + L"\\recent4.json").c_str());
-		MoveFileW((wDir + L"\\recent3.json").c_str(), (wDir + L"\\recent4.json").c_str());
-		MoveFileW((wDir + L"\\recent2.json").c_str(), (wDir + L"\\recent3.json").c_str());
-		MoveFileW((wDir + L"\\recent1.json").c_str(), (wDir + L"\\recent2.json").c_str());
-		MoveFileW((wDir + L"\\recent.json").c_str(), (wDir + L"\\recent1.json").c_str());
-
-		std::wstring filename = wDir + L"\\recent.json";
+		std::wstring filename = utf8_to_widechar(logDir) + L"\\inputhint.json";
 
 		// 确定 checkComplete 状态
 		const char* checkCompleteState = "incomplete";
