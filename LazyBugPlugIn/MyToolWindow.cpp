@@ -22,6 +22,9 @@ void RequestGenerateSlnDump()
 	g_requestGenerateSlnDump = true;
 }
 
+// 当前编辑窗口持续停留多久后触发激活（单位：毫秒）
+static const AbsTick kActiveDocActivateDelayMs = 3000;
+
 
 STDMETHODIMP LazyBugPlugInWindowPane::TranslateAccelerator(LPMSG lpMsg)
 {
@@ -288,6 +291,41 @@ void LazyBugPlugInWindowPane::UpdateEventListener()
 }
 
 
+void LazyBugPlugInWindowPane::UpdateActiveDocumentActivation()
+{
+	std::wstring activePath;
+	if (!Util_GetActiveDocumentPath(activePath))
+	{
+		m_activeDocPath.clear();
+		m_activeDocSince = 0;
+		return;
+	}
+
+	if (activePath != m_activeDocPath)
+	{
+		m_activeDocPath = activePath;
+		m_activeDocSince = GetAbsTick();
+		return;
+	}
+
+	if (m_activeDocSince == 0)
+	{
+		m_activeDocSince = GetAbsTick();
+		return;
+	}
+
+	// 已激活过的文件不再重复激活
+	if (m_activatedDocs.find(m_activeDocPath) != m_activatedDocs.end())
+		return;
+
+	if (GetAbsTick() - m_activeDocSince < kActiveDocActivateDelayMs)
+		return;
+
+	if (ActivateFileInSolutionDB((const unsigned short*)m_activeDocPath.c_str()))
+		m_activatedDocs.insert(m_activeDocPath);
+}
+
+
 // OnTimer 实现
 LRESULT LazyBugPlugInWindowPane::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
@@ -304,6 +342,8 @@ LRESULT LazyBugPlugInWindowPane::OnTimer(UINT uMsg, WPARAM wParam, LPARAM lParam
 		UpdateFileLocatorOpenDocument();
 
 		EnsureSolutionDBConnected();
+
+		UpdateActiveDocumentActivation();
 		
 		UpdateChatInputEscape();
 

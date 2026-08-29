@@ -57,6 +57,35 @@ static void TextViewSetTopLine(IVsTextView* pTextView, long line)
 	pTextView->EnsureSpanVisible(ts);
 }
 
+bool Util_GetActiveDocumentPath(std::wstring& outPath)
+{
+	outPath.clear();
+
+	if (!g_ps.pTextManager)
+		return false;
+
+	CComPtr<IVsTextView> pView;
+	if (FAILED(g_ps.pTextManager->GetActiveView(TRUE, NULL, &pView)) || !pView)
+		return false;
+
+	CComPtr<IVsTextLines> pBuffer;
+	if (FAILED(pView->GetBuffer(&pBuffer)) || !pBuffer)
+		return false;
+
+	CComQIPtr<IPersistFileFormat> pPersistFileFormat(pBuffer);
+	if (!pPersistFileFormat)
+		return false;
+
+	LPOLESTR pszFilename = NULL;
+	DWORD formatIndex = 0;
+	if (FAILED(pPersistFileFormat->GetCurFile(&pszFilename, &formatIndex)) || !pszFilename)
+		return false;
+
+	outPath = pszFilename;
+	::CoTaskMemFree(pszFilename);
+	return !outPath.empty();
+}
+
 HRESULT Util_IsFileOpenInEditor(const wchar_t* filePath)
 {
 	if (!filePath || filePath[0] == L'\0')

@@ -206,6 +206,25 @@ void EnsureSolutionDBConnected()
 	SolutionDB_EnsureConnected();
 }
 
+bool ActivateFileInSolutionDB(const unsigned short* fullPath)
+{
+	if (!fullPath || !fullPath[0])
+		return false;
+
+	const char* dbFolderPath = GetOpenedDBFolderPath_utf8();
+	if (!dbFolderPath || dbFolderPath[0] == '\0')
+		return false;
+
+	std::string utf8Path = widechar_to_utf8((const wchar_t*)fullPath);
+	if (utf8Path.empty())
+		return false;
+
+	std::vector<std::string> filePaths;
+	filePaths.push_back(utf8Path);
+	SolutionDB_ActivateFiles(dbFolderPath, filePaths);
+	return true;
+}
+
 const unsigned short* GetFileChangeFullPath(const FileChange* change)
 {
 	static std::wstring ret;

@@ -19,6 +19,7 @@ struct SolutionDump;
 struct SolutionDumpTimeStamps;
 
 extern HRESULT Util_IsFileOpenInEditor(const wchar_t* filePath);
+extern bool Util_GetActiveDocumentPath(std::wstring& outPath);
 extern HRESULT Util_OpenFileInEditor(const wchar_t* filePath, int line = -1);
 extern CComPtr<IVsTextView> Util_GetTextViewForFile(const std::wstring& filePath);
 extern bool Util_SetComparingContent(const std::wstring& filePath,CComPtr<IVsTextView> pVsTextView, const CodeComparingLines& comparaingContent);

@@ -11,6 +11,11 @@ using namespace VSL;
 #include <VSLWindows.h>
 #include <vsshell.h>
 
+#include <string>
+#include <unordered_set>
+
+#include "../Common/timer/timer.h"
+
 #include "..\LazyBugPlugInUI\Resource.h"
 
 #include "../LazyBugPlugInControls/LazyBugPlugInControlsExport.h"
@@ -50,7 +55,8 @@ protected:
 		m_hBackground(nullptr),
 		m_BroadcastCookie(VSCOOKIE_NIL),
 		m_SolutionCookie(VSCOOKIE_NIL),
-		m_hChatDialog(nullptr)
+		m_hChatDialog(nullptr),
+		m_activeDocSince(0)
 	{}
 
 	~LazyBugPlugInWindowPane() {}
@@ -130,6 +136,7 @@ private:
 	void EscapeChatInput();
 	void UpdateSolutionDump();
 	void UpdateEventListener();
+	void UpdateActiveDocumentActivation();
 
 	HBRUSH m_hBackground;
 	VSCOOKIE m_BroadcastCookie;
@@ -137,6 +144,10 @@ private:
 	HWND m_hChatDialog;
 	GenerateSlnDumpProgress m_GenerateSlnDumpProgress;
 	SolutionDump m_slnDmp;
+
+	std::wstring m_activeDocPath;
+	AbsTick m_activeDocSince;
+	std::unordered_set<std::wstring> m_activatedDocs;
 };
 
 

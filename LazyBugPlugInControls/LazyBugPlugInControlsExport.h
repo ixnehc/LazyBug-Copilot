@@ -41,6 +41,7 @@ LazyBugPlugInControls_Api void CloseSolution();
 LazyBugPlugInControls_Api const char* GetOpenedDBFolderPath_utf8();
 LazyBugPlugInControls_Api const char* GetOpenedSlnPath_utf8();
 LazyBugPlugInControls_Api void EnsureSolutionDBConnected();
+LazyBugPlugInControls_Api bool ActivateFileInSolutionDB(const unsigned short* fullPath);
 
 LazyBugPlugInControls_Api void UpdateReload();
 
