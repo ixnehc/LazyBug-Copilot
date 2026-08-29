@@ -171,13 +171,8 @@ bool CChatTask_InputHint::_StartInputHintSession()
 	if (associationEnabled && _context && _context->inputHintCtx)
 		similarChunksText = _context->inputHintCtx->GetMergedSimilarChunksText();
 
-	if (!similarChunksText.empty())
+	// 输出相似代码块日志(即使为空也覆盖写出)
 	{
-		userMsg += "Relevant code context:\n";
-		userMsg += similarChunksText;
-		userMsg += "\n";
-
-		// 输出相似代码块日志
 		const char* dbPath = GetOpenedDBFolderPath_utf8();
 		std::string logDir = std::string(dbPath) + "\\_log";
 		Utils::EnsureFolder(logDir.c_str());
@@ -187,6 +182,13 @@ bool CChatTask_InputHint::_StartInputHintSession()
 			ofs << similarChunksText;
 			ofs.close();
 		}
+	}
+
+	if (!similarChunksText.empty())
+	{
+		userMsg += "Relevant code context:\n";
+		userMsg += similarChunksText;
+		userMsg += "\n";
 	}
 
 	// 使用 InputHintContext 维护好的三部分(光标行 + 光标前行 + 光标后行)
