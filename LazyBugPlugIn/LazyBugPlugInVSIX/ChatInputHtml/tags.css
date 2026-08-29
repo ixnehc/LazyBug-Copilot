@@ -220,6 +220,13 @@
                       linear-gradient(135deg, #f87171, #dc2626);
 }
 
+.input-hint-toggle-button.association-gray .input-association-indicator {
+    opacity: 1;
+    background-color: #9ca3af;
+    background-image: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0) 48%),
+                      linear-gradient(135deg, #d1d5db, #6b7280);
+}
+
 /* 标签栏滚动条 */
 .tags-bar::-webkit-scrollbar {
     width: 6px;

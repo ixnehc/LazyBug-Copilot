@@ -503,15 +503,17 @@ function handleInputHintToggleClick() {
     }
 }
 
-// 设置联想功能指示圆点状态 (0=隐藏, 1=红色, 2=绿色)
+// 设置联想功能指示圆点状态 (0=隐藏, 1=红色, 2=绿色, 3=灰色)
 function setInputAssociationIndicatorState(state) {
     const button = document.getElementById('inputHintToggleButton');
     if (button) {
-        button.classList.remove('association-green', 'association-red');
+        button.classList.remove('association-green', 'association-red', 'association-gray');
         if (state === 2) {
             button.classList.add('association-green');
         } else if (state === 1) {
             button.classList.add('association-red');
+        } else if (state === 3) {
+            button.classList.add('association-gray');
         }
     }
 }

@@ -289,6 +289,8 @@ BOOL CChatDialogA::OnInitDialog()
 		_inputHintEnabled = enabled;
 		g_reg.WriteInt("InputHint", "Enabled", enabled ? 1 : 0);
 		_chatInput.SetInputHintToggleButtonState(_inputHintEnabled);
+		// 按钮状态改变后立即同步联想指示圆点，不等待下一次定时更新
+		_UpdateEmbeddingModel();
 	});
 
 	// 创建Skills弹出窗口
@@ -640,12 +642,20 @@ void CChatDialogA::_UpdateEmbeddingModel()
 	const std::string embeddingApiName = g_llmLib.GetEmbeddingApi();
 
 	// 联想圆点状态：
-	//   API 为空或 <disable> → 0(隐藏)
-	//   API 已设置且 IsAvailable() → 2(绿)
-	//   API 已设置但不可用     → 1(红)
+	//   embedding API 为空或 <disable> → 0(隐藏)
+	//   Input Hint 按钮处于灰显状态 → 3(灰)
+	//   embedding API 已设置且可用     → 2(绿)
+	//   embedding API 已设置但不可用   → 1(红)
 	int indicatorState = 0;
 	if (!embeddingApiName.empty() && embeddingApiName != EMBEDDING_API_DISABLE)
-		indicatorState = _embeddingApiVerifier.IsAvailable() ? 2 : 1;
+	{
+		// 圆点是否灰显应与 Input Hint 按钮的当前开关状态同步，
+		// 不能通过 GetInputHintApi() 判断。按钮关闭后 _inputHintEnabled 为 false。
+		if (!_inputHintEnabled)
+			indicatorState = 3;
+		else
+			indicatorState = _embeddingApiVerifier.IsAvailable() ? 2 : 1;
+	}
 
 	if (indicatorState != _inputAssociationIndicatorShown)
 	{

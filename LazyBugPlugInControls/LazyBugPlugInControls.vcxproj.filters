@@ -623,6 +623,9 @@
     <ClCompile Include="..\LazyBugSource\EmbeddingApiVerifier.cpp">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\Utils_Embedding.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -1249,6 +1252,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\EmbeddingApiVerifier.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\Utils_Embedding.h">
+      <Filter>Core\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

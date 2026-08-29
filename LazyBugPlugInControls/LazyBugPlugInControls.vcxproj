@@ -473,6 +473,7 @@
     <ClCompile Include="..\LazyBugSource\Utils_Bash.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_CliWhitelist.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_Context.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Embedding.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_File.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_Image.cpp" />
@@ -592,6 +593,7 @@
     <ClInclude Include="..\LazyBugSource\InputHintContext.h" />
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h" />
     <ClInclude Include="..\LazyBugSource\PinyinLib.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Embedding.h" />
     <ClInclude Include="..\LazyBugSource\Utils_InputHint.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2.h" />
     <ClInclude Include="..\packages\Microsoft.Web.WebView2.1.0.3240.44\build\native\include\WebView2EnvironmentOptions.h" />

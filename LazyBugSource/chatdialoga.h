@@ -229,7 +229,7 @@ protected:
 	// 记录上次 embedding model 的 dbFolderPath 和 api name，用于检测变化
 	std::string _lastDbFolderPathForEmbedding;
 	std::string _lastEmbeddingApiName;
-	int _inputAssociationIndicatorShown = -1; // 联想圆点当前状态 (-1=未设置, 0=隐藏, 1=红, 2=绿)
+	int _inputAssociationIndicatorShown = -1; // 联想圆点当前状态 (-1=未设置, 0=隐藏, 1=红, 2=绿, 3=灰)
 	void _UpdateCompressSummarizeTip();
 	int _compressSummarizeTipVersion;  // 当前已显示的提示版本号
 

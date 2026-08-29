@@ -96,7 +96,7 @@ public:
     // 更新输入提示按钮（每帧调用，API名称变化时更新按钮可用性和tooltip）
     void UpdateInputHintButton();
     
-    // 设置联想功能指示圆点状态 (0=隐藏, 1=红色, 2=绿色)
+    // 设置联想功能指示圆点状态 (0=隐藏, 1=红色, 2=绿色, 3=灰色)
     // 返回 false 表示 WebView 尚未就绪，消息未发送，调用方应稍后重试
     bool SetInputAssociationIndicatorState(int state);
     
