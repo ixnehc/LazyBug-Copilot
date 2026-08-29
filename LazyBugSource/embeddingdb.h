@@ -151,6 +151,9 @@ private:
 	// 在途请求上限: 超过则停止本轮提交,避免 generator 请求队列无限增长
 	static constexpr int    MAX_EMBED_ACTIVE = 8;
 
+	// 激活文件数上限: 超过则按 LRU(最久未激活) 淘汰最旧条目
+	static constexpr int    MAX_ACTIVE_FILES = 500;
+
 	// SymbolDB 版本号轮询间隔: 仅做两次原子读,开销极小,用于检测解析完成
 	static constexpr int    SYMBOL_POLL_INTERVAL_MS = 200;
 

@@ -414,6 +414,24 @@ void CEmbeddingDB::ActivateFile(const char* filePath)
 		auto it = _fileChunks.find(key);
 		if (it == _fileChunks.end())
 		{
+			// 达到激活上限时,按 LRU 淘汰最久未激活的文件
+			if ((int)_fileChunks.size() >= MAX_ACTIVE_FILES)
+			{
+				FilePathKey evictKey;  // filePath 默认 StringIndex_Null
+				time_t oldestTime = 0;
+				for (const auto& pair : _fileChunks)
+				{
+					if (evictKey.filePath == StringIndex_Null || pair.second._activateTime < oldestTime)
+					{
+						evictKey = pair.first;
+						oldestTime = pair.second._activateTime;
+					}
+				}
+				_files.SetDirty(evictKey);
+				_fileChunks.erase(evictKey);
+				++_version;  // 文件被淘汰,chunk 数据已变化
+			}
+
 			CFileChunks fileChunks;
 			fileChunks._key = key;
 			fileChunks._genTime = 0;  // 触发首次分片
