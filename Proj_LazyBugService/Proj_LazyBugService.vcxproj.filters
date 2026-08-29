@@ -322,6 +322,9 @@
     <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp">
       <Filter>Core\SolutionDB</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\Utils_Embedding.cpp">
+      <Filter>Core\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdh.h">
@@ -1721,6 +1724,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h">
       <Filter>Core\SolutionDB</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\Utils_Embedding.h">
+      <Filter>Core\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

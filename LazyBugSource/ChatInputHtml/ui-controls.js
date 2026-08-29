@@ -503,27 +503,16 @@ function handleInputHintToggleClick() {
     }
 }
 
-// 设置联想功能指示圆点状态
-function setInputAssociationIndicatorState(enabled) {
+// 设置联想功能指示圆点状态 (0=隐藏, 1=红色, 2=绿色)
+function setInputAssociationIndicatorState(state) {
     const button = document.getElementById('inputHintToggleButton');
     if (button) {
-        if (enabled) {
-            button.classList.add('association-enabled');
-        } else {
-            button.classList.remove('association-enabled');
+        button.classList.remove('association-green', 'association-red');
+        if (state === 2) {
+            button.classList.add('association-green');
+        } else if (state === 1) {
+            button.classList.add('association-red');
         }
-    }
-}
-
-// 处理输入提示按钮右键点击（切换联想功能）
-function handleInputHintToggleContextMenu() {
-    const button = document.getElementById('inputHintToggleButton');
-    if (button) {
-        const isCurrentlyEnabled = button.classList.contains('association-enabled');
-        sendMessageToNative({
-            action: 'inputAssociationToggleClicked',
-            enabled: !isCurrentlyEnabled
-        });
     }
 }
 
@@ -554,4 +543,3 @@ window.setInputHintToggleButtonState = setInputHintToggleButtonState;
 window.handleInputHintToggleClick = handleInputHintToggleClick;
 window.updateInputHintButton = updateInputHintButton;
 window.setInputAssociationIndicatorState = setInputAssociationIndicatorState;
-window.handleInputHintToggleContextMenu = handleInputHintToggleContextMenu;

@@ -103,7 +103,7 @@ function processNativeMessage(data) {
             break;
         case 'setInputAssociationIndicatorState':
             if (window.setInputAssociationIndicatorState) {
-                window.setInputAssociationIndicatorState(data.enabled !== false);
+                window.setInputAssociationIndicatorState(data.state || 0);
             }
             break;
     }

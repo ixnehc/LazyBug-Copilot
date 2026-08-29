@@ -30,7 +30,6 @@ using InputSkillButtonClickedCallback = std::function<void(const RECT&)>; // Ski
 using InputMcpButtonClickedCallback = std::function<void(const RECT&)>; // MCP按钮点击回调，参数为按钮屏幕绝对坐标
 using InputCompressIntensityChangedCallback = std::function<void(int)>; // 压缩强度改变回调，参数为强度值(0-5)
 using InputHintToggleCallback = std::function<void(bool)>; // 输入提示开关按钮点击回调，参数为新的启用状态
-using InputAssociationToggleCallback = std::function<void(bool)>; // 联想开关按钮点击回调，参数为新的启用状态
 using InputTabCallback = std::function<bool()>; // Tab键按下回调，返回true表示已处理(阻止默认行为)
 using InputContentVersionIncreasedCallback = std::function<void(int)>; // 内容版本号递增回调，参数为新的 contentVersion
 
@@ -85,7 +84,6 @@ public:
     void SetMcpButtonClickedCallback(InputMcpButtonClickedCallback callback);
     void SetCompressIntensityChangedCallback(InputCompressIntensityChangedCallback callback);
     void SetInputHintToggleCallback(InputHintToggleCallback callback);
-    void SetInputAssociationToggleCallback(InputAssociationToggleCallback callback);
     void SetTabCallback(InputTabCallback callback);
     void SetContentVersionIncreasedCallback(InputContentVersionIncreasedCallback callback);
     
@@ -98,8 +96,9 @@ public:
     // 更新输入提示按钮（每帧调用，API名称变化时更新按钮可用性和tooltip）
     void UpdateInputHintButton();
     
-    // 设置联想功能指示圆点状态
-    void SetInputAssociationIndicatorState(bool enabled);
+    // 设置联想功能指示圆点状态 (0=隐藏, 1=红色, 2=绿色)
+    // 返回 false 表示 WebView 尚未就绪，消息未发送，调用方应稍后重试
+    bool SetInputAssociationIndicatorState(int state);
     
     // 获取WebView2环境和核心WebView
     ICoreWebView2* GetCoreWebView2() { return _webView; }
@@ -315,7 +314,6 @@ private:
     InputMcpButtonClickedCallback _mcpButtonClickedCallback;
     InputCompressIntensityChangedCallback _compressIntensityChangedCallback;
     InputHintToggleCallback _inputHintToggleCallback;
-    InputAssociationToggleCallback _inputAssociationToggleCallback;
     InputTabCallback _tabCallback;
     InputContentVersionIncreasedCallback _contentVersionIncreasedCallback;
     

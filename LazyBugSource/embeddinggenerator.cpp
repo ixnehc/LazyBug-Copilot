@@ -1,29 +1,16 @@
 ﻿#include "stdh.h"
 #include "embeddinggenerator.h"
 #include "Utils_File.h"
-#include "Utils.h"
+#include "Utils_Embedding.h"
+
 #include "stringparser/stringparser.h"
 
 #include <set>
 #include <algorithm>
-#include <curl/curl.h>
-
-// 用于 curl 写回调的上下文
-struct EmbedApiResponse
-{
-	std::string data;
-};
-
-static size_t _EmbedWriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
-{
-	size_t totalSize = size * nmemb;
-	EmbedApiResponse* response = static_cast<EmbedApiResponse*>(userp);
-	response->data.append(static_cast<char*>(contents), totalSize);
-	return totalSize;
-}
 
 // ============================================================================
 // Segment — 文件中的一个行区间 [start, end)
+
 // ============================================================================
 struct Segment { int start; int end; bool isTarget; };
 
@@ -432,7 +419,8 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 		for (int retry = 0; retry < MAX_RETRIES && _enable.load(); retry++)
 		{
 			std::vector<std::vector<float>> modelEmbeddings;
-			if (_CallEmbeddingApi(modelParam, textsToEmbed, modelEmbeddings))
+			if (Utils::CallEmbeddingApi(modelParam, textsToEmbed, modelEmbeddings, &_enable))
+
 			{
 				for (size_t i = 0; i < newChunks.size() && i < modelEmbeddings.size(); i++)
 					newChunks[i]._embeddings = std::move(modelEmbeddings[i]);
@@ -456,107 +444,9 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 	return result;
 }
 
-// ---- Embedding API 调用 ----
+// ---- Hash ----
 
-bool CEmbeddingGenerator::_CallEmbeddingApi(const EmbedModelParam& modelParam,
-                                            const std::vector<std::string>& texts,
-                                            std::vector<std::vector<float>>& outEmbeddings)
-{
-	outEmbeddings.clear();
 
-	if (texts.empty())
-		return true;
-
-	if (!modelParam.IsValid())
-		return false;
-
-	// 构造 embedding endpoint URL
-	std::string embedEndpoint = modelParam._endpoint;
-	if (!embedEndpoint.empty() && embedEndpoint.back() == '/')
-		embedEndpoint.pop_back();
-	// 只有当结尾不是 "/embeddings" 时才添加
-	if (embedEndpoint.size() < 11 || embedEndpoint.compare(embedEndpoint.size() - 11, 11, "/embeddings") != 0)
-		embedEndpoint += "/embeddings";
-
-	// 构造请求 JSON
-	json requestJson;
-	requestJson["model"] = modelParam._modelName;
-	requestJson["input"] = texts;
-
-	std::string requestBody = requestJson.dump();
-
-	// 初始化 CURL
-	CURL* curl = curl_easy_init();
-	if (!curl)
-		return false;
-
-	struct curl_slist* headers = nullptr;
-	headers = curl_slist_append(headers, "Content-Type: application/json; charset=utf-8");
-
-	std::string authHeader = "Authorization: Bearer " + modelParam._apiKey;
-	headers = curl_slist_append(headers, authHeader.c_str());
-
-	EmbedApiResponse response;
-
-	curl_easy_setopt(curl, CURLOPT_URL, embedEndpoint.c_str());
-	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, requestBody.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _EmbedWriteCallback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-	if (modelParam._timeoutSeconds > 0)
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, modelParam._timeoutSeconds);
-
-	// 进度回调: 失活时中止 curl 传输
-	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-	curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, &CEmbeddingGenerator::_CurlProgressCb);
-	curl_easy_setopt(curl, CURLOPT_XFERINFODATA, this);
-
-	CURLcode res = curl_easy_perform(curl);
-
-	curl_slist_free_all(headers);
-	curl_easy_cleanup(curl);
-
-	if (res != CURLE_OK)
-		return false;
-
-	// 解析响应 JSON
-	try
-	{
-		auto respJson = json::parse(response.data);
-
-		// OpenAI 格式: {"data": [{"embedding": [...], "index": 0}, ...]}
-		if (respJson.contains("data") && respJson["data"].is_array())
-		{
-			const auto& dataArr = respJson["data"];
-			outEmbeddings.resize(dataArr.size());
-
-			for (size_t i = 0; i < dataArr.size(); i++)
-			{
-				const auto& item = dataArr[i];
-				if (item.contains("embedding") && item["embedding"].is_array())
-				{
-					const auto& emb = item["embedding"];
-					outEmbeddings[i].reserve(emb.size());
-					for (const auto& val : emb)
-						outEmbeddings[i].push_back(val.get<float>());
-				}
-			}
-
-			return true;
-		}
-	}
-	catch (...) {}
-
-	return false;
-}
-
-// ---- curl 进度回调 ----
-
-int CEmbeddingGenerator::_CurlProgressCb(void* userp, double, double, double, double)
-{
-	auto* self = static_cast<CEmbeddingGenerator*>(userp);
-	return self->_enable.load() ? 0 : 1;   // 非0 → curl 立即中止传输
-}
 
 // ---- Hash ----
 

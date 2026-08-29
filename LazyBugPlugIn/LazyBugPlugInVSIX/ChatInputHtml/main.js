@@ -187,10 +187,6 @@ function initializeEventListeners() {
     const inputHintToggleButton = document.getElementById('inputHintToggleButton');
     if (inputHintToggleButton) {
         inputHintToggleButton.addEventListener('click', handleInputHintToggleClick);
-        inputHintToggleButton.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-            handleInputHintToggleContextMenu();
-        });
     }
 
     // Stop按钮点击

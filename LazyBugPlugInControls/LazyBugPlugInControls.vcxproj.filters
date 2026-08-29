@@ -620,6 +620,9 @@
     <ClCompile Include="..\LazyBugSource\ChatTask_InputEmbeddingQuery.cpp">
       <Filter>GUI\ChatDialog\ChatTaskMgr\EmbeddingQuery</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\EmbeddingApiVerifier.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -1243,6 +1246,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\ChatTask_InputEmbeddingQuery.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr\EmbeddingQuery</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\EmbeddingApiVerifier.h">
+      <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

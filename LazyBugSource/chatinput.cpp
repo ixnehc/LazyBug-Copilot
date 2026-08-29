@@ -599,17 +599,6 @@ HRESULT CChatInput::InitializeWebView()
 									}
 								}
 							}
-							else if (action == "inputAssociationToggleClicked")
-							{
-								if (jsonMsg.contains("enabled") && jsonMsg["enabled"].is_boolean())
-								{
-									bool enabled = jsonMsg["enabled"].get<bool>();
-									if (_inputAssociationToggleCallback)
-									{
-										_inputAssociationToggleCallback(enabled);
-									}
-								}
-							}
 							else if (action == "openLogFile")
 							{
 								if (jsonMsg.contains("path") && jsonMsg["path"].is_string())
@@ -825,11 +814,6 @@ void CChatInput::SetInputHintToggleCallback(InputHintToggleCallback callback)
 	_inputHintToggleCallback = callback;
 }
 
-void CChatInput::SetInputAssociationToggleCallback(InputAssociationToggleCallback callback)
-{
-	_inputAssociationToggleCallback = callback;
-}
-
 void CChatInput::SetTabCallback(InputTabCallback callback)
 {
 	_tabCallback = callback;
@@ -884,15 +868,16 @@ void CChatInput::UpdateInputHintButton()
 	_PostWebMessageAsJson(utf8_to_widechar(j.dump()));
 }
 
-void CChatInput::SetInputAssociationIndicatorState(bool enabled)
+bool CChatInput::SetInputAssociationIndicatorState(int state)
 {
 	if (!_IsReady())
-		return;
+		return false;
 
-	std::wstring jsonMessage = L"{\"action\":\"setInputAssociationIndicatorState\",\"enabled\":";
-	jsonMessage += (enabled ? L"true" : L"false");
+	std::wstring jsonMessage = L"{\"action\":\"setInputAssociationIndicatorState\",\"state\":";
+	jsonMessage += std::to_wstring(state);
 	jsonMessage += L"}";
 	_PostWebMessageAsJson(jsonMessage);
+	return true;
 }
 
 // 调整WebView大小

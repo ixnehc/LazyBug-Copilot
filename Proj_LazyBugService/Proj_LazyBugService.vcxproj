@@ -318,6 +318,7 @@
     <ClCompile Include="..\LazyBugSource\TreeSitterSymbol.cpp" />
     <ClCompile Include="..\LazyBugSource\TreeSitterSymbolDefines.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils.cpp" />
+    <ClCompile Include="..\LazyBugSource\Utils_Embedding.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_File.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_SearchFile.cpp" />
     <ClCompile Include="..\LazyBugSource\Utils_FindInFile.cpp" />
@@ -801,6 +802,7 @@
     <ClInclude Include="..\LazyBugSource\TreeSitterSymbol.h" />
     <ClInclude Include="..\LazyBugSource\TreeSitterSymbolDefines.h" />
     <ClInclude Include="..\LazyBugSource\Utils.h" />
+    <ClInclude Include="..\LazyBugSource\Utils_Embedding.h" />
     <ClInclude Include="..\LazyBugSource\Utils_File.h" />
     <ClInclude Include="..\LazyBugSource\Utils_SearchFile.h" />
     <ClInclude Include="..\LazyBugSource\Utils_FindInFile.h" />

@@ -397,6 +397,7 @@
     <ClCompile Include="..\LazyBugSource\CoreDefines.cpp" />
     <ClCompile Include="..\LazyBugSource\CppSymbolDefines.cpp" />
     <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp" />
+    <ClCompile Include="..\LazyBugSource\EmbeddingApiVerifier.cpp" />
     <ClCompile Include="..\LazyBugSource\FileChange.cpp" />
     <ClCompile Include="..\LazyBugSource\FileLocator.cpp" />
     <ClCompile Include="..\LazyBugSource\GuiActor_Changelists.cpp">
@@ -587,6 +588,7 @@
     <ClInclude Include="..\LazyBugSource\ChatTask_InputEmbeddingQuery.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
     <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h" />
+    <ClInclude Include="..\LazyBugSource\EmbeddingApiVerifier.h" />
     <ClInclude Include="..\LazyBugSource\InputHintContext.h" />
     <ClInclude Include="..\LazyBugSource\inputhintwindow.h" />
     <ClInclude Include="..\LazyBugSource\PinyinLib.h" />

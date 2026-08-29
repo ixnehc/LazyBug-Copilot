@@ -73,16 +73,6 @@ private:
 	// 处理一个请求（由工作线程调用）
 	EmbedResult _ProcessRequest(const EmbedRequest& request);
 
-	// 调用 LLM API 生成 embedding
-	// modelParam: 调用方在外部加锁拷贝后传入, 确保与 result.modelName 一致
-	// texts: 需要生成 embedding 的文本列表
-	// outEmbeddings: 返回的 embedding 向量列表（与 texts 一一对应）
-	bool _CallEmbeddingApi(const EmbedModelParam& modelParam,
-	                       const std::vector<std::string>& texts,
-	                       std::vector<std::vector<float>>& outEmbeddings);
-
-	// curl 进度回调: 当 _enable == false 时返回非零, 中止正在进行的 curl 传输
-	static int _CurlProgressCb(void* userp, double, double, double, double);
 
 	// 计算内容 hash
 	static uint64_t _ComputeHash(const std::string& content);

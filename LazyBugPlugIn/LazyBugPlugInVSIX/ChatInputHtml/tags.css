@@ -201,10 +201,23 @@
     opacity: 0;
     transition: opacity 0.15s ease;
     pointer-events: none;
+    /* 立体高光：左上亮斑 + 整体明暗渐变 */
+    background-image: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 45%);
+    box-shadow: inset -1px -1px 1px rgba(0, 0, 0, 0.22), inset 1px 1px 1px rgba(255, 255, 255, 0.35);
 }
 
-.input-hint-toggle-button.association-enabled .input-association-indicator {
+.input-hint-toggle-button.association-green .input-association-indicator {
     opacity: 1;
+    background-color: #22c55e;
+    background-image: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 48%),
+                      linear-gradient(135deg, #4ade80, #16a34a);
+}
+
+.input-hint-toggle-button.association-red .input-association-indicator {
+    opacity: 1;
+    background-color: #ef4444;
+    background-image: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 48%),
+                      linear-gradient(135deg, #f87171, #dc2626);
 }
 
 /* 标签栏滚动条 */
