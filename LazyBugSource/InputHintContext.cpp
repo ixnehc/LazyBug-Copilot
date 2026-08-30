@@ -7,6 +7,8 @@
 
 #include <cstring>
 #include <unordered_set>
+#include <set>
+#include <tuple>
 #include <algorithm>
 #include <cstdio>
 
@@ -346,41 +348,46 @@ void InputHintContext::SetHistorySimilarChunks(std::vector<EmbeddingSimilarChunk
 
 std::string InputHintContext::GetMergedSimilarChunksText() const
 {
-    // 合并两个来源的 chunks
-    std::vector<EmbeddingSimilarChunk> all;
-    all.reserve(_inputChunks.size() + _historyChunks.size());
-    for (const auto& c : _inputChunks)
-        all.push_back(c);
-    for (const auto& c : _historyChunks)
-        all.push_back(c);
-
-    if (all.empty())
+    if (_inputChunks.empty() && _historyChunks.empty())
         return std::string();
 
-    // 按 (filePath, range.first, range.second) 排序后去重，保留最高 similarity
-    std::sort(all.begin(), all.end(), [](const auto& a, const auto& b) {
-        if (a.filePath != b.filePath) return a.filePath < b.filePath;
-        if (a.range.first != b.range.first) return a.range.first < b.range.first;
-        if (a.range.second != b.range.second) return a.range.second < b.range.second;
+    auto similarityDesc = [](const auto& a, const auto& b) {
         return a.similarity > b.similarity;
-    });
+    };
 
+    // 两个来源各自按 similarity 降序排序
+    std::vector<EmbeddingSimilarChunk> inputSorted = _inputChunks;
+    std::vector<EmbeddingSimilarChunk> historySorted = _historyChunks;
+    std::sort(inputSorted.begin(), inputSorted.end(), similarityDesc);
+    std::sort(historySorted.begin(), historySorted.end(), similarityDesc);
+
+    // 交错从两个来源取 chunk（先 input 后 history），同时去重
+    std::set<std::tuple<std::string, int, int>> seen;
     std::vector<EmbeddingSimilarChunk> deduped;
-    for (const auto& c : all)
-    {
-        if (!deduped.empty())
-        {
-            const auto& last = deduped.back();
-            if (last.filePath == c.filePath && last.range == c.range)
-                continue;
-        }
-        deduped.push_back(c);
-    }
+    deduped.reserve(inputSorted.size() + historySorted.size());
 
-    // 按 similarity 降序排序
-    std::sort(deduped.begin(), deduped.end(), [](const auto& a, const auto& b) {
-        return a.similarity > b.similarity;
-    });
+    size_t i = 0, j = 0;
+    while (i < inputSorted.size() || j < historySorted.size())
+    {
+        // 先取 inputChunks 的 chunk
+        if (i < inputSorted.size())
+        {
+            const auto& c = inputSorted[i];
+            auto key = std::make_tuple(c.filePath, c.range.first, c.range.second);
+            if (seen.insert(key).second)
+                deduped.push_back(c);
+            ++i;
+        }
+        // 再取 historyChunks 的 chunk
+        if (j < historySorted.size())
+        {
+            const auto& c = historySorted[j];
+            auto key = std::make_tuple(c.filePath, c.range.first, c.range.second);
+            if (seen.insert(key).second)
+                deduped.push_back(c);
+            ++j;
+        }
+    }
 
     // 逐 chunk 校验文件时间并拼接，按行数限制总量
     const int kMaxTotalLines = 200;
