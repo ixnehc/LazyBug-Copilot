@@ -42,6 +42,7 @@ private:
 	void _ActivateFiles(const SolutionDBMsg_ActivateFiles& request, SolutionDBMsg_ActivateFilesResult& response);
 	void _QuerySimilarByVector(const SolutionDBMsg_QuerySimilarByVector& request, SolutionDBMsg_SimilarChunks& response);
 	void _GetEmbeddingDBVersion(const SolutionDBMsg_GetEmbeddingDBVersion& request, SolutionDBMsg_EmbeddingDBVersion& response);
+	void _GetLastEmbeddingRequestSuccess(const SolutionDBMsg_GetLastEmbeddingRequestSuccess& request, SolutionDBMsg_LastEmbeddingRequestSuccess& response);
 
 	HANDLE _hRequestPipe;
 	HANDLE _hResponsePipe;

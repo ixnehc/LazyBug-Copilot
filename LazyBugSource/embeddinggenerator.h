@@ -65,6 +65,7 @@ public:
 	bool IsFlushed() const;
 	int  GetActiveCount() const;
 	bool IsEnabled() const;
+	bool LastRequestSucceeded() const;
 
 private:
 	// 工作线程函数

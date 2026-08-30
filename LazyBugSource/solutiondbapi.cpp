@@ -336,4 +336,17 @@ SolutionDBMsg_EmbeddingDBVersion SolutionDB_GetEmbeddingDBVersion(const char* db
 	return std::move(result);
 }
 
+SolutionDBMsg_LastEmbeddingRequestSuccess SolutionDB_GetLastEmbeddingRequestSuccess(const char* dbFolderPath)
+{
+	SolutionDBMsg_GetLastEmbeddingRequestSuccess request;
+	request.dbFolderPath = dbFolderPath;
+
+	FuturePipeMsg msg = g_solutionDBClient.SendMessage(request);
+
+	SolutionDBMsg_LastEmbeddingRequestSuccess result;
+	msg.WaitAndFetch(result);
+
+	return std::move(result);
+}
+
 

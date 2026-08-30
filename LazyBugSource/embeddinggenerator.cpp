@@ -238,6 +238,11 @@ bool CEmbeddingGenerator::IsEnabled() const
 	return _enable.load();
 }
 
+bool CEmbeddingGenerator::LastRequestSucceeded() const
+{
+	return _lastRequestSuccess.load();
+}
+
 // ---- 工作线程 ----
 
 void CEmbeddingGenerator::_WorkerThread()

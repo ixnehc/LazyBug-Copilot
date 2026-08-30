@@ -28,8 +28,6 @@
 
 #include "ChatTokenStats.h"
 
-#include "embeddingapiverifier.h"
-
 #include "InputHintWindow.h"
 #include "InputHintContext.h"
 
@@ -250,8 +248,6 @@ protected:
 	void _UpdateHideHint();
 	void _UpdateInputEmbeddingQuery();
 	void _UpdateHistoryEmbeddingQuery();
-
-	CEmbeddingApiVerifier _embeddingApiVerifier;
 
 };
 

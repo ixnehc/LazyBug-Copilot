@@ -14,7 +14,7 @@
 
 InputHintContext::~InputHintContext()
 {
-    _StopVersionThread();
+    _StopQueryThread();
 }
 
 
@@ -189,10 +189,11 @@ void InputHintContext::UpdateInput(const std::wstring& fullContent, int newCaret
 
 void InputHintContext::Clear()
 {
-    _StopVersionThread();
+    _StopQueryThread();
 
     _solutionDBFolder.clear();
     _embeddingDBVersion.store(0, std::memory_order_relaxed);
+    _lastEmbeddingRequestSuccess.store(true, std::memory_order_relaxed);
 
     _chatOpsContentVersion = 0;
     _chatOpsContent.clear();
@@ -210,45 +211,49 @@ void InputHintContext::Clear()
 void InputHintContext::Init(const std::string& solutionDBFolder)
 {
     _solutionDBFolder = solutionDBFolder;
-    _StartVersionThread();
+    _StartQueryThread();
 }
 
 
-void InputHintContext::_StartVersionThread()
+void InputHintContext::_StartQueryThread()
 {
-    if (_versionThreadRunning.load())
+    if (_queryThreadRunning.load())
         return;
 
-    _versionThreadRunning.store(true);
-    _versionThread = std::thread(&InputHintContext::_VersionThreadProc, this);
+    _queryThreadRunning.store(true);
+    _queryThread = std::thread(&InputHintContext::_QueryThreadProc, this);
 }
 
-void InputHintContext::_StopVersionThread()
+void InputHintContext::_StopQueryThread()
 {
-    if (!_versionThreadRunning.load())
+    if (!_queryThreadRunning.load())
         return;
 
-    _versionThreadRunning.store(false);
-    _versionCv.notify_all();
+    _queryThreadRunning.store(false);
+    _queryCv.notify_all();
 
-    if (_versionThread.joinable())
-        _versionThread.join();
+    if (_queryThread.joinable())
+        _queryThread.join();
 }
 
-void InputHintContext::_VersionThreadProc()
+void InputHintContext::_QueryThreadProc()
 {
-    while (_versionThreadRunning.load())
+    while (_queryThreadRunning.load())
     {
         if (!_solutionDBFolder.empty())
         {
             SolutionDBMsg_EmbeddingDBVersion result = SolutionDB_GetEmbeddingDBVersion(_solutionDBFolder.c_str());
             if (result.success)
                 _embeddingDBVersion.store(result.version, std::memory_order_relaxed);
+
+            SolutionDBMsg_LastEmbeddingRequestSuccess successResult = SolutionDB_GetLastEmbeddingRequestSuccess(_solutionDBFolder.c_str());
+            if (successResult.success)
+                _lastEmbeddingRequestSuccess.store(successResult.lastRequestSuccess, std::memory_order_relaxed);
         }
 
-        std::unique_lock<std::mutex> lock(_versionCvMutex);
-        _versionCv.wait_for(lock, std::chrono::milliseconds(500), [this]() {
-            return !_versionThreadRunning.load();
+        std::unique_lock<std::mutex> lock(_queryCvMutex);
+        _queryCv.wait_for(lock, std::chrono::milliseconds(500), [this]() {
+            return !_queryThreadRunning.load();
         });
     }
 }
@@ -271,6 +276,11 @@ const std::string& InputHintContext::GetSolutionDBFolder() const
 uint64_t InputHintContext::GetEmbeddingDBVersion() const
 {
     return _embeddingDBVersion.load(std::memory_order_relaxed);
+}
+
+bool InputHintContext::GetLastEmbeddingRequestSuccess() const
+{
+    return _lastEmbeddingRequestSuccess.load(std::memory_order_relaxed);
 }
 
 uint64_t InputHintContext::GetInputChunksVersion() const

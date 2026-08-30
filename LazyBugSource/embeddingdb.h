@@ -108,6 +108,9 @@ public:
 	// chunk 数据版本号: 每次 chunks 实际变化时递增,供外部轮询判断数据是否更新
 	uint64_t GetVersion() const;
 
+	// 最近一次 embedding 请求是否成功（由 CallEmbeddingApi 结果决定）
+	bool GetLastEmbeddingRequestSuccess() const;
+
 	// ---- 工具方法 ----
 	void GetStr(const FilePathKey& key, std::string& ret) const;
 	FilePathKey MakeKey(const char* filePath) const;

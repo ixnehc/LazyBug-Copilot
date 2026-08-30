@@ -68,7 +68,6 @@ CChatDialogA::CChatDialogA( CWnd* pParent /* = NULL  */ )
 
 CChatDialogA::~CChatDialogA()
 {
-	_embeddingApiVerifier.Stop();
 	_agent.Shutdown();
 }
 
@@ -377,9 +376,6 @@ BOOL CChatDialogA::OnInitDialog()
 	if (g_llmLib.GetWorkingCapability() == CLlmLib::WorkingCapability::CannotWork)
 		ShowChatSettingPage();
 
-	// 启动 embedding API 可用性验证
-	_embeddingApiVerifier.Start();
-
 	return TRUE;
 }
 
@@ -654,7 +650,7 @@ void CChatDialogA::_UpdateEmbeddingModel()
 		if (!_inputHintEnabled)
 			indicatorState = 3;
 		else
-			indicatorState = _embeddingApiVerifier.IsAvailable() ? 2 : 1;
+			indicatorState = _inputHintCtx.GetLastEmbeddingRequestSuccess() ? 2 : 1;
 	}
 
 	if (indicatorState != _inputAssociationIndicatorShown)

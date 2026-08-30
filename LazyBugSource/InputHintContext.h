@@ -50,6 +50,7 @@ public:
     uint32_t GetChatOpsContentVersion() const;
     const std::string& GetSolutionDBFolder() const;
     uint64_t GetEmbeddingDBVersion() const;
+    bool GetLastEmbeddingRequestSuccess() const;
     uint64_t GetInputChunksVersion() const;
     uint64_t GetHistoryChunksVersion() const;
 
@@ -65,9 +66,9 @@ public:
 
 
 private:
-    void _StartVersionThread();
-    void _StopVersionThread();
-    void _VersionThreadProc();
+    void _StartQueryThread();
+    void _StopQueryThread();
+    void _QueryThreadProc();
 
     // 最近一次全量生成 _chatOpsContent 所对应的 CChatOpsCtrl 版本。
     uint32_t _chatOpsContentVersion = 0;
@@ -81,11 +82,14 @@ private:
     // CEmbeddingDB 的 chunk 数据版本号（由后台线程周期更新）。
     std::atomic<uint64_t> _embeddingDBVersion{0};
 
-    // 后台版本查询线程（每 0.5s 调用 SolutionDB_GetEmbeddingDBVersion）。
-    std::thread _versionThread;
-    std::atomic<bool> _versionThreadRunning{false};
-    std::mutex _versionCvMutex;
-    std::condition_variable _versionCv;
+    // 最近一次 embedding 请求是否成功（由后台查询线程周期更新）。
+    std::atomic<bool> _lastEmbeddingRequestSuccess{true};
+
+    // 后台查询线程（每 0.5s 查询 embedding DB 版本号及最近请求是否成功）。
+    std::thread _queryThread;
+    std::atomic<bool> _queryThreadRunning{false};
+    std::mutex _queryCvMutex;
+    std::condition_variable _queryCv;
 
     // 当前输入框内容按光标拆分后的三部分：
     //   _caretLine        光标所在行（含光标标记 \x2038）

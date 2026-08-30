@@ -310,6 +310,17 @@ void CSolutionDBServer::Run()
 					}
 				}
 
+				if (msgType == SolutionDBMsgType::GetLastEmbeddingRequestSuccess)
+				{
+					auto* request = static_cast<SolutionDBMsg_GetLastEmbeddingRequestSuccess*>(msg.get());
+					if (request)
+					{
+						SolutionDBMsg_LastEmbeddingRequestSuccess response;
+						_GetLastEmbeddingRequestSuccess(*request, response);
+						SendMessage(response, requestId);
+					}
+				}
+
 			});
 
 			// 分离线程，让它独立运行
@@ -975,6 +986,23 @@ void CSolutionDBServer::_GetEmbeddingDBVersion(const SolutionDBMsg_GetEmbeddingD
 
 #ifdef USE_EMBEDDING_DB
 	response.version = db->_embeddingDB.GetVersion();
+#endif
+	response.success = true;
+}
+
+void CSolutionDBServer::_GetLastEmbeddingRequestSuccess(const SolutionDBMsg_GetLastEmbeddingRequestSuccess& request, SolutionDBMsg_LastEmbeddingRequestSuccess& response)
+{
+	response.dbFolderPath = request.dbFolderPath;
+
+	CSolutionDB* db = g_solutionDBs.Obtain(request.dbFolderPath.c_str());
+	if (!db)
+	{
+		response.success = false;
+		return;
+	}
+
+#ifdef USE_EMBEDDING_DB
+	response.lastRequestSuccess = db->_embeddingDB.GetLastEmbeddingRequestSuccess();
 #endif
 	response.success = true;
 }

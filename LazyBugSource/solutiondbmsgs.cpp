@@ -49,6 +49,10 @@ PipeMsgPtr CreateSolutionDBMsg(PipeMsgType type)
 		return std::make_unique<SolutionDBMsg_GetEmbeddingDBVersion>();
 	case SolutionDBMsgType::EmbeddingDBVersion:
 		return std::make_unique<SolutionDBMsg_EmbeddingDBVersion>();
+	case SolutionDBMsgType::GetLastEmbeddingRequestSuccess:
+		return std::make_unique<SolutionDBMsg_GetLastEmbeddingRequestSuccess>();
+	case SolutionDBMsgType::LastEmbeddingRequestSuccess:
+		return std::make_unique<SolutionDBMsg_LastEmbeddingRequestSuccess>();
 	//XXXXX: more SolutionDB message
 	default:
 		always_assert(false);

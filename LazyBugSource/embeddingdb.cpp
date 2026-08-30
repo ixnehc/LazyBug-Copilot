@@ -534,6 +534,11 @@ uint64_t CEmbeddingDB::GetVersion() const
 	return _version.load(std::memory_order_relaxed);
 }
 
+bool CEmbeddingDB::GetLastEmbeddingRequestSuccess() const
+{
+	return _generator.LastRequestSucceeded();
+}
+
 void CEmbeddingDB::GetStr(const FilePathKey& key, std::string& ret) const
 {
 	if (key.dbType == SymbolDBType::CppSymbol)

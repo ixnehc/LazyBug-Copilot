@@ -30,3 +30,5 @@ extern void SolutionDB_QuerySimilarByVector(const char* dbFolderPath, const std:
 
 extern SolutionDBMsg_EmbeddingDBVersion SolutionDB_GetEmbeddingDBVersion(const char* dbFolderPath);
 
+extern SolutionDBMsg_LastEmbeddingRequestSuccess SolutionDB_GetLastEmbeddingRequestSuccess(const char* dbFolderPath);
+

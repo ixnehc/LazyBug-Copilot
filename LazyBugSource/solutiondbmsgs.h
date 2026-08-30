@@ -43,6 +43,9 @@ enum class SolutionDBMsgType
 
 	GetEmbeddingDBVersion,
 	EmbeddingDBVersion,
+
+	GetLastEmbeddingRequestSuccess,
+	LastEmbeddingRequestSuccess,
 	//XXXXX: more SolutionDB message
 };
 
@@ -670,6 +673,48 @@ public:
 		dp.Data_ReadSimple(success);
 		dp.Data_ReadString(dbFolderPath);
 		dp.Data_ReadSimple(version);
+	}
+};
+
+struct SolutionDBMsg_GetLastEmbeddingRequestSuccess : public PipeMsg
+{
+public:
+	std::string dbFolderPath;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::GetLastEmbeddingRequestSuccess; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteString(dbFolderPath);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadString(dbFolderPath);
+	}
+};
+
+struct SolutionDBMsg_LastEmbeddingRequestSuccess : public PipeMsg
+{
+public:
+	bool success = false;
+	std::string dbFolderPath;
+	bool lastRequestSuccess = true;
+
+	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::LastEmbeddingRequestSuccess; }
+
+	void Save(CDataPacket& dp) const override
+	{
+		dp.Data_WriteSimple(success);
+		dp.Data_WriteString(dbFolderPath);
+		dp.Data_WriteSimple(lastRequestSuccess);
+	}
+
+	void Load(CDataPacket& dp) override
+	{
+		dp.Data_ReadSimple(success);
+		dp.Data_ReadString(dbFolderPath);
+		dp.Data_ReadSimple(lastRequestSuccess);
 	}
 };
 
