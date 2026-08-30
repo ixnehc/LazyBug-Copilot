@@ -1,5 +1,11 @@
 ﻿# LazyBug Version History
 
+## Version 0.26
+
+- Collects relevant code context based on embedding similarity to improve InputHint accuracy
+
+---
+
 ## Version 0.25.2
 
 - Fixed an error in the cache rate calculation for the Responses API
