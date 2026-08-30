@@ -803,6 +803,7 @@ void RunTestCases()
 		LlmSessionRequest request;
 		request.AddUserMessage(userMsg.c_str());
 		request.isStreaming = true;
+		request.allowMcpTools = false;
 
 		CLlmChat llmChat;
 		llmChat.Init();

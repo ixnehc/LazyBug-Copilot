@@ -316,6 +316,7 @@ void CChatTask_CompressSummarize::Start()
 		
 		request.AddUserMessage(prompt.c_str());
 		request.isStreaming = true;
+		request.allowMcpTools = false;
 
 		if (!_llmChats[0]->Request(request, setting))
 		{

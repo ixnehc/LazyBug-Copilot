@@ -100,6 +100,7 @@ void CChatTask_VerifyLlmApiProvider::Start()
 		LlmSessionRequest request;
 		request.AddUserMessage(u8"Please give me an animal's name of 4 letters");
 		request.isStreaming = false;
+		request.allowMcpTools = false;
 
 		if (!_llmChats[0]->Request(request, setting))
 		{

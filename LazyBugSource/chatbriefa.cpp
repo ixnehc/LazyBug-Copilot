@@ -130,6 +130,7 @@ void CChatBriefA::Update(CChatDialogA& chatDlg)
 	}
 
 	LlmSessionRequest request;
+	request.allowMcpTools = false;
 	std::string question = u8"Please create a very concise title for the following dialogue.\n";
 	question += u8"Question: " + userMessage + "\n";
 	question += u8"Answer: " + aiMessage + "\n";
