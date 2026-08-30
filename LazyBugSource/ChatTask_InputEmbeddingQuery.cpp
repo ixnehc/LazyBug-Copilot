@@ -111,14 +111,9 @@ void CChatTask_InputEmbeddingQuery::Start()
 	// 发送异步 embedding 请求
 	if (!_llmChats[0]->RequestEmbedding(_queryText, setting))
 	{
-		if (_context && _context->inputHintCtx)
-			_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 		_Fail("Failed to send embedding request");
 		return;
 	}
-
-	if (_context && _context->inputHintCtx)
-		_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{true, time(nullptr)});
 
 	_hasStartedRequest = true;
 	_phase = Phase::Embedding;
@@ -147,16 +142,22 @@ void CChatTask_InputEmbeddingQuery::Update()
 
 					if (output.hasError)
 					{
+						if (_context && _context->inputHintCtx)
+							_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 						_Fail(output.errorMessage.empty() ? "Embedding request failed" : output.errorMessage);
 						return;
 					}
 
 					if (output.embedding.empty())
 					{
+						if (_context && _context->inputHintCtx)
+							_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 						_Fail("Empty embedding response");
 						return;
 					}
 
+					if (_context && _context->inputHintCtx)
+						_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{true, time(nullptr)});
 					_embedding = std::move(output.embedding);
 					_phase = Phase::Query;
 				}
@@ -164,6 +165,8 @@ void CChatTask_InputEmbeddingQuery::Update()
 		}
 		else if (_hasStartedRequest || _requestInterrupt)
 		{
+			if (!_requestInterrupt && _context && _context->inputHintCtx)
+				_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 			_Fail("No response from embedding API");
 			return;
 		}

@@ -172,14 +172,9 @@ void CChatTask_HistoryEmbeddingQuery::_StartEmbeddingRequest()
 
 	if (!_llmChats[0]->RequestEmbedding(_queries[_currentQueryIndex], setting))
 	{
-		if (_context && _context->inputHintCtx)
-			_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 		_Fail("Failed to send embedding request");
 		return;
 	}
-
-	if (_context && _context->inputHintCtx)
-		_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{true, time(nullptr)});
 
 	_hasStartedRequest = true;
 }
@@ -315,6 +310,8 @@ void CChatTask_HistoryEmbeddingQuery::Update()
 		{
 			if (!_llmChats[0]->HasActiveSession())
 			{
+				if (!_requestInterrupt && _context && _context->inputHintCtx)
+					_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 				_Fail("No response from embedding API");
 				return;
 			}
@@ -334,16 +331,22 @@ void CChatTask_HistoryEmbeddingQuery::Update()
 
 			if (output.hasError)
 			{
+				if (_context && _context->inputHintCtx)
+					_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 				_Fail(output.errorMessage.empty() ? "Embedding request failed" : output.errorMessage);
 				return;
 			}
 
 			if (output.embedding.empty())
 			{
+				if (_context && _context->inputHintCtx)
+					_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 				_Fail("Empty embedding response");
 				return;
 			}
 
+			if (_context && _context->inputHintCtx)
+				_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{true, time(nullptr)});
 			_currentEmbedding = std::move(output.embedding);
 			_hasStartedRequest = false;
 			_phase = Phase::QuerySimilar;
