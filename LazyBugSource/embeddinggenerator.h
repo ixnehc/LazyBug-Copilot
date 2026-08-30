@@ -65,7 +65,7 @@ public:
 	bool IsFlushed() const;
 	int  GetActiveCount() const;
 	bool IsEnabled() const;
-	bool LastRequestSucceeded() const;
+	EmbeddingRequestStatus LastRequestStatus() const;
 
 private:
 	// 工作线程函数
@@ -97,7 +97,7 @@ private:
 	std::atomic<uint64_t>                       _nextRequestId;
 
 	std::atomic<bool>                           _enable;        // true=激活, false=失活(模型/API不可用)
-	std::atomic<bool>                           _lastRequestSuccess; // 最近一次请求是否成功
+	std::atomic<EmbeddingRequestStatus>         _lastRequestStatus{EmbeddingRequestStatus{}}; // 最近一次请求状态(success + time)
 
 	EmbedModelParam                             _modelParam;   // 使用中的模型参数
 	mutable std::mutex                          _modelParamMutex; // 保护 _modelParam

@@ -305,3 +305,10 @@ struct EmbeddingSimilarChunk
 	time_t                genTime;      // 生成时间
 	float                 similarity;   // [0, 1]
 };
+
+// Embedding 最近一次请求状态（success 与 time 绑定，作为原子结构体读写）
+struct EmbeddingRequestStatus
+{
+	bool   success = true;
+	time_t time    = 0;
+};

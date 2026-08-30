@@ -172,9 +172,14 @@ void CChatTask_HistoryEmbeddingQuery::_StartEmbeddingRequest()
 
 	if (!_llmChats[0]->RequestEmbedding(_queries[_currentQueryIndex], setting))
 	{
+		if (_context && _context->inputHintCtx)
+			_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 		_Fail("Failed to send embedding request");
 		return;
 	}
+
+	if (_context && _context->inputHintCtx)
+		_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{true, time(nullptr)});
 
 	_hasStartedRequest = true;
 }

@@ -650,7 +650,7 @@ void CChatDialogA::_UpdateEmbeddingModel()
 		if (!_inputHintEnabled)
 			indicatorState = 3;
 		else
-			indicatorState = _inputHintCtx.GetLastEmbeddingRequestSuccess() ? 2 : 1;
+			indicatorState = _inputHintCtx.GetLastEmbeddingRequestStatus().success ? 2 : 1;
 	}
 
 	if (indicatorState != _inputAssociationIndicatorShown)

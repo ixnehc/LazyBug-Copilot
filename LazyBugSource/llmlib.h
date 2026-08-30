@@ -50,8 +50,8 @@ struct LlmApiProvider
 	//动态数据(不同用户的设置有可能会不一样)
 	std::string key;
 	Status status;
-};
-
+}; 
+ 
 struct LlmApi
 {
 	LlmApi()

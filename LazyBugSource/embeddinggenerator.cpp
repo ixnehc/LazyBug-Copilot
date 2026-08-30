@@ -88,7 +88,7 @@ CEmbeddingGenerator::CEmbeddingGenerator()
 	_activeCount      = 0;
 	_nextRequestId    = 1;
 	_enable           = true;
-	_lastRequestSuccess = true;
+	_lastRequestStatus.store(EmbeddingRequestStatus{});
 }
 
 CEmbeddingGenerator::~CEmbeddingGenerator()
@@ -238,9 +238,9 @@ bool CEmbeddingGenerator::IsEnabled() const
 	return _enable.load();
 }
 
-bool CEmbeddingGenerator::LastRequestSucceeded() const
+EmbeddingRequestStatus CEmbeddingGenerator::LastRequestStatus() const
 {
-	return _lastRequestSuccess.load();
+	return _lastRequestStatus.load();
 }
 
 // ---- 工作线程 ----
@@ -432,7 +432,7 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 				apiOk = true;
 				break;
 			}
-			_lastRequestSuccess.store(false); // 只要失败一次就置为 false
+			_lastRequestStatus.store(EmbeddingRequestStatus{false, time(nullptr)}); // 只要失败一次就置为 false
 		}
 
 		if (!apiOk)
@@ -447,7 +447,7 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 	result.chunks  = std::move(newChunks);
 	result.symbolParseTime = request.symbolParseTime;
 	result.success = true;
-	_lastRequestSuccess.store(true);
+	_lastRequestStatus.store(EmbeddingRequestStatus{true, time(nullptr)});
 	return result;
 }
 

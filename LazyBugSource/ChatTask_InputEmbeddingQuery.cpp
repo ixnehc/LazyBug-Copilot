@@ -111,9 +111,14 @@ void CChatTask_InputEmbeddingQuery::Start()
 	// 发送异步 embedding 请求
 	if (!_llmChats[0]->RequestEmbedding(_queryText, setting))
 	{
+		if (_context && _context->inputHintCtx)
+			_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{false, time(nullptr)});
 		_Fail("Failed to send embedding request");
 		return;
 	}
+
+	if (_context && _context->inputHintCtx)
+		_context->inputHintCtx->SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{true, time(nullptr)});
 
 	_hasStartedRequest = true;
 	_phase = Phase::Embedding;

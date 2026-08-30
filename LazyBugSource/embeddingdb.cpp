@@ -534,9 +534,9 @@ uint64_t CEmbeddingDB::GetVersion() const
 	return _version.load(std::memory_order_relaxed);
 }
 
-bool CEmbeddingDB::GetLastEmbeddingRequestSuccess() const
+EmbeddingRequestStatus CEmbeddingDB::GetLastEmbeddingRequestStatus() const
 {
-	return _generator.LastRequestSucceeded();
+	return _generator.LastRequestStatus();
 }
 
 void CEmbeddingDB::GetStr(const FilePathKey& key, std::string& ret) const

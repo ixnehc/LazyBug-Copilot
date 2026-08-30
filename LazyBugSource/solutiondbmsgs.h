@@ -700,6 +700,7 @@ public:
 	bool success = false;
 	std::string dbFolderPath;
 	bool lastRequestSuccess = true;
+	time_t lastRequestTime = 0;
 
 	PipeMsgType GetType() const override { return (PipeMsgType)SolutionDBMsgType::LastEmbeddingRequestSuccess; }
 
@@ -708,6 +709,7 @@ public:
 		dp.Data_WriteSimple(success);
 		dp.Data_WriteString(dbFolderPath);
 		dp.Data_WriteSimple(lastRequestSuccess);
+		dp.Data_WriteSimple(lastRequestTime);
 	}
 
 	void Load(CDataPacket& dp) override
@@ -715,6 +717,7 @@ public:
 		dp.Data_ReadSimple(success);
 		dp.Data_ReadString(dbFolderPath);
 		dp.Data_ReadSimple(lastRequestSuccess);
+		dp.Data_ReadSimple(lastRequestTime);
 	}
 };
 

@@ -193,7 +193,7 @@ void InputHintContext::Clear()
 
     _solutionDBFolder.clear();
     _embeddingDBVersion.store(0, std::memory_order_relaxed);
-    _lastEmbeddingRequestSuccess.store(true, std::memory_order_relaxed);
+    _lastEmbeddingRequestStatus.store(EmbeddingRequestStatus{}, std::memory_order_relaxed);
 
     _chatOpsContentVersion = 0;
     _chatOpsContent.clear();
@@ -248,7 +248,7 @@ void InputHintContext::_QueryThreadProc()
 
             SolutionDBMsg_LastEmbeddingRequestSuccess successResult = SolutionDB_GetLastEmbeddingRequestSuccess(_solutionDBFolder.c_str());
             if (successResult.success)
-                _lastEmbeddingRequestSuccess.store(successResult.lastRequestSuccess, std::memory_order_relaxed);
+                SetLastEmbeddingRequestStatus(EmbeddingRequestStatus{successResult.lastRequestSuccess, successResult.lastRequestTime});
         }
 
         std::unique_lock<std::mutex> lock(_queryCvMutex);
@@ -278,9 +278,22 @@ uint64_t InputHintContext::GetEmbeddingDBVersion() const
     return _embeddingDBVersion.load(std::memory_order_relaxed);
 }
 
-bool InputHintContext::GetLastEmbeddingRequestSuccess() const
+EmbeddingRequestStatus InputHintContext::GetLastEmbeddingRequestStatus() const
 {
-    return _lastEmbeddingRequestSuccess.load(std::memory_order_relaxed);
+    return _lastEmbeddingRequestStatus.load(std::memory_order_relaxed);
+}
+
+void InputHintContext::SetLastEmbeddingRequestStatus(const EmbeddingRequestStatus& status)
+{
+    // 使用 CAS 循环保证只有时间戳更新的状态才写入，避免旧状态覆盖新状态。
+    // 多个线程（后台查询线程、Input/History embedding 查询任务）可能同时调用。
+    EmbeddingRequestStatus cur = _lastEmbeddingRequestStatus.load(std::memory_order_relaxed);
+    while (status.time > cur.time)
+    {
+        if (_lastEmbeddingRequestStatus.compare_exchange_weak(cur, status,
+                std::memory_order_relaxed, std::memory_order_relaxed))
+            break;
+    }
 }
 
 uint64_t InputHintContext::GetInputChunksVersion() const

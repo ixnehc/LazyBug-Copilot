@@ -50,7 +50,11 @@ public:
     uint32_t GetChatOpsContentVersion() const;
     const std::string& GetSolutionDBFolder() const;
     uint64_t GetEmbeddingDBVersion() const;
-    bool GetLastEmbeddingRequestSuccess() const;
+    EmbeddingRequestStatus GetLastEmbeddingRequestStatus() const;
+
+    // 设置最近一次 embedding 请求状态（success 与 time 绑定）。
+    // 线程安全：只有时间戳更新的状态才会写入，避免旧状态覆盖新状态。
+    void SetLastEmbeddingRequestStatus(const EmbeddingRequestStatus& status);
     uint64_t GetInputChunksVersion() const;
     uint64_t GetHistoryChunksVersion() const;
 
@@ -82,8 +86,8 @@ private:
     // CEmbeddingDB 的 chunk 数据版本号（由后台线程周期更新）。
     std::atomic<uint64_t> _embeddingDBVersion{0};
 
-    // 最近一次 embedding 请求是否成功（由后台查询线程周期更新）。
-    std::atomic<bool> _lastEmbeddingRequestSuccess{true};
+    // 最近一次 embedding 请求状态（success 与 time 绑定，由后台查询线程周期更新）。
+    std::atomic<EmbeddingRequestStatus> _lastEmbeddingRequestStatus{EmbeddingRequestStatus{}};
 
     // 后台查询线程（每 0.5s 查询 embedding DB 版本号及最近请求是否成功）。
     std::thread _queryThread;

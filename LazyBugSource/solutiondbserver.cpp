@@ -1002,7 +1002,9 @@ void CSolutionDBServer::_GetLastEmbeddingRequestSuccess(const SolutionDBMsg_GetL
 	}
 
 #ifdef USE_EMBEDDING_DB
-	response.lastRequestSuccess = db->_embeddingDB.GetLastEmbeddingRequestSuccess();
+	EmbeddingRequestStatus status = db->_embeddingDB.GetLastEmbeddingRequestStatus();
+	response.lastRequestSuccess = status.success;
+	response.lastRequestTime = status.time;
 #endif
 	response.success = true;
 }
