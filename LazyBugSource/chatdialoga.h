@@ -31,6 +31,8 @@
 #include "InputHintWindow.h"
 #include "InputHintContext.h"
 
+#include "EmbeddingApiVerifier.h"
+
 #include "McpUpdater.h"
 
 #include "ChatSkillsTree.h"
@@ -234,6 +236,7 @@ protected:
 	// ── 输入自动补全 ──
 	CInputHintWindow _inputHintWindow;
 	InputHintContext _inputHintCtx;
+	CEmbeddingApiVerifier _embeddingApiVerifier;
 	bool _inputHintEnabled = false;
 	bool _isInputComposing = false;
 

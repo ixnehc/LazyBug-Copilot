@@ -653,6 +653,21 @@ void CChatDialogA::_UpdateEmbeddingModel()
 			indicatorState = _inputHintCtx.GetLastEmbeddingRequestStatus().success ? 2 : 1;
 	}
 
+	// 根据最近一次 embedding 请求状态启动/停止 verifier
+	//   failure → 启动 verifier 周期探测 API 可用性
+	//   success → 停止 verifier
+	{
+		EmbeddingRequestStatus status = _inputHintCtx.GetLastEmbeddingRequestStatus();
+		if (!status.success)
+			_embeddingApiVerifier.Start();
+		else
+			_embeddingApiVerifier.Stop();
+
+		// 每帧将 verifier 的探测结果同步到 _inputHintCtx（CAS 保证仅更新更新的时间戳）
+		EmbeddingRequestStatus verifierStatus = _embeddingApiVerifier.GetLastRequestStatus();
+		_inputHintCtx.SetLastEmbeddingRequestStatus(verifierStatus);
+	}
+
 	if (indicatorState != _inputAssociationIndicatorShown)
 	{
 		// 仅当消息真正发出后（WebView 已就绪）才更新缓存状态，

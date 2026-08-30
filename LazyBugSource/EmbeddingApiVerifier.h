@@ -5,20 +5,17 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
-#include <functional>
 
 #include "embeddingtypes.h"
+#include "CoreDefines.h"
 
 // ============================================================================
 // CEmbeddingApiVerifier — 周期性检测 embedding API 是否可用
 // 内部启动一个工作线程，定期调用 CallEmbeddingApi 做一次探测。
-// 状态变化时通过回调通知调用方（回调在工作线程触发）。
 // ============================================================================
 class CEmbeddingApiVerifier
 {
 public:
-	using StatusChangedCallback = std::function<void(bool available)>;
-
 	CEmbeddingApiVerifier();
 	~CEmbeddingApiVerifier();
 
@@ -28,11 +25,8 @@ public:
 	// 停止验证线程（唤醒并 join）
 	void Stop();
 
-	// 线程安全读取当前状态
-	bool IsAvailable() const { return _available.load(); }
-
-	// 设置状态变化回调（回调在工作线程触发）
-	void SetStatusChangedCallback(StatusChangedCallback callback);
+	// 线程安全读取最近一次 embedding 请求状态（success + time）
+	EmbeddingRequestStatus GetLastRequestStatus() const { return _lastRequestStatus.load(std::memory_order_relaxed); }
 
 private:
 	// 工作线程主循环
@@ -49,8 +43,7 @@ private:
 	std::mutex                  _mutex;
 	std::condition_variable     _cv;
 	std::atomic<bool>           _running{false};
-	std::atomic<bool>           _available{false};
-	StatusChangedCallback       _callback;
+	std::atomic<EmbeddingRequestStatus> _lastRequestStatus{EmbeddingRequestStatus{true, 0}};
 
 	// 验证间隔（秒）
 	static constexpr int        VERIFY_INTERVAL_OK   = 5;   // 上次成功时的间隔

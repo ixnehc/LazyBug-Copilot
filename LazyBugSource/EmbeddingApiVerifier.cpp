@@ -26,7 +26,6 @@ void CEmbeddingApiVerifier::Start()
 		return;
 
 	_running.store(true);
-	_available.store(false);
 
 	_thread = std::thread(&CEmbeddingApiVerifier::_WorkerThread, this);
 }
@@ -37,12 +36,6 @@ void CEmbeddingApiVerifier::Stop()
 	_cv.notify_all();
 	if (_thread.joinable())
 		_thread.join();
-}
-
-void CEmbeddingApiVerifier::SetStatusChangedCallback(StatusChangedCallback callback)
-{
-	std::lock_guard<std::mutex> lock(_mutex);
-	_callback = std::move(callback);
 }
 
 // ============================================================================
@@ -57,21 +50,14 @@ void CEmbeddingApiVerifier::_WorkerThread()
 
 		EmbedModelParam param;
 		if (_BuildModelParam(param))
-			available = _VerifyOnce(param);
-
-		// 状态变化时触发回调
-		if (available != _available.exchange(available))
 		{
-			StatusChangedCallback cb;
-			{
-				std::lock_guard<std::mutex> lock(_mutex);
-				cb = _callback;
-			}
-			if (cb)
-				cb(available);
+			available = _VerifyOnce(param);
+			// 仅当仍在运行时才记录请求结果（Stop 期间完成的探测不更新状态）
+			if (_running.load())
+				_lastRequestStatus.store(EmbeddingRequestStatus{available, time(nullptr)}, std::memory_order_relaxed);
 		}
 
-		// 等待下一轮（成功 60s，失败 30s）
+		// 等待下一轮
 		int waitSec = available ? VERIFY_INTERVAL_OK : VERIFY_INTERVAL_FAIL;
 		std::unique_lock<std::mutex> lock(_mutex);
 		_cv.wait_for(lock, std::chrono::seconds(waitSec),
