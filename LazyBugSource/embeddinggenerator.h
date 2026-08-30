@@ -96,6 +96,7 @@ private:
 	std::atomic<uint64_t>                       _nextRequestId;
 
 	std::atomic<bool>                           _enable;        // true=激活, false=失活(模型/API不可用)
+	std::atomic<bool>                           _lastRequestSuccess; // 最近一次请求是否成功
 
 	EmbedModelParam                             _modelParam;   // 使用中的模型参数
 	mutable std::mutex                          _modelParamMutex; // 保护 _modelParam

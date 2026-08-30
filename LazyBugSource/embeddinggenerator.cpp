@@ -88,6 +88,7 @@ CEmbeddingGenerator::CEmbeddingGenerator()
 	_activeCount      = 0;
 	_nextRequestId    = 1;
 	_enable           = true;
+	_lastRequestSuccess = true;
 }
 
 CEmbeddingGenerator::~CEmbeddingGenerator()
@@ -420,13 +421,13 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 		{
 			std::vector<std::vector<float>> modelEmbeddings;
 			if (Utils::CallEmbeddingApi(modelParam, textsToEmbed, modelEmbeddings, &_enable))
-
 			{
 				for (size_t i = 0; i < newChunks.size() && i < modelEmbeddings.size(); i++)
 					newChunks[i]._embeddings = std::move(modelEmbeddings[i]);
 				apiOk = true;
 				break;
 			}
+			_lastRequestSuccess.store(false); // 只要失败一次就置为 false
 		}
 
 		if (!apiOk)
@@ -441,6 +442,7 @@ EmbedResult CEmbeddingGenerator::_ProcessRequest(const EmbedRequest& request)
 	result.chunks  = std::move(newChunks);
 	result.symbolParseTime = request.symbolParseTime;
 	result.success = true;
+	_lastRequestSuccess.store(true);
 	return result;
 }
 
