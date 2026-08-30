@@ -294,6 +294,9 @@ function setupWebViewMessageListener() {
                 case 'setWebViewTitle':
                     setWebViewTitle(message.title);
                     break;
+                case 'setTitleBriefRefreshing':
+                    setTitleBriefRefreshing(message.loading);
+                    break;
                 // ====== Disabled 消息相关 ======
                 case 'disableMessagesAfter':
                     disableMessagesAfter(message.messageId);

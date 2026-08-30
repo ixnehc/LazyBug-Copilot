@@ -562,6 +562,17 @@ void CChatUi::SetTitlebarMenuUpdateCallback(TitlebarMenuUpdateCallback callback)
     _titlebarMenuUpdateCallback = callback;
 }
 
+// 设置Title Brief刷新按钮的loading状态
+void CChatUi::SetTitleBriefRefreshing(bool loading)
+{
+	if (!_IsReady())
+		return;
+
+	std::wstring jsonMessage = L"{\"action\":\"setTitleBriefRefreshing\",\"loading\":"
+		+ std::wstring(loading ? L"true" : L"false") + L"}";
+	PostJsonMessage(jsonMessage);
+}
+
 // 设置FileEdit标题点击回调
 void CChatUi::SetFileEditTitleClickedCallback(FileEditTitleClickedCallback callback)
 {

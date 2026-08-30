@@ -628,6 +628,15 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 
 	_chatBrief.Update(*this);
 
+	// 同步Title Brief刷新按钮的loading状态
+	{
+		bool refreshing = _chatBrief.IsRefreshing();
+		if (refreshing != _titleBriefRefreshing)
+		{
+			_titleBriefRefreshing = refreshing;
+			_ui.SetTitleBriefRefreshing(refreshing);
+		}
+	}
 
 	CDialog::OnTimer(nIDEvent);
 }
@@ -887,6 +896,11 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 	{
 		// 处理Favorite列表按钮点击事件
 		_HandleFavoriteListButtonClicked();
+	}
+	else if (action == "refreshTitleBriefClicked")
+	{
+		// 处理刷新Title Brief按钮点击事件
+		_HandleRefreshTitleBriefClicked();
 	}
 	else if (action == "querySymbolLocations")
 	{
@@ -1354,6 +1368,14 @@ void CChatDialogA::_HandleSettingsButtonClicked()
 	btnRect.right = btnRect.left + 30; // 按钮宽度
 	btnRect.bottom = btnRect.top + 28; // 按钮高度
 	_settingMenuWindow.ShowWindow(btnRect);
+}
+
+void CChatDialogA::_HandleRefreshTitleBriefClicked()
+{
+	// 强制重新生成title brief
+	_chatBrief.Refresh();
+	_titleBriefRefreshing = true;
+	_ui.SetTitleBriefRefreshing(true);
 }
 
 void CChatDialogA::_HandleFavoriteListButtonClicked()

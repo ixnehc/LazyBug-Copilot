@@ -154,6 +154,9 @@ public:
     void HideTitlebarMenu();
     void ToggleTitlebarMenu();
 
+	// 设置Title Brief刷新按钮的loading状态
+	void SetTitleBriefRefreshing(bool loading);
+
 	void Update();
 
 protected:

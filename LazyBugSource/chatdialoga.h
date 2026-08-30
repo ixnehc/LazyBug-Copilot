@@ -190,6 +190,7 @@ protected:
 	void _HandleFileEditTitleClicked(const std::wstring& fileEditId);
 	void _HandleFileSummarizeClicked(const std::wstring& messageId, const std::wstring& filePath, bool soFar);
 	void _HandleSettingsButtonClicked();
+	void _HandleRefreshTitleBriefClicked();
 	void _HandleSettingMenuItemClicked(const std::wstring& itemName);
 	void _HandleChatSettingPageClose();
 	void _HandleTagClicked(const std::wstring& tagId);
@@ -239,6 +240,9 @@ protected:
 	CEmbeddingApiVerifier _embeddingApiVerifier;
 	bool _inputHintEnabled = false;
 	bool _isInputComposing = false;
+
+	// Title Brief 刷新按钮loading状态（避免重复发送消息）
+	bool _titleBriefRefreshing = false;
 
 	// InputEmbeddingQuery debounce
 	AbsTick _lastInputChangeTick = 0;

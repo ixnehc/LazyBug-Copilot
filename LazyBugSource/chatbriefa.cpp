@@ -38,35 +38,10 @@ std::wstring CChatBriefA::GetSimpleTitle(const std::vector<ChatOp>& ops)
 
 void CChatBriefA::Update(CChatDialogA& chatDlg)
 {
-	if (_availableTries <= 0)
-	{
-		if (!chatDlg.HasTitle())
-		{
-			std::wstring title = GetSimpleTitle(chatDlg.GetOps());
-			if (!title.empty())
-				chatDlg.SetTitle(title);
-		}
-		return;
-	}
-
-	// _availableTries > 0 时
-	if (chatDlg.HasTitle())
-	{
-		const wchar_t* currentTitle = chatDlg.GetTitle();
-		// 如果当前title不是simple title，说明已经是AI生成的，不需要重新生成
-		if (wcscmp(currentTitle, GetSimpleTitle(chatDlg.GetOps()).c_str()) != 0)
-		{
-			_availableTries = 0;
-			return;
-		}
-	}
-
-	std::string chatFileName = chatDlg.GetChatFileName();
-	if (chatFileName.empty())
-		return;
-
+	// 处理进行中的 brief 会话（包括强制刷新产生的会话）
 	if (!_briefingChatFileName.empty())
 	{
+		std::string chatFileName = chatDlg.GetChatFileName();
 		LlmSessionOutput output;
 		if (_llmChat.Process(output))
 		{
@@ -91,8 +66,42 @@ void CChatBriefA::Update(CChatDialogA& chatDlg)
 					}
 				}
 				_briefingChatFileName = "";
+				_forceRefresh = false;
 			}
 		}
+		return;
+	}
+
+	// 非强制刷新时，才应用次数限制和“已有AI标题不再生成”的规则
+	if (!_forceRefresh)
+	{
+		if (_availableTries <= 0)
+		{
+			if (!chatDlg.HasTitle())
+			{
+				std::wstring title = GetSimpleTitle(chatDlg.GetOps());
+				if (!title.empty())
+					chatDlg.SetTitle(title);
+			}
+			return;
+		}
+
+		if (chatDlg.HasTitle())
+		{
+			const wchar_t* currentTitle = chatDlg.GetTitle();
+			// 如果当前title不是simple title，说明已经是AI生成的，不需要重新生成
+			if (wcscmp(currentTitle, GetSimpleTitle(chatDlg.GetOps()).c_str()) != 0)
+			{
+				_availableTries = 0;
+				return;
+			}
+		}
+	}
+
+	std::string chatFileName = chatDlg.GetChatFileName();
+	if (chatFileName.empty())
+	{
+		_forceRefresh = false;
 		return;
 	}
 
@@ -115,7 +124,10 @@ void CChatBriefA::Update(CChatDialogA& chatDlg)
 	}
 
 	if (userMessage.empty() || aiMessage.empty())
+	{
+		_forceRefresh = false;
 		return;
+	}
 
 	LlmSessionRequest request;
 	std::string question = u8"Please create a very concise title for the following dialogue.\n";
@@ -127,6 +139,7 @@ void CChatBriefA::Update(CChatDialogA& chatDlg)
 	if (!g_llmLib.LoadLlmSetting(settings, g_llmLib.GetBriefApi(), false, ""))
 	{
 		_availableTries = 0;
+		_forceRefresh = false;
 		return;
 	}
 
@@ -137,5 +150,14 @@ void CChatBriefA::Update(CChatDialogA& chatDlg)
 	_llmChat.Request(request, settings);
 	_briefingChatFileName = chatFileName;
 	_availableTries--;
+}
+
+void CChatBriefA::Refresh()
+{
+	// 清理进行中的 brief 会话，强制重新生成
+	_llmChat.Clear();
+	_briefingChatFileName.clear();
+	_forceRefresh = true;
+	_availableTries = 1;
 }
 

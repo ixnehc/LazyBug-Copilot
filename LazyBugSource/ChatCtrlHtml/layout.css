@@ -18,7 +18,7 @@ body {
     border-bottom: 2px solid var(--titlebar-border);
     border-top: 1px solid var(--titlebar-border);
     padding: 4px 12px;
-    padding-right: 38px;
+    padding-right: 72px;
     height: 32px;
     min-height: 32px;
     display: flex;
@@ -30,6 +30,7 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     width: 100%;
     box-sizing: border-box;
+    position: relative;
 }
 
 .webview-titlebar:hover {
@@ -47,6 +48,81 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* 悬停时给刷新按钮留出空间 */
+.webview-titlebar:hover .webview-title {
+    margin-right: 40px;
+}
+
+/* ====== 刷新Title Brief按钮 ====== */
+.webview-refresh-button {
+    position: absolute;
+    right: 32px;           /* 位于设置按钮左边 */
+    top: 0;
+    width: 31px;
+    height: 31px;
+    padding: 4px;
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 101;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;              /* 默认隐藏 */
+    pointer-events: none;    /* 隐藏时不响应鼠标 */
+}
+
+/* 鼠标移到title上时显示刷新按钮 */
+.webview-titlebar:hover .webview-refresh-button {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.webview-refresh-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: transparent;
+}
+
+.webview-refresh-button:active {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+    transition: all 0.1s ease;
+}
+
+.webview-refresh-button .refresh-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* loading状态：隐藏图标，显示旋转动画 */
+.webview-refresh-button .refresh-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--text-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.webview-refresh-button.loading .refresh-icon {
+    display: none;
+}
+
+.webview-refresh-button.loading .refresh-spinner {
+    display: block;
+}
+
+/* loading时始终可见，禁止点击 */
+.webview-refresh-button.loading {
+    opacity: 1;
+    pointer-events: none;
+    cursor: default;
 }
 
 /* ====== 设置按钮 - 固定定位 ====== */

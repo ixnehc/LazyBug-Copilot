@@ -4,7 +4,7 @@
 const DEFAULT_CHAT_TITLE = '[ Untitled Chat ]';
 
 // DOM 元素引用
-let webviewTitlebar, webviewTitle, webviewSettingsButton, webviewFavoriteListButton;
+let webviewTitlebar, webviewTitle, webviewSettingsButton, webviewFavoriteListButton, webviewRefreshButton;
 
 /**
  * 初始化标题栏模块
@@ -14,6 +14,7 @@ function initTitlebar() {
     webviewTitle = document.getElementById('webview-title');
     webviewSettingsButton = document.getElementById('webview-settings-button');
     webviewFavoriteListButton = document.getElementById('webview-favorite-list-button');
+    webviewRefreshButton = document.getElementById('webview-refresh-button');
     
     setupTitlebarEvents();
 }
@@ -46,6 +47,14 @@ function setupTitlebarEvents() {
             action: 'favoriteListButtonClicked'
         });
     };
+
+    // 刷新Title Brief按钮点击事件
+    webviewRefreshButton.onclick = (e) => {
+        e.stopPropagation();
+        window.chrome.webview.postMessage({
+            action: 'refreshTitleBriefClicked'
+        });
+    };
 }
 
 /**
@@ -54,6 +63,14 @@ function setupTitlebarEvents() {
  */
 function setWebViewTitle(title) {
     webviewTitle.textContent = title || DEFAULT_CHAT_TITLE;
+}
+
+/**
+ * 设置Title Brief刷新按钮的loading状态
+ * @param {boolean} loading - true: 正在刷新, false: 空闲
+ */
+function setTitleBriefRefreshing(loading) {
+    webviewRefreshButton.classList.toggle('loading', !!loading);
 }
 
 /**
