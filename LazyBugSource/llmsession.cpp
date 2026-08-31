@@ -719,10 +719,34 @@ void parseLlmResponse(const char* response, CLlmToolCallParser &toolCallParser, 
 			return;
 		}
 
-		// 检查是否是错误响应（custom provider 包裹格式: {"error_code": "...", "message": "..."}）
-		if (j.contains(u8"error_code") && j[u8"error_code"].is_string() && !j[u8"error_code"].get<std::string>().empty())
+		// 检查是否是错误响应（custom provider 包裹格式: {"error_code": "...", "message": "..."} 或 {"error_code": 403, "message": "..."}）
+		if (j.contains(u8"error_code"))
 		{
-			result.error_type = j[u8"error_code"].get<std::string>();
+			const auto& codeVal = j[u8"error_code"];
+			// 兼容字符串和整数两种 error_code 类型
+			if (codeVal.is_string())
+			{
+				if (codeVal.get<std::string>().empty())
+					return; // 空字符串不视为错误响应
+				result.error_type = codeVal.get<std::string>();
+				try
+				{
+					result.error_code = std::stoi(codeVal.get<std::string>());
+				}
+				catch (...)
+				{
+					result.error_code = 0; // 转换失败时保持默认值
+				}
+			}
+			else if (codeVal.is_number())
+			{
+				result.error_code = codeVal.get<int>();
+				result.error_type = std::to_string(result.error_code);
+			}
+			else
+			{
+				return;
+			}
 			result.error_message = j.value(u8"message", u8"");
 			return;
 		}
