@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI 编程助手扩展
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.26-blue)](patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.26.1-blue)](patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](../LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -28,6 +28,11 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 </div>
 
 ---
+
+## Version 0.26.1 更新说明
+
+- 现在当 CLI tool 的输出数据过多时，会保存到临时文件，以供 LLM 后续查阅
+- 添加了 Title Brief 的刷新按钮
 
 ## Version 0.26 更新说明
 

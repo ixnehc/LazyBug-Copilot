@@ -1,5 +1,12 @@
 ﻿# LazyBug Version History
 
+## Version 0.26.1
+
+- When a CLI tool produces too much output, it is now saved to a temporary file for the LLM to review later
+- Added a refresh button for Title Brief
+
+---
+
 ## Version 0.26
 
 - Collects relevant code context based on embedding similarity to improve InputHint accuracy
