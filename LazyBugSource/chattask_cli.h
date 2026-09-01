@@ -49,7 +49,8 @@ private:
 
 	class COutputBuffer {
 	public:
-		COutputBuffer(size_t headLimit = 16000, size_t tailLimit = 100);
+		COutputBuffer(size_t headLimit = 16000, size_t tailLimit = 100, bool saveToFile = false);
+		~COutputBuffer();
 		
 		void Append(const char* data, size_t length);
 		bool Fetch(std::string &output);
@@ -58,8 +59,13 @@ private:
 		void Reset();
 		void SetHeadLimit(size_t headLimit);
 
+		bool HasTruncation() const;
+		const std::string& GetOutputFilePath() const;
+		size_t GetFileLineCount() const;
+
 	private:
 		void _ProcessUtf8Data(const std::string& utf8Data);
+		void _OpenOutputFile();
 
 		size_t _headLimit;
 		size_t _tailLimit;
@@ -77,6 +83,12 @@ private:
 		
 		bool _isEncodingDecided;
 		bool _isUtf8;
+		
+		bool _saveToFile;
+		HANDLE _hOutputFile;
+		std::string _outputFilePathUtf8;
+		size_t _fileLineCount;
+		bool _lastWrittenCharIsNewline;
 		
 		mutable std::mutex _mutex;
 	};

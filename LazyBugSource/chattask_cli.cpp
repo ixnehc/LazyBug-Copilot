@@ -64,7 +64,7 @@ static bool CreateTempScriptFile(const wchar_t* prefix, const wchar_t* extension
 }
 
 CChatTask_CLI::CChatTask_CLI(const std::string& shellType)
-	: _outputBuffer(16000, 100), _outputBufferSimple(2000, 100)
+	: _outputBuffer(16000, 100, true), _outputBufferSimple(2000, 100, false)
 {
 	_workerThread = nullptr;
 	_shouldStop = false;
@@ -172,12 +172,23 @@ void CChatTask_CLI::_AppendOutputToDisplay(const std::string& output)
 
 extern std::string local_to_utf8(const std::string& ansi_str);
 
-CChatTask_CLI::COutputBuffer::COutputBuffer(size_t headLimit, size_t tailLimit)
+CChatTask_CLI::COutputBuffer::COutputBuffer(size_t headLimit, size_t tailLimit, bool saveToFile)
 	: _headLimit(headLimit), _tailLimit(tailLimit),
 	_totalUtf8BytesProcessed(0), _omittedBytesCount(0),
 	_dotCounter(0), _dotsPrintedInLine(0),
-	_isEncodingDecided(false), _isUtf8(false)
+	_isEncodingDecided(false), _isUtf8(false),
+	_saveToFile(saveToFile), _hOutputFile(INVALID_HANDLE_VALUE),
+	_fileLineCount(0), _lastWrittenCharIsNewline(true)
 {
+}
+
+CChatTask_CLI::COutputBuffer::~COutputBuffer()
+{
+	if (_hOutputFile != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(_hOutputFile);
+		_hOutputFile = INVALID_HANDLE_VALUE;
+	}
 }
 
 void CChatTask_CLI::COutputBuffer::Reset()
@@ -193,6 +204,61 @@ void CChatTask_CLI::COutputBuffer::Reset()
 	_incrementalBuffer.clear();
 	_isEncodingDecided = false;
 	_isUtf8 = false;
+	if (_hOutputFile != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(_hOutputFile);
+		_hOutputFile = INVALID_HANDLE_VALUE;
+	}
+	_outputFilePathUtf8.clear();
+	_fileLineCount = 0;
+	_lastWrittenCharIsNewline = true;
+}
+
+void CChatTask_CLI::COutputBuffer::_OpenOutputFile()
+{
+	std::string tempDirUtf8 = std::string(Utils::GetDBRootFolder_utf8()) + "\\_temp";
+	Utils::EnsureFolder(tempDirUtf8.c_str());
+
+	std::wstring tempDir = utf8_to_widechar(tempDirUtf8);
+
+	wchar_t tempFileName[MAX_PATH];
+	if (!GetTempFileNameW(tempDir.c_str(), L"cli", 0, tempFileName))
+		return;
+
+	_outputFilePathUtf8 = widechar_to_utf8(tempFileName);
+
+	_hOutputFile = CreateFileW(tempFileName, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (_hOutputFile == INVALID_HANDLE_VALUE)
+	{
+		DeleteFileW(tempFileName);
+		_outputFilePathUtf8.clear();
+		return;
+	}
+
+	// 写入 UTF-8 BOM
+	DWORD written;
+	static const BYTE bom[] = {0xEF, 0xBB, 0xBF};
+	WriteFile(_hOutputFile, bom, 3, &written, NULL);
+	_fileLineCount = 0;
+	_lastWrittenCharIsNewline = true;
+}
+
+bool CChatTask_CLI::COutputBuffer::HasTruncation() const
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	return _totalUtf8BytesProcessed > _headLimit + _tailBuffer.length();
+}
+
+const std::string& CChatTask_CLI::COutputBuffer::GetOutputFilePath() const
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	return _outputFilePathUtf8;
+}
+
+size_t CChatTask_CLI::COutputBuffer::GetFileLineCount() const
+{
+	std::lock_guard<std::mutex> lock(_mutex);
+	return _fileLineCount;
 }
 
 void CChatTask_CLI::COutputBuffer::SetHeadLimit(size_t headLimit)
@@ -207,6 +273,7 @@ void CChatTask_CLI::COutputBuffer::_ProcessUtf8Data(const std::string& utf8Data)
 
 	size_t currentLen = utf8Data.length();
 	std::string toAppendInc;
+	std::string toWriteToFile;
 
 	for (size_t i = 0; i < currentLen; ++i)
 	{
@@ -220,6 +287,22 @@ void CChatTask_CLI::COutputBuffer::_ProcessUtf8Data(const std::string& utf8Data)
 		}
 		else
 		{
+			// 首次超出 head limit 时，惰性打开文件并写入已累积的 head buffer
+			if (_saveToFile && _hOutputFile == INVALID_HANDLE_VALUE)
+			{
+				_OpenOutputFile();
+				if (_hOutputFile != INVALID_HANDLE_VALUE)
+				{
+					toWriteToFile += _headBuffer;
+				}
+			}
+
+			// 将超出部分写入文件（保存完整输出）
+			if (_hOutputFile != INVALID_HANDLE_VALUE)
+			{
+				toWriteToFile.push_back(c);
+			}
+
 			// 超出部分进入尾部缓冲区
 			_tailBuffer.push_back(c);
 
@@ -250,6 +333,22 @@ void CChatTask_CLI::COutputBuffer::_ProcessUtf8Data(const std::string& utf8Data)
 				}
 			}
 		}
+	}
+
+	// 将超出部分写入文件
+	if (!toWriteToFile.empty() && _hOutputFile != INVALID_HANDLE_VALUE)
+	{
+		DWORD written;
+		WriteFile(_hOutputFile, toWriteToFile.c_str(), (DWORD)toWriteToFile.length(), &written, NULL);
+
+		// 统计行数
+		for (size_t i = 0; i < toWriteToFile.length(); ++i)
+		{
+			if (toWriteToFile[i] == '\n')
+				_fileLineCount++;
+		}
+		if (!toWriteToFile.empty())
+			_lastWrittenCharIsNewline = (toWriteToFile.back() == '\n');
 	}
 
 	if (!toAppendInc.empty())
@@ -482,6 +581,20 @@ void CChatTask_CLI::COutputBuffer::Finish()
 		if (_totalUtf8BytesProcessed > _headLimit)
 		{
 			_incrementalBuffer += _tailBuffer;
+		}
+	}
+
+	// 关闭输出文件
+	if (_hOutputFile != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(_hOutputFile);
+		_hOutputFile = INVALID_HANDLE_VALUE;
+
+		// 修正尾行：文件有内容且最后不以换行符结尾，则补一行
+		if (_fileLineCount > 0 || !_lastWrittenCharIsNewline)
+		{
+			if (!_lastWrittenCharIsNewline)
+				_fileLineCount++;
 		}
 	}
 }
@@ -740,6 +853,13 @@ void CChatTask_CLI::_ThreadFunc()
 			std::string fullResult = _outputBuffer.GetFullResult();
 			std::string simpleResult = _outputBufferSimple.GetFullResult();
 
+			// 如果发生了截断，将完整输出文件路径和行数追加到结果中
+			if (_outputBuffer.HasTruncation() && !_outputBuffer.GetOutputFilePath().empty())
+			{
+				fullResult += "\n\n[Full output saved to: " + _outputBuffer.GetOutputFilePath()
+					+ " (" + std::to_string(_outputBuffer.GetFileLineCount()) + " lines)]";
+			}
+
 			_SetThreadResult(fullResult, simpleResult, "", false);
 			return;
 		}
@@ -845,6 +965,13 @@ void CChatTask_CLI::_ThreadFunc()
 
 	std::string fullResult = _outputBuffer.GetFullResult();
 	std::string simpleResult = _outputBufferSimple.GetFullResult();
+
+	// 如果发生了截断，将完整输出文件路径和行数追加到结果中
+	if (_outputBuffer.HasTruncation() && !_outputBuffer.GetOutputFilePath().empty())
+	{
+		fullResult += "\n\n[Full output saved to: " + _outputBuffer.GetOutputFilePath()
+			+ " (" + std::to_string(_outputBuffer.GetFileLineCount()) + " lines)]";
+	}
 
 	// 构建返回结果
 	std::string resultStr;
