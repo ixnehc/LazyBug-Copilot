@@ -33,6 +33,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 
 - When a CLI tool produces too much output, it is now saved to a temporary file for the LLM to review later
 - Added a refresh button for Title Brief
+- Now you can press ESC to quit the diff mode
 
 ## Version 0.26 Release Notes
 

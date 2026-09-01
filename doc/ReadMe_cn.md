@@ -33,6 +33,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 - 现在当 CLI tool 的输出数据过多时，会保存到临时文件，以供 LLM 后续查阅
 - 添加了 Title Brief 的刷新按钮
+- 现在按 ESC 键可以退出 diff 模式
 
 ## Version 0.26 更新说明
 
