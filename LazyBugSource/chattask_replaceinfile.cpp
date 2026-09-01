@@ -430,13 +430,6 @@ bool ReplaceInFileAccurately(const std::string& oldContent, const char* oldLines
 		return false;
 	}
 
-	// 检查oldLines和newLines是否完全相同
-	if (searchLines == replaceLines)
-	{
-		errorMessage = "Old lines and new lines are identical";
-		return false;
-	}
-
 	// 查找匹配位置，找到第二个匹配立即返回失败
 	int matchPos = -1;
 	
