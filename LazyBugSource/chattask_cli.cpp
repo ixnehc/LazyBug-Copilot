@@ -1158,6 +1158,14 @@ void CChatTask_CLI::Update()
 				_AppendOutputToDisplay(chunksToProcess);
 			}
 
+			// 如果发生了截断，在UI上显示完整输出文件信息
+			if (_outputBuffer.HasTruncation() && !_outputBuffer.GetOutputFilePath().empty())
+			{
+				std::string truncInfo = "\n\n[Full output saved to: " + _outputBuffer.GetOutputFilePath()
+					+ " (" + std::to_string(_outputBuffer.GetFileLineCount()) + " lines)]";
+				_AppendOutputToDisplay(truncInfo);
+			}
+
 			// 获取之前的输出结果，构建最终结果
 			std::string previousResult;
 			std::string previousResultSimple;
@@ -1239,6 +1247,14 @@ void CChatTask_CLI::Update()
 		if (_outputBuffer.Fetch(chunksToProcess) && !chunksToProcess.empty())
 		{
 			_AppendOutputToDisplay(chunksToProcess);
+		}
+
+		// 如果发生了截断，在UI上显示完整输出文件信息
+		if (_outputBuffer.HasTruncation() && !_outputBuffer.GetOutputFilePath().empty())
+		{
+			std::string truncInfo = "\n\n[Full output saved to: " + _outputBuffer.GetOutputFilePath()
+				+ " (" + std::to_string(_outputBuffer.GetFileLineCount()) + " lines)]";
+			_AppendOutputToDisplay(truncInfo);
 		}
 
 		// 等待线程结束并清理
