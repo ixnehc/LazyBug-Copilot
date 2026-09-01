@@ -236,6 +236,7 @@ STDMETHODIMP CCommandFilter::Exec(
 		case ECMD_DELETEWHITESPACE:
 		case ECMD_DELETETOEOL:
 		case ECMD_DELETETOBOL:
+		case ECMD_CANCEL: // Esc 键退出 diff 模式
 			g_ps.requestDetachFileChange = true;
 			break;
 		}
