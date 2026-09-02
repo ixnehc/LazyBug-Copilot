@@ -63,6 +63,7 @@ enum class LlmToolType
 	CreateSkill,
 	Mcp,
 	AddMcpServer,
+	AddFileToProject,
 	//XXXXX: more tool type  
 	Max,
 };

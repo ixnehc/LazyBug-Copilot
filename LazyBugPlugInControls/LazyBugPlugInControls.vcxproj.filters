@@ -626,6 +626,9 @@
     <ClCompile Include="..\LazyBugSource\Utils_Embedding.cpp">
       <Filter>Core\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\LazyBugSource\ChatTask_AddFileToProject.cpp">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="LazyBugPlugInControls.def">
@@ -1255,6 +1258,9 @@
     </ClInclude>
     <ClInclude Include="..\LazyBugSource\Utils_Embedding.h">
       <Filter>Core\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugSource\ChatTask_AddFileToProject.h">
+      <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

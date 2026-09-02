@@ -471,6 +471,7 @@ void CChatSettingProviderTab::_SendProviderDataToWebView()
         case LlmToolType::CreateSkill:      return "CreateSkill";
         case LlmToolType::Mcp:              return "Mcp";
         case LlmToolType::AddMcpServer:     return "AddMcpServer";
+        case LlmToolType::AddFileToProject: return "AddFileToProject";
         default:                            return "None";
         }
     };
@@ -747,6 +748,7 @@ void CChatSettingProviderTab::_UpdateApiField(const std::wstring& apiNameW, cons
         if (s == "QueryFinish")      return LlmToolType::QueryFinish;
         if (s == "CreateSkill")      return LlmToolType::CreateSkill;
         if (s == "AddMcpServer")     return LlmToolType::AddMcpServer;
+        if (s == "AddFileToProject") return LlmToolType::AddFileToProject;
         return LlmToolType::None;
     };
 

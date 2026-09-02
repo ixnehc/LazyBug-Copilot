@@ -146,6 +146,7 @@ public:
 	void AddTask_ResolveSymbolLinks(const std::vector<SymbolLinkItem>& symbolLinks);
 	void AddTask_CreateSkill(const LlmToolCall& toolCall);
 	void AddTask_AddMcpServer(const LlmToolCall& toolCall);
+	void AddTask_AddFileToProject(const LlmToolCall& toolCall);
 	void AddTask_Mcp(const LlmToolCall& toolCall);
 	void AddTask_CompressSummarize(int workingOpIndex, const std::string& summarizeApiName, CompressSummarizeMode mode = CompressSummarizeMode::Normal);
 	void AddTask_InputHint(const std::wstring& content, const std::string& apiName, const CRect& anchorRect, int caretTokenPos, int contentVersion);

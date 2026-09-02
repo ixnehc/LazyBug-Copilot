@@ -22,6 +22,29 @@ void RequestGenerateSlnDump()
 	g_requestGenerateSlnDump = true;
 }
 
+// 桥接 Chat 引擎的 AddFileToProject 工具到 VSIX 的 Util_AddFileToProject
+static bool _AddFileToProjectBridge(const unsigned short* projectFilePath, const unsigned short* fileFullPath, char* errorMsg, int errorMsgSize)
+{
+	std::wstring projectPath = (const wchar_t*)projectFilePath;
+	std::wstring filePath = (const wchar_t*)fileFullPath;
+
+	std::string error;
+	bool ok = Util_AddFileToProject(projectPath, filePath, error);
+
+	if (errorMsg && errorMsgSize > 0)
+	{
+		int n = (int)error.size();
+		if (n >= errorMsgSize)
+			n = errorMsgSize - 1;
+		for (int i = 0; i < n; ++i)
+			errorMsg[i] = error[i];
+		errorMsg[n] = '\0';
+	}
+
+	return ok;
+}
+
+
 // 当前编辑窗口持续停留多久后触发激活（单位：毫秒）
 static const AbsTick kActiveDocActivateDelayMs = 3000;
 
@@ -48,6 +71,8 @@ void LazyBugPlugInWindowPane::PostSited(IVsPackageEnums::SetSiteResult result)
 	CComPtr<IVsShell> spShell = GetVsSiteCache().GetCachedService<IVsShell, SID_SVsShell>();
 	spShell->AdviseBroadcastMessages(this, &m_BroadcastCookie);
 	InitVSColors();
+
+	SetAddFileToProjectFunc(_AddFileToProjectBridge);
 
 }
 

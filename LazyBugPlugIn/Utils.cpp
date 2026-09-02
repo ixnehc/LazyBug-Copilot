@@ -3,6 +3,8 @@
 
 // UTF-8 转宽字符函数声明
 extern std::wstring utf8_to_widechar(const char* utf8_str);
+extern std::string widechar_to_utf8(const wchar_t* str);
+
 #include <textmgr.h> // For IVsTextLines, IVsTextLineMarker, marker types, TBS_READONLY
 
 #include "Utils.h"
@@ -1294,4 +1296,117 @@ void Util_RestoreBookmarks(const std::wstring& filePath, const std::string& bmDa
 	pService->Invoke(dispId, IID_NULL, LOCALE_USER_DEFAULT,
 		DISPATCH_METHOD, &dp, &result, nullptr, nullptr);
 }
+
+// -----------------------------------------------------------------------
+// Util_AddFileToProject: 将一个已存在的物理文件添加到指定项目（挂载到项目根节点）
+// -----------------------------------------------------------------------
+bool Util_AddFileToProject(const std::wstring& projectFilePath, const std::wstring& fileFullPath, std::string& errorMsg)
+{
+	errorMsg.clear();
+
+	if (projectFilePath.empty() || fileFullPath.empty())
+	{
+		errorMsg = "Invalid parameter: project path or file path is empty";
+		return false;
+	}
+
+	if (!g_ps.pSolution)
+	{
+		errorMsg = "IVsSolution is not available";
+		return false;
+	}
+
+	// 文件必须已经存在于磁盘上，AddItem(VSADDITEMOP_OPENFILE) 是引用一个已存在的物理文件
+	if (!Util_ExistFile(widechar_to_utf8(fileFullPath.c_str()).c_str()))
+	{
+		errorMsg = "File does not exist on disk: " + widechar_to_utf8(fileFullPath.c_str());
+		return false;
+	}
+
+	// 定位目标项目：GetProjectOfUniqueName 期望的是解决方案内的“唯一名”，并非绝对路径，
+	// 因此这里枚举已加载项目，并通过 IVsProject::GetMkDocument 取得项目真实文件路径做比对。
+	auto normalizePath = [](const wchar_t* path) -> std::wstring {
+		std::wstring s = path ? path : L"";
+		for (auto& ch : s)
+		{
+			if (ch == L'/')
+				ch = L'\\';
+			else if (ch >= L'A' && ch <= L'Z')
+				ch = ch - L'A' + L'a';
+		}
+		return s;
+	};
+
+	CComPtr<IVsHierarchy> pHierarchy;
+	{
+		CComPtr<IEnumHierarchies> pEnum;
+		HRESULT hr = g_ps.pSolution->GetProjectEnum(EPF_LOADEDINSOLUTION, GUID_NULL, &pEnum);
+		if (FAILED(hr) || !pEnum)
+		{
+			errorMsg = "Failed to enumerate projects in solution";
+			return false;
+		}
+
+		std::wstring target = normalizePath(projectFilePath.c_str());
+		for (;;)
+		{
+			ULONG fetched = 0;
+			CComPtr<IVsHierarchy> pHier;
+			hr = pEnum->Next(1, &pHier, &fetched);
+			if (FAILED(hr) || fetched == 0 || !pHier)
+				break;
+
+			CComQIPtr<IVsProject> pProj(pHier);
+			if (!pProj)
+				continue;
+
+			CComBSTR bstrProjPath;
+			if (FAILED(pProj->GetMkDocument(VSITEMID_ROOT, &bstrProjPath)) || !bstrProjPath)
+				continue;
+
+			if (normalizePath(bstrProjPath) == target)
+			{
+				pHierarchy = pHier;
+				break;
+			}
+		}
+	}
+
+	if (!pHierarchy)
+	{
+		errorMsg = "Project not found in solution: " + widechar_to_utf8(projectFilePath.c_str());
+		return false;
+	}
+
+	CComQIPtr<IVsProject> pProject(pHierarchy);
+	if (!pProject)
+	{
+		errorMsg = "Failed to get IVsProject interface for the project";
+		return false;
+	}
+
+	// 取文件名（不含路径），作为 AddItem 的 pszItemName
+	std::wstring fileName = fileFullPath;
+	{
+		size_t pos = fileName.find_last_of(L"\\/");
+		if (pos != std::wstring::npos)
+			fileName = fileName.substr(pos + 1);
+	}
+
+	LPCOLESTR pszFilesToOpen[1] = { fileFullPath.c_str() };
+	VSADDRESULT addResult = ADDRESULT_Failure;
+	HRESULT hr = pProject->AddItem(VSITEMID_ROOT, VSADDITEMOP_OPENFILE, fileName.c_str(),
+		1, pszFilesToOpen, NULL, &addResult);
+
+	if (FAILED(hr) || addResult != ADDRESULT_Success)
+	{
+		char buf[64];
+		sprintf_s(buf, "AddItem failed, hr=0x%08X, result=%d", (unsigned int)hr, (int)addResult);
+		errorMsg = buf;
+		return false;
+	}
+
+	return true;
+}
+
 

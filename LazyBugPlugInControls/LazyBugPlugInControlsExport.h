@@ -46,3 +46,9 @@ LazyBugPlugInControls_Api bool ActivateFileInSolutionDB(const unsigned short* fu
 LazyBugPlugInControls_Api void UpdateReload();
 
 LazyBugPlugInControls_Api void AddFileToChat(const unsigned short* fullPath);
+
+// 由 VSIX 侧注册的回调，用于将文件加入当前解决方案中的某个项目。
+// 独立运行的 LazyBug.exe 不注册该回调，AddFileToProjectInVS 会返回失败。
+typedef bool (*AddFileToProjectFunc)(const unsigned short* projectFilePath, const unsigned short* fileFullPath, char* errorMsg, int errorMsgSize);
+LazyBugPlugInControls_Api void SetAddFileToProjectFunc(AddFileToProjectFunc func);
+

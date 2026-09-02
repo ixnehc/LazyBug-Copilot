@@ -34,6 +34,12 @@ extern bool Util_IsFileDirty(const wchar_t* filePath);
 extern bool Util_ExistFile(const char* filePath);
 extern bool Util_SaveFileContent(const std::wstring& wpath, const std::vector<BYTE>& content);
 extern bool Util_LoadFileContent(const std::wstring& wpath, std::vector<BYTE>& content);
+
+// 将一个已存在的物理文件添加到指定项目（挂载到项目根节点）
+// projectFilePath : 目标项目文件的绝对路径（.vcxproj/.csproj 等），用于在 IVsSolution 中定位项目
+// fileFullPath    : 待添加文件的绝对路径，该文件必须已经存在于磁盘上
+// errorMsg        : 失败时输出的错误描述
+extern bool Util_AddFileToProject(const std::wstring& projectFilePath, const std::wstring& fileFullPath, std::string& errorMsg);
 extern FILETIME Util_GetZeroFileTime();
 extern bool Util_EqualFileTime(const FILETIME& a, const FILETIME& b);
 extern FILETIME Util_GetFileTime(const std::wstring& wpath);

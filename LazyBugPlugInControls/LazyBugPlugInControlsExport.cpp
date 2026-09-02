@@ -316,3 +316,35 @@ void AddFileToChat(const unsigned short* fullPath)
 		g_chatDlg->GetChatInput().AddFilePathTag((const wchar_t*)fullPath,true);
 	}
 }
+
+// ---------------------------------------------------------------------------
+// AddFileToProject 桥接
+// ---------------------------------------------------------------------------
+static AddFileToProjectFunc g_addFileToProjectFunc = nullptr;
+
+void SetAddFileToProjectFunc(AddFileToProjectFunc func)
+{
+	g_addFileToProjectFunc = func;
+}
+
+// 供 LazyBugSource 中的 ChatTask 调用的桥接入口(非导出, 与 GetCheckpoints 等桥接函数同模式)。
+bool AddFileToProjectInVS(const unsigned short* projectFilePath, const unsigned short* fileFullPath, char* errorMsg, int errorMsgSize)
+{
+	if (!g_addFileToProjectFunc)
+	{
+		if (errorMsg && errorMsgSize > 0)
+		{
+			const char* msg = "VS integration is not available";
+			int i = 0;
+			while (msg[i] && i < errorMsgSize - 1)
+			{
+				errorMsg[i] = msg[i];
+				i++;
+			}
+			errorMsg[i] = '\0';
+		}
+		return false;
+	}
+
+	return g_addFileToProjectFunc(projectFilePath, fileFullPath, errorMsg, errorMsgSize);
+}

@@ -100,6 +100,8 @@ namespace
 					tools.push_back(LlmToolType::QueryFinish);
 			else if (item == "AddMcpServer")
 				tools.push_back(LlmToolType::AddMcpServer);
+			else if (item == "AddFileToProject")
+				tools.push_back(LlmToolType::AddFileToProject);
 				//XXXXX: more tool type  
 			}
 		}
@@ -238,6 +240,7 @@ namespace
 		case LlmToolType::CreateSkill: return "CreateSkill";
 		case LlmToolType::Mcp: return "Mcp";
 		case LlmToolType::AddMcpServer: return "AddMcpServer";
+		case LlmToolType::AddFileToProject: return "AddFileToProject";
 		//XXXXX: more tool type  
 		default: return "None";
 		}
@@ -268,6 +271,7 @@ namespace
 		if (str == "QueryFinish") return LlmToolType::QueryFinish;
 		if (str == "CreateSkill") return LlmToolType::CreateSkill;
 		if (str == "AddMcpServer") return LlmToolType::AddMcpServer;
+		if (str == "AddFileToProject") return LlmToolType::AddFileToProject;
 		//XXXXX: more tool type  
 		return LlmToolType::None;
 	}
@@ -576,7 +580,8 @@ void CLlmLibLoader::LoadInto(std::vector<LlmApiProvider>& providers, std::vector
 				LlmToolType::CLI_Bash,
 				LlmToolType::CLI_RunScript,
 				LlmToolType::Question,
-				LlmToolType::AddMcpServer
+				LlmToolType::AddMcpServer,
+				LlmToolType::AddFileToProject
 				//				LlmToolType::CreateSkill 
 				//XXXXX: more tool type  
 			};
@@ -777,7 +782,8 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 						LlmToolType::CLI_Bash,
 						LlmToolType::CLI_RunScript,
 						LlmToolType::Question,
-						LlmToolType::AddMcpServer
+						LlmToolType::AddMcpServer,
+						LlmToolType::AddFileToProject
 						//XXXXX: more tool type  
 					};
 				}

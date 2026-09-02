@@ -509,6 +509,13 @@ void CLlmTools::Init()
 	AddToolPara_String("workingDir", "Working directory for the command process (stdio mode only). Optional.", false);
 	EndTool();
 
+	// 定义 AddFileToProject 工具
+	BeginTool(LlmToolType::AddFileToProject, "AddFileToProject");
+	AppendToolDesc("Add an existing file on disk to a project in the current solution. The file will be mounted to the project root and appear in Solution Explorer.");
+	AddToolPara_String("projectFilePath", "The absolute path of the target project file (.vcxproj/.csproj, etc.).", true);
+	AddToolPara_String("fileFullPath", "The absolute path of the file to add. The file must already exist on disk.", true);
+	EndTool();
+
 }
 
 void CLlmTools::Clear()

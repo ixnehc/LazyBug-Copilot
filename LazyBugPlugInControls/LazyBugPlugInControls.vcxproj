@@ -369,6 +369,7 @@
     <ClCompile Include="..\LazyBugSource\ChatSkillTip.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTaskMgr.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_AddMcpServer.cpp" />
+    <ClCompile Include="..\LazyBugSource\ChatTask_AddFileToProject.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_CLI.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_CompressSummarize.cpp" />
     <ClCompile Include="..\LazyBugSource\ChatTask_CreateSkill.cpp" />
@@ -585,6 +586,7 @@
     <ClInclude Include="..\LazyBugSource\chatsettingdirwatchtab.h" />
     <ClInclude Include="..\LazyBugSource\ChatSettingProviderTab.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_AddMcpServer.h" />
+    <ClInclude Include="..\LazyBugSource\ChatTask_AddFileToProject.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_HistoryEmbeddingQuery.h" />
     <ClInclude Include="..\LazyBugSource\ChatTask_InputEmbeddingQuery.h" />
     <ClInclude Include="..\LazyBugSource\chattask_inputhint.h" />
