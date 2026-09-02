@@ -15,7 +15,12 @@ void CChatTask_AddFileToProject::_Fail(const char* reason)
 {
 	std::string result = "Error: ";
 	result += reason ? reason : "Unknown error";
+	if (!_fileFullPath.empty())
+		result += "\nFile: " + _fileFullPath;
+	if (!_projectFilePath.empty())
+		result += "\nProject: " + _projectFilePath;
 	_SendToolCallResult(result.c_str());
+	_SendToolCallMessage_Execution(result.c_str());
 	_status = TaskStatus::Failure;
 }
 
@@ -51,8 +56,13 @@ void CChatTask_AddFileToProject::Start()
 		return;
 	}
 
-	std::string result = "File added to project successfully: " + _fileFullPath;
+	std::string result = "Successfully added file to project.";
+	if (!_fileFullPath.empty())
+		result += "\nFile: " + _fileFullPath;
+	if (!_projectFilePath.empty())
+		result += "\nProject: " + _projectFilePath;
 	_SendToolCallResult(result.c_str());
+	_SendToolCallMessage_Execution(result.c_str());
 	_status = TaskStatus::Success;
 }
 

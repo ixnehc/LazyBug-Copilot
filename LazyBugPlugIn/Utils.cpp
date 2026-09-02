@@ -1406,6 +1406,16 @@ bool Util_AddFileToProject(const std::wstring& projectFilePath, const std::wstri
 		return false;
 	}
 
+	// AddItem 只修改了内存中的项目，需将项目文件的改动持久化到磁盘
+	hr = g_ps.pSolution->SaveSolutionElement(SLNSAVEOPT_ForceSave, pHierarchy, VSCOOKIE_NIL);
+	if (FAILED(hr))
+	{
+		char buf[64];
+		sprintf_s(buf, "AddItem succeeded but saving project failed, hr=0x%08X", (unsigned int)hr);
+		errorMsg = buf;
+		return false;
+	}
+
 	return true;
 }
 

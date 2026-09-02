@@ -235,6 +235,28 @@ void CChatTask::_SendToolCallMessage_Exploring(const char* result)
 	}
 }
 
+void CChatTask::_SendToolCallMessage_Execution(const char* result)
+{
+	if (!_context || !result)
+		return;
+
+	// 优先使用 chatOpsCtrl
+	if (_context->chatOpsCtrl)
+	{
+		// 使用当前 AI 消息 ID（从 chatAgent 获取）
+		if (_context->chatAgent)
+		{
+			const std::wstring& aiMessageId = _context->chatAgent->GetCurrentAIMessageId();
+			_context->chatOpsCtrl->AddToolCallMessage_Execution(aiMessageId, std::string(result));
+		}
+		else
+		{
+			// 如果没有 chatAgent，使用空的消息 ID（可能需要调整）
+			_context->chatOpsCtrl->AddToolCallMessage_Execution(L"", std::string(result));
+		}
+	}
+}
+
 void CChatTask::_SendToolCallMessage_AddMcpServer(const char* result, bool addOp)
 {
 	if (!_context || !result)
