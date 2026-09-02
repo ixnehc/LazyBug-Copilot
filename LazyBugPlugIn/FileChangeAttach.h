@@ -36,3 +36,5 @@ public:
 	std::string _savedBookmarks;
 	std::string _originalText; // Attach前的原始文本，用于行号映射
 };
+
+extern CFileChangeAttach g_fileChangeAttach;

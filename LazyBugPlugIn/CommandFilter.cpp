@@ -4,6 +4,9 @@
 #include <vector>    // If managing multiple commands
 
 #include "PackageState.h"
+#include "..\LazyBugPlugInUI\CommandIds.h"
+#include "FileChangeAttach.h"
+#include "Utils.h"
 
 //#include "stdidcmd.h"
 //ECMD_TYPECHAR
@@ -11,6 +14,9 @@
 GUID CMDSETID_Standard2K = { 0x1496a755, 0x94de, 0x11d0, {0x8c, 0x3f, 0x0, 0xc0, 0x4f, 0xc2, 0xaa, 0xe2} };
 
 const GUID CGID_VSStandardCommandSet97 = {0x5EFC7975, 0x14BC, 0x11CF, {0x9B, 0x2B, 0x00, 0xAA, 0x00, 0x57, 0x38, 0x19}};
+
+// LazyBug 自定义命令集 GUID（与 guids.h 中 guidLazyBugPlugInCmdSet 一致）
+const GUID guidLazyBugCmdSet = { 0xCFCA783F, 0x6B83, 0x445D, { 0xA4, 0x7, 0x9, 0xF8, 0xCE, 0xCB, 0x57, 0xE4 } };
 
 
 // 构造函数
@@ -159,6 +165,21 @@ STDMETHODIMP CCommandFilter::Exec(
 {
 	if (!pguidCmdGroup)
 		return E_INVALIDARG;
+
+	// 拦截 LazyBug 自定义命令：diff 导航
+	if (IsEqualGUID(*pguidCmdGroup, guidLazyBugCmdSet))
+	{
+		if (nCmdID == LazyBugNextDiff)
+		{
+			Util_NavigateNextDiff(g_fileChangeAttach._filePath, g_fileChangeAttach._comparingContent, true, false);
+			return S_OK;
+		}
+		else if (nCmdID == LazyBugPrevDiff)
+		{
+			Util_NavigateNextDiff(g_fileChangeAttach._filePath, g_fileChangeAttach._comparingContent, false, false);
+			return S_OK;
+		}
+	}
 
 	bool commandBlockedByUs = false;
 

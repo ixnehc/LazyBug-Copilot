@@ -125,8 +125,27 @@
         </Strings>
       </Button>
 
+      <!-- Diff 导航命令。命令不显示在菜单中，只通过键盘设置和快捷键使用。 -->
+      <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugNextDiff" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>LazyBug: Next Diff</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="guidLazyBugPlugInCmdSet" id="LazyBugPrevDiff" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1"/>
+        <CommandFlag>DefaultInvisible</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <Strings>
+          <ButtonText>LazyBug: Previous Diff</ButtonText>
+        </Strings>
+      </Button>
+
     </Buttons>
-   
+
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
     <Bitmaps>
       <!--  The bitmap id is defined in a way that is a little bit different from the others: 
@@ -140,7 +159,10 @@
  
   </Commands>
 
-
-
+  <!-- KeyBindings 是 CommandTable 的直接子节点，editor 指定文本编辑器作用域。 -->
+  <KeyBindings>
+    <KeyBinding guid="guidLazyBugPlugInCmdSet" id="LazyBugNextDiff" editor="guidVSStd97" mod1="Control" key1="1"/>
+    <KeyBinding guid="guidLazyBugPlugInCmdSet" id="LazyBugPrevDiff" editor="guidVSStd97" mod1="Control" key1="2"/>
+  </KeyBindings>
 
 </CommandTable>

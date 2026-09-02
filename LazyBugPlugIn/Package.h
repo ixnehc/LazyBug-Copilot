@@ -23,6 +23,7 @@
 #include <vsshell.h> // For IVsSolutionEvents etc.
 
 #include "PackageState.h"
+#include "Utils.h"
 
 
 using namespace VSL;
@@ -155,6 +156,8 @@ public:
 // 		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugChangelists, NULL, CommandHandler::ExecHandler(&OnChangelists))
 		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugAddFileRef, NULL, CommandHandler::ExecHandler(&OnLazyBugAddFileRef))
 		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugAddTabFileRef, NULL, CommandHandler::ExecHandler(&OnLazyBugAddTabFileRef))
+		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugNextDiff, NULL, CommandHandler::ExecHandler(&OnNextDiff))
+		VSL_COMMAND_MAP_ENTRY(CLSID_LazyBugPlugInCmdSet, LazyBugPrevDiff, NULL, CommandHandler::ExecHandler(&OnPrevDiff))
 		VSL_END_VSCOMMAND_MAP()
 
 
@@ -288,6 +291,19 @@ public:
 				}
 			}
 		}
+	}
+
+	// diff 导航命令：在文本视图命令链未接收命令时，由 Package 直接处理。
+	void OnNextDiff(CommandHandler* /*pSender*/, DWORD /*flags*/, VARIANT* /*pIn*/, VARIANT* /*pOut*/)
+	{
+		if (!g_fileChangeAttach.IsEmpty())
+			Util_NavigateNextDiff(g_fileChangeAttach._filePath, g_fileChangeAttach._comparingContent, true, false);
+	}
+
+	void OnPrevDiff(CommandHandler* /*pSender*/, DWORD /*flags*/, VARIANT* /*pIn*/, VARIANT* /*pOut*/)
+	{
+		if (!g_fileChangeAttach.IsEmpty())
+			Util_NavigateNextDiff(g_fileChangeAttach._filePath, g_fileChangeAttach._comparingContent, false, false);
 	}
 
 private:

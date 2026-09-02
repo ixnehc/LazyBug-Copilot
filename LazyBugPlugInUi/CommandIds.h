@@ -29,6 +29,8 @@
 #define LazyBugChangelists 0x102
 #define LazyBugAddFileRef 0x103
 #define LazyBugAddTabFileRef 0x104
+#define LazyBugNextDiff 0x105
+#define LazyBugPrevDiff 0x106
 
 
 ///////////////////////////////////////////////////////////////////////////////
