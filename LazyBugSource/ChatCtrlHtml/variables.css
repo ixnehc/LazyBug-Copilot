@@ -11,6 +11,8 @@
     --system-message-border: #555555; /* Medium grey border for system */
     --tool-call-message-bg: #2b222e; /* Light purple background for tool call messages */
     --tool-call-message-border: #6a4c8a; /* Light purple border for tool call messages */
+    --tool-call-message-execution-bg: #1e2b2e; /* Teal/green background for execution tool call messages */
+    --tool-call-message-execution-border: #3a6a5a; /* Teal/green border for execution tool call messages */
     --code-bg: #1e1e1e; /* Very dark grey for code blocks */
     --code-text-color: #d4d4d4; /* Off-white for code text */
     --code-border: #333; /* Dark border for code */

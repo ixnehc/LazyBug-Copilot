@@ -251,6 +251,12 @@
     justify-content: flex-start; /* 水平左对齐 */
 }
 
+/* Execution Tool Call 消息：不同背景色，平铺不折叠 */
+.tool-call-message-execution {
+    background-color: var(--tool-call-message-execution-bg);
+    border-left: 2px solid var(--tool-call-message-execution-border);
+}
+
 /* ====== Exploring Group 折叠样式 ====== */
 .exploring-group {
     margin: 4px 0;

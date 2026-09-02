@@ -63,6 +63,7 @@ struct ChatOp
 		Op_McpDisplay,
 		Op_AddToolCallMessage_AddMcpServer,
 		Op_AddFileSummarizeSoFarToAIMessage,
+		Op_AddToolCallMessage_Execution,
 		// 重要：后添加的 Op 一定要加在末尾
     };
 
@@ -175,6 +176,10 @@ public:
     // addOp: 是否记录 ChatOp（Starting 标签等临时消息传 false）
     void AddToolCallMessage_AddMcpServer(const std::wstring& messageId,
                             const std::string& message, bool addOp = true);
+
+    // 追加 Execution ToolCall 消息（独立平铺展示，不折叠，使用不同背景色）
+    void AddToolCallMessage_Execution(const std::wstring& messageId,
+                            const std::string& message);
 
     // 移除 AddMcpServer ToolCall 消息（Interrupt 时清理最后一个 Starting 标签）
     void RemoveToolCallMessage_AddMcpServer(const std::wstring& messageId);

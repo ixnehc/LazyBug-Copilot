@@ -374,6 +374,41 @@ function addToolCallMessageToAIMessage_Exploring(id, textContent) {
 }
 
 /**
+ * 添加 Tool Call 消息到 AI 消息（Execution类型，独立平铺展示，不折叠，使用不同背景色）
+ * @param {string} id - 消息 ID
+ * @param {string} textContent - 消息内容
+ */
+function addToolCallMessageToAIMessage_Execution(id, textContent) {
+    const messageElem = document.getElementById(id);
+    if (!messageElem) {
+        console.error('AI Message element not found for execution tool call message:', id);
+        return;
+    }
+
+    const messageContentElem = messageElem.querySelector('.message-content');
+    if (!messageContentElem) {
+        console.error('AI Message content element not found for execution tool call message:', id);
+        return;
+    }
+
+    // 创建 tool call 消息元素，额外添加 execution 修饰类用于区分背景色
+    const toolCallElem = document.createElement('div');
+    toolCallElem.className = 'tool-call-message tool-call-message-execution';
+    toolCallElem.textContent = textContent;
+
+    // 直接平铺追加到消息内容中，不进入 exploring-group，不折叠
+    messageContentElem.appendChild(toolCallElem);
+
+    // 删除 thinking 区域
+    _RemoveThinkingContainers(messageContentElem);
+
+    // 如果聊天窗口在底部附近，滚动到底部
+    if (isNearBottom()) {
+        scrollToBottom();
+    }
+}
+
+/**
  * 添加 AddMcpServer Tool Call 消息到 AI 消息（独立展示，不与 Exploring 合并）
  * content 为 JSON 字符串: {"name":"xxx","success":true/false,"message":"...","toolCount":n}
  * @param {string} id - 消息 ID

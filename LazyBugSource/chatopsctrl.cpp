@@ -1439,6 +1439,12 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 		break;
 	}
 
+	case ChatOp::Op_AddToolCallMessage_Execution:
+	{
+		AddToolCallMessage_Execution(op.messageId, op.contentUtf8);
+		break;
+	}
+
 	case ChatOp::Op_AddFileSummarizeToAIMessage:
 	{
 		AddFileSummarizeToAIMessage(op.messageId, op.fullPath);
@@ -2511,6 +2517,28 @@ void CChatOpsCtrl::AddToolCallMessage_Exploring(const std::wstring& messageId, c
 
 	// 记录操作
 	ChatOp op(ChatOp::Op_AddToolCallMessage_Exploring);
+	op.contentUtf8 = message;
+	op.messageId = messageId;
+	_AddOp(op);
+}
+
+void CChatOpsCtrl::AddToolCallMessage_Execution(const std::wstring& messageId, const std::string& message)
+{
+
+	if (_ui)
+	{
+		// 转义消息内容以防XSS
+		std::wstring safeMessage = EscapeJsonString(utf8_to_widechar(message));
+
+		// 构造JSON消息，作为AI消息的一部分添加
+		std::wstring jsonMessage = L"{\"action\":\"addToolCallMessageToAIMessage_Execution\",\"content\":\"" + safeMessage + L"\",\"id\":\"" + messageId + L"\"}";
+
+		// 发送消息到WebView
+		_ui->PostJsonMessage(jsonMessage);
+	}
+
+	// 记录操作
+	ChatOp op(ChatOp::Op_AddToolCallMessage_Execution);
 	op.contentUtf8 = message;
 	op.messageId = messageId;
 	_AddOp(op);
