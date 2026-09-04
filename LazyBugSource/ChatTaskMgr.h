@@ -7,6 +7,7 @@
 #include "LlmLib.h"
 
 #include "Utils.h"
+#include "Checkpoints.h"
 
 // 前置声明
 class CLlmChat;
@@ -99,6 +100,8 @@ public:
 
 	//utility functions
 	bool _SaveFileEditResult(const std::string& filePath, const std::string oldContent, const std::string newContent, Utils::FileContentCodingFormat codingFmt,const std::wstring& fileEditId, std::string& errorMsg);
+	bool _BeginProjectEditCheckpoint(int projEditIndex, const std::vector<std::string>& filePaths, std::string& errorMsg);
+	bool _EndProjectEditCheckpoint(const std::wstring& messageId, const std::string& projectFilePath, const std::vector<std::string>& filePaths, const std::string& descriptionUtf8, std::string& errorMsg);
 	void _SendToolCallResult(const char* result, const char* resultPartial = nullptr, const LlmToolCall* toolCallPartial = nullptr, const char* resultFullCompress = nullptr, const LlmToolCall* toolCallFullCompress = nullptr);
 	void _SendToolCallMessage_Exploring(const char* result);
 	void _SendToolCallMessage_Execution(const char* result);

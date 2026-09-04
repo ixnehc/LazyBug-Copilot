@@ -155,6 +155,127 @@ bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::stri
 	return false;
 }
 
+bool CChatTask::_BeginProjectEditCheckpoint(int projEditIndex, const std::vector<std::string>& filePaths, std::string& errorMsg)
+{
+	errorMsg = "Unknown system issue";
+
+	if (!_context)
+		return false;
+
+	CCheckpoints* checkpoints = GetCheckpoints();
+	always_assert(checkpoints);
+	CBackupDepot* backupDepot = GetBackupDepot();
+	always_assert(backupDepot);
+
+	// 取当前 session 的 head checkpoint
+	FilesCheckpointUID headId = FilesCheckpointUID_Invalid;
+	if (_context->chatOpsCtrl)
+	{
+		_context->chatOpsCtrl->GetProjectEditHeadCheckpoint(projEditIndex, headId);
+	}
+
+	// 逐文件独立做 prev 查找，收集需要补进 head 的文件
+	std::vector<std::string> toHead;
+	for (const std::string& file : filePaths)
+	{
+		std::wstring wFile = utf8_to_widechar(file.c_str());
+		FilesCheckpointUID prevId = FilesCheckpointUID_Invalid;
+		bool isHead = false;
+
+		if (_context->chatOpsCtrl)
+		{
+			_context->chatOpsCtrl->GetProjectEditPrevCheckpointInSession(projEditIndex, wFile, prevId, isHead);
+		}
+
+		if (prevId == FilesCheckpointUID_Invalid || isHead)
+		{
+			// head 尚未建立（Invalid）或 prev 就是 head 但文件还没进链（isHead）→ 需要补进 head
+			toHead.push_back(file);
+		}
+		// else: prev 是某次真实 edit 的 after-checkpoint → 文件已在链中，跳过
+	}
+
+	if (toHead.empty())
+		return true; // 所有文件都已在 checkpoint 链中，无需处理
+
+	// bridge 尚未改盘，备份文件（磁盘 = 会话起始状态）
+	for (const std::string& file : toHead)
+	{
+		backupDepot->Add(file.c_str());
+	}
+
+	if (headId == FilesCheckpointUID_Invalid)
+	{
+		// head 不存在，用 toHead 文件列表创建新 head
+		std::vector<const char*> fileList;
+		for (const std::string& file : toHead)
+			fileList.push_back(file.c_str());
+
+		headId = checkpoints->CreateCheckpointFromFilelist(fileList);
+		if (headId == FilesCheckpointUID_Invalid)
+		{
+			errorMsg = "Failed to create head checkpoint for project edit";
+			return false;
+		}
+
+		if (_context->chatOpsCtrl)
+		{
+			_context->chatOpsCtrl->SetProjectEditHeadCheckpoint(projEditIndex, headId);
+		}
+	}
+	else
+	{
+		// head 已存在，逐文件补齐（AddFileToCheckpoint 对已存在文件是 no-op）
+		for (const std::string& file : toHead)
+		{
+			checkpoints->AddFileToCheckpoint(headId, file.c_str());
+		}
+	}
+
+	return true;
+}
+
+bool CChatTask::_EndProjectEditCheckpoint(const std::wstring& messageId, const std::string& projectFilePath, const std::vector<std::string>& filePaths, const std::string& descriptionUtf8, std::string& errorMsg)
+{
+	errorMsg = "Unknown system issue";
+
+	if (!_context)
+		return false;
+
+	CCheckpoints* checkpoints = GetCheckpoints();
+	always_assert(checkpoints);
+
+	// 用文件列表生成多文件 after-checkpoint（含 .vcxproj + .filters）
+	std::vector<const char*> fileList;
+	for (const std::string& file : filePaths)
+		fileList.push_back(file.c_str());
+
+	FilesCheckpointUID newCheckpointId = checkpoints->CreateCheckpointFromFilelist(fileList);
+	if (newCheckpointId == FilesCheckpointUID_Invalid)
+	{
+		errorMsg = "Failed to create after-edit checkpoint for project file: " + projectFilePath;
+		return false;
+	}
+
+	std::wstring wProjectPath = utf8_to_widechar(projectFilePath.c_str());
+	std::wstring wTitle = wProjectPath;
+	size_t sepPos = wProjectPath.find_last_of(L"\\/");
+	if (sepPos != std::wstring::npos)
+		wTitle = wProjectPath.substr(sepPos + 1);
+
+	if (_context->chatOpsCtrl)
+	{
+		_context->chatOpsCtrl->AddProjectEditOp(messageId, wProjectPath, wTitle, descriptionUtf8, newCheckpointId);
+	}
+
+	if (_context->chatAgent)
+	{
+		_context->chatAgent->RequestSave();
+	}
+
+	return true;
+}
+
 void CChatTask::_SendToolCallResult(const char *result, const char* resultPartial, const LlmToolCall* toolCallPartial, const char* resultFullCompress, const LlmToolCall* toolCallFullCompress)
 {
 	if (!_toolCall.IsValid())

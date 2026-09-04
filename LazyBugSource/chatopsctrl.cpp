@@ -1445,6 +1445,13 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 		break;
 	}
 
+	case ChatOp::Op_ProjectEdit:
+	{
+		AddProjectEditOp(op.messageId, op.fullPath, op.title, op.contentUtf8, op.checkpointId);
+		break;
+	}
+
+
 	case ChatOp::Op_AddFileSummarizeToAIMessage:
 	{
 		AddFileSummarizeToAIMessage(op.messageId, op.fullPath);
@@ -2050,7 +2057,7 @@ bool CChatOpsCtrl::GetRestoreCheckpoints(const std::wstring& userMessageId, std:
 	for (int i = disableAfterIndex - 1; i >= sessionBegin; i--)
 	{
 		ChatOp& op = _ops[i];
-		if ((op.type == ChatOp::Op_SetFileEditContent) || (op.type == ChatOp::Op_BeginSession))
+		if ((op.type == ChatOp::Op_SetFileEditContent) || (op.type == ChatOp::Op_ProjectEdit) || (op.type == ChatOp::Op_BeginSession))
 		{
 			if (op.checkpointId != FilesCheckpointUID_Invalid)
 				checkpointIds.push_back(op.checkpointId);
@@ -2165,6 +2172,7 @@ bool CChatOpsCtrl::GetFileEditCheckpointInSessionBegin(const std::wstring& fileE
 
 //得到FileEdit的checkpoint之前的那个checkpoint(这次修改之前的文件状态)
 //isHead为true, 表示这个checkpoint是在这个session的Op_BeginSession 里
+//统一按物理文件路径查找，因此也能找到同文件的 ProjectEdit checkpoint
 bool CChatOpsCtrl::GetFileEditPrevCheckpointInSession(const std::wstring& fileEditId, FilesCheckpointUID& checkpointId, bool& isHead)const
 {
 	checkpointId = FilesCheckpointUID_Invalid;
@@ -2174,27 +2182,49 @@ bool CChatOpsCtrl::GetFileEditPrevCheckpointInSession(const std::wstring& fileEd
 	if (fileEditIndex < 0)
 		return false;
 
-	for (int i = fileEditIndex - 1;i >= 0;i--)
+	return _GetFilePrevCheckpointInSession(_ops[fileEditIndex].fullPath, fileEditIndex - 1, checkpointId, isHead);
+}
+
+// 统一按物理文件路径从 fromIndex 向前查找前序 checkpoint
+// 命中 Op_SetFileEditContent / Op_ProjectEdit（同路径且 checkpointId 有效）返回 isHead=false；
+// 命中 Op_BeginSession 返回其 checkpointId，isHead=true
+bool CChatOpsCtrl::_GetFilePrevCheckpointInSession(const std::wstring& fullPath, int fromIndex, FilesCheckpointUID& checkpointId, bool& isHead) const
+{
+	checkpointId = FilesCheckpointUID_Invalid;
+	isHead = false;
+
+	if (fullPath.empty())
+		return false;
+
+	for (int i = fromIndex; i >= 0; i--)
 	{
-		if (_ops[i].type == ChatOp::Op_SetFileEditContent)
+		const ChatOp& op = _ops[i];
+
+		if (op.type == ChatOp::Op_SetFileEditContent)
 		{
-			std::wstring fullPath;
-			if (GetFileEditFullPath(_ops[i].fileEditId, fullPath))
+			std::wstring p;
+			if (GetFileEditFullPath(op.fileEditId, p))
 			{
-				if (fullPath == _ops[fileEditIndex].fullPath)
+				if (_wcsicmp(p.c_str(), fullPath.c_str()) == 0 && op.checkpointId != FilesCheckpointUID_Invalid)
 				{
-					if (_ops[i].checkpointId != FilesCheckpointUID_Invalid)
-					{
-						checkpointId = _ops[i].checkpointId;
-						isHead = false;
-						return true;
-					}
+					checkpointId = op.checkpointId;
+					isHead = false;
+					return true;
 				}
 			}
 		}
-		if (_ops[i].type == ChatOp::Op_BeginSession)
+		else if (op.type == ChatOp::Op_ProjectEdit)
 		{
-			checkpointId = _ops[i].checkpointId;
+			if (_wcsicmp(op.fullPath.c_str(), fullPath.c_str()) == 0 && op.checkpointId != FilesCheckpointUID_Invalid)
+			{
+				checkpointId = op.checkpointId;
+				isHead = false;
+				return true;
+			}
+		}
+		else if (op.type == ChatOp::Op_BeginSession)
+		{
+			checkpointId = op.checkpointId;
 			isHead = true;
 			return true;
 		}
@@ -2202,6 +2232,48 @@ bool CChatOpsCtrl::GetFileEditPrevCheckpointInSession(const std::wstring& fileEd
 
 	return false;
 }
+
+bool CChatOpsCtrl::GetProjectEditPrevCheckpointInSession(int projEditIndex, const std::wstring& fullPath, FilesCheckpointUID& checkpointId, bool& isHead) const
+{
+	checkpointId = FilesCheckpointUID_Invalid;
+	isHead = false;
+	return _GetFilePrevCheckpointInSession(fullPath, projEditIndex - 1, checkpointId, isHead);
+}
+
+bool CChatOpsCtrl::GetProjectEditHeadCheckpoint(int projEditIndex, FilesCheckpointUID& checkpointId) const
+{
+	checkpointId = FilesCheckpointUID_Invalid;
+	int sessionBeginIdx = _GetSessionBeginOfOpIndex(projEditIndex - 1);
+	if (sessionBeginIdx < 0)
+		return false;
+	checkpointId = _ops[sessionBeginIdx].checkpointId;
+	return true;
+}
+
+bool CChatOpsCtrl::SetProjectEditHeadCheckpoint(int projEditIndex, FilesCheckpointUID checkpointId)
+{
+	int sessionBeginIdx = _GetSessionBeginOfOpIndex(projEditIndex - 1);
+	if (sessionBeginIdx < 0)
+		return false;
+	if (_ops[sessionBeginIdx].checkpointId != checkpointId)
+	{
+		_ops[sessionBeginIdx].checkpointId = checkpointId;
+		_ver++;
+	}
+	return true;
+}
+
+void CChatOpsCtrl::AddProjectEditOp(const std::wstring& messageId, const std::wstring& fullPath, const std::wstring& title, const std::string& descriptionUtf8, FilesCheckpointUID checkpointId)
+{
+	ChatOp op(ChatOp::Op_ProjectEdit);
+	op.messageId = messageId;
+	op.fullPath = fullPath;
+	op.title = title;
+	op.contentUtf8 = descriptionUtf8;
+	op.checkpointId = checkpointId;
+	_AddOp(op);
+}
+
 
 bool CChatOpsCtrl::IsFileEditInLastNotDisabledSession(const std::wstring& fileEditId) const
 {
@@ -3437,6 +3509,17 @@ bool CChatOpsCtrl::_GetLastFileTimeInCheckpoint(const std::string& fullPath, int
 			}
 			break;
 		}
+
+		case ChatOp::Op_ProjectEdit:
+		{
+			// 项目文件（如 .vcxproj）变更，检查 fullPath 是否匹配
+			if (op.fullPath == fullPathW)
+			{
+				shouldCheckThisCheckpoint = true;
+			}
+			break;
+		}
+
 
 		case ChatOp::Op_FileAttaches:
 		{

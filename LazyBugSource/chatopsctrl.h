@@ -64,6 +64,7 @@ struct ChatOp
 		Op_AddToolCallMessage_AddMcpServer,
 		Op_AddFileSummarizeSoFarToAIMessage,
 		Op_AddToolCallMessage_Execution,
+		Op_ProjectEdit,
 		// 重要：后添加的 Op 一定要加在末尾
     };
 
@@ -353,6 +354,26 @@ public:
     bool SetFileEditHeadCheckpoint(const std::wstring& fileEditId,
                                    FilesCheckpointUID checkpointId);
 
+    // ── ProjectEdit checkpoint 记录 ───────────────────────────────────────
+    // ProjectEdit 无 UI、无独立容器，唯一 key 为项目文件路径 fullPath，
+    // 用 Op_ProjectEdit.checkpointId 记录 after-edit checkpoint。
+    void AddProjectEditOp(const std::wstring& messageId,
+                          const std::wstring& fullPath,
+                          const std::wstring& title,
+                          const std::string& descriptionUtf8,
+                          FilesCheckpointUID checkpointId);
+
+    bool GetProjectEditPrevCheckpointInSession(int projEditIndex,
+                                               const std::wstring& fullPath,
+                                               FilesCheckpointUID& checkpointId,
+                                               bool& isHead) const;
+
+    bool GetProjectEditHeadCheckpoint(int projEditIndex,
+                                      FilesCheckpointUID& checkpointId) const;
+
+    bool SetProjectEditHeadCheckpoint(int projEditIndex,
+                                      FilesCheckpointUID checkpointId);
+
     std::wstring AddFileEditButton(const std::wstring& fileEditId,
                                    const std::wstring& buttonText,
                                    const std::wstring& buttonAction,
@@ -450,6 +471,11 @@ private:
     // ── Session 查找辅助 ──────────────────────────────────────────────────
     int _GetSessionBeginOfOpIndex(int idx) const;
     int _GetSessionBeginOfFileEdit(const std::wstring& fileEditId) const;
+    // 统一按物理文件路径查找前序 checkpoint（FileEdit/ProjectEdit 共用）
+    bool _GetFilePrevCheckpointInSession(const std::wstring& fullPath,
+                                         int fromIndex,
+                                         FilesCheckpointUID& checkpointId,
+                                         bool& isHead) const;
     int _FindFileEditOpIndex(const std::wstring& fileEditId) const;
     int _GetSessionBeginOfUserMessage(const std::wstring& messageId) const;
     int _GetDisableAfterIndex() const;
