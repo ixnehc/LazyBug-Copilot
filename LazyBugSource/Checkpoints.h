@@ -48,6 +48,9 @@ public:
 	//为check point添加一个文件的信息
 	void AddFileToCheckpoint(FilesCheckpointUID checkpointId,const char* filePath);
 
+	//用文件的当前(磁盘)内容更新checkpoint中该文件的entry
+	bool UpdateFileInCheckpoint(FilesCheckpointUID checkpointId, const char* filePath);
+
 	void RemoveFileFromCheckpoint(FilesCheckpointUID checkpointId, const char* filePath);
 
 	//根据一组文件,创建一个checkpoint记录它们当前的状态
@@ -73,7 +76,7 @@ public:
 	AbsTick GetCheckpointTime(FilesCheckpointUID checkpointId);
 
 	//得到checkpoint里的文件列表
-	bool GetCheckpointFileList(FilesCheckpointUID checkpointId, std::vector<const char*>& fileList);
+	bool GetCheckpointFileList(FilesCheckpointUID checkpointId, std::vector<std::string>& fileList);
 
 	//得到checkpoint里某个文件的内容
 	bool GetCheckpointFileContent(FilesCheckpointUID checkpointId, const char *filePath, std::vector<BYTE>& fileContent);

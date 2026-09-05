@@ -267,6 +267,11 @@ public:
     void SetUndoCheckpoint(FilesCheckpointUID checkpointId);
 	FilesCheckpointUID GetUndoCheckpoint(FilesCheckpointUID& restoredCheckpoint) const { restoredCheckpoint = _restoredCheckpointId;		return _undoCheckpointId; }
 
+    // 查找最后一个包含指定文件的checkpoint（在 _ops 中从后往前遍历）
+    bool GetLastCheckpointContainingFile(const std::string& fullPathUtf8,
+                                         FilesCheckpointUID& checkpointId) const;
+
+
     // ── Disable / Enable ─────────────────────────────────────────────────
 
     void DisableMessagesAfter(const std::wstring& messageId);

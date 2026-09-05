@@ -87,6 +87,60 @@ void CCheckpoints::AddFileToCheckpoint(FilesCheckpointUID checkpointId, const ch
 	SaveCheckpoint(checkpoint);
 }
 
+bool CCheckpoints::UpdateFileInCheckpoint(FilesCheckpointUID checkpointId, const char* filePath)
+{
+	if (!filePath || checkpointId == FilesCheckpointUID_Invalid)
+		return false;
+
+	// 先只读取文件当前修改时间，避免一开始就加载内容
+	AbsTick currentTime = Utils::GetFileTick(filePath);
+
+	// 先只加载元数据，比较修改时间判断是否需要进一步处理
+	FilesCheckpoint meta;
+	if (!LoadCheckpoint(checkpointId, meta, false))
+		return false;
+
+	bool found = false;
+	AbsTick storedTime = 0;
+	for (const auto& entry : meta.entries)
+	{
+		if (StringEqualNoCase(entry.filePath.c_str(), filePath))
+		{
+			found = true;
+			storedTime = entry.fileTime;
+			break;
+		}
+	}
+
+	if (!found)
+		return false;
+
+	// 修改时间一致，视为内容未变化，无需加载内容与保存
+	if (storedTime == currentTime)
+		return true;
+
+	// 时间不一致，加载完整内容并读取文件内容确认是否真的发生变化
+	FilesCheckpoint checkpoint;
+	if (!LoadCheckpoint(checkpointId, checkpoint, true))
+		return false;
+
+	std::vector<BYTE> currentContent;
+	Utils::LoadFileContent(filePath, currentContent);
+
+	for (auto& entry : checkpoint.entries)
+	{
+		if (!StringEqualNoCase(entry.filePath.c_str(), filePath))
+			continue;
+
+		// 内容变化时更新内容，否则仅刷新修改时间
+		entry.content = currentContent;
+		entry.fileTime = currentTime;
+		return SaveCheckpoint(checkpoint);
+	}
+
+	return false;
+}
+
 void CCheckpoints::RemoveFileFromCheckpoint(FilesCheckpointUID checkpointId, const char* filePath)
 {
 	if (!filePath || checkpointId == FilesCheckpointUID_Invalid)
@@ -388,11 +442,11 @@ bool CCheckpoints::ApplyCheckpoint(const FilesCheckpoint& checkpoint, const char
 			if (!Utils::SaveFileContent(entry.filePath.c_str(), entry.content))
 				return false;
 				
-			// 恢复文件的修改时间
-			if (entry.fileTime != 0)
-			{
-				Utils::SetFileTick(entry.filePath.c_str(), entry.fileTime);
-			}
+// 			// 恢复文件的修改时间
+// 			if (entry.fileTime != 0)
+// 			{
+// 				Utils::SetFileTick(entry.filePath.c_str(), entry.fileTime);
+// 			}
 		}
 	}
 	return true;
@@ -517,7 +571,7 @@ bool CCheckpoints::IsCheckpointContainingFile(FilesCheckpointUID checkpointId, c
 	return false;
 }
 
-bool CCheckpoints::GetCheckpointFileList(FilesCheckpointUID checkpointId, std::vector<const char*>& fileList)
+bool CCheckpoints::GetCheckpointFileList(FilesCheckpointUID checkpointId, std::vector<std::string>& fileList)
 {
 	if (checkpointId == FilesCheckpointUID_Invalid)
 		return false;
@@ -533,7 +587,7 @@ bool CCheckpoints::GetCheckpointFileList(FilesCheckpointUID checkpointId, std::v
 	// 添加所有文件路径
 	for (const auto& entry : checkpoint.entries)
 	{
-		fileList.push_back(entry.filePath.c_str());
+		fileList.push_back(entry.filePath);
 	}
 	
 	return true;

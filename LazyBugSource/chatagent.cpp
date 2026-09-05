@@ -719,8 +719,23 @@ bool CChatAgent::RestoreDisabledMessage(UndoRestoreConfirmCallback confirmCallba
 		}
 	}
 
+	// 获取 undo checkpoint 的文件列表（UndoRestore 会删除该 checkpoint，须提前获取）
+	std::vector<std::string> undoFileList;
+	checkpoints->GetCheckpointFileList(undoCheckpoint, undoFileList);
+
 	// 执行 undo restore
 	checkpoints->UndoRestore(undoCheckpoint);
+
+	// 对于 undo checkpoint 中的文件，用 UndoRestore 后的内容更新最后一个包含它的 checkpoint
+	for (const std::string& filePath : undoFileList)
+	{
+		FilesCheckpointUID targetCheckpointId;
+		if (_opsCtrl.GetLastCheckpointContainingFile(filePath, targetCheckpointId))
+		{
+			checkpoints->UpdateFileInCheckpoint(targetCheckpointId, filePath.c_str());
+		}
+	}
+
 	_opsCtrl.SetUndoCheckpoint(FilesCheckpointUID_Invalid);
 
 	// 启用所有 disabled 消息

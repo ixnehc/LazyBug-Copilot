@@ -1553,22 +1553,11 @@ void CChatOpsCtrl::SetUndoCheckpoint(FilesCheckpointUID checkpointId)
 	if (checkpointId != FilesCheckpointUID_Invalid)
 	{
 		// 获取undo checkpoint中的文件列表
-		std::vector<const char*> fileList;
-		if (pCheckpoints->GetCheckpointFileList(checkpointId, fileList))
+		std::vector<std::string> filePathStrings;
+		if (pCheckpoints->GetCheckpointFileList(checkpointId, filePathStrings))
 		{
-			// 将const char*转换为std::string以便传递给CreateCheckpointFromFilelist
+			// 将std::string转换为const char*以便传递给CreateCheckpointFromFilelist
 			std::vector<const char*> filePathList;
-			std::vector<std::string> filePathStrings;
-
-			for (const char* filePath : fileList)
-			{
-				if (filePath && filePath[0] != '\0')
-				{
-					filePathStrings.push_back(std::string(filePath));
-				}
-			}
-
-			// 重新构建const char*列表
 			for (const auto& pathStr : filePathStrings)
 			{
 				filePathList.push_back(pathStr.c_str());
@@ -1583,6 +1572,34 @@ void CChatOpsCtrl::SetUndoCheckpoint(FilesCheckpointUID checkpointId)
 	}
 
 	_ver++;
+}
+
+bool CChatOpsCtrl::GetLastCheckpointContainingFile(const std::string& fullPathUtf8, FilesCheckpointUID& checkpointId) const
+{
+	checkpointId = FilesCheckpointUID_Invalid;
+
+	if (fullPathUtf8.empty())
+		return false;
+
+	CCheckpoints* pCheckpoints = _ctx.checkpoints;
+	if (!pCheckpoints)
+		return false;
+
+	// 从后往前遍历所有操作，找到最后一个包含该文件的checkpoint
+	for (int i = static_cast<int>(_ops.size()) - 1; i >= 0; i--)
+	{
+		const ChatOp& op = _ops[i];
+		if (op.checkpointId == FilesCheckpointUID_Invalid)
+			continue;
+
+		if (pCheckpoints->IsCheckpointContainingFile(op.checkpointId, fullPathUtf8.c_str()))
+		{
+			checkpointId = op.checkpointId;
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void CChatOpsCtrl::EndSession()
