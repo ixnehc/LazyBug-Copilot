@@ -154,9 +154,11 @@ public:
 	// 恢复用户消息
 	// messageId: 要恢复到的用户消息 ID
 	// confirmCallback: 确认回调，当检测到文件被修改时调用
+	// readOnlyNotifyCallback: 只读文件通知回调，当检测到文件为只读时调用（此时会取消恢复）
 	// 返回值: true 表示成功，false 表示取消或失败
 	typedef std::function<bool(const std::vector<std::string>& modifiedFiles)> RestoreUserMessageConfirmCallback;
-	bool RestoreUserMessage(const std::wstring& messageId, RestoreUserMessageConfirmCallback confirmCallback);
+	typedef std::function<void(const std::vector<std::string>& readOnlyFiles)> RestoreUserMessageReadOnlyNotifyCallback;
+	bool RestoreUserMessage(const std::wstring& messageId, RestoreUserMessageConfirmCallback confirmCallback, RestoreUserMessageReadOnlyNotifyCallback readOnlyNotifyCallback = nullptr);
 
 	// 获取用户消息内容
 	bool GetUserMessageContent(const std::wstring& messageId, std::wstring& content) const
@@ -172,9 +174,11 @@ public:
 
 	// 恢复被 disabled 的消息（Undo Restore）
 	// confirmCallback: 确认回调，当检测到文件被修改时调用
+	// readOnlyNotifyCallback: 只读文件通知回调，当检测到文件为只读时调用（此时会取消恢复）
 	// 返回值: true 表示成功，false 表示取消或失败
 	typedef std::function<bool(const std::vector<std::string>& modifiedFiles)> UndoRestoreConfirmCallback;
-	bool RestoreDisabledMessage(UndoRestoreConfirmCallback confirmCallback);
+	typedef std::function<void(const std::vector<std::string>& readOnlyFiles)> UndoRestoreReadOnlyNotifyCallback;
+	bool RestoreDisabledMessage(UndoRestoreConfirmCallback confirmCallback, UndoRestoreReadOnlyNotifyCallback readOnlyNotifyCallback = nullptr);
 
 	FilesCheckpointUID GetUndoCheckpoint(FilesCheckpointUID& restoredCheckpoint) const { return _opsCtrl.GetUndoCheckpoint(restoredCheckpoint); }
 

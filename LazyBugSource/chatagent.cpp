@@ -622,7 +622,7 @@ void CChatAgent::RemoveDisabledSessions()
 	}
 }
 
-bool CChatAgent::RestoreUserMessage(const std::wstring& messageId, RestoreUserMessageConfirmCallback confirmCallback)
+bool CChatAgent::RestoreUserMessage(const std::wstring& messageId, RestoreUserMessageConfirmCallback confirmCallback, RestoreUserMessageReadOnlyNotifyCallback readOnlyNotifyCallback)
 {
 	// 如果正在工作，不执行 restore
 	if (IsWorking())
@@ -644,6 +644,38 @@ bool CChatAgent::RestoreUserMessage(const std::wstring& messageId, RestoreUserMe
 		// 没有 checkpoint 需要恢复，只需 disable messages
 		_opsCtrl.DisableMessagesAfter(messageId);
 		return true;
+	}
+
+	// 检查 checkpoint 链中的文件是否为只读
+	{
+		std::unordered_set<std::string> fileSet;
+		for (FilesCheckpointUID uid : checkpointIds)
+		{
+			std::vector<std::string> fileList;
+			if (checkpoints->GetCheckpointFileList(uid, fileList))
+			{
+				fileSet.insert(fileList.begin(), fileList.end());
+			}
+		}
+
+		std::vector<std::string> readOnlyFiles;
+		for (const std::string& filePath : fileSet)
+		{
+			if (Utils::IsFileReadOnly(filePath.c_str()))
+			{
+				readOnlyFiles.push_back(filePath);
+			}
+		}
+
+		if (!readOnlyFiles.empty())
+		{
+			// 有只读文件，通知用户并取消恢复
+			if (readOnlyNotifyCallback)
+			{
+				readOnlyNotifyCallback(readOnlyFiles);
+			}
+			return false;
+		}
 	}
 
 	// 检查 checkpoint 链中的文件是否被修改过
@@ -678,7 +710,7 @@ bool CChatAgent::RestoreUserMessage(const std::wstring& messageId, RestoreUserMe
 	return true;
 }
 
-bool CChatAgent::RestoreDisabledMessage(UndoRestoreConfirmCallback confirmCallback)
+bool CChatAgent::RestoreDisabledMessage(UndoRestoreConfirmCallback confirmCallback, UndoRestoreReadOnlyNotifyCallback readOnlyNotifyCallback)
 {
 	// 如果正在工作，不执行
 	if (IsWorking())
@@ -696,6 +728,30 @@ bool CChatAgent::RestoreDisabledMessage(UndoRestoreConfirmCallback confirmCallba
 		// 没有 undo checkpoint，直接启用所有 disabled 消息
 		_opsCtrl.EnableAllDisabledMessages();
 		return true;
+	}
+
+	// 检查 restoredCheckpoint 中的文件是否为只读
+	std::vector<std::string> restoredFileList;
+	if (checkpoints->GetCheckpointFileList(restoredCheckpoint, restoredFileList))
+	{
+		std::vector<std::string> readOnlyFiles;
+		for (const std::string& filePath : restoredFileList)
+		{
+			if (Utils::IsFileReadOnly(filePath.c_str()))
+			{
+				readOnlyFiles.push_back(filePath);
+			}
+		}
+
+		if (!readOnlyFiles.empty())
+		{
+			// 有只读文件，通知用户并取消恢复
+			if (readOnlyNotifyCallback)
+			{
+				readOnlyNotifyCallback(readOnlyFiles);
+			}
+			return false;
+		}
 	}
 
 	// 检查 restoredCheckpoint 中的文件是否被修改过

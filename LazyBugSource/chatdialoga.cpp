@@ -1139,8 +1139,22 @@ void CChatDialogA::_HandleUserMessageRestoreClicked(const std::wstring& messageI
 		return result == IDYES;
 	};
 
+	// 定义只读文件通知回调
+	auto readOnlyNotifyCallback = [this](const std::vector<std::string>& readOnlyFiles)
+	{
+		CString message = _T("The following files are read-only:\r\n\r\n");
+		for (const auto& filePath : readOnlyFiles)
+		{
+			message += utf8_to_widechar(filePath.c_str()).c_str();
+			message += _T("\r\n");
+		}
+		message += _T("\r\nThe restore operation has been cancelled.");
+
+		MessageBox(message, _T("Restore Cancelled"), MB_OK | MB_ICONWARNING);
+	};
+
 	// 调用 CChatAgent::RestoreUserMessage
-	if (_agent.RestoreUserMessage(messageId, confirmCallback))
+	if (_agent.RestoreUserMessage(messageId, confirmCallback, readOnlyNotifyCallback))
 	{
 		// 将恢复的用户消息内容设置到ChatInput中
 		_RestoreUserMessageToInput(messageId);
@@ -1197,8 +1211,22 @@ void CChatDialogA::_HandleDisabledMessageClicked(const std::wstring& messageId)
 		return result == IDYES;
 	};
 
+	// 定义只读文件通知回调
+	auto readOnlyNotifyCallback = [this](const std::vector<std::string>& readOnlyFiles)
+	{
+		CString message = _T("The following files are read-only:\r\n\r\n");
+		for (const auto& filePath : readOnlyFiles)
+		{
+			message += utf8_to_widechar(filePath.c_str()).c_str();
+			message += _T("\r\n");
+		}
+		message += _T("\r\nThe restore operation has been cancelled.");
+
+		MessageBox(message, _T("Restore Cancelled"), MB_OK | MB_ICONWARNING);
+	};
+
 	// 调用 CChatAgent::RestoreDisabledMessage
-	_agent.RestoreDisabledMessage(confirmCallback);
+	_agent.RestoreDisabledMessage(confirmCallback, readOnlyNotifyCallback);
 } 
 
 void CChatDialogA::_HandleFileEditTitleClicked(const std::wstring& fileEditId)
