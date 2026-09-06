@@ -169,12 +169,10 @@ namespace LazyBugPlugInCSharp
         private void OnBufferChanged(object sender, TextContentChangedEventArgs e)
         {
             if (_isDisposed) return;
-            // 如果高亮逻辑依赖于文本内容，这里可能需要重新绘制。
-            // 注意：频繁的文本更改可能导致此事件频繁触发，需要考虑性能。
-            // 一种常见的策略是标记需要重绘，然后在下一次 LayoutChanged 时执行，或者使用某种形式的防抖/节流。
+            // 缓冲区内容已变化，但视图尚未重新布局，此时 _view.TextViewLines 已失效，
+            // 不能在这里直接重绘。只需重置标志，让随后的 LayoutChanged 事件触发重绘。
             _isLineTypesBuilt = false;
             _lineTypes = null;
-            DrawAdornments();
         }
 
 
@@ -184,6 +182,12 @@ namespace LazyBugPlugInCSharp
         private void DrawAdornments()
         {
             if (_isDisposed || _view.InLayout) // 防止在布局过程中重复进入
+                return;
+
+            // TextViewLines 只在其对应的布局期间有效；缓冲区变化后、重新布局前会失效。
+            // 枚举前先校验，无效则直接返回，避免访问已失效的 ITextViewLine。
+            ITextViewLineCollection textViewLines = _view.TextViewLines;
+            if (textViewLines == null || !textViewLines.IsValid)
                 return;
 
             if (!_isLineTypesBuilt)
@@ -200,7 +204,7 @@ namespace LazyBugPlugInCSharp
 
             // 获取当前视口中可见的文本行集合。
             // TextViewLines 包含了已经过布局和可能的几何变换（如行高变化）的行。
-            foreach (ITextViewLine viewLine in _view.TextViewLines)
+            foreach (ITextViewLine viewLine in textViewLines)
             {
                 // 有时 TextViewLines 会包含部分可见的行，或者在快速滚动时状态可能不一致。
                 // 确保我们处理的是有效的、完全可见的行。
