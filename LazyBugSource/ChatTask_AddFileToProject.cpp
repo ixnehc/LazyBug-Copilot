@@ -16,12 +16,17 @@ CChatTask_AddFileToProject::CChatTask_AddFileToProject()
 
 void CChatTask_AddFileToProject::_Fail(const char* reason)
 {
-	std::string result = "Error: ";
-	result += reason ? reason : "Unknown error";
-	if (!_fileFullPath.empty())
-		result += "\nFile: " + _fileFullPath;
-	if (!_projectFilePath.empty())
-		result += "\nProject: " + _projectFilePath;
+	std::string result;
+	if (!_fileFullPath.empty() && !_projectFilePath.empty())
+	{
+		std::string fileName = GetFileName(_fileFullPath);
+		std::string projName = GetFileName(_projectFilePath);
+		result = "Failed to add " + fileName + " to " + projName + ": " + (reason ? reason : "Unknown error");
+	}
+	else
+	{
+		result = reason ? reason : "Unknown error";
+	}
 	_SendToolCallResult(result.c_str());
 	_SendToolCallMessage_Execution(result.c_str());
 	_status = TaskStatus::Failure;
@@ -55,7 +60,8 @@ void CChatTask_AddFileToProject::Start()
 	{
 		if (Utils::IsFileReadOnly(f.c_str()))
 		{
-			_Fail(("Target project file is read-only: " + f).c_str());
+			std::string fname = GetFileName(f);
+			_Fail(("Target project file is read-only: " + fname).c_str());
 			return;
 		}
 	}
@@ -91,7 +97,7 @@ void CChatTask_AddFileToProject::Start()
 
 	if (!ok)
 	{
-		_Fail(bridgeErrorMsg[0] ? bridgeErrorMsg : "Failed to add file to project");
+		_Fail(bridgeErrorMsg[0] ? bridgeErrorMsg : "Unknown error");
 		return;
 	}
 
@@ -100,22 +106,13 @@ void CChatTask_AddFileToProject::Start()
 
 	if (!_EndProjectEditCheckpoint(aiMessageId, _projectFilePath, checkpointFilePaths, description, errorMsg))
 	{
-		std::string result = "File added to project, but failed to record checkpoint: " + errorMsg;
-		if (!_fileFullPath.empty())
-			result += "\nFile: " + _fileFullPath;
-		if (!_projectFilePath.empty())
-			result += "\nProject: " + _projectFilePath;
-		_SendToolCallResult(result.c_str());
-		_SendToolCallMessage_Execution(result.c_str());
-		_status = TaskStatus::Failure;
+		_Fail(("checkpoint recording failed: " + errorMsg).c_str());
 		return;
 	}
 
-	std::string result = "Successfully added file to project.";
-	if (!_fileFullPath.empty())
-		result += "\nFile: " + _fileFullPath;
-	if (!_projectFilePath.empty())
-		result += "\nProject: " + _projectFilePath;
+	std::string fileName = GetFileName(_fileFullPath);
+	std::string projName = GetFileName(_projectFilePath);
+	std::string result = "Successfully added " + fileName + " to " + projName;
 	_SendToolCallResult(result.c_str());
 	_SendToolCallMessage_Execution(result.c_str());
 	_status = TaskStatus::Success;
