@@ -49,6 +49,24 @@ bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::stri
 		return false;
 	}
 
+	// 检查是否为错误内容（newContent 以 FILE_EDIT_RESULT_ERROR_PREFIX 开头）
+	bool isError = (newContent.find(FILE_EDIT_RESULT_ERROR_PREFIX) == 0);
+
+	if (isError)
+	{
+		// 错误情况：仅更新 fileEdit 显示错误信息，不创建/更新任何 checkpoint
+		errorMsg = newContent;
+		if (_context->chatOpsCtrl)
+		{
+			_context->chatOpsCtrl->UpdateFileEditDiffContent(fileEditId, utf8_to_widechar(newContent), FilesCheckpointUID_Invalid);
+		}
+		if (_context->chatAgent)
+		{
+			_context->chatAgent->RequestSave();
+		}
+		return false;
+	}
+
 	CCheckpoints* checkpoints = GetCheckpoints();
 	always_assert(checkpoints);
 	CBackupDepot* backupDepot = GetBackupDepot();
@@ -85,71 +103,41 @@ bool CChatTask::_SaveFileEditResult(const std::string& filePath, const std::stri
 	}
 	if (prevCheckpointId != FilesCheckpointUID_Invalid)
 	{
-		bool isError = false;
-		if (newContent.find(FILE_EDIT_RESULT_ERROR_PREFIX) == 0)
-			isError = true;
-
-		if (!isError)
+		if (_context->fileWriter->Write(filePath.c_str(), newContent,codingFmt))
 		{
-			if (_context->fileWriter->Write(filePath.c_str(), newContent,codingFmt))
-			{
-				FilesCheckpointUID newCheckpointId = checkpoints->AddCheckpoint(filePath.c_str());
-				always_assert(newCheckpointId != FilesCheckpointUID_Invalid);
-
-				if (newCheckpointId != FilesCheckpointUID_Invalid)
-				{
-					// 生成差异字符串用于FileEdit显示
-					std::string diffString;
-					extern void GenerateDiffString(const std::string & oldContent, const std::string & newContent, std::string & diffString);
-					GenerateDiffString(oldContent, newContent, diffString);
-
-// 					always_assert(!diffString.empty());
-
-					if (diffString.empty())
-						diffString = "[No Change]";
-
-					// 优先使用 chatOpsCtrl
-					if (_context->chatOpsCtrl)
-					{
-						_context->chatOpsCtrl->UpdateFileEditDiffContent(fileEditId, utf8_to_widechar(diffString), newCheckpointId);
-					}
-					
-					// 优先使用 chatAgent
-					if (_context->chatAgent)
-					{
-						_context->chatAgent->RequestSave();
-					}
-
-					return true;
-				}
-			}
-			else
-			{
-				errorMsg = "Failed to write file: " + filePath;
-			}
-		}
-		else
-		{
-			errorMsg = newContent; // newContent starts with FILE_EDIT_RESULT_ERROR_PREFIX
 			FilesCheckpointUID newCheckpointId = checkpoints->AddCheckpoint(filePath.c_str());
 			always_assert(newCheckpointId != FilesCheckpointUID_Invalid);
 
 			if (newCheckpointId != FilesCheckpointUID_Invalid)
 			{
+				// 生成差异字符串用于FileEdit显示
+				std::string diffString;
+				extern void GenerateDiffString(const std::string & oldContent, const std::string & newContent, std::string & diffString);
+				GenerateDiffString(oldContent, newContent, diffString);
+
+// 					always_assert(!diffString.empty());
+
+				if (diffString.empty())
+					diffString = "[No Change]";
+
 				// 优先使用 chatOpsCtrl
 				if (_context->chatOpsCtrl)
 				{
-					_context->chatOpsCtrl->UpdateFileEditDiffContent(fileEditId, utf8_to_widechar(newContent), newCheckpointId);
+					_context->chatOpsCtrl->UpdateFileEditDiffContent(fileEditId, utf8_to_widechar(diffString), newCheckpointId);
 				}
-
+				
 				// 优先使用 chatAgent
 				if (_context->chatAgent)
 				{
 					_context->chatAgent->RequestSave();
 				}
 
-				return false;
+				return true;
 			}
+		}
+		else
+		{
+			errorMsg = "Failed to write file: " + filePath;
 		}
 	}
 	return false;

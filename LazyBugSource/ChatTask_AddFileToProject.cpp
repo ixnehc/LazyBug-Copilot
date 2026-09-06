@@ -10,12 +10,7 @@ extern std::wstring utf8_to_widechar(const char* utf8_str);
 // 由宿主(VSIX 或独立 LazyBug.exe)提供的桥接实现
 extern bool AddFileToProjectInVS(const unsigned short* projectFilePath, const unsigned short* fileFullPath, char* errorMsg, int errorMsgSize);
 
-// 项目文件落盘到磁盘的等待时间（VS 的 SaveSolutionElement 可能是异步 flush）
-static const unsigned long PROJECT_EDIT_CHECKPOINT_DELAY_MS = 2000;
-
 CChatTask_AddFileToProject::CChatTask_AddFileToProject()
-	: _delayStartTick(0)
-	, _bridgeDone(false)
 {
 }
 
@@ -48,6 +43,23 @@ void CChatTask_AddFileToProject::Start()
 		return;
 	}
 
+	// 构建受影响的文件列表：.vcxproj 恒加入，.vcxproj.filters 存在才加入
+	std::vector<std::string> checkpointFilePaths;
+	checkpointFilePaths.push_back(_projectFilePath);
+	std::string filtersPath = _projectFilePath + ".filters";
+	if (Utils::IsFileExist(filtersPath.c_str()))
+		checkpointFilePaths.push_back(filtersPath);
+
+	// 目标项目文件（含 .filters）只读时无法写入，直接失败返回
+	for (const std::string& f : checkpointFilePaths)
+	{
+		if (Utils::IsFileReadOnly(f.c_str()))
+		{
+			_Fail(("Target project file is read-only: " + f).c_str());
+			return;
+		}
+	}
+
 	std::wstring wProjectPath = utf8_to_widechar(_projectFilePath.c_str());
 	std::wstring wFilePath = utf8_to_widechar(_fileFullPath.c_str());
 
@@ -55,13 +67,6 @@ void CChatTask_AddFileToProject::Start()
 	std::wstring aiMessageId;
 	if (_context && _context->chatAgent)
 		aiMessageId = _context->chatAgent->GetCurrentAIMessageId();
-
-	// 构建受影响的文件列表：.vcxproj 恒加入，.vcxproj.filters 存在才加入
-	_checkpointFilePaths.clear();
-	_checkpointFilePaths.push_back(_projectFilePath);
-	std::string filtersPath = _projectFilePath + ".filters";
-	if (Utils::IsFileExist(filtersPath.c_str()))
-		_checkpointFilePaths.push_back(filtersPath);
 
 	std::string errorMsg;
 
@@ -71,7 +76,7 @@ void CChatTask_AddFileToProject::Start()
 	if (_context && _context->chatOpsCtrl)
 		projEditIndex = _context->chatOpsCtrl->GetDisableAfterIndex();
 
-	if (!_BeginProjectEditCheckpoint(projEditIndex, _checkpointFilePaths, errorMsg))
+	if (!_BeginProjectEditCheckpoint(projEditIndex, checkpointFilePaths, errorMsg))
 	{
 		_Fail(errorMsg.c_str());
 		return;
@@ -90,30 +95,10 @@ void CChatTask_AddFileToProject::Start()
 		return;
 	}
 
-	// bridge 已成功，after-edit checkpoint 延迟到 Update 中写入，
-	// 以便 VS 将项目文件（SaveSolutionElement）异步落盘完成后再读取。
-	_aiMessageId = aiMessageId;
-	_description = "Added file \"" + _fileFullPath + "\" to project \"" + _projectFilePath + "\"";
-	_bridgeDone = true;
-	_delayStartTick = GetTickCount();
-}
+	// bridge 已成功，立即写入 after-edit checkpoint
+	std::string description = "Added file \"" + _fileFullPath + "\" to project \"" + _projectFilePath + "\"";
 
-void CChatTask_AddFileToProject::Update()
-{
-	if (!_bridgeDone)
-		return;
-
-	if (GetTickCount() - _delayStartTick < PROJECT_EDIT_CHECKPOINT_DELAY_MS)
-		return;
-
-	_bridgeDone = false;
-	_FinishCheckpoint();
-}
-
-void CChatTask_AddFileToProject::_FinishCheckpoint()
-{
-	std::string errorMsg;
-	if (!_EndProjectEditCheckpoint(_aiMessageId, _projectFilePath, _checkpointFilePaths, _description, errorMsg))
+	if (!_EndProjectEditCheckpoint(aiMessageId, _projectFilePath, checkpointFilePaths, description, errorMsg))
 	{
 		std::string result = "File added to project, but failed to record checkpoint: " + errorMsg;
 		if (!_fileFullPath.empty())

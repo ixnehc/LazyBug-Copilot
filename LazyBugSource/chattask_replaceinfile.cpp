@@ -780,6 +780,46 @@ bool BuildReplaceInFileToolCallsFromFileEditContent(const char* filePath, const 
 }
 
 
+// 判断是否为 Visual Studio 的项目/解决方案相关文件(.sln/.vcxproj/.csproj/.filters 等)
+bool IsVisualStudioProjectFile(const std::string& filePath)
+{
+	std::string suffix = GetFileSuffix(filePath);
+	if (suffix.empty())
+		return false;
+
+	StringLower(suffix);
+
+	static const char* VS_PROJECT_SUFFIXES[] =
+	{
+		"sln",       // 解决方案文件
+		"vcproj",    // 旧版 C++ 项目
+		"vcxproj",   // C++ 项目
+		"csproj",    // C# 项目
+		"vbproj",    // Visual Basic 项目
+		"fsproj",    // F# 项目
+		"pyproj",    // Python 项目
+		"njsproj",   // Node.js 项目
+		"jsproj",    // JavaScript 项目
+		"sqlproj",   // SQL Server 项目
+		"wixproj",   // WiX 安装项目
+		"shproj",    // 共享项目
+		"vcxitems",  // C++ 共享项
+		"props",     // 项目属性表
+		"targets",   // 项目目标定义
+		"filters",   // C++ 过滤器文件(.vcxproj.filters)
+		"user"       // 用户选项文件(.vcxproj.user / .csproj.user)
+	};
+
+	for (int i = 0; i < sizeof(VS_PROJECT_SUFFIXES) / sizeof(VS_PROJECT_SUFFIXES[0]); i++)
+	{
+		if (suffix == VS_PROJECT_SUFFIXES[i])
+			return true;
+	}
+
+	return false;
+}
+
+
 CChatTask_ReplaceInFile::CChatTask_ReplaceInFile(const std::wstring& fileEditId)
 {
 	_fileEditId = fileEditId;
@@ -933,7 +973,12 @@ void CChatTask_ReplaceInFile::Update()
 			std::string newContent;
 			LineRange oldLineRange, newLineRange;
 
-			if (!IsFullPath(_filePath.c_str()))
+			if (IsVisualStudioProjectFile(_filePath))
+			{
+				errorMessage = "Editing Visual Studio project/solution files (.sln/.vcxproj/.csproj/.filters etc.) is not supported";
+				newContent= newContent + FILE_EDIT_RESULT_ERROR_PREFIX + errorMessage + " !";
+			}
+			else if (!IsFullPath(_filePath.c_str()))
 			{
 				errorMessage = "Invalid file path -- Not a full path ";
 				newContent= newContent + FILE_EDIT_RESULT_ERROR_PREFIX + errorMessage + " !";

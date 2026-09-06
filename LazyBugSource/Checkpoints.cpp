@@ -442,6 +442,8 @@ bool CCheckpoints::ApplyCheckpoint(const FilesCheckpoint& checkpoint, const char
 			if (!Utils::SaveFileContent(entry.filePath.c_str(), entry.content))
 				return false;
 				
+			//这里不再恢复文件的修改时间,因为当修改vcxproj文件时, undo/redo操作如果恢复修改时间的话,会导致visual studio 出现bug,直接读取cache(*.suo)中的vcxproj信息
+			// 只有当每次undo/redo都把文件的修改时间更新为最新时间, 才能避免visual studio读取cache中的vcxproj信息
 // 			// 恢复文件的修改时间
 // 			if (entry.fileTime != 0)
 // 			{
