@@ -170,7 +170,7 @@ BOOL CChatDialogA::OnInitDialog()
 	lf.lfCharSet = DEFAULT_CHARSET;
 	_tcscpy(lf.lfFaceName, _T("微软雅黑"));
 	  
-	_inputHistory.LoadFromRegistry(g_reg);
+	_inputHistory.LoadFromFile();
 	
 	// 初始化AI聊天
 
@@ -821,6 +821,9 @@ void CChatDialogA::_UpdateLoadChatCtrl()
 		_inputHintCtx.Init(dbFolderPath);
 
 		_chatInput.ClearTags();
+
+		_inputHistory.LoadFromFile();
+		_chatInput.SetInputContent_(_inputHistory.GetCurrentContent());
 
 		std::string fileName = _chatHistory.GetRecentFileName();
 

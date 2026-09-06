@@ -1,14 +1,12 @@
 ﻿#pragma once
 
 
-class CCurrentUserRegistry;
-
 class CChatInputHistory 
 {
 public:
 
-	void SaveToRegistry(CCurrentUserRegistry &reg);
-	void LoadFromRegistry(CCurrentUserRegistry& reg);
+	void SaveToFile();
+	void LoadFromFile();
 
 	void Add(const std::wstring& content);
 	bool FindLast(const std::wstring& curContent, std::wstring& lastContent);
