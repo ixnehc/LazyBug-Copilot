@@ -442,13 +442,19 @@ bool CCheckpoints::ApplyCheckpoint(const FilesCheckpoint& checkpoint, const char
 			if (!Utils::SaveFileContent(entry.filePath.c_str(), entry.content))
 				return false;
 				
-			//这里不再恢复文件的修改时间,因为当修改vcxproj文件时, undo/redo操作如果恢复修改时间的话,会导致visual studio 出现bug,直接读取cache(*.suo)中的vcxproj信息
-			// 只有当每次undo/redo都把文件的修改时间更新为最新时间, 才能避免visual studio读取cache中的vcxproj信息
-// 			// 恢复文件的修改时间
-// 			if (entry.fileTime != 0)
-// 			{
-// 				Utils::SetFileTick(entry.filePath.c_str(), entry.fileTime);
-// 			}
+			// 项目文件(.vcxproj/.vcxproj.filters/.sln 等)不恢复修改时间：
+			// 当修改 vcxproj 文件时, undo/redo 如果恢复修改时间的话, 会导致 Visual Studio 出现 bug,
+			// 直接读取 cache(*.suo) 中的 vcxproj 信息。
+			// 只有当项目文件每次 undo/redo 都把文件的修改时间更新为最新时间, 才能避免 Visual Studio 读取 cache 中的 vcxproj 信息。
+			// 其它普通文件正常恢复修改时间。
+			if (!Utils::IsVisualStudioProjectFile(entry.filePath.c_str()))
+			{
+				// 恢复文件的修改时间
+				if (entry.fileTime != 0)
+				{
+					Utils::SetFileTick(entry.filePath.c_str(), entry.fileTime);
+				}
+			}
 		}
 	}
 	return true;

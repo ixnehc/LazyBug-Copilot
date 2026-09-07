@@ -6,9 +6,9 @@
 
 #include "stringparser/stringparser.h"
 
-#include "Utils.h"
+#include "Registry/Registry.h"
 
-extern const char* GetOpenedDBFolderPath_utf8();
+extern CCurrentUserRegistry g_reg;
 
 namespace {
 	// 检查字符串是否只包含不可见字符（空格、回车、tab等）
@@ -48,92 +48,78 @@ namespace {
 }
 
 
-void CChatInputHistory::SaveToFile()
+void CChatInputHistory::SaveToRegistry(CCurrentUserRegistry &reg)
 {
-	const char* dbFolder = GetOpenedDBFolderPath_utf8();
-	if (!dbFolder || dbFolder[0] == '\0')
-		return;
+	const char* sectionName = LAZYBUG_CHATINPUT_HISTORY;
 
-	std::string path = std::string(dbFolder) + "\\.inputhistory";
-
-	json j;
-	j["version"] = 7;
-
-	// 最多保存最近的60条记录
+	// 保存版本号
+	const int currentVersion = 7;
+	reg.WriteInt(sectionName, "Version", currentVersion);
+	
+	// 最多保存最近的20条记录
 	const int maxHistory = 60;
 	int historyCount = (int)_history.size();
 	int startIndex = historyCount > maxHistory ? historyCount - maxHistory : 0;
 	int savedCount = historyCount - startIndex;
 
-	json historyArr = json::array();
+	// 保存历史记录的数量
+	reg.WriteInt(sectionName, "Count", savedCount);
+	
+	// 保存每条历史记录
 	for (int i = 0; i < savedCount; i++)
 	{
-		historyArr.push_back(widechar_to_utf8(_history[startIndex + i].c_str()));
+		char valueName[64];
+		sprintf(valueName, "Item%d", i);
+		
+		// 保存文本内容
+		reg.WriteWString(sectionName, valueName, _history[startIndex + i]);
 	}
-	j["history"] = historyArr;
 
 	// 保存当前内容和索引
-	j["currentContent"] = widechar_to_utf8(_currentContent.c_str());
-	j["currentIndex"] = _currentIndex;
-
-	Utils::SaveFileContent(path.c_str(), j.dump());
+	reg.WriteWString(sectionName, "CurrentContent", _currentContent);
+	reg.WriteInt(sectionName, "CurrentIndex", _currentIndex);
 }
 
-void CChatInputHistory::LoadFromFile()
+void CChatInputHistory::LoadFromRegistry(CCurrentUserRegistry& reg)
 {
+	const char* sectionName = LAZYBUG_CHATINPUT_HISTORY;
+
 	// 清空当前历史记录
 	_history.clear();
-	_currentContent.clear();
-	_currentIndex = -1;
-
-	const char* dbFolder = GetOpenedDBFolderPath_utf8();
-	if (!dbFolder || dbFolder[0] == '\0')
-		return;
-
-	std::string path = std::string(dbFolder) + "\\.inputhistory";
-
-	std::string content;
-	if (!Utils::LoadFileContent(path.c_str(), content) || content.empty())
-		return;
-
-	json j;
-	try
-	{
-		j = json::parse(content);
-	}
-	catch (...)
+	
+	// 检查版本号
+	const int currentVersion = 7;
+	int savedVersion = reg.ReadInt(sectionName, "Version", 0);
+	
+	// 如果版本不匹配，直接返回（丢弃旧版本数据）
+	if (savedVersion != currentVersion)
 	{
 		return;
 	}
-
-	// 检查版本号，版本不匹配则丢弃旧版本数据
-	if (!j.contains("version") || !j["version"].is_number() || j["version"].get<int>() != 7)
-		return;
-
+	
+	// 读取历史记录数量
+	int historyCount = reg.ReadInt(sectionName, "Count", 0);
+	
 	// 读取每条历史记录
-	if (j.contains("history") && j["history"].is_array())
+	for (int i = 0; i < historyCount; i++)
 	{
-		for (const auto& item : j["history"])
+		char valueName[64];
+		sprintf(valueName, "Item%d", i);
+		
+		// 读取文本内容
+		std::wstring textStr = reg.ReadWString(sectionName, valueName);
+		
+		// 添加到历史记录中
+		if (!textStr.empty()&&(!IsEmptyContent(textStr)))
 		{
-			if (!item.is_string())
-				continue;
-
-			std::wstring textStr = utf8_to_widechar(item.get<std::string>());
-
-			if (!textStr.empty() && !IsEmptyContent(textStr))
-			{
-				_history.push_back(textStr);
-			}
+			_history.push_back(textStr);
 		}
 	}
 
 	// 读取当前内容和索引
-	if (j.contains("currentContent") && j["currentContent"].is_string())
-		_currentContent = utf8_to_widechar(j["currentContent"].get<std::string>());
-
-	if (j.contains("currentIndex") && j["currentIndex"].is_number())
-		_currentIndex = j["currentIndex"].get<int>();
-
+	_currentContent = reg.ReadWString(sectionName, "CurrentContent");
+	_currentIndex = reg.ReadInt(sectionName, "CurrentIndex", -1);
+	
 	// 验证索引的有效性
 	if (_currentIndex >= (int)_history.size())
 	{
@@ -246,7 +232,7 @@ void CChatInputHistory::OnModifyCurrent(const std::wstring& content)
 	// 清除索引，表示这是新的编辑内容
 	_currentIndex = -1;
 
-	SaveToFile();
+	SaveToRegistry(g_reg);
 }
 
 void CChatInputHistory::OnSendCurrent()
@@ -260,7 +246,7 @@ void CChatInputHistory::OnSendCurrent()
 	_currentContent.clear();
 	_currentIndex = -1;
 
-	SaveToFile();
+	SaveToRegistry(g_reg);
 }
 
 bool CChatInputHistory::NavigatePrev()
@@ -295,7 +281,7 @@ bool CChatInputHistory::NavigatePrev()
 
 	_currentContent = _history[_currentIndex];
 
-	SaveToFile();
+	SaveToRegistry(g_reg);
 
 	return true;
 }
@@ -313,7 +299,7 @@ bool CChatInputHistory::NavigateNext()
 			_currentContent.clear();
 			_currentIndex = -1;
 		}
-		SaveToFile();
+		SaveToRegistry(g_reg);
 
 		return true;
 	}
@@ -330,7 +316,7 @@ bool CChatInputHistory::NavigateNext()
 		_currentIndex = -1;
 		_currentContent.clear();
 	}
-	SaveToFile();
+	SaveToRegistry(g_reg);
 	return true;
 }
 
