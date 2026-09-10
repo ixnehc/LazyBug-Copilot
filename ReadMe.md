@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI Coding Assistant Extension
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.26.1-blue)](doc/patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.26.2-blue)](doc/patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -28,6 +28,12 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 </div>
 
 ---
+
+## Version 0.26.2 Release Notes
+
+- Added the `AddFileToProject` tool for adding files to a specified project
+- Added `LazyBugNextDiff`/`LazyBugPreviousDiff` commands for keyboard binding
+- Undo/Redo now checks whether the file is read-only
 
 ## Version 0.26.1 Release Notes
 
