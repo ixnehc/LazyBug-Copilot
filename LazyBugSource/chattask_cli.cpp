@@ -735,11 +735,11 @@ void CChatTask_CLI::_ThreadFunc()
 		if (CreateTempScriptFile(L"py", L".py", command, tempFilePath))
 		{
 			useTempFile = true;
-			cmdLine = L"cmd.exe /c set PYTHONIOENCODING=utf8 && python.exe \"" + tempFilePath + L"\"";
+			cmdLine = L"cmd.exe /c set PYTHONIOENCODING=utf8 && py.exe \"" + tempFilePath + L"\"";
 		}
 		else
 		{
-			cmdLine = L"cmd.exe /c python.exe -c \"" + utf8_to_widechar(command) + L"\"";
+			cmdLine = L"cmd.exe /c py.exe -c \"" + utf8_to_widechar(command) + L"\"";
 		}
 	}
 	else
