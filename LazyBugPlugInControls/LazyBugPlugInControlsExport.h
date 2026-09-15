@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifdef LazyBugPlugInControls_EXPORT
 #define LazyBugPlugInControls_Api __declspec(dllexport)
