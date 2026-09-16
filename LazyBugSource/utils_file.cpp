@@ -1155,40 +1155,49 @@ bool OpenOFStream(std::ofstream& ofs, const char* path, int mode)
 	return true;
 }
 
-// 判断是否为 Visual Studio 的项目/解决方案相关文件(.sln/.vcxproj/.csproj/.filters 等)
+// 判断是否为 Visual Studio 的项目/解决方案相关文件(.sln/.vcxproj/.csproj/.vcxproj.filters 等)
 bool IsVisualStudioProjectFile(const char* path)
 {
 	if (!path || *path == '\0')
 		return false;
 
-	std::string suffix = GetFileSuffix(std::string(path));
-	if (suffix.empty())
+	// 取完整文件名（含全部后缀，不含目录），例如 foo.vcxproj.filters
+	std::string fileName = GetFileName(std::string(path));
+	if (fileName.empty())
 		return false;
 
-	StringLower(suffix);
+	StringLower(fileName);
 
+	// 按完整后缀（含前导点）匹配，支持 .vcxproj.filters 这类复合后缀
 	static const char* VS_PROJECT_SUFFIXES[] =
 	{
-		"sln",       // 解决方案文件
-		"vcproj",    // 旧版 C++ 项目
-		"vcxproj",   // C++ 项目
-		"csproj",    // C# 项目
-		"vbproj",    // Visual Basic 项目
-		"fsproj",    // F# 项目
-		"pyproj",    // Python 项目
-		"njsproj",   // Node.js 项目
-		"jsproj",    // JavaScript 项目
-		"sqlproj",   // SQL Server 项目
-		"wixproj",   // WiX 安装项目
-		"shproj",    // 共享项目
-		"vcxitems",  // C++ 共享项
-		"vcxproj.filters",   // C++ 过滤器文件(.vcxproj.filters)
+		".vcxproj.filters",   // C++ 过滤器文件
+		".vcxproj.user",      // C++ 用户选项
+		".csproj.user",       // C# 用户选项
+		".vbproj.user",       // Visual Basic 用户选项
+		".sln",               // 解决方案文件
+		".vcproj",            // 旧版 C++ 项目
+		".vcxproj",           // C++ 项目
+		".csproj",            // C# 项目
+		".vbproj",            // Visual Basic 项目
+		".fsproj",            // F# 项目
+		".pyproj",            // Python 项目
+		".njsproj",           // Node.js 项目
+		".jsproj",            // JavaScript 项目
+		".sqlproj",           // SQL Server 项目
+		".wixproj",           // WiX 安装项目
+		".shproj",            // 共享项目
+		".vcxitems"           // C++ 共享项
 	};
 
-	for (int i = 0; i < sizeof(VS_PROJECT_SUFFIXES) / sizeof(VS_PROJECT_SUFFIXES[0]); i++)
+	for (const char* suffix : VS_PROJECT_SUFFIXES)
 	{
-		if (suffix == VS_PROJECT_SUFFIXES[i])
+		std::string s(suffix);
+		if (fileName.length() >= s.length() &&
+			fileName.compare(fileName.length() - s.length(), s.length(), s) == 0)
+		{
 			return true;
+		}
 	}
 
 	return false;

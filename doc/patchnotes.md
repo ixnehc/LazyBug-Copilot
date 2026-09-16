@@ -1,5 +1,13 @@
 ﻿# LazyBug Version History
 
+## Version 0.26.2
+
+- Added the `AddFileToProject` tool for adding files to a specified project
+- Added `LazyBugNextDiff`/`LazyBugPreviousDiff` commands for keyboard binding
+- Undo/Redo now checks whether the file is read-only
+
+---
+
 ## Version 0.26.1
 
 - When a CLI tool produces too much output, it is now saved to a temporary file for the LLM to review later
