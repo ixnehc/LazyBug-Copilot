@@ -52,3 +52,10 @@ LazyBugPlugInControls_Api void AddFileToChat(const unsigned short* fullPath);
 typedef bool (*AddFileToProjectFunc)(const unsigned short* projectFilePath, const unsigned short* fileFullPath, char* errorMsg, int errorMsgSize);
 LazyBugPlugInControls_Api void SetAddFileToProjectFunc(AddFileToProjectFunc func);
 
+
+class ILazyBugHook;
+
+// 由 VSIX 侧设置的外部 Hook（单实例）。LazyBug 在解决方案打开时加载 LazyBugHook.dll，
+// 并把 ILazyBugHook 指针传入，供 Controls 在需要时调用（解决方案打开/关闭、文件变更等）。
+LazyBugPlugInControls_Api void SetLazyBugHook(ILazyBugHook* hook);
+

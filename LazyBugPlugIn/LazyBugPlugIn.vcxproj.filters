@@ -30,6 +30,9 @@
     <Filter Include="common\_timer">
       <UniqueIdentifier>{7991a460-72df-4a5c-9b89-9095587933e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LazyBugHook">
+      <UniqueIdentifier>{7f2e7457-bb24-4223-8686-65048f8b3fdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Guids.cpp">
@@ -86,8 +89,8 @@
     <ClCompile Include="..\LazyBugSource\SolutionDump.cpp">
       <Filter>Source Files\SolutionDump</Filter>
     </ClCompile>
-    <ClCompile Include="..\LazyBugSource\DirWatchEntryConfig.cpp">
-      <Filter>Source Files\SolutionDump</Filter>
+    <ClCompile Include="LazyBugHookManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,8 +151,11 @@
     <ClInclude Include="..\LazyBugSource\SolutionDump.h">
       <Filter>Source Files\SolutionDump</Filter>
     </ClInclude>
-    <ClInclude Include="..\LazyBugSource\DirWatchEntryConfig.h">
-      <Filter>Source Files\SolutionDump</Filter>
+    <ClInclude Include="LazyBugHookManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LazyBugHook\ILazyBugHook.h">
+      <Filter>LazyBugHook</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

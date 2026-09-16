@@ -1262,6 +1262,7 @@
     <ClInclude Include="..\LazyBugSource\ChatTask_AddFileToProject.h">
       <Filter>GUI\ChatDialog\ChatTaskMgr</Filter>
     </ClInclude>
+    <ClInclude Include="..\LazyBugHook\ILazyBugHook.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LazyBugPlugInControls.rc">

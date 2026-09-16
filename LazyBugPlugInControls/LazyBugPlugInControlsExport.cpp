@@ -21,6 +21,8 @@
 
 #include "filewatcher/FileWatcher.h"
 
+#include "../LazyBugHook/ILazyBugHook.h"
+
 
 
 //CChatDialog* g_chatDlg = NULL;
@@ -347,4 +349,14 @@ bool AddFileToProjectInVS(const unsigned short* projectFilePath, const unsigned 
 	}
 
 	return g_addFileToProjectFunc(projectFilePath, fileFullPath, errorMsg, errorMsgSize);
+}
+
+// ---------------------------------------------------------------------------
+// LazyBugHook 桥接
+// ---------------------------------------------------------------------------
+static ILazyBugHook* g_lazyBugHook = nullptr;
+
+void SetLazyBugHook(ILazyBugHook* hook)
+{
+	g_lazyBugHook = hook;
 }

@@ -581,6 +581,7 @@
     <ClInclude Include="..\Common\timer\timer.h" />
     <ClInclude Include="..\Common\xml\tinyxml.h" />
     <ClInclude Include="..\extlib\treesitter\include\treesitter_api.h" />
+    <ClInclude Include="..\LazyBugHook\ILazyBugHook.h" />
     <ClInclude Include="..\LazyBugSource\ChatOpsSummarizer.h" />
     <ClInclude Include="..\LazyBugSource\ChatSettingDatabaseTab.h" />
     <ClInclude Include="..\LazyBugSource\chatsettingdirwatchtab.h" />

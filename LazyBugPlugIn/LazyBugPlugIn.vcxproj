@@ -238,6 +238,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="FileChangeAttach.cpp" />
+    <ClCompile Include="LazyBugHookManager.cpp" />
     <ClCompile Include="Module.cpp" />
     <ClCompile Include="LazyBugChangelistsWindow.cpp" />
     <ClCompile Include="MyToolWindow.cpp" />
@@ -261,12 +262,14 @@
     <ClInclude Include="..\Common\stringparser\stringparser.h" />
     <ClInclude Include="..\Common\timer\profiler.h" />
     <ClInclude Include="..\Common\timer\timer.h" />
+    <ClInclude Include="..\LazyBugHook\ILazyBugHook.h" />
     <ClInclude Include="..\LazyBugSource\SolutionDump.h" />
     <ClInclude Include="DocReloadFilter.h" />
     <ClInclude Include="CommonIncludes.h" />
     <ClInclude Include="Guids.h" />
     <ClInclude Include="FileChangeAttach.h" />
     <ClInclude Include="LazyBugChangelistsWindow.h" />
+    <ClInclude Include="LazyBugHookManager.h" />
     <ClInclude Include="MyToolWindow.h" />
     <ClInclude Include="Package.h" />
     <ClInclude Include="PackageState.h" />
