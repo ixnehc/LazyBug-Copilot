@@ -32,6 +32,7 @@ LazyBug Copilot is a "Cursor-like" intelligent coding assistant extension design
 ## Version 0.26.3 Release Notes
 
 - Improved compatibility with Python script execution
+- Avoided excessively frequent log output
 
 ## Version 0.26.2 Release Notes
 

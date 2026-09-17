@@ -32,6 +32,7 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 ## Version 0.26.3 更新说明
 
 - 提高了 Python 脚本执行的兼容性
+- 避免了过高频率的 log 输出
 
 ## Version 0.26.2 更新说明
 

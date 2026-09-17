@@ -3,6 +3,7 @@
 ## Version 0.26.3
 
 - Improved compatibility with Python script execution
+- Avoided excessively frequent log output
 
 ---
 
