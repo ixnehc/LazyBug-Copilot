@@ -50,6 +50,7 @@ extern const char* GetCurModuleFolderPath_utf8();
 //extern CChangelists* GetChangelists();
 extern CCheckpoints* GetCheckpoints();
 extern ChatRestoreMode GetChatRestoreMode();
+extern void UpdateLazyBugHook();
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -588,6 +589,9 @@ void CChatDialogA::OnTimer(UINT_PTR nIDEvent)
 	_chatTaskMgrBg.Update();
 
 	g_llmLib.UpdateReload();
+
+	// 驱动外部 Hook 的周期更新
+	UpdateLazyBugHook();
 	 
 	 
 	_chatInput.Update();

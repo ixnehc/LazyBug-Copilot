@@ -360,3 +360,9 @@ void SetLazyBugHook(ILazyBugHook* hook)
 {
 	g_lazyBugHook = hook;
 }
+
+void UpdateLazyBugHook()
+{
+	if (g_lazyBugHook)
+		g_lazyBugHook->Update();
+}
