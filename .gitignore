@@ -20,6 +20,8 @@
 # ---- Step 4: Whitelisted directories (recursive) ----
 !Common/
 !Common/**
+!LazyBugHook/
+!LazyBugHook/**
 !LazyBugPlugIn/
 !LazyBugPlugIn/**
 !LazyBugPlugInControls/
