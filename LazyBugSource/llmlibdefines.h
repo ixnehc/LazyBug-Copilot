@@ -1,5 +1,10 @@
 ﻿#pragma once
 
+// AddFileToProject 工具编译期开关：
+//   1 = 启用 AddFileToProject 工具（默认），ReplaceInFile 禁止修改项目文件
+//   0 = 禁用 AddFileToProject 工具，ReplaceInFile 允许修改项目文件
+#define LAZYBUG_ENABLE_ADD_FILE_TO_PROJECT_TOOL 0
+
 
 enum class LlmApiRole
 {

@@ -36,6 +36,11 @@ void CChatTask_AddFileToProject::Start()
 {
 	_status = TaskStatus::Running;
 
+#if !LAZYBUG_ENABLE_ADD_FILE_TO_PROJECT_TOOL
+	_Fail("AddFileToProject tool is disabled");
+	return;
+#endif
+
 	if (!_toolCall.GetStringParam("projectFilePath", _projectFilePath) || _projectFilePath.empty())
 	{
 		_Fail("Missing 'projectFilePath' parameter");

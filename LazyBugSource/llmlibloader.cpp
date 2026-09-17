@@ -100,8 +100,10 @@ namespace
 					tools.push_back(LlmToolType::QueryFinish);
 			else if (item == "AddMcpServer")
 				tools.push_back(LlmToolType::AddMcpServer);
+#if LAZYBUG_ENABLE_ADD_FILE_TO_PROJECT_TOOL
 			else if (item == "AddFileToProject")
 				tools.push_back(LlmToolType::AddFileToProject);
+#endif
 				//XXXXX: more tool type  
 			}
 		}
@@ -581,7 +583,9 @@ void CLlmLibLoader::LoadInto(std::vector<LlmApiProvider>& providers, std::vector
 				LlmToolType::CLI_RunScript,
 				LlmToolType::Question,
 				LlmToolType::AddMcpServer,
+#if LAZYBUG_ENABLE_ADD_FILE_TO_PROJECT_TOOL
 				LlmToolType::AddFileToProject
+#endif
 				//				LlmToolType::CreateSkill 
 				//XXXXX: more tool type  
 			};
@@ -783,7 +787,9 @@ void CLlmLibLoader::LoadJsonFile(CLlmLib& lib, const char* jsonFilePath)
 						LlmToolType::CLI_RunScript,
 						LlmToolType::Question,
 						LlmToolType::AddMcpServer,
+#if LAZYBUG_ENABLE_ADD_FILE_TO_PROJECT_TOOL
 						LlmToolType::AddFileToProject
+#endif
 						//XXXXX: more tool type  
 					};
 				}

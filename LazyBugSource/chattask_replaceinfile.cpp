@@ -936,12 +936,15 @@ void CChatTask_ReplaceInFile::Update()
 			std::string newContent;
 			LineRange oldLineRange, newLineRange;
 
+#if LAZYBUG_ENABLE_ADD_FILE_TO_PROJECT_TOOL
 			if (Utils::IsVisualStudioProjectFile(_filePath.c_str()))
 			{
 				errorMessage = "Editing Visual Studio project/solution files (.sln/.vcxproj/.csproj/.filters etc.) is not supported";
 				newContent= newContent + FILE_EDIT_RESULT_ERROR_PREFIX + errorMessage + " !";
 			}
-			else if (!IsFullPath(_filePath.c_str()))
+			else
+#endif
+			if (!IsFullPath(_filePath.c_str()))
 			{
 				errorMessage = "Invalid file path -- Not a full path ";
 				newContent= newContent + FILE_EDIT_RESULT_ERROR_PREFIX + errorMessage + " !";
