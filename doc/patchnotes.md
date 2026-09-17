@@ -1,5 +1,11 @@
 ﻿# LazyBug Version History
 
+## Version 0.26.3
+
+- Improved compatibility with Python script execution
+
+---
+
 ## Version 0.26.2
 
 - Added the `AddFileToProject` tool for adding files to a specified project
