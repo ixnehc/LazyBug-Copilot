@@ -56,16 +56,20 @@ void ClearRecentRequests()
 std::deque<std::string> g_receives;
 static std::mutex g_receivesMutex;
 
-// 保存最近的请求到文件
-// 若 newData 非空，则先将其追加到 g_receives（与写文件在同一锁内完成）
-void SaveRecentReceives(const std::string& filename = "recent_receives.txt", const std::string* newData = nullptr)
+// 追加一段接收数据到缓存（不写盘，线程安全）
+void AppendRecentReceive(const std::string& data)
+{
+	if (data.empty())
+		return;
+
+	std::lock_guard<std::mutex> lock(g_receivesMutex);
+	g_receives.push_back(data);
+}
+
+// 将缓存的接收数据一次性写入文件（线程安全）
+void SaveRecentReceives(const std::string& filename = "recent_receives.txt")
 {
 	std::lock_guard<std::mutex> lock(g_receivesMutex);
-
-	if (newData && !newData->empty())
-	{
-		g_receives.push_back(*newData);
-	}
 
 	std::string path = GetOpenedDBFolderPath_utf8();
 	path += "\\_log\\" + filename;
@@ -1023,7 +1027,7 @@ size_t LlmWriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
 		session->m_buffer.erase(std::remove(session->m_buffer.begin(), session->m_buffer.end(), '\n'), session->m_buffer.end());
 	}
 
-	SaveRecentReceives("recent_receives.txt", &t);
+	AppendRecentReceive(t);
 
     // 处理缓冲区中的完整行
     size_t pos = 0;
@@ -1707,6 +1711,9 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
         // 标记为完成
         session->m_isCompleted = true;
     }
+
+	// 将本次响应累积的接收数据一次性写入文件
+	SaveRecentReceives();
     
     // 清理
     curl_slist_free_all(headers);
