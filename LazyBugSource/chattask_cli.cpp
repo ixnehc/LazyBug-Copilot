@@ -1067,6 +1067,9 @@ void CChatTask_CLI::Start()
 			// riskLevel 1 或 2: 需要用户确认
 			displayStatus = CliDisplayStatus::Pending;
 			_isPending = true;
+
+			// 播放提示音，提醒用户需要确认
+			MessageBeep(MB_ICONWARNING);
 		}
 
 		// 创建 CLI display，传递 displayStatus、shellType 和 riskLevel
