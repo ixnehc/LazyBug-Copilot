@@ -84,7 +84,9 @@ void CChatAgent::Update()
 	_requestInterrupt = false;
 
 	if (requestInterrupt)
+	{
 		_taskMgr.Interrupt();
+	}
 	_taskMgr.Update();
 
 	if (requestInterrupt)
@@ -191,7 +193,7 @@ void CChatAgent::Update()
 	// 会话结束清理
 	if (!_llmChat.HasActiveSession() && !_taskMgr.IsRunning())
 	{
-		_FinishChat();
+		_FinishChat(requestInterrupt);
 	}
 
 	// 处理保存请求
@@ -470,7 +472,7 @@ bool CChatAgent::_DoRequest(const LlmSessionRequest& request, bool isUserMessage
 	return _llmChat.Request(request, setting, isUserMessage);
 }
 
-void CChatAgent::_FinishChat()
+void CChatAgent::_FinishChat(bool interrupted)
 {
 	if (_workingMode == WorkingMode::None)
 		return;
@@ -510,6 +512,10 @@ void CChatAgent::_FinishChat()
 
 	// 结束会话
 	_opsCtrl.EndSession();
+
+	// 对话结束，播放提示音（打断结束时不播放）
+	if (!interrupted)
+		MessageBeep(MB_ICONASTERISK);
 
 
 	// 重置工作模式

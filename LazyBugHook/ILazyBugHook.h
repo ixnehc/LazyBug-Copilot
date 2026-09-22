@@ -1,4 +1,4 @@
-// ILazyBugHook.h
+﻿// ILazyBugHook.h
 //
 // LazyBug Hook 系统对外接口定义。
 // 外部 DLL 通过实现 ILazyBugHook 并导出工厂函数 CreateLazyBugHook 来接入 LazyBug 宿主。

@@ -29,6 +29,8 @@
 
 #include "ChatTask_ResolveSymbolLinks.h"
 
+#include "../LazyBugHook/ILazyBugHook.h"
+
 extern CCurrentUserRegistry g_reg;
 
 #include <windows.h>
@@ -50,7 +52,27 @@ extern const char* GetCurModuleFolderPath_utf8();
 //extern CChangelists* GetChangelists();
 extern CCheckpoints* GetCheckpoints();
 extern ChatRestoreMode GetChatRestoreMode();
-extern void UpdateLazyBugHook();
+
+// ---------------------------------------------------------------------------
+// LazyBugHook 桥接
+// ---------------------------------------------------------------------------
+static ILazyBugHook* g_lazyBugHook = nullptr;
+
+// 在 LazyBugPlugInControls.dll（VSIX）中导出，供 LazyBugPlugIn.dll 的 Package 调用；
+// 独立 LazyBug.exe 中不导出（也不使用）。
+#ifdef LazyBugPlugInControls_EXPORT
+__declspec(dllexport)
+#endif
+void SetLazyBugHook(ILazyBugHook* hook)
+{
+	g_lazyBugHook = hook;
+}
+
+void UpdateLazyBugHook()
+{
+	if (g_lazyBugHook)
+		g_lazyBugHook->Update();
+}
 
 
 //////////////////////////////////////////////////////////////////////////

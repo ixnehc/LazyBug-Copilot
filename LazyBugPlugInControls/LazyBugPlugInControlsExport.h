@@ -59,6 +59,3 @@ class ILazyBugHook;
 // 并把 ILazyBugHook 指针传入，供 Controls 在需要时调用。
 LazyBugPlugInControls_Api void SetLazyBugHook(ILazyBugHook* hook);
 
-// 周期驱动外部 Hook 的 Update()（由 Controls 内部的定时器调用）。
-LazyBugPlugInControls_Api void UpdateLazyBugHook();
-

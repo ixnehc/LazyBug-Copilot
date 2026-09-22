@@ -1,4 +1,4 @@
-// LazyBugHookManager.h
+﻿// LazyBugHookManager.h
 //
 // 单实例 Hook 管理器：从解决方案目录加载 LazyBugHook.dll，
 // 校验工厂函数后持有唯一的 ILazyBugHook 实例。

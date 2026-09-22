@@ -233,7 +233,7 @@ private:
     // 本轮对话结束时的收尾：
     //   CChatOpsCtrl::CompleteStreamingAIMessage → CChatOpsCtrl::AddSessionCost
     //   → CChatOpsCtrl::EndSession → 回调 OnChatFinished / OnDataDirty
-    void _FinishChat();
+    void _FinishChat(bool interrupted = false);
 
     // 为文件附件创建 checkpoint
     FilesCheckpointUID _OnCreateCheckpointForFileAttaches(const LlmSessionContext& ctx);
