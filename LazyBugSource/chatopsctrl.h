@@ -65,6 +65,7 @@ struct ChatOp
 		Op_AddFileSummarizeSoFarToAIMessage,
 		Op_AddToolCallMessage_Execution,
 		Op_ProjectEdit,
+		Op_RelayPoint,
 		// 重要：后添加的 Op 一定要加在末尾
     };
 
@@ -214,6 +215,13 @@ public:
 
     void BeginSession(FilesCheckpointUID checkpointId);
     void EndSession();
+
+    // ── Relay Point（接力点）─────────────────────────────────────────────
+    // 在指定 messageId（某 session 的第一条用户消息）所在的 session 之前设置接力点。
+    // 接力点是 "Modified Files So Far" 的窗口起点（从最近接力点之后开始统计）。
+    void SetRelayPoint(const std::wstring& messageId);
+    // 移除锚点为 messageId 的接力点
+    void RemoveRelayPoint(const std::wstring& messageId);
 
 	bool GetRestoreCheckpoints(const std::wstring& userMessageId, std::vector<FilesCheckpointUID>& checkpointIds);
 
@@ -472,6 +480,7 @@ private:
     int             _FindLastOpIndex(ChatOp::Type tp) const;
     int             _FindFirstOpIndexInSession(int sessionBeginIdx,
                                                ChatOp::Type tp) const;
+    int             _FindLastRelayPointIndex() const;  // 最后一个接力点索引（无则 -1）
 
     // ── Session 查找辅助 ──────────────────────────────────────────────────
     int _GetSessionBeginOfOpIndex(int idx) const;

@@ -1009,8 +1009,19 @@ void CChatOpsCtrl::GetAllModifiedFilePathesUpToMessageId(const std::wstring& mes
 
 	std::unordered_set<std::wstring> uniquePaths;
 
-	// 从对话起点遍历到 sessionEnd
-	for (int i = 0; i <= sessionEnd; i++)
+	// 窗口起点：当前 session 之前最近的接力点之后；没有接力点则从对话起点开始
+	int startIndex = 0;
+	for (int i = sessionBegin - 1; i >= 0; i--)
+	{
+		if (_ops[i].type == ChatOp::Op_RelayPoint)
+		{
+			startIndex = i + 1;
+			break;
+		}
+	}
+
+	// 从窗口起点遍历到 sessionEnd
+	for (int i = startIndex; i <= sessionEnd; i++)
 	{
 		const ChatOp& op = _ops[i];
 		if (op.type != ChatOp::Op_AddFileEditToAIMessage)
@@ -1451,6 +1462,15 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 		break;
 	}
 
+	case ChatOp::Op_RelayPoint:
+	{
+		// 数据层重放：仅恢复接力点 Op（无 UI，分隔线后续实现）
+		ChatOp relayOp(ChatOp::Op_RelayPoint);
+		relayOp.messageId = op.messageId;
+		_AddOp(relayOp);
+		break;
+	}
+
 
 	case ChatOp::Op_AddFileSummarizeToAIMessage:
 	{
@@ -1611,6 +1631,44 @@ void CChatOpsCtrl::EndSession()
 		ChatOp op(ChatOp::Op_EndSession);
 		_AddOp(op);
 	}
+}
+
+void CChatOpsCtrl::SetRelayPoint(const std::wstring& messageId)
+{
+	// 先移除该 session 已存在的接力点（避免重复设置）
+	RemoveRelayPoint(messageId);
+
+	// 找到锚点用户消息所在的 session 起始（Op_BeginSession）索引
+	int sessionBegin = _GetSessionBeginOfUserMessage(messageId);
+	if (sessionBegin < 0)
+		return;  // 找不到该用户消息或其 session，放弃
+
+	// 在 Op_BeginSession 之前插入接力点
+	ChatOp op(ChatOp::Op_RelayPoint);
+	op.messageId = messageId;  // 锚点 = 该 session 的第一条用户消息
+	_ops.insert(_ops.begin() + sessionBegin, op);
+
+	_ver++;
+}
+
+void CChatOpsCtrl::RemoveRelayPoint(const std::wstring& messageId)
+{
+	bool changed = false;
+	for (auto it = _ops.begin(); it != _ops.end(); )
+	{
+		if (it->type == ChatOp::Op_RelayPoint && it->messageId == messageId)
+		{
+			it = _ops.erase(it);
+			changed = true;
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	if (changed)
+		_ver++;
 }
 
 void CChatOpsCtrl::AccumulateSessionCostForFileEdit(const std::wstring& fileEditId, float price, int inputToken, int outputToken)
@@ -1881,6 +1939,16 @@ int CChatOpsCtrl::_FindLastOpIndex(ChatOp::Type tp) const
 	for (int i = _ops.size() - 1; i >= 0; i--)
 	{
 		if (_ops[i].type == tp)
+			return i;
+	}
+	return -1;
+}
+
+int CChatOpsCtrl::_FindLastRelayPointIndex() const
+{
+	for (int i = static_cast<int>(_ops.size()) - 1; i >= 0; i--)
+	{
+		if (_ops[i].type == ChatOp::Op_RelayPoint)
 			return i;
 	}
 	return -1;
