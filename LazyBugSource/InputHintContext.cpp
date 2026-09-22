@@ -1,4 +1,4 @@
-#include "stdh.h"
+﻿#include "stdh.h"
 #include "InputHintContext.h"
 #include "ChatOpsCtrl.h"
 #include "Utils_InputHint.h"
