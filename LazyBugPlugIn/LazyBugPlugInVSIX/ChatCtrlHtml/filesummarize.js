@@ -16,6 +16,25 @@ function updateFileSummarizeTooltips() {
 }
 
 /**
+ * 判断指定消息之前（DOM 顺序上）是否存在接力点分隔线
+ * @param {string} messageId - 消息 ID
+ * @returns {boolean} 存在则返回 true
+ */
+function hasRelayPointBefore(messageId) {
+    const msgElem = document.getElementById(messageId);
+    if (!msgElem) return false;
+
+    const separators = document.querySelectorAll('.relay-point-separator');
+    for (const sep of separators) {
+        // DOCUMENT_POSITION_FOLLOWING(4)：sep 位于 msgElem 之前
+        if (sep.compareDocumentPosition(msgElem) & Node.DOCUMENT_POSITION_FOLLOWING) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * 根据容器当前模式渲染文件列表
  */
 function renderFileSummarizeList(container) {
@@ -72,7 +91,11 @@ function renderFileSummarizeList(container) {
     const header = container.querySelector('.file-summarize-container-header');
     if (header) {
         if (mode === 'sofar') {
-            header.textContent = 'Modified Files So Far';
+            if (hasRelayPointBefore(messageId)) {
+                header.textContent = 'Modified Files Since Last Relay Point';
+            } else {
+                header.textContent = 'Modified Files So Far';
+            }
         } else {
             header.textContent = 'Modified Files';
         }
@@ -135,6 +158,9 @@ function getOrCreateFileSummarizeContainer(messageId) {
  *   - 默认（旧数据）：单文件，当作 recent 项追加
  */
 function createFileSummarizeWindow(messageId, filePath, listType, filesArray) {
+    const containerId = 'filesummarize-container-' + messageId;
+    const isNewContainer = !document.getElementById(containerId);
+
     const chatContainer = document.getElementById('chat-container');
     
     const container = getOrCreateFileSummarizeContainer(messageId);
@@ -168,8 +194,10 @@ function createFileSummarizeWindow(messageId, filePath, listType, filesArray) {
     // 按当前模式渲染
     renderFileSummarizeList(container);
 
-    // 滚动到底部
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    // 仅在新容器创建时滚动到底部；刷新已有列表时不滚动
+    if (isNewContainer) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
 }
 
 // 监听窗口大小变化，更新所有按钮的 tooltip

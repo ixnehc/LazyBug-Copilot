@@ -1,0 +1,88 @@
+/* ====== Relay Point（接力点）样式 ====== */
+
+:root {
+    --relay-point-color: #4a90e2;   /* 接力点高亮蓝色 */
+}
+
+/* 接力槽：常驻空隙，位于 user message 与其前面的 AI message 之间 */
+.relay-slot {
+    position: relative;
+    height: 16px;              /* 未设置时的空隙高度 */
+    flex-shrink: 0;
+    cursor: pointer;
+    margin: -15px -15px;       /* 垂直抵消 flex gap，水平撑满宽度（与 ai-message 对齐） */
+    transition: height 0.15s ease;
+}
+
+/* 已设置：区域高度高一倍 */
+.relay-slot[data-state="set"] {
+    height: 32px;
+}
+
+/* 线（默认透明，hover 显示虚线；已设置显示明暗交错粗线） */
+.relay-slot::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 1px dashed transparent;
+    transform: translateY(-50%);
+    transition: border-color 0.15s ease, background 0.15s ease;
+    pointer-events: none;
+}
+
+/* hover（未设置）：虚线 */
+.relay-slot:hover::before {
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* 已设置：右侧明暗交错粗线（白色，明段略暗） */
+.relay-slot[data-state="set"]::before {
+    left: 32px;               /* 为左侧小旗留出空间 */
+    right: 0;
+    border-top: none;
+    height: 4px;              /* 较粗的线 */
+    background: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.8) 0px, rgba(255, 255, 255, 0.8) 14px,
+        rgba(255, 255, 255, 0.25) 14px, rgba(255, 255, 255, 0.25) 28px
+    );
+}
+
+/* 已设置：左侧小旗图标（⚑ 字符，颜色跟随 color） */
+.relay-slot[data-state="set"]::after {
+    content: '⚑';
+    position: absolute;
+    left: 6px;                /* 更靠左 */
+    top: 50%;
+    font-size: 15px;
+    line-height: 1;
+    color: #ffffff;
+    transform: translateY(-50%);
+    transition: color 0.15s ease;
+    pointer-events: none;
+}
+
+/* 已设置 + hover：高亮为蓝色 */
+.relay-slot[data-state="set"]:hover::before {
+    background: repeating-linear-gradient(
+        90deg,
+        #4a90e2 0px, #4a90e2 14px,
+        rgba(74, 144, 226, 0.3) 14px, rgba(74, 144, 226, 0.3) 28px
+    );
+}
+
+.relay-slot[data-state="set"]:hover::after {
+    color: #4a90e2;
+}
+
+/* 被 disable 的接力槽：隐藏线/旗，禁止交互 */
+.relay-slot.disabled {
+    cursor: default;
+    pointer-events: none;
+}
+.relay-slot.disabled::before,
+.relay-slot.disabled::after {
+    display: none;
+}

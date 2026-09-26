@@ -875,8 +875,8 @@ bool CChatAgent::GetFileSummarizeDiffSoFar(const std::wstring& filePath, FilesCh
 	if (!_opsCtrl.GetFileEditCheckpoint(fileEditId, newCheckpointId))
 		return false;
 
-	// old = 该文件路径全局第一个 FileEdit 的 checkpoint（首次被修改时的状态）
-	std::wstring firstFileEditId = _opsCtrl.GetFirstFileEditCheckpointFromFilePathGlobal(filePath);
+	// old = 最近 Relay Point 之后该文件第一次被修改时的状态（无 Relay Point 时为对话起点）
+	std::wstring firstFileEditId = _opsCtrl.GetFirstFileEditCheckpointFromFilePathSinceRelayPoint(filePath);
 	if (firstFileEditId.empty())
 		return false;
 

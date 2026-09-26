@@ -904,3 +904,102 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
 }
+
+/* ====== 接力点空隙 / 分隔线 ====== */
+
+/* 未设置接力点时的可点击空隙（session 末尾，So Far 窗口 / 费用之后） */
+.relay-gap {
+    align-self: stretch;
+    height: 16px;
+    min-height: 16px;
+    flex-shrink: 0; /* 防止被 flex 容器压缩，确保感应区域完整 */
+    cursor: pointer;
+    position: relative;
+    margin: 0 -15px; /* 与 .ai-message 对齐，撑满容器 */
+    /* 完全透明：默认无任何视觉元素 */
+    background: transparent;
+    border: none;
+}
+
+.relay-gap:hover::after {
+    content: '⚑';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px;
+    color: var(--text-color);
+    opacity: 0.7;
+    line-height: 1;
+    padding: 3px 7px;
+    border: 1px dashed var(--ai-message-border);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* 接力点分隔线：session 末尾，So Far 窗口 / 费用之后 */
+.relay-point-separator {
+    align-self: stretch;
+    flex-shrink: 0; /* 防止被 flex 容器压缩 */
+    display: flex;
+    align-items: center;
+    height: 16px;
+    min-height: 16px;
+    margin: 0 -15px; /* 与 .relay-gap 对齐，保持切换无跳动 */
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+/* 旗帜符号两侧的水平线，flex:1 撑满两端 */
+.relay-point-separator::before,
+.relay-point-separator::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--ai-message-border);
+    transition: background 0.15s ease;
+}
+
+.relay-point-flag {
+    flex: none;
+    font-size: 13px;
+    line-height: 1;
+    color: var(--text-color);
+    opacity: 0.6;
+    margin: 0 10px;
+    pointer-events: none;
+    transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+/* hover 时高亮旗帜与延伸线，亮白色提示点击可删除 */
+.relay-point-separator:hover::before,
+.relay-point-separator:hover::after {
+    background: #ffffff;
+}
+
+.relay-point-separator:hover .relay-point-flag {
+    color: #ffffff;
+    opacity: 1;
+}
+
+/* disabled 状态：显示为灰色，且不可交互 */
+.relay-gap.disabled {
+    cursor: default;
+    pointer-events: none;
+}
+
+.relay-point-separator.disabled {
+    cursor: default;
+    pointer-events: none;
+}
+
+.relay-point-separator.disabled::before,
+.relay-point-separator.disabled::after {
+    background: #555555;
+}
+
+.relay-point-separator.disabled .relay-point-flag {
+    color: #888888;
+    opacity: 0.6;
+}

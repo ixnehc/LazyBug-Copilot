@@ -216,13 +216,6 @@ public:
     void BeginSession(FilesCheckpointUID checkpointId);
     void EndSession();
 
-    // ── Relay Point（接力点）─────────────────────────────────────────────
-    // 在指定 messageId（某 session 的第一条用户消息）所在的 session 之前设置接力点。
-    // 接力点是 "Modified Files So Far" 的窗口起点（从最近接力点之后开始统计）。
-    void SetRelayPoint(const std::wstring& messageId);
-    // 移除锚点为 messageId 的接力点
-    void RemoveRelayPoint(const std::wstring& messageId);
-
 	bool GetRestoreCheckpoints(const std::wstring& userMessageId, std::vector<FilesCheckpointUID>& checkpointIds);
 
     // ── Session Tag ───────────────────────────────────────────────────────
@@ -412,6 +405,15 @@ public:
                                                std::vector<std::wstring>& outPathes,
                                                std::unordered_set<std::wstring>& outRecentSet) const;
 
+    // ── Relay Point（接力点）─────────────────────────────────────────────
+
+    // 给 aiMessageId（session 末尾的 AI 消息）所在 session 设置接力点
+    // 接力点作为 So Far 窗口起点，UI 上表现为该 session 末尾的一条分隔线
+    void SetRelayPoint(const std::wstring& aiMessageId);
+
+    // 移除锚点为 aiMessageId 的接力点
+    void RemoveRelayPoint(const std::wstring& aiMessageId);
+
     // 获取首个 Op_BeginSession 的 checkpoint（对话起点）
     bool GetFirstSessionBeginCheckpoint(FilesCheckpointUID& checkpointId) const;
 
@@ -420,6 +422,10 @@ public:
 
     // 按文件路径从全局查找第一个有效 FileEdit（正向遍历，返回 fileEditId）
     std::wstring GetFirstFileEditCheckpointFromFilePathGlobal(const std::wstring& fullPath) const;
+
+    // 按文件路径从最近一个 Relay Point 之后查找第一个有效 FileEdit
+    // （无 Relay Point 时从对话起点开始；返回 fileEditId）
+    std::wstring GetFirstFileEditCheckpointFromFilePathSinceRelayPoint(const std::wstring& fullPath) const;
 
     // ── FileEdit Progress Label ─────────────────────────────────────────────
 
@@ -480,7 +486,11 @@ private:
     int             _FindLastOpIndex(ChatOp::Type tp) const;
     int             _FindFirstOpIndexInSession(int sessionBeginIdx,
                                                ChatOp::Type tp) const;
-    int             _FindLastRelayPointIndex() const;  // 最后一个接力点索引（无则 -1）
+    // 找 index 之前（不含 index）最近一个 Op_RelayPoint 的索引，无则 -1
+    int             _FindLastRelayPointIndexBefore(int index) const;
+
+    // 设置/移除接力点后，刷新所有已存在 session 的 So Far 文件列表
+    void            RefreshSoFarFileLists();
 
     // ── Session 查找辅助 ──────────────────────────────────────────────────
     int _GetSessionBeginOfOpIndex(int idx) const;
@@ -514,6 +524,10 @@ private:
     void _SetSessionCostDisplay(const LlmSessionUsage& usage, bool isLegacy = false, const std::wstring& messageId = L"");
     void _SendFileEditMsg(const std::wstring& action, const FileEdit& window);
     std::wstring _BuildButtonsJson(const std::vector<FileEditBtn>& buttons);
+
+    // 接力点 UI 推送（C++ → WebView，供 _ExecuteOp 重放 / SetRelayPoint / RemoveRelayPoint 使用）
+    void AddRelayPointToUI(const std::wstring& aiMessageId);
+    void RemoveRelayPointFromUI(const std::wstring& aiMessageId);
 
 	int _EstimateTokenCountBetweenOps(int startIndex, int endIndex, bool useUncompressed = false);
 

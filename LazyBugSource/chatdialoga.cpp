@@ -877,7 +877,7 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 	}
 		
 	std::string action = jsonMsg["action"];
-		
+
 	// 处理不同类型的消息
 	if (action == "titlebarMenuItemClicked")
 	{
@@ -911,6 +911,24 @@ void CChatDialogA::_OnWebViewMessage(const std::wstring& message)
 			// 使用PostMessage异步处理，避免阻塞WebView2
 			_pendingDisabledMessageId = messageId;
 			PostMessage(WM_HANDLE_DISABLED_MESSAGE, 0, 0);
+		}
+	}
+	else if (action == "setRelayPoint")
+	{
+		// 处理接力点设置：点击 session 末尾空隙，在该 session 末尾设置接力点
+		if (jsonMsg.contains("messageId"))
+		{
+			std::wstring messageId = utf8_to_widechar(jsonMsg["messageId"].get<std::string>());
+			_agent.GetOpsCtrl().SetRelayPoint(messageId);
+		}
+	}
+	else if (action == "removeRelayPoint")
+	{
+		// 处理接力点移除：点击接力点分隔线上的移除按钮
+		if (jsonMsg.contains("messageId"))
+		{
+			std::wstring messageId = utf8_to_widechar(jsonMsg["messageId"].get<std::string>());
+			_agent.GetOpsCtrl().RemoveRelayPoint(messageId);
 		}
 	}
 	else if (action == "settingsButtonClicked")

@@ -150,10 +150,78 @@ function appendToAIMessage(id, incrementalContent, isFinalChunk) {
     if (isFinalChunk) {
         // 收集 symbols 并发送给 C++ 查询
         collectSymbolsForMessage(id);
+        // session 末尾（So Far 窗口 / 费用之后）插入可点击空隙
+        ensureRelayGapAfter(id);
     }
     if (shouldScroll) {
         scrollToBottom();
     }
+}
+
+// ====== 接力点空隙 / 分隔线相关 ======
+
+/**
+ * 在 AI 消息（session 末尾）之后插入可点击空隙。
+ * 空隙位于 So Far 窗口 / 费用行之后，点击即可设置接力点。
+ * @param {string} aiMessageId - AI 消息元素 id（即 So Far/费用所属的 AI 消息）
+ */
+function ensureRelayGapAfter(aiMessageId) {
+    const aiMsg = document.getElementById(aiMessageId);
+    if (!aiMsg) return;
+
+    const next = aiMsg.nextElementSibling;
+    if (next && (next.classList.contains('relay-gap') ||
+                 next.classList.contains('relay-point-separator'))) {
+        return; // 已存在，去重
+    }
+
+    const gap = document.createElement('div');
+    gap.className = 'relay-gap';
+    gap.dataset.messageId = aiMessageId;
+    gap.title = 'Set relay point';
+    gap.onclick = () => {
+        window.chrome.webview.postMessage({ action: 'setRelayPoint', messageId: aiMessageId });
+    };
+    aiMsg.after(gap);
+}
+
+/**
+ * 将空隙转换为接力点分隔线（C++ 推送 addRelayPoint 时调用）。
+ * @param {string} aiMessageId - 锚点 AI 消息 id
+ */
+function addRelayPoint(aiMessageId) {
+    let node = document.querySelector(`.relay-gap[data-message-id="${aiMessageId}"]`);
+    if (!node) {
+        // 兜底：正常重放时 complete 先于 addRelayPoint，不会走到这里
+        const aiMsg = document.getElementById(aiMessageId);
+        if (!aiMsg) return;
+        node = document.createElement('div');
+        node.dataset.messageId = aiMessageId;
+        aiMsg.after(node);
+    }
+
+    node.className = 'relay-point-separator';
+    node.title = 'Remove relay point';
+    node.onclick = () => {
+        window.chrome.webview.postMessage({ action: 'removeRelayPoint', messageId: aiMessageId });
+    };
+    node.innerHTML = '<span class="relay-point-flag">⚑</span>';
+}
+
+/**
+ * 将接力点分隔线恢复为空隙（C++ 推送 removeRelayPoint 时调用）。
+ * @param {string} aiMessageId - 锚点 AI 消息 id
+ */
+function removeRelayPoint(aiMessageId) {
+    const node = document.querySelector(`.relay-point-separator[data-message-id="${aiMessageId}"]`);
+    if (!node) return;
+
+    node.className = 'relay-gap';
+    node.innerHTML = '';
+    node.title = 'Set relay point';
+    node.onclick = () => {
+        window.chrome.webview.postMessage({ action: 'setRelayPoint', messageId: aiMessageId });
+    };
 }
 
 /**
@@ -637,6 +705,9 @@ function disableMessagesAfter(messageId) {
             addDisabledMessageClickHandler(message);
         }
     }
+
+    // 同步 relay point（空隙/分隔线）的 disabled 状态
+    syncRelayPointDisabledState();
 }
 
 /**
@@ -652,6 +723,9 @@ function enableAllDisabledMessages() {
         // 移除点击事件处理器
         message.removeEventListener('click', handleDisabledMessageClick);
     });
+
+    // 同步 relay point（空隙/分隔线）的 disabled 状态
+    syncRelayPointDisabledState();
 }
 
 /**
@@ -663,6 +737,11 @@ function removeDisabledMessages() {
     disabledMessages.forEach(message => {
         // 从 DOM 中删除消息元素
         message.remove();
+    });
+
+    // 删除被 disable 的 relay point 节点（空隙/分隔线）
+    chatContainer.querySelectorAll('.relay-gap.disabled, .relay-point-separator.disabled').forEach(node => {
+        node.remove();
     });
 }
 
@@ -690,6 +769,21 @@ function handleDisabledMessageClick(event) {
     window.chrome.webview.postMessage({
         action: 'disabledMessageClicked',
         messageId: messageId
+    });
+}
+
+/**
+ * 同步 relay point（空隙/分隔线）的 disabled 状态：
+ * 当锚点 AI 消息被 disable 时，其后的 relay point 也标记为 disabled（变灰、不可交互）。
+ */
+function syncRelayPointDisabledState() {
+    document.querySelectorAll('.relay-gap, .relay-point-separator').forEach(node => {
+        const anchor = document.getElementById(node.dataset.messageId);
+        if (anchor && anchor.classList.contains('disabled')) {
+            node.classList.add('disabled');
+        } else {
+            node.classList.remove('disabled');
+        }
     });
 }
 

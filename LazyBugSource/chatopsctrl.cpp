@@ -1009,18 +1009,13 @@ void CChatOpsCtrl::GetAllModifiedFilePathesUpToMessageId(const std::wstring& mes
 
 	std::unordered_set<std::wstring> uniquePaths;
 
-	// 窗口起点：当前 session 之前最近的接力点之后；没有接力点则从对话起点开始
+	// 起点：当前 session 之前最近的接力点之后；无接力点则从对话起点开始
 	int startIndex = 0;
-	for (int i = sessionBegin - 1; i >= 0; i--)
-	{
-		if (_ops[i].type == ChatOp::Op_RelayPoint)
-		{
-			startIndex = i + 1;
-			break;
-		}
-	}
+	int relayIndex = _FindLastRelayPointIndexBefore(sessionBegin);
+	if (relayIndex >= 0)
+		startIndex = relayIndex + 1;
 
-	// 从窗口起点遍历到 sessionEnd
+	// 从接力点之后（或对话起点）遍历到 sessionEnd
 	for (int i = startIndex; i <= sessionEnd; i++)
 	{
 		const ChatOp& op = _ops[i];
@@ -1049,6 +1044,145 @@ void CChatOpsCtrl::GetAllModifiedFilePathesUpToMessageId(const std::wstring& mes
 		// 属于当前 session 的文件加入 recentSet
 		if (op.messageId == messageId)
 			outRecentSet.insert(fullPath);
+	}
+}
+
+// 给 aiMessageId（session 末尾的 AI 消息）所在 session 设置接力点
+void CChatOpsCtrl::SetRelayPoint(const std::wstring& aiMessageId)
+{
+	// 1. 找到该 AI 消息 op 索引
+	int aiIndex = -1;
+	for (int i = 0; i < static_cast<int>(_ops.size()); i++)
+	{
+		if (_ops[i].type == ChatOp::Op_StartStreamingAIMessage && _ops[i].messageId == aiMessageId)
+		{
+			aiIndex = i;
+			break;
+		}
+	}
+	if (aiIndex < 0)
+		return;
+
+	// 2. 找 session 边界（未结束的 session 不允许设置接力点）
+	int sessionBegin, sessionEnd;
+	if (!FindSessionBoundaries(aiIndex, sessionBegin, sessionEnd))
+		return;
+
+	// 3. 去重：删除同锚点的旧接力点
+	for (int i = static_cast<int>(_ops.size()) - 1; i >= 0; i--)
+	{
+		if (_ops[i].type == ChatOp::Op_RelayPoint && _ops[i].messageId == aiMessageId)
+		{
+			_ops.erase(_ops.begin() + i);
+			_ver++;
+		}
+	}
+
+	// 4. 在 Op_EndSession 之后插入
+	ChatOp op(ChatOp::Op_RelayPoint);
+	op.messageId = aiMessageId;
+	_ops.insert(_ops.begin() + sessionEnd + 1, op);
+	_ver++;
+
+	// 5. 推送 UI
+	AddRelayPointToUI(aiMessageId);
+
+	// 6. 刷新所有已结束 session 的 So Far 文件列表
+	RefreshSoFarFileLists();
+}
+
+// 移除锚点为 aiMessageId 的接力点
+void CChatOpsCtrl::RemoveRelayPoint(const std::wstring& aiMessageId)
+{
+	for (int i = static_cast<int>(_ops.size()) - 1; i >= 0; i--)
+	{
+		if (_ops[i].type == ChatOp::Op_RelayPoint && _ops[i].messageId == aiMessageId)
+		{
+			_ops.erase(_ops.begin() + i);
+			_ver++;
+		}
+	}
+
+	RemoveRelayPointFromUI(aiMessageId);
+
+	// 刷新所有已结束 session 的 So Far 文件列表
+	RefreshSoFarFileLists();
+}
+
+// 找 index 之前（不含 index）最近一个 Op_RelayPoint 的索引，无则 -1
+int CChatOpsCtrl::_FindLastRelayPointIndexBefore(int index) const
+{
+	for (int i = index - 1; i >= 0; i--)
+	{
+		if (_ops[i].type == ChatOp::Op_RelayPoint)
+			return i;
+	}
+	return -1;
+}
+
+// 设置/移除接力点后，刷新所有已结束 session 的 So Far 文件列表，
+// 使 "Modified Files So Far" 以最新的接力点为基准
+void CChatOpsCtrl::RefreshSoFarFileLists()
+{
+	for (auto& op : _ops)
+	{
+		if (op.type != ChatOp::Op_AddFileSummarizeSoFarToAIMessage)
+			continue;
+
+		std::vector<std::wstring> soFarPathes;
+		std::unordered_set<std::wstring> recentSet;
+		GetAllModifiedFilePathesUpToMessageId(op.messageId, soFarPathes, recentSet);
+
+		// recentSet 为空时该 session 原本就不会生成 So Far 列表，跳过
+		if (recentSet.empty())
+			continue;
+
+		nlohmann::json filesJson = nlohmann::json::array();
+		for (const auto& p : soFarPathes)
+		{
+			nlohmann::json entry;
+			entry["path"] = widechar_to_utf8(p.c_str());
+			entry["recent"] = (recentSet.find(p) != recentSet.end());
+			filesJson.push_back(std::move(entry));
+		}
+
+		std::string filesJsonStr = filesJson.dump();
+		op.contentUtf8 = filesJsonStr;
+		_ver++;
+
+		// 推送 UI 刷新（复用 addFileSummarize 消息，listType=sofar）
+		if (_ui)
+		{
+			std::wstring safeMessageId = EscapeJsonString(op.messageId);
+			std::wstring jsonMessage = L"{\"action\":\"addFileSummarize\",\"messageId\":\""
+				+ safeMessageId + L"\",\"listType\":\"sofar\",\"files\":"
+				+ utf8_to_widechar(filesJsonStr.c_str()) + L"}";
+			_ui->PostJsonMessage(jsonMessage);
+		}
+	}
+}
+
+// 接力点 UI 推送：在 session 末尾（So Far 窗口 / 费用之后）渲染分隔线
+void CChatOpsCtrl::AddRelayPointToUI(const std::wstring& aiMessageId)
+{
+	if (_ui)
+	{
+		std::wstring safeMessageId = EscapeJsonString(aiMessageId);
+		std::wstring jsonMessage = L"{\"action\":\"addRelayPoint\",\"messageId\":\""
+			+ safeMessageId + L"\"}";
+		_ui->PostJsonMessage(jsonMessage);
+	}
+}
+
+// 接力点 UI 推送：移除分隔线，恢复为空隙
+void CChatOpsCtrl::RemoveRelayPointFromUI(const std::wstring& aiMessageId)
+{
+	if (_ui)
+	{
+		std::wstring safeMessageId = EscapeJsonString(aiMessageId);
+		std::wstring jsonMessage = L"{\"action\":\"removeRelayPoint\",\"messageId\":\""
+			+ safeMessageId + L"\"}";
+		_ui->PostJsonMessage(jsonMessage);
 	}
 }
 
@@ -1097,6 +1231,36 @@ std::wstring CChatOpsCtrl::GetLastFileEditCheckpointFromFilePathGlobal(const std
 std::wstring CChatOpsCtrl::GetFirstFileEditCheckpointFromFilePathGlobal(const std::wstring& fullPath) const
 {
 	for (int i = 0; i < static_cast<int>(_ops.size()); i++)
+	{
+		const ChatOp& op = _ops[i];
+
+		if (op.type != ChatOp::Op_AddFileEditToAIMessage)
+			continue;
+
+		if (_wcsicmp(op.fullPath.c_str(), fullPath.c_str()) != 0)
+			continue;
+
+		FilesCheckpointUID checkpointId;
+		if (GetFileEditCheckpoint(op.fileEditId, checkpointId))
+		{
+			if (checkpointId != FilesCheckpointUID_Invalid)
+				return op.fileEditId;
+		}
+	}
+
+	return L"";
+}
+
+// 按文件路径从最近一个 Relay Point 之后查找第一个有效 FileEdit
+// （无 Relay Point 时从对话起点开始；返回 fileEditId）
+std::wstring CChatOpsCtrl::GetFirstFileEditCheckpointFromFilePathSinceRelayPoint(const std::wstring& fullPath) const
+{
+	int startIndex = 0;
+	int relayIndex = _FindLastRelayPointIndexBefore(static_cast<int>(_ops.size()));
+	if (relayIndex >= 0)
+		startIndex = relayIndex + 1;
+
+	for (int i = startIndex; i < static_cast<int>(_ops.size()); i++)
 	{
 		const ChatOp& op = _ops[i];
 
@@ -1464,10 +1628,12 @@ void CChatOpsCtrl::_ExecuteOp(const ChatOp& op)
 
 	case ChatOp::Op_RelayPoint:
 	{
-		// 数据层重放：仅恢复接力点 Op（无 UI，分隔线后续实现）
-		ChatOp relayOp(ChatOp::Op_RelayPoint);
-		relayOp.messageId = op.messageId;
-		_AddOp(relayOp);
+		// 重放时需要重新写入 _ops（Load 前已 ClearChat），与 Op_SetSessionCost 模式一致
+		ChatOp op2(ChatOp::Op_RelayPoint);
+		op2.messageId = op.messageId;
+		_AddOp(op2);
+
+		AddRelayPointToUI(op.messageId);
 		break;
 	}
 
@@ -1631,44 +1797,24 @@ void CChatOpsCtrl::EndSession()
 		ChatOp op(ChatOp::Op_EndSession);
 		_AddOp(op);
 	}
-}
 
-void CChatOpsCtrl::SetRelayPoint(const std::wstring& messageId)
-{
-	// 先移除该 session 已存在的接力点（避免重复设置）
-	RemoveRelayPoint(messageId);
-
-	// 找到锚点用户消息所在的 session 起始（Op_BeginSession）索引
-	int sessionBegin = _GetSessionBeginOfUserMessage(messageId);
-	if (sessionBegin < 0)
-		return;  // 找不到该用户消息或其 session，放弃
-
-	// 在 Op_BeginSession 之前插入接力点
-	ChatOp op(ChatOp::Op_RelayPoint);
-	op.messageId = messageId;  // 锚点 = 该 session 的第一条用户消息
-	_ops.insert(_ops.begin() + sessionBegin, op);
-
-	_ver++;
-}
-
-void CChatOpsCtrl::RemoveRelayPoint(const std::wstring& messageId)
-{
-	bool changed = false;
-	for (auto it = _ops.begin(); it != _ops.end(); )
+	// 找到本 session 最后一个 AI 消息的 messageId，推送 UI 空隙
+	// 兼容旧文件：旧文件可能没有 Op_CompleteStreamingAIMessage，
+	// 导致重放时 ensureRelayGapAfter 不被调用，空隙不出现。
+	// 在 EndSession 中补推 addRelayGap，确保无论新旧文件都能生成空隙。
+	if (_ui)
 	{
-		if (it->type == ChatOp::Op_RelayPoint && it->messageId == messageId)
+		for (int i = (int)_ops.size() - 2; i >= 0; i--) // -2: 跳过刚添加的 Op_EndSession
 		{
-			it = _ops.erase(it);
-			changed = true;
-		}
-		else
-		{
-			++it;
+			if (_ops[i].type == ChatOp::Op_StartStreamingAIMessage)
+			{
+				std::wstring safeMessageId = EscapeJsonString(_ops[i].messageId);
+				std::wstring jsonMessage = L"{\"action\":\"addRelayGap\",\"messageId\":\"" + safeMessageId + L"\"}";
+				_ui->PostJsonMessage(jsonMessage);
+				break;
+			}
 		}
 	}
-
-	if (changed)
-		_ver++;
 }
 
 void CChatOpsCtrl::AccumulateSessionCostForFileEdit(const std::wstring& fileEditId, float price, int inputToken, int outputToken)
@@ -1939,16 +2085,6 @@ int CChatOpsCtrl::_FindLastOpIndex(ChatOp::Type tp) const
 	for (int i = _ops.size() - 1; i >= 0; i--)
 	{
 		if (_ops[i].type == tp)
-			return i;
-	}
-	return -1;
-}
-
-int CChatOpsCtrl::_FindLastRelayPointIndex() const
-{
-	for (int i = static_cast<int>(_ops.size()) - 1; i >= 0; i--)
-	{
-		if (_ops[i].type == ChatOp::Op_RelayPoint)
 			return i;
 	}
 	return -1;

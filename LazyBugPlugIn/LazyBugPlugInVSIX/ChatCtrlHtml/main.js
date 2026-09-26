@@ -323,6 +323,18 @@ function setupWebViewMessageListener() {
                 case 'setCostDisplay':
                     setCostDisplay(message.costText, message.messageId, message.cacheRateColor);
                     break;
+
+                // ====== 接力点相关 ======
+                case 'addRelayGap':
+                    ensureRelayGapAfter(message.messageId);
+                    break;
+                case 'addRelayPoint':
+                    addRelayPoint(message.messageId);
+                    break;
+                case 'removeRelayPoint':
+                    removeRelayPoint(message.messageId);
+                    break;
+                
                 
                 // ====== Symbol 链接相关 ======
                 case 'collectSymbols':
