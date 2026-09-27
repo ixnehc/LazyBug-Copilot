@@ -35,6 +35,9 @@ public:
 
 	virtual void PostJsonMessage(const std::wstring& jsonMessage)	{	}
 
+	// 播放提示音（对话结束提醒等；由实现方决定何时播放，例如仅在宿主窗口处于后台时）
+	virtual void PlayNotificationSound()	{	}
+
 	// 应用 Symbol 链接样式
 	// symbolsWithResults: vector<pair<symbol, resultsJson>>
 	// resultsJson 格式: [{"filePath":"xxx","lineNumber":123},...]

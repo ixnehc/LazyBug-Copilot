@@ -513,9 +513,9 @@ void CChatAgent::_FinishChat(bool interrupted)
 	// 结束会话
 	_opsCtrl.EndSession();
 
-	// 对话结束，播放提示音（打断结束时不播放）
-	if (!interrupted)
-		MessageBeep(MB_ICONASTERISK);
+	// 对话结束，播放提示音（打断结束时不播放；是否前台判断由 IChatUi 负责）
+	if (!interrupted && _ui)
+		_ui->PlayNotificationSound();
 
 
 	// 重置工作模式

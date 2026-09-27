@@ -1236,7 +1236,7 @@ void CSymbolDB::ProcessParseResult(const ParseResult& result)
 				{
 					CFileSymbolDefines& includingDefines = (*it).second;
 
-					if (rawInclusion.time > includingDefines._parsedTime)
+					if (rawInclusion.time != includingDefines._parsedTime)
 						_ClearParsed(includingDefines);
 				}
 			}
@@ -1255,8 +1255,8 @@ void CSymbolDB::ProcessParseResult(const ParseResult& result)
 
 		time_t fileTime = result.fileTimes.at(filePath);
 
-		// 只有当本次解析比记录的要新时，才更新
-		if (fileTime > pFileDefines->_parsedTime)
+		// 当本次解析时间戳与记录的不相等时，才更新
+		if (fileTime != pFileDefines->_parsedTime)
 		{
 			_ClearParsed(*pFileDefines);
 
@@ -1976,6 +1976,12 @@ bool CSymbolDB::_CheckAndParseNotPch(StringIndex& cursorFilePath, AbsTick budget
 			break;
 
 		CFileSymbolDefines& defines = (*cursorIt).second;
+
+// 		if (StringEqualNoCase(defines._filePathStr, "d:\\ixengine_x64\\proj_recordeditor\\proj_recordeditorview.h"))
+// 		{
+// 			int v = 0;
+// 			v++;
+// 		}
 
 		if (defines._isParsing)
 		{

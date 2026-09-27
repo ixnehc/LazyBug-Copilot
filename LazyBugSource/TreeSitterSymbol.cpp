@@ -963,8 +963,8 @@ void CSymbolDB::ProcessParseResult(const ParseResult& result)
 		
 		time_t fileTime = result.fileTimes.at(filePath);
 		
-		// 只有当本次解析比记录的要新时，才更新
-		if (fileTime > pFileDefines->_parsedTime)
+		// 当本次解析时间戳与记录的不相等时，才更新
+		if (fileTime != pFileDefines->_parsedTime)
 		{
 			_ClearParsed(*pFileDefines);
 			

@@ -96,6 +96,10 @@ public:
     // 添加Web消息处理
 	void PostJsonMessage(const std::wstring& message) override;
 
+	// 宿主窗口（顶层窗口）当前是否处于前台
+	// 播放提示音（对话结束提醒等；仅在宿主窗口处于后台时播放）
+	void PlayNotificationSound() override;
+
 	// 应用 Symbol 链接样式
 	// symbolsWithResults: vector<pair<symbol, resultsJson>>
 	// resultsJson 格式: [{"filePath":"xxx","lineNumber":123},...]

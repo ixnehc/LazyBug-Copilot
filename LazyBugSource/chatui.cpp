@@ -600,6 +600,19 @@ void CChatUi::PostJsonMessage(const std::wstring& message)
     }
 }
 
+// 播放提示音（对话结束提醒等；仅在宿主窗口处于后台时播放）
+void CChatUi::PlayNotificationSound()
+{
+	HWND hMainWnd = ::GetAncestor(GetSafeHwnd(), GA_ROOT);
+	if (!hMainWnd)
+		return;
+
+	HWND hForeWnd = ::GetForegroundWindow();
+	bool isForeground = (hMainWnd == hForeWnd) || (hForeWnd && ::IsChild(hMainWnd, hForeWnd));
+	if (!isForeground)
+		MessageBeep(MB_ICONASTERISK);
+}
+
 // 调整WebView大小
 void CChatUi::ResizeWebView()
 {
