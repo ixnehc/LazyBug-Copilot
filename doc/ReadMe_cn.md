@@ -5,7 +5,7 @@
 # LazyBug Copilot - Visual Studio AI 编程助手扩展
 
 [![Visual Studio Marketplace](https://img.shields.io/badge/VS%20Marketplace-Download-orange?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
-[![Version](https://img.shields.io/badge/version-0.26.3-blue)](patchnotes.md)
+[![Version](https://img.shields.io/badge/version-0.27-blue)](patchnotes.md)
 [![License](https://img.shields.io/badge/License-MIT-green)](../LICENSE)
 [![Visual Studio 2022](https://img.shields.io/badge/Visual%20Studio-2022-purple?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=IxSoftware.lazybug2026)
 
@@ -29,26 +29,11 @@ LazyBug Copilot 是一款专为 Visual Studio 打造的"类 Cursor"智能编程�
 
 ---
 
-## Version 0.26.3 更新说明
+## Version 0.27 更新说明
 
-- 提高了 Python 脚本执行的兼容性
-- 避免了过高频率的 log 输出
-
-## Version 0.26.2 更新说明
-
-- 添加了 AddFileToProject tool，用于将文件添加到指定项目
-- 添加了 LazyBugNextDiff/LazyBugPreviousDiff 命令，用于键盘绑定
-- Undo/Redo 时现在会检查文件是否只读
-
-## Version 0.26.1 更新说明
-
-- 现在当 CLI tool 的输出数据过多时，会保存到临时文件，以供 LLM 后续查阅
-- 添加了 Title Brief 的刷新按钮
-- 现在按 ESC 键可以退出 diff 模式
-
-## Version 0.26 更新说明
-
-- 基于 embedding 相似度搜集相关代码上下文，以提高 InputHint 的准确率
+- 与AI对话结束后播放提示音
+- 允许为修改跟踪添加中继点
+- 修复了撤销文件更改后文件符号未重新解析的问题
 
 _查看 [patchnotes.md](patchnotes.md) 获取完整版本历史。_
 

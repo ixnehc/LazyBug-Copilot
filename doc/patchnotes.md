@@ -1,31 +1,10 @@
 ﻿# LazyBug Version History
 
-## Version 0.26.3
+## Version 0.27
 
-- Improved compatibility with Python script execution
-- Avoided excessively frequent log output
-
----
-
-## Version 0.26.2
-
-- Added the `AddFileToProject` tool for adding files to a specified project
-- Added `LazyBugNextDiff`/`LazyBugPreviousDiff` commands for keyboard binding
-- Undo/Redo now checks whether the file is read-only
-
----
-
-## Version 0.26.1
-
-- When a CLI tool produces too much output, it is now saved to a temporary file for the LLM to review later
-- Added a refresh button for Title Brief
-- Now you can press ESC to quit the diff mode
-
----
-
-## Version 0.26
-
-- Collects relevant code context based on embedding similarity to improve InputHint accuracy
+- Play a prompt sound when the AI conversation ends
+- Allow adding relay points for modifying tracking
+- Fix an issue where a file's symbols were not re-parsed after undoing a file change
 
 ---
 
