@@ -22,6 +22,19 @@ struct LazyBugHookHostInfo
     void* hostReserved;                             // 宿主私有指针，Hook 不应解引用
 };
 
+// ---------------------------------------------------------------------------
+// Tool（工具）接口：Hook 可以像 MCP server 一样暴露一组工具，
+// 由宿主收集后填充给 LLM，并在 LLM 调用时回传给 Hook 执行。
+// ---------------------------------------------------------------------------
+
+// 工具定义（与 CLlmMcps::Mcp::Tool 对齐）
+struct LazyBugHookToolInfo
+{
+    const char* name;          // 工具名，UTF-8，非空
+    const char* description;   // 工具描述，UTF-8，可为空
+    const char* inputSchema;   // 参数 JSON Schema 原始字符串，UTF-8，可为空
+};
+
 // Hook 抽象基类：外部 DLL 实现，宿主通过工厂函数创建
 class ILazyBugHook
 {
@@ -36,6 +49,26 @@ public:
 
     // 周期性更新，由宿主（Controls）内部的定时器驱动
     virtual void Update() = 0;
+
+    // ---- 工具接口 ----
+
+    // 返回工具数量；无工具返回 0
+    virtual int GetToolCount() = 0;
+
+    // 获取第 index 个工具定义；返回 false 表示越界
+    // outTool 中的字符串指针在下次调用前有效，宿主应立即拷贝
+    virtual bool GetTool(int index, LazyBugHookToolInfo& outTool) = 0;
+
+    // 同步执行工具（宿主在后台工作线程调用，非 UI 线程）
+    // toolName: 即 GetTool 返回的 name
+    // argumentsJson: LLM 传入的参数 JSON 字符串，UTF-8
+    // resultBuffer/resultBufferSize: 宿主提供的输出缓冲区，Hook 写入 UTF-8 结果，
+    //                               结果必须以 '\0' 结尾
+    // 返回 false 表示执行失败
+    virtual bool CallTool(const char* toolName,
+                          const char* argumentsJson,
+                          char* resultBuffer,
+                          int resultBufferSize) = 0;
 
     // 释放实例：必须由 Hook 实现为 delete this
     virtual void Release() = 0;

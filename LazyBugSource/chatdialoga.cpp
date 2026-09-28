@@ -74,6 +74,75 @@ void UpdateLazyBugHook()
 		g_lazyBugHook->Update();
 }
 
+// ---------------------------------------------------------------------------
+// LazyBugHook 工具接入：把 Hook 暴露的工具当作一种特殊 MCP 工具
+// ---------------------------------------------------------------------------
+
+// Hook 工具名集合（每次 FillLazyBugHookToolsJson 时重建）
+static std::set<std::string> g_hookToolNames;
+
+// 将 Hook 工具填充到 requestJson["tools"]（与 MCP 工具并列）
+void FillLazyBugHookToolsJson(json& requestJson)
+{
+	g_hookToolNames.clear();
+	if (!g_lazyBugHook)
+		return;
+
+	int count = g_lazyBugHook->GetToolCount();
+	if (count <= 0)
+		return;
+
+	json tools_array = requestJson.contains("tools") && requestJson["tools"].is_array()
+		? requestJson["tools"] : json::array();
+
+	for (int i = 0; i < count; ++i)
+	{
+		LazyBugHookToolInfo info;
+		if (!g_lazyBugHook->GetTool(i, info) || !info.name || !info.name[0])
+			continue;
+
+		g_hookToolNames.insert(info.name);
+
+		json tool_def;
+		tool_def["type"] = "function";
+		json function_obj;
+		function_obj["name"] = info.name;
+		function_obj["description"] = info.description ? info.description : "";
+		if (info.inputSchema && info.inputSchema[0])
+		{
+			try { function_obj["parameters"] = json::parse(info.inputSchema); }
+			catch (const json::exception&) { function_obj["parameters"] = json::object(); }
+		}
+		else
+		{
+			function_obj["parameters"] = json::object();
+		}
+		tool_def["function"] = function_obj;
+		tools_array.push_back(tool_def);
+	}
+
+	if (!tools_array.empty())
+		requestJson["tools"] = tools_array;
+}
+
+// 尝试调用 Hook 工具
+// 返回: 1=命中且成功, -1=命中但失败, 0=未命中(不是Hook工具,调用方应继续走MCP)
+int CallLazyBugHookTool(const char* toolName, const char* argumentsJson, std::string& result)
+{
+	if (!g_lazyBugHook || !toolName)
+		return 0;
+
+	if (g_hookToolNames.count(toolName) == 0)
+		return 0;
+
+	std::string buf(256 * 1024, '\0');
+	bool ok = g_lazyBugHook->CallTool(toolName,
+		argumentsJson ? argumentsJson : "",
+		&buf[0], (int)buf.size());
+	result = buf.c_str();
+	return ok ? 1 : -1;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //CChatDialogA

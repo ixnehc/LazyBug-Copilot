@@ -17,6 +17,7 @@
 #include <fstream>
 
 extern const char* GetOpenedDBFolderPath_utf8();
+extern void FillLazyBugHookToolsJson(json& requestJson);
 
 bool IsPrompCachingEnabled()
 {
@@ -1408,6 +1409,10 @@ void CLlmSession::RequestThreadFunction(CLlmSession* session)
 	// 添加 MCP tools
 	if (request.allowMcpTools)
 		g_llmMcps.FillToolsJson(requestJson);
+
+	// 添加 Hook tools
+	if (request.allowMcpTools)
+		FillLazyBugHookToolsJson(requestJson);
 
 	// 给tools数组最后一个tool添加cache_control
 	AddToolsCacheControl(requestJson);

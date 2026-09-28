@@ -8,6 +8,8 @@
 #include "LlmMcps.h"
 #include "nlohmann/json.hpp"
 
+extern int CallLazyBugHookTool(const char* aliasName, const char* argumentsJson, std::string& result);
+
 // 递归遍历 JSON，将所有叶子节点扁平化为 path=value 对
 static void _FlattenJson(const json& j, const std::string& prefix, json& outArr)
 {
@@ -143,11 +145,16 @@ void CChatTask_Mcp::Start()
 		}
 	}
 
-	// 在线程中同步调用MCP工具
+	// 在线程中同步调用工具：先尝试 Hook 工具，未命中再走 MCP
 	_thread = std::thread([this]()
 	{
 		std::string result;
-		bool ok = g_llmMcpServers.CallTool(_toolCall.mcpName, _toolCall.raw_arguments, result, _hCancelEvent);
+		int hookRet = CallLazyBugHookTool(_toolCall.mcpName.c_str(), _toolCall.raw_arguments.c_str(), result);
+		bool ok;
+		if (hookRet == 0)
+			ok = g_llmMcpServers.CallTool(_toolCall.mcpName, _toolCall.raw_arguments, result, _hCancelEvent);
+		else
+			ok = (hookRet > 0);
 		_result = result;
 		_success.store(ok);
 		_done.store(true);
